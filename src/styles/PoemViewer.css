@@ -1,0 +1,197 @@
+.poem-viewer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    background: linear-gradient(to bottom, #1a1a1a, #000);
+    overflow: hidden;
+    padding: 20px;
+}
+
+.poem-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+    height: 80%;
+    overflow-y: auto;
+    padding: 20px;
+    text-align: center;
+    z-index: 1;
+}
+
+.poem-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.poem-text {
+    font-size: 1.2rem;
+    line-height: 2;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Styling for the poem's HTML structure */
+.poem-text .b {
+    margin-bottom: 20px;
+}
+
+.poem-text .m1,
+.poem-text .m2 {
+    margin-bottom: 10px;
+}
+
+.poem-text p {
+    margin: 0;
+}
+
+.navigation-controls {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 2;
+}
+
+.nav-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.action-buttons {
+    position: absolute;
+    left: 20px;
+    bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 2;
+}
+
+.action-button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.action-button:hover {
+    transform: scale(1.1);
+}
+
+.action-button.liked {
+    color: #ff2d55;
+}
+
+.action-button.playing {
+    color: #00c6ff;
+}
+
+.poet-info {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    z-index: 2;
+}
+
+.poet-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .poem-title {
+        font-size: 1.2rem;
+    }
+
+    .poem-text {
+        font-size: 1rem;
+    }
+
+    .nav-button,
+    .action-button {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .poem-content {
+        padding: 10px;
+    }
+
+    .poem-title {
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+
+    .poem-text {
+        font-size: 0.9rem;
+        line-height: 1.8;
+    }
+
+    .nav-button,
+    .action-button {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .navigation-controls {
+        right: 10px;
+    }
+
+    .action-buttons {
+        left: 10px;
+        bottom: 80px;
+    }
+
+    .poet-info {
+        bottom: 15px;
+        left: 15px;
+    }
+
+    .poet-name {
+        font-size: 0.9rem;
+    }
+}
