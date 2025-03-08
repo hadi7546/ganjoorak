@@ -2,36 +2,31 @@
     "name": "gtok",
     "version": "0.1.0",
     "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
     "dependencies": {
+        "axios": "^1.6.2",
+        "framer-motion": "^10.16.5",
+        "next": "^14.2.24",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "axios": "^1.6.2",
-        "styled-components": "^6.1.1",
-        "framer-motion": "^10.16.5",
         "react-icons": "^4.12.0",
-        "next": "^12.0.0"
+        "react-router-dom": "^7.3.0",
+        "styled-components": "^6.1.1"
     },
-    "scripts": {
-        "start": "next start",
-        "build": "next build",
-        "dev": "next dev"
-    },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "react-app/jest"
-        ]
-    },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
+    "devDependencies": {
+        "@types/node": "^20.11.19",
+        "@types/react": "^18.2.57",
+        "@types/react-dom": "^18.2.19",
+        "autoprefixer": "^10.4.17",
+        "eslint": "^8.56.0",
+        "eslint-config-next": "14.1.0",
+        "postcss": "^8.4.35",
+        "tailwindcss": "^3.4.1",
+        "typescript": "^5.3.3"
     }
 }

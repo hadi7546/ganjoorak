@@ -1,0 +1,77 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import PoemViewer from '@/components/PoemViewer';
+import LoadingScreen from '@/components/LoadingScreen';
+import ErrorScreen from '@/components/ErrorScreen';
+import ganjoorApi from '@/api/ganjoorApi';
+import type { Poem } from '@/types/poem';
+
+export default function PoemPage() {
+    const params = useParams();
+    const [poem, setPoem] = useState<Poem | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const loadPoem = async () => {
+            try {
+                setLoading(true);
+                const id = params?.id;
+                
+                if (!id) {
+                    throw new Error('شناسه شعر نامعتبر است');
+                }
+
+                const poemId = parseInt(id as string);
+                if (isNaN(poemId) || poemId < 1) {
+                    throw new Error('شناسه شعر نامعتبر است');
+                }
+
+                const loadedPoem = await ganjoorApi.getPoemById(poemId);
+                setPoem(loadedPoem);
+                setError(null);
+            } catch (err) {
+                console.error('Error loading poem:', err);
+                setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadPoem();
+    }, [params?.id]);
+
+    const handleNext = async () => {
+        try {
+            setLoading(true);
+            const newPoem = await ganjoorApi.getRandomPoem();
+            window.location.href = `/${newPoem.id}`;
+        } catch (err) {
+            console.error('Error loading next poem:', err);
+            setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر بعدی');
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return <LoadingScreen />;
+    }
+
+    if (error) {
+        return <ErrorScreen message={error} onRetry={handleNext} />;
+    }
+
+    return poem ? (
+        <main className="h-screen overflow-hidden">
+            <PoemViewer
+                poem={poem}
+                onNext={handleNext}
+                onPrevious={() => {}}
+                isFirst={true}
+                isLast={true}
+            />
+        </main>
+    ) : null;
+}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PoemViewer from './components/PoemViewer';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
-import ganjoorApi from './api/ganjoorApi';
+import ganjoorApi from './api/Api';
 import './styles/App.css';
 
 function App() {
