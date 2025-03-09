@@ -21,7 +21,18 @@
     }
 }
 
+@media (min-width: 1024px) {
+    :root {
+        --foreground-rgb: 0, 0, 0;
+        --background-rgb: 255, 255, 255;
+        --font-size: 1.25rem;
+        --padding: 2rem;
+    }
+}
+
 body {
     color: rgb(var(--foreground-rgb));
     background: rgb(var(--background-rgb));
+    font-size: var(--font-size, 1rem);
+    padding: var(--padding, 1rem);
 }

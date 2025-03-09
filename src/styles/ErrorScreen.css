@@ -98,3 +98,28 @@
         font-size: 0.8rem;
     }
 }
+
+/* Add styles for desktop mode */
+@media (min-width: 1024px) {
+    .error-container {
+        padding: 40px;
+        max-width: 600px;
+    }
+
+    .error-icon {
+        font-size: 4rem;
+    }
+
+    .error-container h2 {
+        font-size: 2rem;
+    }
+
+    .error-container p {
+        font-size: 1.25rem;
+    }
+
+    .retry-button {
+        padding: 14px 28px;
+        font-size: 1.25rem;
+    }
+}

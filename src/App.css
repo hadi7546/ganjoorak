@@ -55,3 +55,28 @@
     color: #666;
     text-align: center;
 }
+
+@media (min-width: 1024px) {
+    .app {
+        padding: 4rem;
+        font-size: 1.25rem;
+    }
+
+    .error-container {
+        padding: 3rem;
+        max-width: 700px;
+    }
+
+    .error-message {
+        font-size: 1.25rem;
+    }
+
+    .retry-button {
+        padding: 1rem 2rem;
+        font-size: 1.25rem;
+    }
+
+    .loading {
+        font-size: 1.5rem;
+    }
+}

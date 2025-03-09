@@ -31,3 +31,15 @@ body {
 button {
     font-family: inherit;
 }
+
+@media (min-width: 1024px) {
+    :root {
+        font-size: 1.25rem;
+        padding: 2rem;
+    }
+
+    body {
+        font-size: 1.25rem;
+        padding: 2rem;
+    }
+}
