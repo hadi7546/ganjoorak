@@ -95,7 +95,7 @@
 .poem-text {
     text-align: center;
     font-size: 1.25rem;
-    line-height: 1.75;
+    line-height: 2;
     direction: ltr;
     width: 100%;
     color: rgba(255, 255, 255, 0.9);
@@ -108,9 +108,9 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2);
     -webkit-overflow-scrolling: touch;
-    height: calc(100% - 120px);
+    height: calc(100% - 100px);
     scrollbar-gutter: stable right;
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
@@ -130,7 +130,7 @@
 .verse-line {
     flex: 1;
     text-align: center;
-    padding: 0.25rem;
+    /* padding: 0.rem; */
     position: relative;
     max-width: 400px;
     transition: color 0.2s ease, text-shadow 0.2s ease;
