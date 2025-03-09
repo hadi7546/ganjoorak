@@ -70,7 +70,7 @@
 }
 
 .poem-title {
-    font-size: 1.75rem;
+    font-size: 2rem; /* P1dba */
     font-weight: 500;
     color: rgba(255, 255, 255, 0.95);
     margin: 0;
@@ -87,7 +87,7 @@
 }
 
 .poet-name {
-    font-size: 1rem;
+    font-size: 1.2rem; /* P3700 */
     color: rgba(255, 255, 255, 0.7);
     font-weight: 400;
 }
@@ -112,6 +112,7 @@
     scrollbar-gutter: stable right;
     max-width: 900px;
     margin: 0 auto;
+    font-size: 1.2rem; /* P28ec */
 }
 
 .verse-pair {
@@ -135,6 +136,7 @@
     max-width: 400px;
     transition: color 0.2s ease, text-shadow 0.2s ease;
     font-weight: 400;
+    font-size: 1.5rem; /* P1481 */
 }
 
 .verse-line:first-child::after {
@@ -173,7 +175,7 @@
     }
 
     .poem-text {
-        font-size: 1rem;
+        font-size: 1.3rem; /* Pb93d */
         line-height: 1.75;
         padding: 1rem 0.5rem 5rem;
     }
@@ -214,6 +216,47 @@
 
     .navigation-controls {
         display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .poem-content {
+        padding: 10px;
+    }
+
+    .poem-title {
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+
+    .poem-text {
+        font-size: 1.1rem; /* Pf52a */
+        line-height: 1.8;
+    }
+
+    .nav-button,
+    .action-button {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .navigation-controls {
+        right: 10px;
+    }
+
+    .action-buttons {
+        right: 10px;
+        bottom: 80px;
+    }
+
+    .poet-info {
+        bottom: 15px;
+        left: 15px;
+    }
+
+    .poet-name {
+        font-size: 0.9rem;
     }
 }
 
@@ -514,7 +557,7 @@
     }
 
     .poem-text {
-        font-size: 1rem;
+        font-size: 1.3rem;
     }
 
     .nav-button,
@@ -536,7 +579,7 @@
     }
 
     .poem-text {
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         line-height: 1.8;
     }
 
