@@ -1,5 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap');
 
+:root {
+    --background-color: #ffffff;
+    --text-color: #000000;
+    --error-color: #d32f2f;
+    --button-bg-color: #4CAF50;
+    --button-hover-bg-color: #388E3C;
+    --loading-color: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #000000;
+        --text-color: #ffffff;
+        --error-color: #ff6b6b;
+        --button-bg-color: #4CAF50;
+        --button-hover-bg-color: #45a049;
+        --loading-color: #ffffff;
+    }
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -11,14 +31,14 @@ body {
         Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #000;
-    color: #fff;
+    background-color: var(--background-color);
+    color: var(--text-color);
     direction: rtl;
 }
 
 .app {
     min-height: 100vh;
-    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+    background: linear-gradient(135deg, var(--background-color) 0%, var(--background-color) 100%);
     position: relative;
     overflow: hidden;
     display: flex;
@@ -59,14 +79,14 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: #ff6b6b;
+    color: var(--error-color);
     padding: 2rem;
 }
 
 .error-message button {
     margin-top: 1rem;
     padding: 0.5rem 1rem;
-    background: #4CAF50;
+    background: var(--button-bg-color);
     border: none;
     border-radius: 4px;
     color: white;
@@ -75,7 +95,7 @@ body {
 }
 
 .error-message button:hover {
-    background: #45a049;
+    background: var(--button-hover-bg-color);
 }
 
 .loading {
@@ -83,7 +103,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: white;
+    color: var(--loading-color);
     font-size: 1.2rem;
 }
 

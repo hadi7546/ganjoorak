@@ -3,15 +3,21 @@
     line-height: 1.5;
     font-weight: 400;
 
-    color-scheme: dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #0a0a0a;
+    --foreground-rgb: 255, 255, 255;
+    --background-rgb: 10, 10, 10;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --foreground-rgb: 0, 0, 0;
+        --background-rgb: 255, 255, 255;
+    }
 }
 
 * {
@@ -24,6 +30,8 @@ body {
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
+    color: rgb(var(--foreground-rgb));
+    background-color: rgb(var(--background-rgb));
 }
 
 button {

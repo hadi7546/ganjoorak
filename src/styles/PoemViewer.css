@@ -1,6 +1,70 @@
 /* Add Vazirmatn font import */
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500&display=swap');
 
+:root {
+    --background-color: rgba(0, 0, 0, 0.7);
+    --background-color-end: rgba(0, 0, 0, 0.9);
+    --text-color: rgba(255, 255, 255, 0.95);
+    --text-color-secondary: rgba(255, 255, 255, 0.7);
+    --text-color-light: rgba(255, 255, 255, 0.9);
+    --text-color-light-hover: rgba(255, 255, 255, 1);
+    --text-color-light-shadow: rgba(255, 255, 255, 0.3);
+    --scrollbar-track-color: rgba(0, 0, 0, 0.2);
+    --scrollbar-thumb-color: rgba(255, 255, 255, 0.3);
+    --scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.4);
+    --title-background: rgba(0, 0, 0, 0.4);
+    --title-background-mobile: rgba(0, 0, 0, 0.6);
+    --audio-player-background: rgba(0, 0, 0, 0.85);
+    --audio-controls-background: rgba(0, 0, 0, 0.4);
+    --audio-control-button-color: rgba(255, 255, 255, 0.9);
+    --audio-control-button-hover-background: rgba(255, 255, 255, 0.1);
+    --audio-control-button-disabled-color: rgba(255, 255, 255, 0.5);
+    --audio-progress-background: rgba(255, 255, 255, 0.1);
+    --audio-progress-bar-background: #fff;
+    --audio-time-color: rgba(255, 255, 255, 0.7);
+    --ganjoor-link-background: rgba(255, 255, 255, 0.1);
+    --ganjoor-link-hover-background: rgba(255, 255, 255, 0.2);
+    --nav-button-background: rgba(255, 255, 255, 0.2);
+    --nav-button-hover-background: rgba(255, 255, 255, 0.3);
+    --action-button-background: rgba(255, 255, 255, 0.1);
+    --action-button-hover-background: rgba(255, 255, 255, 0.2);
+    --toast-background: rgba(0, 0, 0, 0.8);
+    --toast-color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: rgba(0, 0, 0, 0.7);
+        --background-color-end: rgba(0, 0, 0, 0.9);
+        --text-color: rgba(255, 255, 255, 0.95);
+        --text-color-secondary: rgba(255, 255, 255, 0.7);
+        --text-color-light: rgba(255, 255, 255, 0.9);
+        --text-color-light-hover: rgba(255, 255, 255, 1);
+        --text-color-light-shadow: rgba(255, 255, 255, 0.3);
+        --scrollbar-track-color: rgba(0, 0, 0, 0.2);
+        --scrollbar-thumb-color: rgba(255, 255, 255, 0.3);
+        --scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.4);
+        --title-background: rgba(0, 0, 0, 0.4);
+        --title-background-mobile: rgba(0, 0, 0, 0.6);
+        --audio-player-background: rgba(0, 0, 0, 0.85);
+        --audio-controls-background: rgba(0, 0, 0, 4);
+        --audio-control-button-color: rgba(255, 255, 255, 0.9);
+        --audio-control-button-hover-background: rgba(255, 255, 255, 0.1);
+        --audio-control-button-disabled-color: rgba(255, 255, 255, 0.5);
+        --audio-progress-background: rgba(255, 255, 255, 0.1);
+        --audio-progress-bar-background: #fff;
+        --audio-time-color: rgba(255, 255, 255, 0.7);
+        --ganjoor-link-background: rgba(255, 255, 255, 0.1);
+        --ganjoor-link-hover-background: rgba(255, 255, 255, 0.2);
+        --nav-button-background: rgba(255, 255, 255, 0.2);
+        --nav-button-hover-background: rgba(255, 255, 255, 0.3);
+        --action-button-background: rgba(255, 255, 255, 0.1);
+        --action-button-hover-background: rgba(255, 255, 255, 0.2);
+        --toast-background: rgba(0, 0, 0, 0.8);
+        --toast-color: white;
+    }
+}
+
 .poem-viewer {
     position: fixed;
     top: 0;
@@ -11,7 +75,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9));
+    background: linear-gradient(to bottom, var(--background-color), var(--background-color-end));
     overflow: hidden;
     z-index: 1;
     font-family: 'Vazirmatn', sans-serif;
@@ -34,17 +98,17 @@
 }
 
 .poem-content::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--scrollbar-track-color);
     border-radius: 4px;
 }
 
 .poem-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--scrollbar-thumb-color);
     border-radius: 4px;
 }
 
 .poem-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--scrollbar-thumb-hover-color);
 }
 
 .poem-header {
@@ -60,7 +124,7 @@
     text-align: center;
     padding: 2rem 1rem;
     direction: rtl;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--title-background);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     position: sticky;
@@ -72,7 +136,7 @@
 .poem-title {
     font-size: 1.75rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--text-color);
     margin: 0;
     margin-bottom: 1rem;
 }
@@ -82,13 +146,13 @@
     display: block;
     width: 80px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background: linear-gradient(90deg, transparent, var(--text-color-light-shadow), transparent);
     margin: 0.75rem auto 0;
 }
 
 .poet-name {
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color-secondary);
     font-weight: 400;
 }
 
@@ -98,7 +162,7 @@
     line-height: 2;
     direction: ltr;
     width: 100%;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-color-light);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -106,7 +170,7 @@
     font-weight: 400;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2);
+    scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
     -webkit-overflow-scrolling: touch;
     height: calc(100% - 100px);
     scrollbar-gutter: stable right;
@@ -143,13 +207,13 @@
     right: -1.5rem;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-color-light-shadow);
     font-size: 0.4rem;
 }
 
 .verse-line:hover {
-    color: rgba(255, 255, 255, 1);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    color: var(--text-color-light-hover);
+    text-shadow: 0 0 8px var(--text-color-light-shadow);
 }
 
 @media (max-width: 768px) {
@@ -159,7 +223,7 @@
 
     .title-section {
         padding: 1.5rem 1rem;
-        background: rgba(0, 0, 0, 0.6);
+        background: var(--title-background-mobile);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
     }
@@ -222,7 +286,7 @@
     align-items: center;
     padding: 0.5rem 1rem;
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--ganjoor-link-background);
     border-radius: 0.5rem;
     text-decoration: none;
     font-size: 0.875rem;
@@ -230,7 +294,7 @@
 }
 
 .ganjoor-link:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--ganjoor-link-hover-background);
     transform: translateY(-1px);
 }
 
@@ -251,7 +315,7 @@
 }
 
 .nav-button {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--nav-button-background);
     border: none;
     border-radius: 50%;
     width: 40px;
@@ -266,7 +330,7 @@
 }
 
 .nav-button:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--nav-button-hover-background);
 }
 
 .action-buttons {
@@ -287,7 +351,7 @@
     justify-content: center;
     border: none;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--action-button-background);
     color: #fff;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -295,7 +359,7 @@
 }
 
 .action-button:hover:not(:disabled) {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--action-button-hover-background);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -304,8 +368,6 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
-
-
 
 .action-button svg {
     width: 1.25rem;
@@ -356,7 +418,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: var(--audio-player-background);
     backdrop-filter: blur(10px);
     padding: 0.75rem;
     display: flex;
@@ -372,7 +434,7 @@
     align-items: center;
     justify-content: center;
     gap: 2rem;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--audio-controls-background);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     padding: 1rem;
@@ -382,7 +444,7 @@
 .audio-control-button {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--audio-control-button-color);
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 50%;
@@ -396,20 +458,20 @@
 }
 
 .audio-control-button:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--audio-control-button-hover-background);
 }
 
 .audio-control-button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--audio-control-button-disabled-color);
 }
 
 .audio-progress {
     width: 100%;
     max-width: 500px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--audio-progress-background);
     border-radius: 2px;
     cursor: pointer;
     position: relative;
@@ -418,14 +480,14 @@
 
 .audio-progress-bar {
     height: 100%;
-    background: #fff;
+    background: var(--audio-progress-bar-background);
     border-radius: 2px;
     transition: width 0.1s linear;
 }
 
 .audio-time {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--audio-time-color);
     min-width: 2.5rem;
     text-align: center;
 }
@@ -460,7 +522,7 @@
 .progress-bar {
     width: 100%;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--audio-progress-background);
     border-radius: 2px;
     cursor: pointer;
     margin: 0.5rem 0;
@@ -571,8 +633,8 @@
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
+    background-color: var(--toast-background);
+    color: var(--toast-color);
     padding: 0.75rem 1.5rem;
     border-radius: 2rem;
     font-size: 0.875rem;
