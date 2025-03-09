@@ -11,16 +11,16 @@ body {
         Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #000;
-    color: #fff;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
     direction: rtl;
     font-size: 18px; /* P6aef */
 }
 
 @media (max-width: 768px) {
     body {
-        background-color: #000;
-        color: #fff;
+        background-color: #1a1a1a;
+        color: #e0e0e0;
         font-size: 1.2rem; /* Ped9a */
     }
 }

@@ -5,8 +5,8 @@
     justify-content: center;
     min-height: 100vh;
     padding: 2rem;
-    background-color: #000;
-    color: #fff;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
 }
 
 .error-container {

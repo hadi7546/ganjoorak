@@ -11,10 +11,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9));
+    background: linear-gradient(to bottom, rgba(26, 26, 26, 0.7), rgba(26, 26, 26, 0.9));
     overflow: hidden;
     z-index: 1;
     font-family: 'Vazirmatn', sans-serif;
+    color: #e0e0e0;
 }
 
 .poem-content {
@@ -41,17 +42,17 @@
 }
 
 .poem-content::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(26, 26, 26, 0.2);
     border-radius: 4px;
 }
 
 .poem-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(224, 224, 224, 0.3);
     border-radius: 4px;
 }
 
 .poem-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(224, 224, 224, 0.4);
 }
 
 .poem-header {
@@ -67,7 +68,7 @@
     text-align: center;
     padding: 2rem 1rem;
     direction: rtl;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(26, 26, 26, 0.4);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     position: sticky;
@@ -80,7 +81,7 @@
     font-size: 2rem;
     /* P1dba */
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(224, 224, 224, 0.95);
     margin: 0;
     margin-bottom: 1rem;
 }
@@ -90,14 +91,14 @@
     display: block;
     width: 80px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background: linear-gradient(90deg, transparent, rgba(224, 224, 224, 0.3), transparent);
     margin: 0.75rem auto 0;
 }
 
 .poet-name {
     font-size: 1.2rem;
     /* P3700 */
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(224, 224, 224, 0.7);
     font-weight: 400;
 }
 
@@ -107,7 +108,7 @@
     line-height: 2;
     direction: ltr;
     width: 100%;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(224, 224, 224, 0.9);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -115,7 +116,7 @@
     font-weight: 400;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2);
+    scrollbar-color: rgba(224, 224, 224, 0.3) rgba(26, 26, 26, 0.2);
     -webkit-overflow-scrolling: touch;
     height: calc(100% - 100px);
     scrollbar-gutter: stable right;
@@ -165,13 +166,13 @@
     right: -1.5rem;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(224, 224, 224, 0.3);
     font-size: 0.4rem;
 }
 
 .verse-line:hover {
-    color: rgba(255, 255, 255, 1);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    color: rgba(224, 224, 224, 1);
+    text-shadow: 0 0 8px rgba(224, 224, 224, 0.3);
 }
 
 @media (max-width: 768px) {
@@ -181,7 +182,7 @@
 
     .title-section {
         padding: 1.5rem 1rem;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(26, 26, 26, 0.6);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
     }
@@ -287,7 +288,7 @@
     align-items: center;
     padding: 0.5rem 1rem;
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(224, 224, 224, 0.1);
     border-radius: 0.5rem;
     text-decoration: none;
     font-size: 0.875rem;
@@ -295,7 +296,7 @@
 }
 
 .ganjoor-link:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(224, 224, 224, 0.2);
     transform: translateY(-1px);
 }
 
@@ -316,7 +317,7 @@
 }
 
 .nav-button {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(224, 224, 224, 0.2);
     border: none;
     border-radius: 50%;
     width: 40px;
@@ -331,7 +332,7 @@
 }
 
 .nav-button:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(224, 224, 224, 0.3);
 }
 
 .action-buttons {
@@ -352,7 +353,7 @@
     justify-content: center;
     border: none;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(224, 224, 224, 0.1);
     color: #fff;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -360,7 +361,7 @@
 }
 
 .action-button:hover:not(:disabled) {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(224, 224, 224, 0.2);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -421,7 +422,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(26, 26, 26, 0.85);
     backdrop-filter: blur(10px);
     padding: 0.75rem;
     display: flex;
@@ -437,7 +438,7 @@
     align-items: center;
     justify-content: center;
     gap: 2rem;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(26, 26, 26, 0.4);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     padding: 1rem;
@@ -447,7 +448,7 @@
 .audio-control-button {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(224, 224, 224, 0.9);
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 50%;
@@ -461,20 +462,20 @@
 }
 
 .audio-control-button:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(224, 224, 224, 0.1);
 }
 
 .audio-control-button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(224, 224, 224, 0.5);
 }
 
 .audio-progress {
     width: 100%;
     max-width: 500px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(224, 224, 224, 0.1);
     border-radius: 2px;
     cursor: pointer;
     position: relative;
@@ -490,7 +491,7 @@
 
 .audio-time {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(224, 224, 224, 0.7);
     min-width: 2.5rem;
     text-align: center;
 }
@@ -525,7 +526,7 @@
 .progress-bar {
     width: 100%;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(224, 224, 224, 0.1);
     border-radius: 2px;
     cursor: pointer;
     margin: 0.5rem 0;
@@ -551,7 +552,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(26, 26, 26, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -638,7 +639,7 @@
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(26, 26, 26, 0.8);
     color: white;
     padding: 0.75rem 1.5rem;
     border-radius: 2rem;
