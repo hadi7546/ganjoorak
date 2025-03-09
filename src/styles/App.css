@@ -16,6 +16,13 @@ body {
     direction: rtl;
 }
 
+@media (max-width: 768px) {
+    body {
+        background-color: #000;
+        color: #fff;
+    }
+}
+
 .app {
     min-height: 100vh;
     background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
