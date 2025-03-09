@@ -366,14 +366,14 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                             disabled={!hasPreviousRecitation}
                             title="قطعه قبلی"
                         >
-                            <FaBackward />
+                            <FaBackward size={20} />
                         </button>
                         <button 
                             className="audio-control-button"
                             onClick={toggleAudio}
                             title={isPlaying ? 'توقف' : 'پخش'}
                         >
-                            {isPlaying ? <FaPause /> : <FaPlay />}
+                            {isPlaying ? <FaPause size={20} /> : <FaPlay size={20} />}
                         </button>
                         <button 
                             className="audio-control-button"
@@ -381,7 +381,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                             disabled={!hasNextRecitation}
                             title="قطعه بعدی"
                         >
-                            <FaForward />
+                            <FaForward size={20} />
                         </button>
                     </div>
 
@@ -454,7 +454,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             {/* Action buttons */}
             <div className="action-buttons">
                 <button className="action-button" onClick={sharePoem}>
-                    <FaShare />
+                    <FaShare size={20} />
                 </button>
                 <a 
                     href={`https://ganjoor.net${poem.fullUrl}`}
@@ -464,7 +464,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                     title="مشاهده در وبسایت گنجور"
                     aria-label="مشاهده در وبسایت گنجور"
                 >
-                    <FaExternalLinkAlt />
+                    <FaExternalLinkAlt size={20} />
                 </a>
             </div>
 
@@ -472,12 +472,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             <div className="navigation-controls">
                 {!isFirst && (
                     <button className="nav-button up" onClick={onPrevious}>
-                        <FaChevronUp />
+                        <FaChevronUp size={20} />
                     </button>
                 )}
                 {!isLast && (
                     <button className="nav-button down" onClick={handleNext}>
-                        <FaChevronDown />
+                        <FaChevronDown size={20} />
                     </button>
                 )}
             </div>

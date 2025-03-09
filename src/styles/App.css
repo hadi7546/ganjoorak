@@ -14,6 +14,7 @@ body {
     background-color: #000;
     color: #fff;
     direction: rtl;
+    font-size: 14px; /* P1913 */
 }
 
 .app {
@@ -46,6 +47,7 @@ body {
     transition: all 0.2s ease;
     z-index: 100;
     backdrop-filter: blur(4px);
+    font-size: 1.5rem; /* P3b1f */
 }
 
 .search-toggle-button:hover {
