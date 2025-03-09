@@ -130,11 +130,12 @@
 .verse-line {
     flex: 1;
     text-align: center;
-    /* padding: 0.rem; */
+    padding: 0.5rem; /* P8258 */
     position: relative;
     max-width: 400px;
     transition: color 0.2s ease, text-shadow 0.2s ease;
     font-weight: 400;
+    font-size: 1.5rem; /* P2f42 */
 }
 
 .verse-line:first-child::after {
@@ -165,7 +166,7 @@
     }
 
     .poem-title {
-        font-size: 1.25rem;
+        font-size: 2rem;
     }
 
     .poet-name {
@@ -173,9 +174,9 @@
     }
 
     .poem-text {
-        font-size: 1rem;
+        font-size: 1.75rem;
         line-height: 1.75;
-        padding: 1rem 0.5rem 5rem;
+        padding: 1.5rem 0.5rem 5rem;
     }
 
     .verse-pair {
@@ -509,12 +510,12 @@
 /* Media queries for responsiveness */
 @media (max-width: 768px) {
     .poem-title {
-        font-size: 1.25rem;
+        font-size: 2rem;
         margin: 0 0 1rem;
     }
 
     .poem-text {
-        font-size: 1rem;
+        font-size: 1.75rem;
     }
 
     .nav-button,

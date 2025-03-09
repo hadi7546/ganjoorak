@@ -20,6 +20,8 @@ body {
     body {
         background-color: #000;
         color: #fff;
+        font-size: 1.5rem;
+        line-height: 1.75;
     }
 }
 
