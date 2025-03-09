@@ -5,8 +5,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: 'Poem Viewer',
-    description: 'A beautiful poem viewing experience',
+    title: 'گنجورک',
+    description: 'یک تجربه مینیمال از شنیدن و خواندن شعر.',
 };
 
 export default function RootLayout({
