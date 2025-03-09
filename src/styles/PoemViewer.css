@@ -536,8 +536,9 @@
     }
 
     .poem-text {
-        font-size: 0.9rem;
+        font-size: 1.5rem;
         line-height: 1.8;
+        padding: 1rem;
     }
 
     .nav-button,
