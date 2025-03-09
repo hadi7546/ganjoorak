@@ -130,11 +130,12 @@
 .verse-line {
     flex: 1;
     text-align: center;
-    /* padding: 0.rem; */
+    padding: 0.5rem; /* P8258 */
     position: relative;
     max-width: 400px;
     transition: color 0.2s ease, text-shadow 0.2s ease;
     font-weight: 400;
+    font-size: 1.5rem; /* P2f42 */
 }
 
 .verse-line:first-child::after {
