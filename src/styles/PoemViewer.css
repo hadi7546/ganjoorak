@@ -70,7 +70,7 @@
 }
 
 .poem-title {
-    font-size: 1.75rem;
+    font-size: 2rem; /* P1dba */
     font-weight: 500;
     color: rgba(255, 255, 255, 0.95);
     margin: 0;
@@ -87,7 +87,7 @@
 }
 
 .poet-name {
-    font-size: 1rem;
+    font-size: 1.2rem; /* P3700 */
     color: rgba(255, 255, 255, 0.7);
     font-weight: 400;
 }
@@ -136,6 +136,7 @@
     max-width: 400px;
     transition: color 0.2s ease, text-shadow 0.2s ease;
     font-weight: 400;
+    font-size: 1.5rem; /* P1481 */
 }
 
 .verse-line:first-child::after {
