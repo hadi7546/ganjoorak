@@ -14,12 +14,14 @@ body {
     background-color: #000;
     color: #fff;
     direction: rtl;
+    font-size: 1.1rem; /* P648b */
 }
 
 @media (max-width: 768px) {
     body {
         background-color: #000;
         color: #fff;
+        font-size: 1.2rem; /* Ped9a */
     }
 }
 
