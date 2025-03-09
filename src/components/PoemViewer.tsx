@@ -407,6 +407,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                         }}
                         onEnded={handleEnded}
                         onError={handleAudioError}
+                        autoPlay
                     />
                 </div>
             )}
