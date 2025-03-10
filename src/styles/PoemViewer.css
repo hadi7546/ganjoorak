@@ -678,3 +678,26 @@
         padding: 0.5rem 1rem;
     }
 }
+
+@media (max-width: 768px) {
+    .poem-text {
+        font-size: 1rem;
+        line-height: 1.75;
+    }
+
+    .verse-line {
+        white-space: nowrap;
+        overflow-x: auto;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .poem-text {
+        font-size: 0.9rem;
+    }
+
+    .verse-line {
+        font-size: 0.9rem;
+    }
+}

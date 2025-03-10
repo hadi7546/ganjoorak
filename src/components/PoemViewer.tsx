@@ -39,11 +39,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
     const isScrolledToBottom = () => {
         const poemText = document.querySelector('.poem-text');
         if (!poemText) return true;
-        
-        const threshold = 20; // pixels from bottom to consider as "scrolled to bottom"
+
+        const threshold = 50; // Increased threshold for better detection
         return poemText.scrollHeight - poemText.scrollTop - poemText.clientHeight < threshold;
     };
-
     // Wrapper to handle next action with loading indicator
     const handleNext = () => {
         if (isPlaying && audioRef.current) {
@@ -75,19 +74,19 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
         const handleTouchStart = (e: Event) => {
             const touchEvent = e as TouchEvent;
             const touchStartY = touchEvent.touches[0].clientY;
-            
+
             const handleTouchMove = (e: Event) => {
                 const touchEvent = e as TouchEvent;
                 const touchCurrentY = touchEvent.touches[0].clientY;
                 const diff = touchStartY - touchCurrentY;
-                
+
                 // If poem is scrollable, let the user scroll
                 if (canScroll()) {
                     if ((diff > 0 && !isAtBottom()) || (diff < 0 && !isAtTop())) {
                         return;
                     }
                 }
-                
+
                 if (Math.abs(diff) > 50) {
                     if (diff > 0 && !isLast) {
                         handleNext();
@@ -98,12 +97,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                     document.removeEventListener('touchend', handleTouchEnd);
                 }
             };
-            
+
             const handleTouchEnd = () => {
                 document.removeEventListener('touchmove', handleTouchMove);
                 document.removeEventListener('touchend', handleTouchEnd);
             };
-            
+
             document.addEventListener('touchmove', handleTouchMove);
             document.addEventListener('touchend', handleTouchEnd);
         };
@@ -111,8 +110,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
         const handleWheel = (e: Event) => {
             const wheelEvent = e as WheelEvent;
             const poemTextRect = poemText.getBoundingClientRect();
-            const isMouseOverPoemText = 
-                wheelEvent.clientY >= poemTextRect.top && 
+            const isMouseOverPoemText =
+                wheelEvent.clientY >= poemTextRect.top &&
                 wheelEvent.clientY <= poemTextRect.bottom;
 
             if (!isMouseOverPoemText) return;
@@ -126,7 +125,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                     return;
                 }
             }
-            
+
             // Only navigate if we're at the boundaries
             if (wheelEvent.deltaY > 0 && !isLast) {
                 wheelEvent.preventDefault();
@@ -150,7 +149,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
     // Handle share action
     const sharePoem = async () => {
         const poemUrl = `https://ganjoorak.ir/${poem.id}`;
-            
+
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -360,7 +359,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             {poem.recitations && poem.recitations.length > 0 && poem.recitations[currentRecitationIndex] && (
                 <div className="audio-player">
                     <div className="audio-controls">
-                        <button 
+                        <button
                             className="audio-control-button"
                             onClick={handlePreviousRecitation}
                             disabled={!hasPreviousRecitation}
@@ -368,14 +367,14 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                         >
                             <FaBackward />
                         </button>
-                        <button 
+                        <button
                             className="audio-control-button"
                             onClick={toggleAudio}
                             title={isPlaying ? 'توقف' : 'پخش'}
                         >
                             {isPlaying ? <FaPause /> : <FaPlay />}
                         </button>
-                        <button 
+                        <button
                             className="audio-control-button"
                             onClick={handleNextRecitation}
                             disabled={!hasNextRecitation}
@@ -386,8 +385,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                     </div>
 
                     <div className="audio-progress" onClick={handleProgressClick}>
-                        <div 
-                            className="audio-progress-bar" 
+                        <div
+                            className="audio-progress-bar"
                             style={{ width: `${(currentTime / duration) * 100}%` }}
                         />
                     </div>
@@ -414,7 +413,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             {/* Poem content */}
             <div className="poem-content">
                 <div className="title-section">
-                    <motion.h2 
+                    <motion.h2
                         className="poem-title"
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -422,7 +421,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                     >
                         {poem.title}
                     </motion.h2>
-                    <motion.div 
+                    <motion.div
                         className="poet-name"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -455,7 +454,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                 <button className="action-button" onClick={sharePoem}>
                     <FaShare />
                 </button>
-                <a 
+                <a
                     href={`https://ganjoor.net${poem.fullUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
