@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import ganjoorApi from '@/api/ganjoorApi'
+import ganjoorApi from '@/api/GanjoorApi'
 
 type Props = {
     params: { id: string }
