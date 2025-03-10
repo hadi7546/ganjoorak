@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import PoemViewer from './components/PoemViewer';
-import ganjoorApi from './api/GanjoorApi';
+import ganjoorApi from './api/ganjoorApi';
 import type { Poem } from './types/poem';
 import './App.css';
 

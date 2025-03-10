@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaChevronUp, FaChevronDown, FaHeart, FaShare, FaPause, FaPlay, FaStepBackward, FaStepForward, FaExternalLinkAlt, FaBackward, FaForward } from 'react-icons/fa';
 import '../styles/PoemViewer.css';
 import type { Poem, PoemRecitation } from '@/types/poem';
-import ganjoorApi from '@/api/GanjoorApi';
 
 interface PoemViewerProps {
     poem: Poem;
