@@ -8,6 +8,9 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                vazirmatn: ['Vazirmatn', 'sans-serif'],
+            },
             animation: {
                 'fade-in': 'fadeIn 0.5s ease-in-out',
             },

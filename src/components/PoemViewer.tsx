@@ -159,11 +159,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                 });
             } catch (error) {
                 console.error('Error sharing:', error);
-                // Fallback to clipboard
-                copyToClipboard(poemUrl);
             }
         } else {
-            // Fallback to clipboard
+            // On desktop, copy to clipboard
             copyToClipboard(poemUrl);
         }
     };
@@ -452,9 +450,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
 
             {/* Action buttons */}
             <div className="action-buttons">
-                <Link href="/about" className="action-button" title="درباره گنج">
-                    <FaInfoCircle />
-                </Link>
                 <button className="action-button" onClick={sharePoem}>
                     <FaShare />
                 </button>

@@ -1,15 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
-import ganjoorApi from import ganjoorApi from '@/api/GanjoorApi';
+import ganjoorApi from '@/api/GanjoorApi';
 import type { Poem } from '@/types/poem';
 
 export default function PoemPage() {
     const params = useParams();
+    const router = useRouter();
     const [poem, setPoem] = useState<Poem | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -21,17 +22,28 @@ export default function PoemPage() {
                 const id = params?.id;
 
                 if (!id) {
-                    throw new Error('شناسه شعر نامعتبر است');
+                    const randomPoem = await ganjoorApi.getRandomPoem();
+                    router.push(`/poem/${randomPoem.id}`);
+                    return;
                 }
 
                 const poemId = parseInt(id as string);
                 if (isNaN(poemId) || poemId < 1) {
-                    throw new Error('شناسه شعر نامعتبر است');
+                    const randomPoem = await ganjoorApi.getRandomPoem();
+                    router.push(`/poem/${randomPoem.id}`);
+                    return;
                 }
 
-                const loadedPoem = await ganjoorApi.getPoemById(poemId);
-                setPoem(loadedPoem);
-                setError(null);
+                try {
+                    const loadedPoem = await ganjoorApi.getPoemById(poemId);
+                    setPoem(loadedPoem);
+                    setError(null);
+                } catch (err) {
+                    // If poem not found, redirect to a random poem
+                    const randomPoem = await ganjoorApi.getRandomPoem();
+                    router.push(`/poem/${randomPoem.id}`);
+                    return;
+                }
             } catch (err) {
                 console.error('Error loading poem:', err);
                 setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر');
@@ -41,13 +53,13 @@ export default function PoemPage() {
         };
 
         loadPoem();
-    }, [params?.id]);
+    }, [params?.id, router]);
 
     const handleNext = async () => {
         try {
             setLoading(true);
             const newPoem = await ganjoorApi.getRandomPoem();
-            window.location.href = `/${newPoem.id}`;
+            router.push(`/poem/${newPoem.id}`);
         } catch (err) {
             console.error('Error loading next poem:', err);
             setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر بعدی');
