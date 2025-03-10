@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
-import ganjoorApi from '@/api/ganjoorApi';
+import ganjoorApi from '@/api/GanjoorApi';
 import type { Poem } from '@/types/poem';
 
 export default function PoemPage() {
@@ -19,7 +19,7 @@ export default function PoemPage() {
             try {
                 setLoading(true);
                 const id = params?.id;
-                
+
                 if (!id) {
                     throw new Error('شناسه شعر نامعتبر است');
                 }
@@ -68,7 +68,7 @@ export default function PoemPage() {
             <PoemViewer
                 poem={poem}
                 onNext={handleNext}
-                onPrevious={() => {}}
+                onPrevious={() => { }}
                 isFirst={true}
                 isLast={true}
             />

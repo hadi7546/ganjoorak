@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
-import ganjoorApi from '@/api/ganjoorApi';
+import ganjoorApi from '@/api/GanjoorApi';
 import { Poem } from '@/types/poem';
 
 const INITIAL_POEMS_COUNT = 3;

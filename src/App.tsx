@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import PoemViewer from './components/PoemViewer';
-import ganjoorApi from './api/ganjoorApi';
+import NosratRahmani from './components/NosratRahmani';
+import ganjoorApi from './api/GanjoorApi';
 import type { Poem } from './types/poem';
 import './App.css';
 
@@ -62,7 +63,7 @@ function PoemPage() {
                 key={poem.id}
                 poem={poem}
                 onNext={handleNext}
-                onPrevious={() => {}}
+                onPrevious={() => { }}
                 isFirst={true}
                 isLast={true}
             />
@@ -77,8 +78,9 @@ function App() {
         <Router>
             <div className="app">
                 <Routes>
-                    <Route path="/:id" element={<PoemPage />} />
                     <Route path="/" element={<PoemPage />} />
+                    <Route path="/poem/:id" element={<PoemPage />} />
+                    <Route path="/nosrat" element={<NosratRahmani />} />
                 </Routes>
             </div>
         </Router>

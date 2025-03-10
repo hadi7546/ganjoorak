@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaChevronUp, FaChevronDown, FaHeart, FaShare, FaPause, FaPlay, FaStepBackward, FaStepForward, FaExternalLinkAlt, FaBackward, FaForward } from 'react-icons/fa';
+import { FaChevronUp, FaChevronDown, FaHeart, FaShare, FaPause, FaPlay, FaStepBackward, FaStepForward, FaExternalLinkAlt, FaBackward, FaForward, FaInfoCircle } from 'react-icons/fa';
 import '../styles/PoemViewer.css';
 import type { Poem, PoemRecitation } from '@/types/poem';
+import Link from 'next/link';
 
 interface PoemViewerProps {
     poem: Poem;
@@ -148,7 +149,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
     // Handle like action
     // Handle share action
     const sharePoem = async () => {
-        const poemUrl = `https://ganjoorak.ir/${poem.id}`;
+        const poemUrl = `https://ganjoorak.ir/poem/${poem.id}`;
 
         if (navigator.share) {
             try {
@@ -451,6 +452,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
 
             {/* Action buttons */}
             <div className="action-buttons">
+                <Link href="/about" className="action-button" title="درباره گنج">
+                    <FaInfoCircle />
+                </Link>
                 <button className="action-button" onClick={sharePoem}>
                     <FaShare />
                 </button>
