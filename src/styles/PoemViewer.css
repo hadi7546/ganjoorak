@@ -78,7 +78,6 @@
 
 .poem-title {
     font-size: 2rem;
-    /* P1dba */
     font-weight: 500;
     color: rgba(255, 255, 255, 0.95);
     margin: 0;
@@ -96,7 +95,6 @@
 
 .poet-name {
     font-size: 1.2rem;
-    /* P3700 */
     color: rgba(255, 255, 255, 0.7);
     font-weight: 400;
 }
@@ -122,16 +120,29 @@
     max-width: 1000px;
     margin: 0 auto;
     font-size: 1.2rem;
-    /* P28ec */
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
+    -ms-overflow-style: auto;
+    /* Show scrollbar in IE */
+    scrollbar-width: thin;
+    /* Show thin scrollbar in Firefox */
 }
 
 .poem-text::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari and Opera */
+    display: block;
+    width: 6px;
+}
+
+.poem-text::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.poem-text::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.poem-text::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .verse-pair {
@@ -150,13 +161,11 @@
 .verse-line {
     flex: 1;
     text-align: center;
-    /* padding: 0.rem; */
     position: relative;
     max-width: 800px;
     transition: color 0.2s ease, text-shadow 0.2s ease;
     font-weight: 400;
     font-size: 1.5rem;
-    /* P1481 */
 }
 
 .verse-line:first-child::after {
@@ -170,6 +179,46 @@
 }
 
 .verse-line:hover {
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* Style the verses from htmlText */
+.b {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    gap: 2rem;
+    position: relative;
+    width: 100%;
+    max-width: 1300px;
+    padding: 0 0.5rem;
+    direction: rtl;
+}
+
+.m1 {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    max-width: 800px;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+    font-weight: 400;
+    font-size: 1.5rem;
+}
+
+.m2 {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    max-width: 800px;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+    font-weight: 400;
+    font-size: 1.5rem;
+}
+
+.m1:hover,
+.m2:hover {
     color: rgba(255, 255, 255, 1);
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
@@ -195,8 +244,7 @@
     }
 
     .poem-text {
-        font-size: 1.3rem;
-        /* Pb93d */
+        font-size: 1rem;
         line-height: 1.75;
         padding: 1rem 0.5rem 5rem;
     }
@@ -213,6 +261,9 @@
     .verse-line {
         padding: 0.1rem;
         max-width: 100%;
+        white-space: nowrap;
+        overflow-x: auto;
+        font-size: 1.4rem;
     }
 
     .verse-line:first-child {
@@ -238,6 +289,24 @@
     .navigation-controls {
         display: none;
     }
+
+    .b {
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 1.5rem;
+        max-width: 100%;
+        padding: 0;
+        position: relative;
+    }
+
+    .m1,
+    .m2 {
+        padding: 0.1rem;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow-x: auto;
+        font-size: 1.4rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -251,9 +320,15 @@
     }
 
     .poem-text {
-        font-size: 1.1rem;
-        /* Pf52a */
+        font-size: 0.9rem;
         line-height: 1.8;
+    }
+
+    .verse-line {
+        font-size: 1.2rem;
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 
     .nav-button,
@@ -279,6 +354,11 @@
 
     .poet-name {
         font-size: 0.9rem;
+    }
+
+    .m1,
+    .m2 {
+        font-size: 1.2rem;
     }
 }
 
@@ -327,11 +407,51 @@
     color: #fff;
     font-size: 1.2rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-button:active::before {
+    transform: scale(1);
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-button:active {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.nav-button.intent::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
     background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: fillIntent 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fillIntent {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
 }
 
 .action-buttons {
@@ -369,8 +489,6 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
-
-
 
 .action-button svg {
     width: 1.25rem;
@@ -415,7 +533,6 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Audio Player */
 .audio-player {
     position: fixed;
     bottom: 0;
@@ -521,7 +638,6 @@
     }
 }
 
-/* Progress Bar */
 .progress-bar {
     width: 100%;
     height: 4px;
@@ -558,79 +674,6 @@
     color: white;
     font-size: 1.2rem;
     z-index: 1000;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.poem-content::-webkit-scrollbar {
-    display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.poem-content {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
-}
-
-/* Media queries for responsiveness */
-@media (max-width: 768px) {
-    .poem-title {
-        font-size: 1.25rem;
-        margin: 0 0 1rem;
-    }
-
-    .poem-text {
-        font-size: 1.3rem;
-    }
-
-    .nav-button,
-    .action-button {
-        width: 36px;
-        height: 36px;
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .poem-content {
-        padding: 10px;
-    }
-
-    .poem-title {
-        font-size: 1rem;
-        margin-bottom: 15px;
-    }
-
-    .poem-text {
-        font-size: 1.1rem;
-        line-height: 1.8;
-    }
-
-    .nav-button,
-    .action-button {
-        width: 32px;
-        height: 32px;
-        font-size: 0.9rem;
-    }
-
-    .navigation-controls {
-        right: 10px;
-    }
-
-    .action-buttons {
-        right: 10px;
-        bottom: 80px;
-    }
-
-    .poet-info {
-        bottom: 15px;
-        left: 15px;
-    }
-
-    .poet-name {
-        font-size: 0.9rem;
-    }
 }
 
 .toast-message {
@@ -677,9 +720,7 @@
         font-size: 0.75rem;
         padding: 0.5rem 1rem;
     }
-}
 
-@media (max-width: 768px) {
     .poem-text {
         font-size: 1rem;
         line-height: 1.75;
@@ -688,7 +729,23 @@
     .verse-line {
         white-space: nowrap;
         overflow-x: auto;
-        font-size: 1rem;
+        font-size: 1.4rem;
+    }
+
+    .action-buttons {
+        left: 1rem;
+        bottom: 4rem;
+        gap: 0.5rem;
+    }
+
+    .action-button {
+        width: 3.2rem;
+        height: 3.2rem;
+    }
+
+    .action-button svg {
+        width: 1.4rem;
+        height: 1.4rem;
     }
 }
 
@@ -698,6 +755,21 @@
     }
 
     .verse-line {
-        font-size: 0.9rem;
+        font-size: 1.2rem;
+    }
+
+    .action-buttons {
+        left: 1rem;
+        bottom: 3.5rem;
+    }
+
+    .action-button {
+        width: 2.8rem;
+        height: 2.8rem;
+    }
+
+    .action-button svg {
+        width: 1.2rem;
+        height: 1.2rem;
     }
 }
