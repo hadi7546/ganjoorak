@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
-import ganjoorApi from '@/api/GanjoorApi';
+import ganjoorApi from import ganjoorApi from '@/api/GanjoorApi';
 import type { Poem } from '@/types/poem';
 
 export default function PoemPage() {
