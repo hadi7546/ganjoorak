@@ -11,9 +11,10 @@ interface PoemViewerProps {
     onPrevious: () => void;
     isFirst: boolean;
     isLast: boolean;
+    isModern: boolean;
 }
 
-const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFirst, isLast }) => {
+const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFirst, isLast, isModern }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentRecitationIndex, setCurrentRecitationIndex] = useState(0);
@@ -430,21 +431,36 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                     </motion.div>
                 </div>
                 <div className="poem-text">
-                    {chunk(poem.plainText.split('\n').filter(line => line.trim()), 2).map((pair, index) => (
+                    {isModern ? (
                         <motion.div
-                            key={index}
-                            className="verse-pair"
+                            className="modern-poem"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: index * 0.1 }}
+                            transition={{ duration: 0.3 }}
                         >
-                            {pair.map((line, lineIndex) => (
-                                <div key={lineIndex} className="verse-line">
+                            {poem.plainText.split('\n').map((line, index) => (
+                                <div key={index} className="verse-line">
                                     {line}
                                 </div>
                             ))}
                         </motion.div>
-                    ))}
+                    ) : (
+                        chunk(poem.plainText.split('\n').filter(line => line.trim()), 2).map((pair, index) => (
+                            <motion.div
+                                key={index}
+                                className="verse-pair"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                            >
+                                {pair.map((line, lineIndex) => (
+                                    <div key={lineIndex} className="verse-line">
+                                        {line}
+                                    </div>
+                                ))}
+                            </motion.div>
+                        ))
+                    )}
                 </div>
             </div>
 

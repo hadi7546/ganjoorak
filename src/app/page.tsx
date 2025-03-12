@@ -122,6 +122,7 @@ export default function Home() {
                     onPrevious={handlePrevious}
                     isFirst={currentPoemIndex === 0}
                     isLast={currentPoemIndex === poems.length - 1}
+                    isModern={false}
                 />
             )}
         </main>
