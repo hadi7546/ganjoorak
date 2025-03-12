@@ -83,6 +83,7 @@ export default function PoemPage() {
                 onPrevious={() => { }}
                 isFirst={true}
                 isLast={true}
+                isModern={false}
             />
         </main>
     ) : null;
