@@ -4,25 +4,6 @@ import type { Poem, PoemRecitation } from '@/types/poem';
 const API_BASE_URL = 'https://api.ganjoor.net';
 
 const ganjoorApi = {
-    // Helper function to fix Persian half-spaces
-    fixPersianHalfSpaces(text: string): string {
-        if (!text) return '';
-
-        return text
-            // Common verb prefixes
-            .replace(/\b(می|نمی|همی) /g, '$1‌')
-            // Negative prefix
-            .replace(/\b(ن)(می|خواهم|خواهی|خواهد|خواهیم|خواهید|خواهند) /g, '$1‌$2')
-            // Common noun/adjective prefixes
-            .replace(/\b(بی|با|نا) /g, '$1‌')
-            // Compound words with numbers
-            .replace(/([۰-۹]) (ام|ساله|گانه|تایی)/g, '$1‌$2')
-            // Common compound makers
-            .replace(/ (تر|ترین|ها|های|هایی|هایم|هایت|هایش|هایمان|هایتان|هایشان|گر|گری|ام|ات|اش|مان|تان|شان)(?= |$)/g, '‌$1')
-            // Special cases for common compound words
-            .replace(/\b(جمع|پخش|حل|ضرب|فک) (کن|کننده|شونده|پذیر)/g, '$1‌$2');
-    },
-
     async getRandomPoem(): Promise<Poem> {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/ganjoor/poem/random`, {
@@ -94,7 +75,7 @@ const ganjoorApi = {
             mp3Url: rec.mp3Url,
             xmlText: rec.xmlText,
             // Apply half-space fixing to plainText in recitations
-            plainText: rec.plainText ? ganjoorApi.fixPersianHalfSpaces(rec.plainText) : '',
+            plainText: rec.plainText,
             htmlText: rec.htmlText,
             mistakes: rec.mistakes || [],
             audioOrder: rec.audioOrder,
@@ -110,7 +91,7 @@ const ganjoorApi = {
             urlSlug: data.urlSlug || '',
             fullUrl: data.fullUrl || '',
             // Apply half-space fixing to main poem plainText
-            plainText: data.plainText ? ganjoorApi.fixPersianHalfSpaces(data.plainText) : '',
+            plainText: data.plainText,
             htmlText: data.htmlText || '',
             recitations: recitations
         };
