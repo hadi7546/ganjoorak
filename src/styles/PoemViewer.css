@@ -1,5 +1,5 @@
 /* Add Vazirmatn font import */
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500&display=swap");
 
 .poem-viewer {
     position: fixed;
@@ -11,10 +11,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9));
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.7),
+        rgba(0, 0, 0, 0.9)
+    );
     overflow: hidden;
     z-index: 1;
-    font-family: 'Vazirmatn', sans-serif;
+    font-family: "Vazirmatn", sans-serif;
 }
 
 .poem-content {
@@ -85,11 +89,16 @@
 }
 
 .poem-title::after {
-    content: '';
+    content: "";
     display: block;
     width: 80px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
     margin: 0.75rem auto 0;
 }
 
@@ -163,19 +172,21 @@
     text-align: center;
     position: relative;
     max-width: 800px;
-    transition: color 0.2s ease, text-shadow 0.2s ease;
+    transition:
+        color 0.2s ease,
+        text-shadow 0.2s ease;
     font-weight: 400;
     font-size: 1.5rem;
 }
 
 .verse-line:first-child::after {
-    content: '•';
+    content: "•";
     position: absolute;
-    right: -1.5rem;
+    right: 1rem;
     top: 50%;
     transform: translateY(-50%);
     color: rgba(255, 255, 255, 0.3);
-    font-size: 0.4rem;
+    font-size: 1.2rem;
 }
 
 .verse-line:hover {
@@ -202,7 +213,9 @@
     text-align: center;
     position: relative;
     max-width: 800px;
-    transition: color 0.2s ease, text-shadow 0.2s ease;
+    transition:
+        color 0.2s ease,
+        text-shadow 0.2s ease;
     font-weight: 400;
     font-size: 1.5rem;
 }
@@ -212,7 +225,9 @@
     text-align: center;
     position: relative;
     max-width: 800px;
-    transition: color 0.2s ease, text-shadow 0.2s ease;
+    transition:
+        color 0.2s ease,
+        text-shadow 0.2s ease;
     font-weight: 400;
     font-size: 1.5rem;
 }
@@ -271,7 +286,7 @@
     }
 
     .verse-pair:not(:last-child)::after {
-        content: '•';
+        content: "•";
         display: block;
         position: absolute;
         right: 50%;
@@ -412,7 +427,7 @@
 }
 
 .nav-button::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border-radius: 50%;
@@ -435,7 +450,7 @@
 }
 
 .nav-button.intent::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border-radius: 50%;
