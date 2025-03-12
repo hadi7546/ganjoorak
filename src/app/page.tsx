@@ -7,8 +7,8 @@ import ErrorScreen from '@/components/ErrorScreen';
 import ganjoorApi from '@/api/GanjoorApi';
 import { Poem } from '@/types/poem';
 
-const INITIAL_POEMS_COUNT = 2;
-const PREFETCH_THRESHOLD = 1;
+const INITIAL_POEMS_COUNT = 3;
+const PREFETCH_THRESHOLD = 2;
 const BATCH_SIZE = 2;
 
 export default function Home() {
