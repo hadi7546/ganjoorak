@@ -44,6 +44,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
         const threshold = 50; // Increased threshold for better detection
         return poemText.scrollHeight - poemText.scrollTop - poemText.clientHeight < threshold;
     };
+
     // Wrapper to handle next action with loading indicator
     const handleNext = () => {
         if (isPlaying && audioRef.current) {
@@ -90,7 +91,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
 
                 if (Math.abs(diff) > 50) {
                     if (diff > 0 && !isLast) {
-                        handleNext();
+                        setToastMessage('برای شعر بعدی اسکرول کنید');
+                        setShowToast(true);
+                        setTimeout(() => {
+                            setShowToast(false);
+                            handleNext();
+                        }, 1000);
                     } else if (diff < 0 && !isFirst) {
                         onPrevious();
                     }
@@ -130,7 +136,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             // Only navigate if we're at the boundaries
             if (wheelEvent.deltaY > 0 && !isLast) {
                 wheelEvent.preventDefault();
-                handleNext();
+                setTimeout(() => {
+                    handleNext();
+                }, 1000);
             } else if (wheelEvent.deltaY < 0 && !isFirst) {
                 wheelEvent.preventDefault();
                 onPrevious();
