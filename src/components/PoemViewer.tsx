@@ -427,7 +427,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
         >
             {/* Back button - only show if backUrl is provided */}
             {backUrl && (
-                <div className="action-buttons absolute top-4 left-4">
+                <div className="title-section">
                     <button
                         onClick={() => router.push(backUrl)}
                         className="action-button"
