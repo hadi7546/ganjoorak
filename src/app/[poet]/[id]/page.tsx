@@ -5,8 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
-import ganjoorApi from '@/api/GanjoorApi';
+import customApi from '@/api/CustomApi';
 import type { Poem } from '@/types/poem';
+import { Poet, isValidPoet, poetNames } from '@/types/poets';
 
 export default function PoemPage() {
     const params = useParams();
@@ -15,6 +16,14 @@ export default function PoemPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // Get and validate poet from params
+    const poetSlug = params?.poet as string;
+    if (!isValidPoet(poetSlug)) {
+        router.push('/');
+        return null;
+    }
+    const poet = poetSlug as Poet;
+
     useEffect(() => {
         const loadPoem = async () => {
             try {
@@ -22,26 +31,29 @@ export default function PoemPage() {
                 const id = params?.id;
 
                 if (!id) {
-                    const randomPoem = await ganjoorApi.getRandomPoem();
-                    router.push(`/poem/${randomPoem.id}`);
+                    // Redirect to random poem
+                    const randomPoem = await customApi.getRandomPoem(poet);
+                    router.push(`/${poetSlug}/${randomPoem.id}`);
                     return;
                 }
 
                 const poemId = parseInt(id as string);
                 if (isNaN(poemId) || poemId < 1) {
-                    const randomPoem = await ganjoorApi.getRandomPoem();
-                    router.push(`/poem/${randomPoem.id}`);
+                    // Redirect to random poem if ID is invalid
+                    const randomPoem = await customApi.getRandomPoem(poet);
+                    router.push(`/${poetSlug}/${randomPoem.id}`);
                     return;
                 }
 
                 try {
-                    const loadedPoem = await ganjoorApi.getPoemById(poemId);
+                    // Fetch the specific poem
+                    const loadedPoem = await customApi.getPoemById(poemId, poet);
                     setPoem(loadedPoem);
                     setError(null);
                 } catch (err) {
                     // If poem not found, redirect to a random poem
-                    const randomPoem = await ganjoorApi.getRandomPoem();
-                    router.push(`/poem/${randomPoem.id}`);
+                    const randomPoem = await customApi.getRandomPoem(poet);
+                    router.push(`/${poetSlug}/${randomPoem.id}`);
                     return;
                 }
             } catch (err) {
@@ -53,13 +65,13 @@ export default function PoemPage() {
         };
 
         loadPoem();
-    }, [params?.id, router]);
+    }, [params?.id, router, poet, poetSlug]);
 
     const handleNext = async () => {
         try {
             setLoading(true);
-            const newPoem = await ganjoorApi.getRandomPoem();
-            router.push(`/poem/${newPoem.id}`);
+            const newPoem = await customApi.getRandomPoem(poet);
+            router.push(`/${poetSlug}/${newPoem.id}`);
         } catch (err) {
             console.error('Error loading next poem:', err);
             setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر بعدی');
@@ -83,8 +95,9 @@ export default function PoemPage() {
                 onPrevious={() => { }}
                 isFirst={true}
                 isLast={true}
-                isModern={false}
-                backUrl="/"
+                isModern={true}
+                poetName={poetNames[poet]}
+                backUrl={`/${poetSlug}`}
             />
         </main>
     ) : null;

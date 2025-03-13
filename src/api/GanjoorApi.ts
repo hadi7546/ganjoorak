@@ -84,16 +84,21 @@ const ganjoorApi = {
             upVotedByUser: rec.upVotedByUser
         })) || [];
 
+        const getPoetName = (fullTitle: string): string => {
+            const parts = fullTitle.split(' » ');
+            return parts[0];
+        };
+
         return {
             id: data.id,
             title: data.title || 'Unknown Title',
             fullTitle: data.fullTitle || '',
             urlSlug: data.urlSlug || '',
             fullUrl: data.fullUrl || '',
-            // Apply half-space fixing to main poem plainText
             plainText: data.plainText,
             htmlText: data.htmlText || '',
-            recitations: recitations
+            recitations: recitations,
+            poet: getPoetName(data.fullTitle)
         };
     }
 };
