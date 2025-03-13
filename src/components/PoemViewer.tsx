@@ -617,6 +617,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3 }}
                             dangerouslySetInnerHTML={{ __html: poem.htmlText }}
+                            style={{ overflowY: 'auto' }} // P9d0f
                         />
                     ) : (
                         chunk(poem.plainText.split('\n').filter(line => line.trim()), 2).map((pair, index) => (

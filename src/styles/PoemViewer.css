@@ -793,6 +793,28 @@
     padding: 0 1rem;
     text-align: center;
     color: rgba(255, 255, 255, 0.9);
+    overflow-y: auto; /* P3cd1 */
+    scrollbar-width: thin; /* P8f1a */
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2); /* P8f1a */
+}
+
+.modern-poem::-webkit-scrollbar { /* P8f1a */
+    display: block;
+    width: 6px;
+}
+
+.modern-poem::-webkit-scrollbar-track { /* P8f1a */
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.modern-poem::-webkit-scrollbar-thumb { /* P8f1a */
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.modern-poem::-webkit-scrollbar-thumb:hover { /* P8f1a */
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .modern-poem p {
