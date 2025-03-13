@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaChevronUp, FaChevronDown, FaHeart, FaShare, FaPause, FaPlay, FaStepBackward, FaStepForward, FaExternalLinkAlt, FaBackward, FaForward, FaInfoCircle, FaSpinner } from 'react-icons/fa';
+import { FaChevronUp, FaChevronDown, FaHeart, FaShare, FaPause, FaPlay, FaStepBackward, FaStepForward, FaExternalLinkAlt, FaBackward, FaForward, FaInfoCircle, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 import '../styles/PoemViewer.css';
 import type { Poem, PoemRecitation } from '@/types/poem';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Poet, poetNames } from '@/types/poets';
 
 interface PoemViewerProps {
     poem: Poem;
@@ -12,11 +14,11 @@ interface PoemViewerProps {
     isFirst: boolean;
     isLast: boolean;
     isModern: boolean;
-    poetName?: string;
+    poet?: Poet;
     backUrl?: string;
 }
 
-const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFirst, isLast, isModern, poetName, backUrl }) => {
+const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFirst, isLast, isModern, poet, backUrl }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isAudioLoading, setIsAudioLoading] = useState(false);
@@ -28,6 +30,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
     const [toastMessage, setToastMessage] = useState('');
     const audioRef = useRef<HTMLAudioElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
 
     // Define loading animation variants
     const loadingVariants = {
@@ -157,12 +160,15 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
     // Handle like action
     // Handle share action
     const sharePoem = async () => {
-        const poemUrl = `https://ganjoorak.ir/poem/${poem.id}`;
+        const baseUrl = 'https://ganjoorak.ir';
+        const pathname = window.location.pathname;
+        const poemUrl = `${baseUrl}${pathname}`;
 
         if (navigator.share) {
             try {
                 await navigator.share({
                     title: poem.title,
+                    text: `${poem.title} - ${poetNames[poet!] || poem.poet}`,
                     url: poemUrl
                 });
             } catch (error) {
@@ -419,6 +425,19 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
         >
+            {/* Back button - only show if backUrl is provided */}
+            {backUrl && (
+                <div className="action-buttons absolute top-4 left-4">
+                    <button
+                        onClick={() => router.push(backUrl)}
+                        className="action-button"
+                        aria-label="Back"
+                    >
+                        <FaArrowLeft />
+                    </button>
+                </div>
+            )}
+
             {/* Audio player */}
             {poem.recitations && poem.recitations.length > 0 && poem.recitations[currentRecitationIndex] && (
                 <div className="audio-player">
@@ -517,7 +536,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: 0.1 }}
                     >
-                        {poetName || poem.poet}
+                        {poetNames[poet!] || poem.poet}
                     </motion.div>
                 </div>
                 <div className="poem-text">

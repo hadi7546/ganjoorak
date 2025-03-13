@@ -129,7 +129,7 @@ export default function PoetPage() {
           isFirst={currentPoemIndex === 0}
           isLast={currentPoemIndex === poems.length - 1}
           isModern={true}
-          poetName={poetNames[poet]}
+          poet={poet}
           backUrl="/"
         />
       )}

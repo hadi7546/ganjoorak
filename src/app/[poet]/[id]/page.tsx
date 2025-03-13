@@ -96,7 +96,7 @@ export default function PoemPage() {
                 isFirst={true}
                 isLast={true}
                 isModern={true}
-                poetName={poetNames[poet]}
+                poet={poet}
                 backUrl={`/${poetSlug}`}
             />
         </main>

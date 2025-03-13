@@ -836,3 +836,26 @@
 .modern-poem .verse-line::after {
     display: none;
 }
+
+.action-buttons.absolute {
+    position: absolute;
+    z-index: 10;
+}
+
+.action-buttons.absolute.top-4 {
+    top: 1rem;
+}
+
+.action-buttons.absolute.left-4 {
+    left: 1rem;
+}
+
+@media (max-width: 768px) {
+    .action-buttons.absolute.top-4 {
+        top: 0.75rem;
+    }
+
+    .action-buttons.absolute.left-4 {
+        left: 0.75rem;
+    }
+}
