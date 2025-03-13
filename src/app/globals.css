@@ -1,57 +1,49 @@
-/* Import Vazirmatn font */
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
 
-/* Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles */
-@layer base {
+:root {
+    --foreground-rgb: 0, 0, 0;
+    --background-rgb: 0, 0, 0;
+}
+
+@media (max-width: 768px) {
     :root {
-        --foreground-rgb: 0, 0, 0;
+        --foreground-rgb: 255, 255, 255;
         --background-rgb: 0, 0, 0;
-    }
-
-    @media (max-width: 768px) {
-        :root {
-            --foreground-rgb: 255, 255, 255;
-            --background-rgb: 0, 0, 0;
-        }
-    }
-
-    body {
-        color: rgb(var(--foreground-rgb));
-        background: rgb(var(--background-rgb));
-        font-family: 'Vazirmatn', sans-serif;
     }
 }
 
-@layer components {
+body {
+    color: rgb(var(--foreground-rgb));
+    background: rgb(var(--background-rgb));
+    font-family: 'Vazirmatn', sans-serif;
+}
 
-    /* Modern Scrollbar Styles */
-    ::-webkit-scrollbar {
-        width: 10px;
-    }
+/* Modern Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 10px;
+}
 
-    ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 5px;
-    }
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
 
-    ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 5px;
-        transition: background 0.2s ease;
-    }
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    transition: background 0.2s ease;
+}
 
-    ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3);
-    }
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
 
-    /* Firefox */
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.1);
-    }
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.1);
 }

@@ -79,7 +79,7 @@
 }
 
 .poem-title {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.95);
     margin: 0;
@@ -173,6 +173,8 @@
         text-shadow 0.2s ease;
     font-weight: 400;
     font-size: 1.5rem;
+    white-space: normal;
+    overflow-x: hidden;
 }
 
 .verse-line:first-child::after {
@@ -247,7 +249,7 @@
     }
 
     .poem-title {
-        font-size: 1.25rem;
+        font-size: 1.75rem;
     }
 
     .poet-name {
@@ -272,8 +274,8 @@
     .verse-line {
         padding: 0.1rem;
         max-width: 100%;
-        white-space: nowrap;
-        overflow-x: auto;
+        white-space: normal;
+        overflow-x: hidden;
         font-size: 1.4rem;
     }
 
@@ -326,7 +328,7 @@
     }
 
     .poem-title {
-        font-size: 1rem;
+        font-size: 1.5rem;
         margin-bottom: 15px;
     }
 
@@ -338,8 +340,8 @@
     .verse-line {
         font-size: 1.2rem;
         max-width: 100%;
-        overflow-x: auto;
-        white-space: nowrap;
+        white-space: normal;
+        overflow-x: hidden;
     }
 
     .nav-button,
@@ -767,6 +769,9 @@
 
     .verse-line {
         font-size: 1.2rem;
+        max-width: 100%;
+        white-space: normal;
+        overflow-x: hidden;
     }
 
     .action-buttons {
@@ -826,4 +831,8 @@
         font-size: 1.4rem;
         line-height: 1.6;
     }
+}
+
+.modern-poem .verse-line::after {
+    display: none;
 }

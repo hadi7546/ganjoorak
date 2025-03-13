@@ -84,7 +84,6 @@ export default function PoemPage() {
                 isFirst={true}
                 isLast={true}
                 isModern={false}
-                backUrl="/"
             />
         </main>
     ) : null;
