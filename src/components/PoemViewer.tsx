@@ -425,19 +425,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
         >
-            {/* Back button - only show if backUrl is provided */}
-            {backUrl && (
-                <div className="action-buttons absolute top-4 left-4">
-                    <button
-                        onClick={() => router.push(backUrl)}
-                        className="action-button"
-                        aria-label="Back"
-                    >
-                        <FaArrowLeft />
-                    </button>
-                </div>
-            )}
-
             {/* Audio player */}
             {poem.recitations && poem.recitations.length > 0 && poem.recitations[currentRecitationIndex] && (
                 <div className="audio-player">
@@ -575,6 +562,15 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
 
             {/* Action buttons */}
             <div className="action-buttons">
+                {backUrl && (
+                    <button
+                        onClick={() => router.push(backUrl)}
+                        className="action-button"
+                        aria-label="Back"
+                    >
+                        <FaArrowLeft />
+                    </button>
+                )}
                 <button className="action-button" onClick={sharePoem}>
                     <FaShare />
                 </button>

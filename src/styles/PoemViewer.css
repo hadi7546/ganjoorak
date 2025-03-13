@@ -838,16 +838,16 @@
 }
 
 .action-buttons.absolute {
-    position: absolute;
+    position: relative;
     z-index: 10;
 }
 
 .action-buttons.absolute.top-4 {
-    top: 1rem;
+    top: auto;
 }
 
 .action-buttons.absolute.left-4 {
-    left: 1rem;
+    left: auto;
 }
 
 @media (max-width: 768px) {
