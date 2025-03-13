@@ -522,14 +522,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             {/* Poem content */}
             <div className="poem-content">
                 <div className="title-section">
-                    <motion.h2
-                        className="poem-title"
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        {poem.title}
-                    </motion.h2>
                     <motion.div
                         className="poet-name"
                         initial={{ opacity: 0, y: -10 }}
@@ -538,6 +530,14 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                     >
                         {poetNames[poet!] || poem.poet}
                     </motion.div>
+                    <motion.h2
+                        className="poem-title"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {poem.title}
+                    </motion.h2>
                 </div>
                 <div className="poem-text" style={{ height: 'calc(100% - 50px)', scrollbarGutter: 'auto' }}>
                     {isModern ? (
