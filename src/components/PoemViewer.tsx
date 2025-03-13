@@ -539,7 +539,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                         {poetNames[poet!] || poem.poet}
                     </motion.div>
                 </div>
-                <div className="poem-text">
+                <div className="poem-text" style={{ height: 'calc(100% - 50px)', scrollbarGutter: 'auto' }}>
                     {isModern ? (
                         <motion.div
                             className="modern-poem"
