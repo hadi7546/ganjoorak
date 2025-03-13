@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaChevronUp, FaChevronDown, FaHeart, FaShare, FaPause, FaPlay, FaStepBackward, FaStepForward, FaExternalLinkAlt, FaBackward, FaForward, FaInfoCircle } from 'react-icons/fa';
+import { FaChevronUp, FaChevronDown, FaHeart, FaShare, FaPause, FaPlay, FaStepBackward, FaStepForward, FaExternalLinkAlt, FaBackward, FaForward, FaInfoCircle, FaArrowLeft, FaSpinner } from 'react-icons/fa';
 import '../styles/PoemViewer.css';
 import type { Poem, PoemRecitation } from '@/types/poem';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface PoemViewerProps {
     poem: Poem;
@@ -12,11 +13,15 @@ interface PoemViewerProps {
     isFirst: boolean;
     isLast: boolean;
     isModern: boolean;
+    poetName?: string;
+    backUrl?: string;
 }
 
-const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFirst, isLast, isModern }) => {
+const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFirst, isLast, isModern, poetName, backUrl }) => {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isAudioLoading, setIsAudioLoading] = useState(false);
     const [currentRecitationIndex, setCurrentRecitationIndex] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -150,12 +155,15 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
     // Handle like action
     // Handle share action
     const sharePoem = async () => {
-        const poemUrl = `https://ganjoorak.ir/poem/${poem.id}`;
+        const baseUrl = 'https://ganjoorak.ir';
+        const poemPath = window.location.pathname.includes('/rahmani') ? '/rahmani' : '/poem';
+        const poemUrl = `${baseUrl}${poemPath}/${poem.id}`;
 
         if (navigator.share) {
             try {
                 await navigator.share({
                     title: poem.title,
+                    text: `${poem.title} - ${poem.poet}`,
                     url: poemUrl
                 });
             } catch (error) {
@@ -184,14 +192,27 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
 
     // Handle audio playback and navigation
     const toggleAudio = () => {
-        if (!audioRef.current) return;
+        if (!audioRef.current || isAudioLoading) return;
 
         if (isPlaying) {
             audioRef.current.pause();
+            setIsPlaying(false);
         } else {
-            audioRef.current.play();
+            setIsAudioLoading(true);
+            audioRef.current.play()
+                .then(() => {
+                    setIsPlaying(true);
+                    setError(null);
+                })
+                .catch(err => {
+                    console.error('Error playing audio:', err);
+                    setError('خطا در پخش صدا');
+                    setIsPlaying(false);
+                })
+                .finally(() => {
+                    setIsAudioLoading(false);
+                });
         }
-        setIsPlaying(!isPlaying);
     };
 
     const handleNextRecitation = () => {
@@ -203,13 +224,18 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
         }
         setCurrentRecitationIndex(currentRecitationIndex + 1);
         setCurrentTime(0);
+        setError(null);
         if (wasPlaying) {
             const playWhenReady = () => {
                 if (audioRef.current) {
                     audioRef.current.play()
-                        .then(() => setIsPlaying(true))
+                        .then(() => {
+                            setIsPlaying(true);
+                            setError(null);
+                        })
                         .catch(err => {
                             console.error('Error playing audio:', err);
+                            setError('خطا در پخش صدا');
                             setIsPlaying(false);
                         });
                 }
@@ -229,13 +255,18 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
         }
         setCurrentRecitationIndex(currentRecitationIndex - 1);
         setCurrentTime(0);
+        setError(null);
         if (wasPlaying) {
             const playWhenReady = () => {
                 if (audioRef.current) {
                     audioRef.current.play()
-                        .then(() => setIsPlaying(true))
+                        .then(() => {
+                            setIsPlaying(true);
+                            setError(null);
+                        })
                         .catch(err => {
                             console.error('Error playing audio:', err);
+                            setError('خطا در پخش صدا');
                             setIsPlaying(false);
                         });
                 }
@@ -253,7 +284,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
     };
 
     const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!audioRef.current) return;
+        if (!audioRef.current || !duration || isAudioLoading) return;
 
         const progressBar = e.currentTarget;
         const rect = progressBar.getBoundingClientRect();
@@ -262,8 +293,47 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
         const percentage = x / width;
         const newTime = percentage * duration;
 
-        audioRef.current.currentTime = newTime;
-        setCurrentTime(newTime);
+        // Set loading state while seeking
+        setIsAudioLoading(true);
+
+        // For Bayan audio (in rahmani route), we need to ensure the audio is properly loaded
+        const isBayanAudio = window.location.pathname.includes('/rahmani');
+
+        if (isBayanAudio) {
+            // For Bayan audio, we need to ensure the audio is in a seekable state
+            const trySeek = () => {
+                const audio = audioRef.current;
+                if (audio && audio.readyState >= 2) {  // HAVE_CURRENT_DATA or higher
+                    try {
+                        audio.currentTime = newTime;
+                        setCurrentTime(newTime);
+                    } catch (error) {
+                        console.error('Error seeking Bayan audio:', error);
+                        if (audio) {
+                            setCurrentTime(audio.currentTime);
+                        }
+                    }
+                    setIsAudioLoading(false);
+                } else {
+                    // If not ready, wait and try again
+                    setTimeout(trySeek, 100);
+                }
+            };
+            trySeek();
+        } else {
+            // For regular Ganjoor audio, proceed as before
+            try {
+                audioRef.current.currentTime = newTime;
+                setCurrentTime(newTime);
+            } catch (error) {
+                console.error('Error seeking audio:', error);
+                if (audioRef.current) {
+                    setCurrentTime(audioRef.current.currentTime);
+                }
+            } finally {
+                setIsAudioLoading(false);
+            }
+        }
     };
 
     const handleEnded = () => {
@@ -272,12 +342,16 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             handleNextRecitation();
             setTimeout(() => {
                 if (audioRef.current) {
-                    audioRef.current.play().then(() => {
-                        setIsPlaying(true);
-                    }).catch(error => {
-                        console.error('Error playing next audio:', error);
-                        setIsPlaying(false);
-                    });
+                    audioRef.current.play()
+                        .then(() => {
+                            setIsPlaying(true);
+                            setError(null);
+                        })
+                        .catch(error => {
+                            console.error('Error playing next audio:', error);
+                            setError('خطا در پخش صدا');
+                            setIsPlaying(false);
+                        });
                 }
             }, 500);
         }
@@ -298,17 +372,37 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
 
     // Auto-play first recitation when poem changes
     useEffect(() => {
-        setIsPlaying(false);
-        setCurrentRecitationIndex(0);
-        // Try to play the first recitation if available
-        if (poem.recitations?.length > 0 && audioRef.current) {
-            audioRef.current.play().then(() => {
-                setIsPlaying(true);
-            }).catch(error => {
-                console.error('Error auto-playing audio:', error);
-                setError('خطا در پخش خودکار صدا. لطفاً دوباره تلاش کنید.');
-                setIsPlaying(false);
-            });
+        // Only reset if there are no recitations in the new poem
+        if (!poem.recitations || poem.recitations.length === 0) {
+            setIsPlaying(false);
+            setCurrentRecitationIndex(0);
+            setCurrentTime(0);
+            setDuration(0);
+        } else {
+            // Keep the current recitation index if possible
+            const maxIndex = poem.recitations.length - 1;
+            if (currentRecitationIndex > maxIndex) {
+                setCurrentRecitationIndex(0);
+            }
+        }
+        setError(null);
+
+        // Try to play the first recitation if available and was playing before
+        if (poem.recitations?.length > 0 && audioRef.current && isPlaying) {
+            setIsAudioLoading(true);
+            audioRef.current.play()
+                .then(() => {
+                    setIsPlaying(true);
+                    setError(null);
+                })
+                .catch(error => {
+                    console.error('Error auto-playing audio:', error);
+                    setError('خطا در پخش خودکار صدا');
+                    setIsPlaying(false);
+                })
+                .finally(() => {
+                    setIsAudioLoading(false);
+                });
         }
     }, [poem.id]);
 
@@ -336,6 +430,51 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [poem.recitations, currentRecitationIndex, isPlaying]);
 
+    // Add a new effect to handle Bayan audio loading
+    useEffect(() => {
+        if (!audioRef.current) return;
+
+        const isBayanAudio = window.location.pathname.includes('/rahmani');
+
+        if (isBayanAudio) {
+            // For Bayan audio, we need to preload the entire file
+            audioRef.current.preload = 'auto';
+
+            const handleCanPlay = () => {
+                setIsAudioLoading(false);
+                // Ensure duration is set correctly for Bayan audio
+                if (audioRef.current) {
+                    setDuration(audioRef.current.duration);
+                }
+            };
+
+            const handleProgress = () => {
+                if (audioRef.current) {
+                    // Check if we have enough data buffered
+                    const buffered = audioRef.current.buffered;
+                    if (buffered.length > 0) {
+                        const bufferedEnd = buffered.end(buffered.length - 1);
+                        const duration = audioRef.current.duration;
+                        if (bufferedEnd >= duration) {
+                            // Audio is fully buffered
+                            setIsAudioLoading(false);
+                        }
+                    }
+                }
+            };
+
+            audioRef.current.addEventListener('canplay', handleCanPlay);
+            audioRef.current.addEventListener('progress', handleProgress);
+
+            return () => {
+                if (audioRef.current) {
+                    audioRef.current.removeEventListener('canplay', handleCanPlay);
+                    audioRef.current.removeEventListener('progress', handleProgress);
+                }
+            };
+        }
+    }, [poem.id]);
+
     const chunk = (arr: string[], size: number) => {
         return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, (i + 1) * size));
     };
@@ -355,6 +494,19 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
         >
+            {/* Back button - only show if backUrl is provided */}
+            {backUrl && (
+                <div className="action-buttons absolute top-4 left-4">
+                    <button
+                        onClick={() => router.push(backUrl)}
+                        className="action-button"
+                        aria-label="Back"
+                    >
+                        <FaArrowLeft />
+                    </button>
+                </div>
+            )}
+
             {/* Audio player */}
             {poem.recitations && poem.recitations.length > 0 && poem.recitations[currentRecitationIndex] && (
                 <div className="audio-player">
@@ -362,7 +514,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                         <button
                             className="audio-control-button"
                             onClick={handlePreviousRecitation}
-                            disabled={!hasPreviousRecitation}
+                            disabled={!hasPreviousRecitation || isAudioLoading}
                             title="قطعه قبلی"
                         >
                             <FaBackward />
@@ -370,14 +522,21 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                         <button
                             className="audio-control-button"
                             onClick={toggleAudio}
+                            disabled={isAudioLoading}
                             title={isPlaying ? 'توقف' : 'پخش'}
                         >
-                            {isPlaying ? <FaPause /> : <FaPlay />}
+                            {isAudioLoading ? (
+                                <FaSpinner className="animate-spin" />
+                            ) : isPlaying ? (
+                                <FaPause />
+                            ) : (
+                                <FaPlay />
+                            )}
                         </button>
                         <button
                             className="audio-control-button"
                             onClick={handleNextRecitation}
-                            disabled={!hasNextRecitation}
+                            disabled={!hasNextRecitation || isAudioLoading}
                             title="قطعه بعدی"
                         >
                             <FaForward />
@@ -398,11 +557,31 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                     <audio
                         ref={audioRef}
                         src={poem.recitations[currentRecitationIndex].mp3Url}
+                        preload={window.location.pathname.includes('/rahmani') ? 'auto' : 'metadata'}
                         onTimeUpdate={handleTimeUpdate}
                         onLoadedMetadata={() => {
                             if (audioRef.current) {
                                 setDuration(audioRef.current.duration);
+                                setIsAudioLoading(false);
                             }
+                        }}
+                        onLoadStart={() => {
+                            setIsAudioLoading(true);
+                        }}
+                        onCanPlayThrough={() => {
+                            setIsAudioLoading(false);
+                        }}
+                        onSeeking={() => {
+                            setIsAudioLoading(true);
+                        }}
+                        onSeeked={() => {
+                            setIsAudioLoading(false);
+                        }}
+                        onWaiting={() => {
+                            setIsAudioLoading(true);
+                        }}
+                        onPlaying={() => {
+                            setIsAudioLoading(false);
                         }}
                         onEnded={handleEnded}
                         onError={handleAudioError}
@@ -427,7 +606,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: 0.1 }}
                     >
-                        {getPoetName(poem.fullTitle)}
+                        {poetName || poem.poet}
                     </motion.div>
                 </div>
                 <div className="poem-text">
@@ -437,13 +616,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3 }}
-                        >
-                            {poem.plainText.split('\n').map((line, index) => (
-                                <div key={index} className="verse-line">
-                                    {line}
-                                </div>
-                            ))}
-                        </motion.div>
+                            dangerouslySetInnerHTML={{ __html: poem.htmlText }}
+                        />
                     ) : (
                         chunk(poem.plainText.split('\n').filter(line => line.trim()), 2).map((pair, index) => (
                             <motion.div
@@ -504,10 +678,5 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
     );
 };
 
-// Function to extract poet name from fullTitle
-const getPoetName = (fullTitle: string): string => {
-    const parts = fullTitle.split(' » ');
-    return parts[0];
-};
 
 export default PoemViewer;

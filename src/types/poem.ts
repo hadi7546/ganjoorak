@@ -28,6 +28,7 @@ export interface Poem {
     id: number;
     title: string;
     fullTitle: string;
+    poet: string;
     urlSlug: string;
     fullUrl: string;
     plainText: string;
@@ -47,3 +48,5 @@ export interface ErrorScreenProps {
     message: string;
     onRetry?: () => void;
 }
+
+export type Poet = 'رحمانی' | string;
