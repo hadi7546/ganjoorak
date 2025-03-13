@@ -161,8 +161,13 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
     // Handle share action
     const sharePoem = async () => {
         const baseUrl = 'https://ganjoorak.ir';
-        const pathname = window.location.pathname;
-        const poemUrl = `${baseUrl}${pathname}`;
+        let poemUrl;
+
+        if (poet) {
+            poemUrl = `${baseUrl}/${poet}/${poem.id}`;
+        } else {
+            poemUrl = `${baseUrl}/poem/${poem.id}`;
+        }
 
         if (navigator.share) {
             try {
