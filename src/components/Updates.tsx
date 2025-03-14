@@ -30,7 +30,7 @@ const Updates = () => {
 
     return (
         <div className="updates-container">
-            <h1 className="updates-title">تاریخچه بروزرسانی‌ها</h1>
+            <h1 className="updates-title">بروزرسانی‌ها</h1>
             <div className="updates-list">
                 {updates.map((update, index) => (
                     <div key={index} className="update-item">
