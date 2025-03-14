@@ -560,6 +560,7 @@
     gap: 1.5rem;
     z-index: 10;
     height: 4rem;
+    direction: ltr;
 }
 
 .audio-controls {
@@ -572,6 +573,7 @@
     -webkit-backdrop-filter: blur(10px);
     padding: 1rem;
     border-radius: 1rem;
+    direction: ltr;
 }
 
 .audio-control-button {
