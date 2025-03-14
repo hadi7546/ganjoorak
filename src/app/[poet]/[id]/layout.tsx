@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import customApi from '@/api/CustomApi'
-import { Poet, poetSlugs, isValidPoet } from '@/types/poets'
+import { Poet, poetSlugs, isValidPoet, poetNames } from '@/types/poets'
 
 type Props = {
     params: { id: string, poet: string }
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         const poem = await customApi.getPoemById(poemId, poet);
         return {
             title: "گنجورک",
-            description: poem.fullTitle + " - " + poetSlugs[poet],
+            description: poem.fullTitle + " - " + poetNames[poet],
         }
     } catch (error) {
         return {
