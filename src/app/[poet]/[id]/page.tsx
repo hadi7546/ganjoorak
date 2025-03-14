@@ -16,20 +16,20 @@ export default function PoemPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Get and validate poet from params
-    const poetSlug = params?.poet as string;
-    if (!isValidPoet(poetSlug)) {
-        router.push('/');
-        return null;
-    }
-    const poet = poetSlug as Poet;
-
     useEffect(() => {
         const loadPoem = async () => {
             try {
                 setLoading(true);
-                const id = params?.id;
 
+                // Get and validate poet from params
+                const poetSlug = params?.poet as string;
+                if (!isValidPoet(poetSlug)) {
+                    router.push('/');
+                    return;
+                }
+                const poet = poetSlug as Poet;
+
+                const id = params?.id;
                 if (!id) {
                     // Redirect to random poem
                     const randomPoem = await customApi.getRandomPoem(poet);
@@ -65,11 +65,17 @@ export default function PoemPage() {
         };
 
         loadPoem();
-    }, [params?.id, router, poet, poetSlug]);
+    }, [params?.id, params?.poet, router]);
 
     const handleNext = async () => {
         try {
             setLoading(true);
+            const poetSlug = params?.poet as string;
+            if (!isValidPoet(poetSlug)) {
+                router.push('/');
+                return;
+            }
+            const poet = poetSlug as Poet;
             const newPoem = await customApi.getRandomPoem(poet);
             router.push(`/${poetSlug}/${newPoem.id}`);
         } catch (err) {
@@ -96,8 +102,8 @@ export default function PoemPage() {
                 isFirst={true}
                 isLast={true}
                 isModern={true}
-                poet={poet}
-                backUrl={`/${poetSlug}`}
+                poet={params?.poet as Poet}
+                backUrl={`/${params?.poet}`}
             />
         </main>
     ) : null;

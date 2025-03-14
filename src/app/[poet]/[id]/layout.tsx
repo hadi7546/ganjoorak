@@ -1,22 +1,42 @@
 import { Metadata } from 'next'
-import ganjoorApi from '@/api/GanjoorApi'
+import customApi from '@/api/CustomApi'
+import { Poet, poetSlugs, isValidPoet } from '@/types/poets'
 
 type Props = {
-    params: { id: string }
+    params: { id: string, poet: string }
     children: React.ReactNode
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     try {
-        const poem = await ganjoorApi.getPoemById(parseInt(params.id))
+        // Validate the poet parameter first
+        if (!isValidPoet(params.poet)) {
+            return {
+                title: 'گنجورک',
+                description: 'یک تجربه راحت از شنیدن و خواندن شعر.',
+            }
+        }
+
+        const poet = params.poet as Poet;
+        const poemId = parseInt(params.id);
+
+        // Validate the ID
+        if (isNaN(poemId) || poemId < 1) {
+            return {
+                title: 'گنجورک',
+                description: 'یک تجربه راحت از شنیدن و خواندن شعر.',
+            }
+        }
+
+        const poem = await customApi.getPoemById(poemId, poet);
         return {
             title: "گنجورک",
-            description: poem.fullTitle, // First line of the poem as description
+            description: poem.fullTitle,
         }
     } catch (error) {
         return {
             title: 'گنجورک',
-            description: 'یک تجربه مینیمال از شنیدن و خواندن شعر.',
+            description: 'یک تجربه راحت از شنیدن و خواندن شعر.',
         }
     }
 }

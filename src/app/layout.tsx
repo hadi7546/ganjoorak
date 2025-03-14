@@ -8,7 +8,32 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'گنجورک',
-    description: 'یک تجربه مینیمال از شنیدن و خواندن شعر.',
+    description: 'یک تجربه راحت از شنیدن و خواندن شعر.',
+    icons: {
+        icon: [
+            { url: '/web/favicon.ico' },
+            { url: '/web/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { url: '/web/icon-512.png', sizes: '512x512', type: 'image/png' },
+        ],
+        apple: [
+            { url: '/web/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+        ],
+        other: [
+            {
+                rel: 'mask-icon',
+                url: '/web/icon-192-maskable.png',
+                sizes: '192x192',
+                type: 'image/png'
+            },
+            {
+                rel: 'mask-icon',
+                url: '/web/icon-512-maskable.png',
+                sizes: '512x512',
+                type: 'image/png'
+            },
+        ],
+    },
+    manifest: '/web/manifest.json',
 };
 
 export default function RootLayout({
@@ -17,7 +42,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en">
+        <html lang="en" dir="rtl">
             <body className={inter.className}>
                 {children}
                 <Analytics />

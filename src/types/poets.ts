@@ -8,6 +8,12 @@ export const poetNames: Record<Poet, string> = {
     // Add more poet names here as needed
 }
 
+export const poetSlugs: Record<string, Poet> = {
+    'rahmani': Poet.RAHMANI,
+    // Add more poet slugs here as needed
+}
+
+
 export function isValidPoet(poet: string): poet is Poet {
     return Object.values(Poet).includes(poet as Poet);
 } 

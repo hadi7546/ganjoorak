@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     } catch (error) {
         return {
             title: 'گنجورک',
-            description: 'یک تجربه مینیمال از شنیدن و خواندن شعر.',
+            description: 'یک تجربه راحت از شنیدن و خواندن شعر.',
         }
     }
 }

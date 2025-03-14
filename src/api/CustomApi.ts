@@ -10,7 +10,7 @@ const customApi = {
     try {
       // For now, we only have Rahmani's poems
       if (poet !== Poet.RAHMANI) {
-        throw new Error("شعر این شاعر در دسترس نیست");
+        throw new Error("متأسفانه در حال حاضر شعرهای این شاعر در دسترس نیست");
       }
 
       const poems = rahmaniPoems.poems;
@@ -20,7 +20,7 @@ const customApi = {
       return customApi.mapLocalPoemToPoem(randomPoem, poet);
     } catch (error) {
       console.error("Error fetching random poem from local source:", error);
-      throw new Error("خطا در دریافت شعر تصادفی");
+      throw new Error("متأسفانه در دریافت شعر تصادفی مشکلی پیش آمد. لطفاً دوباره تلاش کنید");
     }
   },
 
@@ -31,19 +31,19 @@ const customApi = {
     try {
       // Validate ID before searching
       if (isNaN(id) || id < 1) {
-        throw new Error("شناسه شعر نامعتبر است");
+        throw new Error("شناسه شعر معتبر نیست");
       }
 
       // For now, we only have Rahmani's poems
       if (poet !== Poet.RAHMANI) {
-        throw new Error("شعر این شاعر در دسترس نیست");
+        throw new Error("متأسفانه در حال حاضر شعرهای این شاعر در دسترس نیست");
       }
 
       console.log("Fetching local poem with ID:", id);
       const poem = rahmaniPoems.poems.find((poem) => poem.id === id);
 
       if (!poem) {
-        throw new Error(`شعر با شناسه ${id} پیدا نشد`);
+        throw new Error("متأسفانه شعر مورد نظر پیدا نشد");
       }
 
       return customApi.mapLocalPoemToPoem(poem, poet);
@@ -58,7 +58,7 @@ const customApi = {
    */
   mapLocalPoemToPoem(localPoem: any, poet: Poet): Poem {
     if (!localPoem || !localPoem.id) {
-      throw new Error("شعر یافت نشد");
+      throw new Error("متأسفانه شعر مورد نظر یافت نشد");
     }
 
     // For modern poems, we'll keep the HTML formatting

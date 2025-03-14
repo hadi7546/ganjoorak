@@ -30,36 +30,38 @@ export default function PoetPage() {
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   // Fetch initial poems
-  useEffect(() => {
-    const fetchInitialPoems = async () => {
-      try {
-        setLoading(true);
+  const fetchInitialPoems = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        // Fetch poems one by one
-        const fetchedPoems: Poem[] = [];
+      // Fetch poems one by one
+      const fetchedPoems: Poem[] = [];
 
-        for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
-          try {
-            const randomPoem = await customApi.getRandomPoem(poet);
-            fetchedPoems.push(randomPoem);
-          } catch (err) {
-            console.error("Error fetching poem:", err);
-          }
+      for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
+        try {
+          const randomPoem = await customApi.getRandomPoem(poet);
+          fetchedPoems.push(randomPoem);
+        } catch (err) {
+          console.error("Error fetching poem:", err);
         }
-
-        if (fetchedPoems.length > 0) {
-          setPoems(fetchedPoems);
-          setLoading(false);
-        } else {
-          throw new Error("Could not fetch any poems");
-        }
-      } catch (err) {
-        console.error("Failed to fetch initial poems:", err);
-        setError("Failed to load poems. Please try again later.");
-        setLoading(false);
       }
-    };
 
+      if (fetchedPoems.length > 0) {
+        setPoems(fetchedPoems);
+        setLoading(false);
+      } else {
+        throw new Error("Could not fetch any poems");
+      }
+    } catch (err) {
+      console.error("Failed to fetch initial poems:", err);
+      setError("متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
+      setLoading(false);
+    }
+  };
+
+  // Fetch initial poems
+  useEffect(() => {
     fetchInitialPoems();
   }, [poet]);
 
@@ -116,7 +118,7 @@ export default function PoetPage() {
   }
 
   if (error) {
-    return <ErrorScreen message={error} />;
+    return <ErrorScreen message={error} onRetry={fetchInitialPoems} />;
   }
 
   return (

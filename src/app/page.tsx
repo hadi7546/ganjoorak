@@ -19,39 +19,41 @@ export default function Home() {
     const [isFetchingMore, setIsFetchingMore] = useState(false);
 
     // Fetch initial poems
-    useEffect(() => {
-        const fetchInitialPoems = async () => {
-            try {
-                setLoading(true);
+    const fetchInitialPoems = async () => {
+        try {
+            setLoading(true);
+            setError(null);
 
-                // Fetch poems one by one
-                const fetchedPoems: Poem[] = [];
+            // Fetch poems one by one
+            const fetchedPoems: Poem[] = [];
 
-                for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
-                    try {
-                        // Get random poem first
-                        const randomPoem = await ganjoorApi.getRandomPoem();
-                        // Then fetch the complete poem data with recitations
-                        const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
-                        fetchedPoems.push(fullPoem);
-                    } catch (err) {
-                        console.error('Error fetching poem:', err);
-                    }
+            for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
+                try {
+                    // Get random poem first
+                    const randomPoem = await ganjoorApi.getRandomPoem();
+                    // Then fetch the complete poem data with recitations
+                    const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
+                    fetchedPoems.push(fullPoem);
+                } catch (err) {
+                    console.error('Error fetching poem:', err);
                 }
-
-                if (fetchedPoems.length > 0) {
-                    setPoems(fetchedPoems);
-                    setLoading(false);
-                } else {
-                    throw new Error('Could not fetch any poems');
-                }
-            } catch (err) {
-                console.error('Failed to fetch initial poems:', err);
-                setError('Failed to load poems. Please try again later.');
-                setLoading(false);
             }
-        };
 
+            if (fetchedPoems.length > 0) {
+                setPoems(fetchedPoems);
+                setLoading(false);
+            } else {
+                throw new Error('Could not fetch any poems');
+            }
+        } catch (err) {
+            console.error('Failed to fetch initial poems:', err);
+            setError('متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.');
+            setLoading(false);
+        }
+    };
+
+    // Fetch initial poems
+    useEffect(() => {
         fetchInitialPoems();
     }, []);
 
@@ -110,7 +112,7 @@ export default function Home() {
     }
 
     if (error) {
-        return <ErrorScreen message={error} />;
+        return <ErrorScreen message={error} onRetry={fetchInitialPoems} />;
     }
 
     return (

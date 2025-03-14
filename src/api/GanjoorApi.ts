@@ -17,7 +17,7 @@ const ganjoorApi = {
             return ganjoorApi.mapPoemResponse(response.data);
         } catch (error) {
             console.error('Error fetching random poem:', error);
-            throw new Error('خطا در دریافت شعر تصادفی');
+            throw new Error('متأسفانه در دریافت شعر تصادفی مشکلی پیش آمد. لطفاً دوباره تلاش کنید');
         }
     },
 
@@ -25,7 +25,7 @@ const ganjoorApi = {
         try {
             // Validate ID before making request
             if (isNaN(id) || id < 1) {
-                throw new Error('شناسه شعر نامعتبر است');
+                throw new Error('شناسه شعر معتبر نیست');
             }
 
             console.log('Fetching poem:', id);
@@ -43,9 +43,9 @@ const ganjoorApi = {
             if (axios.isAxiosError(error)) {
                 console.error('API Error:', error.response?.data);
                 if (error.response?.status === 404) {
-                    throw new Error(`شعر با شناسه ${id} پیدا نشد`);
+                    throw new Error('متأسفانه شعر مورد نظر پیدا نشد');
                 }
-                throw new Error('خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید');
+                throw new Error('متأسفانه در ارتباط با سرور مشکلی پیش آمد. لطفاً دوباره تلاش کنید');
             }
             throw error;
         }
@@ -53,7 +53,7 @@ const ganjoorApi = {
 
     mapPoemResponse(data: any): Poem {
         if (!data || !data.id) {
-            throw new Error('شعر یافت نشد');
+            throw new Error('متأسفانه شعر مورد نظر یافت نشد');
         }
 
         // Map recitations to our type if available
