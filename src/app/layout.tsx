@@ -11,29 +11,28 @@ export const metadata: Metadata = {
     description: 'یک تجربه بهتر از شنیدن و خواندن شعر.',
     icons: {
         icon: [
-            { url: '/web/favicon.ico' },
-            { url: '/web/icon-192.png', sizes: '192x192', type: 'image/png' },
-            { url: '/web/icon-512.png', sizes: '512x512', type: 'image/png' },
+            { url: 'favicon.ico' },
+            { url: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+            { url: 'icon-512.png', sizes: '512x512', type: 'image/png' },
         ],
         apple: [
-            { url: '/web/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+            { url: 'apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
         ],
         other: [
             {
                 rel: 'mask-icon',
-                url: '/web/icon-192-maskable.png',
+                url: 'icon-192-maskable.png',
                 sizes: '192x192',
                 type: 'image/png'
             },
             {
                 rel: 'mask-icon',
-                url: '/web/icon-512-maskable.png',
+                url: 'icon-512-maskable.png',
                 sizes: '512x512',
                 type: 'image/png'
             },
         ],
     },
-    manifest: '/web/manifest.json',
 };
 
 export default function RootLayout({
