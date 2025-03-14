@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         if (!isValidPoet(params.poet)) {
             return {
                 title: 'گنجورک',
-                description: 'یک تجربه بهتر از شنیدن و خواندن شعر.',
+                description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی.',
             }
         }
 
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         if (isNaN(poemId) || poemId < 1) {
             return {
                 title: 'گنجورک',
-                description: 'یک تجربه بهتر از شنیدن و خواندن شعر.',
+                description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی.',
             }
         }
 
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     } catch (error) {
         return {
             title: 'گنجورک',
-            description: 'یک تجربه بهتر از شنیدن و خواندن شعر.',
+            description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی.',
         }
     }
 }

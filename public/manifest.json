@@ -1,7 +1,7 @@
 {
     "name": "گنجورک",
     "short_name": "گنجورک",
-    "description": "یک تجربه بهتر از شنیدن و خواندن شعر.",
+    "description": "یک تجربه بهتر از شنیدن و خواندن شعر فارسی.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",

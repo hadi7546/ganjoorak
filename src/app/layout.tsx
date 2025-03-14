@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'گنجورک',
-    description: 'یک تجربه بهتر از شنیدن و خواندن شعر.',
+    description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی.',
 
     openGraph: {
         // little image for open graph
