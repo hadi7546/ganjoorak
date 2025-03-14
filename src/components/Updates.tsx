@@ -8,7 +8,7 @@ const Updates = () => {
     const updates = [
         {
             version: '1.1.0',
-            date: '۲۸ اسفند ۱۴۰۳',
+            date: '۲۵ اسفند ۱۴۰۳',
             changes: [
                 <>اضافه شدن <Link href="/faq" className="link">صفحه پرسش‌های متداول</Link></>,
                 <>اضافه شدن <Link href="/updates" className="link">صفحه بروزرسانی‌ها</Link></>,
@@ -18,7 +18,7 @@ const Updates = () => {
         },
         {
             version: '1.0.0',
-            date: '۲۵ اسفند ۱۴۰۳',
+            date: '۲۰ اسفند ۱۴۰۳',
             changes: [
                 'انتشار نسخه اولیه گنجورک',
                 'امکان مشاهده اشعار به صورت تصادفی',
