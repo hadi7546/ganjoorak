@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
         const response = await fetch(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
+            },
+            cache: 'no-store' // Prevent caching at fetch level
         });
 
         if (!response.ok) {
@@ -44,6 +45,9 @@ export async function GET(request: NextRequest) {
                 'Accept-Ranges': 'bytes',
                 'Content-Length': chunkSize.toString(),
                 'Content-Type': 'audio/mpeg',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
             };
 
             return new NextResponse(chunk, {
@@ -52,12 +56,15 @@ export async function GET(request: NextRequest) {
             });
         }
 
-        // Return full file if no range is requested
+        // If no range was requested, return the entire file
         return new NextResponse(audioBuffer, {
+            status: 200,
             headers: {
                 'Content-Type': 'audio/mpeg',
                 'Content-Length': fileSize.toString(),
-                'Accept-Ranges': 'bytes',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
             },
         });
     } catch (error) {
