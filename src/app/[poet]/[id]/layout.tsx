@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         const poem = await customApi.getPoemById(poemId, poet);
         return {
             title: "گنجورک",
-            description: poem.fullTitle,
+            description: poem.fullTitle + " - " + poetSlugs[poet],
         }
     } catch (error) {
         return {
