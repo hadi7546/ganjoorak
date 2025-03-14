@@ -6,6 +6,7 @@ import PoemViewer from './components/PoemViewer';
 import ganjoorApi from './api/GanjoorApi';
 import type { Poem } from './types/poem';
 import './App.css';
+import FAQ from './components/FAQ';
 
 function PoemPage() {
     const { id } = useParams();
