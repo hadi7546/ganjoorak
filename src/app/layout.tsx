@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'گنجورک',
-    description: 'یک تجربه راحت از شنیدن و خواندن شعر.',
+    description: 'یک تجربه بهتر از شنیدن و خواندن شعر.',
     icons: {
         icon: [
             { url: '/web/favicon.ico' },
