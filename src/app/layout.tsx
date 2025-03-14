@@ -9,7 +9,15 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
     title: 'گنجورک',
     description: 'یک تجربه بهتر از شنیدن و خواندن شعر.',
+    openGraph: {
+        images: [
+            {
+                url: 'favicon.ico',
+            },
+        ],
+    },
     icons: {
+
         icon: [
             { url: 'favicon.ico' },
             { url: 'icon-192.png', sizes: '192x192', type: 'image/png' },
