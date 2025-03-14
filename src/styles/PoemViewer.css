@@ -174,7 +174,8 @@
     font-weight: 400;
     font-size: 1.5rem;
     white-space: normal;
-    overflow-x: hidden;
+    overflow: visible;
+    word-wrap: break-word;
 }
 
 .verse-line:first-child::after {
@@ -272,11 +273,11 @@
     }
 
     .verse-line {
-        padding: 0.1rem;
-        max-width: 100%;
         white-space: normal;
-        overflow-x: hidden;
+        overflow: visible;
+        word-wrap: break-word;
         font-size: 1.4rem;
+        padding: 0 0.5rem;
     }
 
     .verse-line:first-child {
@@ -316,8 +317,9 @@
     .m2 {
         padding: 0.1rem;
         max-width: 100%;
-        white-space: nowrap;
-        overflow-x: auto;
+        white-space: normal;
+        overflow: visible;
+        word-wrap: break-word;
         font-size: 1.4rem;
     }
 }
@@ -341,7 +343,8 @@
         font-size: 1.2rem;
         max-width: 100%;
         white-space: normal;
-        overflow-x: hidden;
+        overflow: visible;
+        word-wrap: break-word;
     }
 
     .nav-button,
@@ -422,6 +425,9 @@
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .nav-button::before {
@@ -440,11 +446,12 @@
 }
 
 .nav-button:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .nav-button:active {
-    background: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .nav-button.intent::before {
@@ -510,11 +517,19 @@
 
 @media (max-width: 768px) {
     .navigation-controls {
-        display: none;
+        right: 12px;
+        gap: 12px;
+    }
+
+    .nav-button {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
     }
 
     .action-buttons {
-        left: 1rem;
+        left: 1rem !important;
+        right: auto;
         bottom: 3rem;
         gap: 0.35rem;
     }
@@ -527,6 +542,24 @@
     .action-button svg {
         width: 1rem;
         height: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navigation-controls {
+        right: 8px;
+        gap: 10px;
+    }
+
+    .nav-button {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .action-buttons {
+        left: 1rem !important;
+        right: auto;
     }
 }
 
@@ -773,7 +806,8 @@
         font-size: 1.2rem;
         max-width: 100%;
         white-space: normal;
-        overflow-x: hidden;
+        overflow: visible;
+        word-wrap: break-word;
     }
 
     .action-buttons {
