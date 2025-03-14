@@ -11,11 +11,14 @@ export const metadata: Metadata = {
     description: 'یک تجربه بهتر از شنیدن و خواندن شعر.',
 
     openGraph: {
+        // little image for open graph
 
         images: [
             {
-                url: '/icon-512.png',
+                url: 'icon-192-maskable.png',
+
             },
+
         ],
     },
     icons: {
