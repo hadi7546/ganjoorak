@@ -6,7 +6,7 @@ import { Metadata } from 'next';
 const vazirmatn = Vazirmatn({ subsets: ['arabic'] });
 
 export const metadata: Metadata = {
-    title: 'بروزرسانی‌ها',
+    description: 'بروزرسانی‌ها',
 };
 
 export default function FAQLayout({
