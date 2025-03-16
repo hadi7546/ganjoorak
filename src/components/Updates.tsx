@@ -7,7 +7,15 @@ import '../styles/Updates.css';
 const Updates = () => {
     const updates = [
         {
-            version: '1.1.0',
+            version: '1.0.2',
+            date: '۲۷ اسفند ۱۴۰۳',
+            changes: [
+                <>اضافه شدن <Link href="/poets" className="link">صفحه شاعران</Link></>,
+                'با اضافه شدن صفحه جدید برای هر شاعر با کلیک در صفحه اصلی یا صفحه شاعران',
+            ]
+        },
+        {
+            version: '1.0.1',
             date: '۲۵ اسفند ۱۴۰۳',
             changes: [
                 <>اضافه شدن <Link href="/faq" className="link">صفحه پرسش‌های متداول</Link></>,
