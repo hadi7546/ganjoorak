@@ -36,17 +36,20 @@ export interface Century {
 // Predefined poets enum
 export enum PoetSlug {
     RAHMANI = 'rahmani',
+    FARROKHZAD = 'farrokhzad',
 }
 
 // Mapping of poet slugs to their display names
 export const poetNames: Record<PoetSlug, string> = {
     [PoetSlug.RAHMANI]: 'نصرت رحمانی',
+    [PoetSlug.FARROKHZAD]: 'فروغ فرخزاد',
     // Add more poet names here as needed
 }
 
 // Reverse mapping from string slugs to enum values
 export const poetSlugs: Record<string, PoetSlug> = {
     'rahmani': PoetSlug.RAHMANI,
+    'farrokhzad': PoetSlug.FARROKHZAD,
     // Add more poet slugs here as needed
 }
 

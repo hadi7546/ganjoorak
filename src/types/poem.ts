@@ -31,6 +31,7 @@ export interface Poem {
     poet: string;
     poetNickname: string;
     poetSlug: string;
+    poetImageUrl: string;
     urlSlug: string;
     fullUrl: string;
     plainText: string;

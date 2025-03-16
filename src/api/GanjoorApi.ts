@@ -233,6 +233,8 @@ const ganjoorApi = {
             .replace(/<\/p>/g, '\n')
             .trim() || '';
 
+        const imgUrl = `${API_BASE_URL}/api/ganjoor/poet/image/${helpers.getPoetSlug(data.fullUrl)}.gif`;
+
         return {
             id: data.id,
             title: data.title || 'Unknown Title',
@@ -244,7 +246,8 @@ const ganjoorApi = {
             recitations: recitations,
             poet: helpers.getPoetName(data.fullTitle),
             poetSlug: helpers.getPoetSlug(data.fullUrl),
-            poetNickname: helpers.getPoetName(data.fullUrl)
+            poetNickname: helpers.getPoetName(data.fullUrl),
+            poetImageUrl: imgUrl
         };
     }
 

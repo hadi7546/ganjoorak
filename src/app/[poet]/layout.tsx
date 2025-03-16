@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import customApi from "@/api/CustomApi";
 import ganjoorApi from "@/api/GanjoorApi";
-import { PoetSlug, isValidPoetSlug } from "@/types/poet";
+import { PoetSlug, isValidPoetSlug, poetNames } from "@/types/poet";
 
 type Props = {
   params: { poet: string };
@@ -14,8 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   try {
     if (isValidPoetSlug(poetSlug)) {
-      const poetData = await customApi.getPoetInfo(poetSlug as PoetSlug);
-      poetName = poetData.name;
+      poetName = poetNames[poetSlug];
     } else {
       const poetData = await ganjoorApi.getPoetBySlug(poetSlug);
       poetName = poetData.nickname || poetData.name;

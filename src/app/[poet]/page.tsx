@@ -167,6 +167,7 @@ export default function PoetPage() {
           isModern={!isGanjoor}
           poetSlug={poetSlug as PoetSlug}
           backUrl="/"
+          isPoetPage={true}
         />
       </div>
     </div>

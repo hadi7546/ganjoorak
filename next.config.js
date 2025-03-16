@@ -11,7 +11,13 @@ const nextConfig = {
                 hostname: 'api.ganjoor.net',
                 pathname: '/api/ganjoor/poet/image/**',
             },
+            {
+                protocol: 'https',
+                hostname: '7elmsr3m4bc7q4th.public.blob.vercel-storage.com',
+                pathname: '/poets/**',
+            },
         ],
+
     },
 };
 

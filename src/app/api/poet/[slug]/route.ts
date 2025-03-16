@@ -23,51 +23,39 @@ export async function GET(
 
         // Try to fetch from blob storage
         try {
-            // find the poet from poems folder
             console.log("Listing blobs from storage...");
             const { blobs } = await list({
-                token: "vercel_blob_rw_7ElMsR3m4BC7Q4TH_4ia90f98dNlptL059V4PYRHuCdlMU9",
+                prefix: `poems/${poetSlug}`, // Only look in the poems directory with the specific poet slug
             });
 
-            console.log(`Found ${blobs.length} blobs in storage`);
-
-            // Log the first few blobs to see what's available
-            blobs.slice(0, 5).forEach(blob => {
-                console.log(`Blob: ${blob.pathname}, URL: ${blob.url}`);
-            });
-
-            // Look specifically for files in the /poems/ directory with .json extension
-            const poetBlob = blobs.find(blob =>
-                blob.pathname.includes(`/poems/${poetSlug}.json`) ||
-                blob.pathname.includes(`poems/${poetSlug}.json`)
-            );
-
-            if (poetBlob) {
-                console.log(`Found poet blob: ${poetBlob.pathname}`);
-                // Get the blob content
-                const response = await fetch(poetBlob.url);
-
-                if (!response.ok) {
-                    console.error(`Error fetching blob content: ${response.status} ${response.statusText}`);
-                    return NextResponse.json(
-                        { error: `Error fetching blob content: ${response.statusText}` },
-                        { status: response.status, headers: corsHeaders }
-                    );
-                }
-
-                const data = await response.json();
-                console.log("Successfully fetched and parsed poet data");
-
-                // Return the data with CORS headers
-                return NextResponse.json(data, { headers: corsHeaders });
+            if (blobs.length === 0) {
+                console.log(`No blob found for poet slug: ${poetSlug}`);
+                return NextResponse.json(
+                    { error: `Poet data not found for ${poetSlug}` },
+                    { status: 404, headers: corsHeaders }
+                );
             }
 
-            console.log(`No blob found for poet slug: ${poetSlug}`);
-            // If no blob found, return a 404
-            return NextResponse.json(
-                { error: `Poet data not found for ${poetSlug}` },
-                { status: 404, headers: corsHeaders }
-            );
+            // Get the first matching blob (should only be one)
+            const poetBlob = blobs[0];
+            console.log(`Found poet blob: ${poetBlob.pathname}`);
+
+            // Get the blob content
+            const response = await fetch(poetBlob.url);
+
+            if (!response.ok) {
+                console.error(`Error fetching blob content: ${response.status} ${response.statusText}`);
+                return NextResponse.json(
+                    { error: `Error fetching blob content: ${response.statusText}` },
+                    { status: response.status, headers: corsHeaders }
+                );
+            }
+
+            const data = await response.json();
+            console.log("Successfully fetched and parsed poet data");
+
+            // Return the data with CORS headers
+            return NextResponse.json(data, { headers: corsHeaders });
         } catch (blobError: any) {
             console.error("Error fetching from blob storage:", blobError);
             return NextResponse.json(

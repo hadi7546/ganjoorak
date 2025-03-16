@@ -1,7 +1,6 @@
 import type { Poem, PoemRecitation } from "@/types/poem";
 import { PoetSlug, poetNames, createPoet, Poet } from "@/types/poet";
-import { list, } from "@vercel/blob";
-import rahmaniPoems from "../../poems/rahmani.json";
+import { list } from "@vercel/blob";
 
 // Cache for poets' poems
 let poetPoemsCache: Record<string, any> = {};
@@ -54,6 +53,12 @@ const customApi = {
     }
   },
 
+  async _getPoetImageUrl(poetSlug: PoetSlug): Promise<string> {
+    const poetData = await customApi._getPoetData(poetSlug);
+    return poetData.imageUrl;
+  },
+
+
   /**
    * Get a random poem from the local collection
    */
@@ -66,7 +71,7 @@ const customApi = {
       const randomIndex = Math.floor(Math.random() * poems.length);
       const randomPoem = poems[randomIndex];
 
-      return customApi.mapLocalPoemToPoem(randomPoem, poetSlug);
+      return await customApi.mapLocalPoemToPoem(randomPoem, poetSlug);
     } catch (error) {
       console.error("Error fetching random poem from local source:", error);
       throw new Error("متأسفانه در دریافت شعر تصادفی مشکلی پیش آمد. لطفاً دوباره تلاش کنید");
@@ -93,7 +98,7 @@ const customApi = {
         throw new Error("متأسفانه شعر مورد نظر پیدا نشد");
       }
 
-      return customApi.mapLocalPoemToPoem(poem, poetSlug);
+      return await customApi.mapLocalPoemToPoem(poem, poetSlug);
     } catch (error) {
       console.error("Error fetching poem by ID from local source:", error);
       throw error;
@@ -110,7 +115,7 @@ const customApi = {
 
       // Create a complete Poet object
       return createPoet({
-        id: 0, // We don't have IDs for local poets
+        id: 0,
         name: poetData.poet,
         nickname: null,
         fullUrl: "",
@@ -140,14 +145,14 @@ const customApi = {
   /**
    * Map the local poem format to the Poem type used in the app
    */
-  mapLocalPoemToPoem(localPoem: any, poetSlug: PoetSlug): Poem {
+  async mapLocalPoemToPoem(localPoem: any, poetSlug: PoetSlug): Promise<Poem> {
     if (!localPoem || !localPoem.id) {
       throw new Error("متأسفانه شعر مورد نظر یافت نشد");
     }
 
     // For modern poems, we'll keep the HTML formatting
-    const plainText = localPoem.htmlPoem;
-    const htmlText = localPoem.htmlPoem;
+    const plainText = localPoem.text;
+    const htmlText = localPoem.text;
 
     // Validate recitation URL if present
     let recitationUrl = "";
@@ -206,6 +211,7 @@ const customApi = {
       poet: poetNames[poetSlug],
       poetSlug: poetSlug,
       poetNickname: "",
+      poetImageUrl: await customApi._getPoetImageUrl(poetSlug),
     };
   },
 };

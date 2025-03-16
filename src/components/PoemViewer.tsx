@@ -18,6 +18,7 @@ interface PoemViewerProps {
     poetSlug?: PoetSlug;
     backUrl?: string;
     showNext?: boolean;
+    isPoetPage?: boolean;
 }
 
 const PoemViewer: React.FC<PoemViewerProps> = ({
@@ -29,7 +30,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     isModern = true,
     poetSlug,
     backUrl,
-    showNext = false
+    showNext = false,
+    isPoetPage = false
 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -541,14 +543,16 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                     >
                         {poem.title}
                     </motion.h2>
-                    <motion.div
-                        className="poet-name"
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: 0.1 }}
-                    >
-                        {poem.poet}
-                    </motion.div>
+                    {!isPoetPage && (
+                        <motion.div
+                            className="poet-name"
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.1 }}
+                        >
+                            {poem.poet}
+                        </motion.div>
+                    )}
                 </div>
                 <div className="poem-text">
                     {isModern ? (
@@ -625,7 +629,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                 >
                     <div className="poet-image-container">
                         <PoetImage
-                            poetSlug={poem.poetSlug || poetSlug || ''}
+                            imgUrl={poem.poetImageUrl}
                             alt={poem.poet}
                         />
                     </div>

@@ -2,20 +2,19 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { Poet } from '@/types/poet';
 
 interface PoetImageProps {
-    poetSlug: string;
+    imgUrl: string;
     alt?: string;
 }
 
-export default function PoetImage({ poetSlug, alt }: PoetImageProps) {
-    const [imgSrc, setImgSrc] = useState<string>(`https://api.ganjoor.net/api/ganjoor/poet/image/${poetSlug}.png`);
+export default function PoetImage({ imgUrl, alt }: PoetImageProps) {
+    const [imgSrc, setImgSrc] = useState<string>(imgUrl);
 
     return (
         <Image
             src={imgSrc}
-            alt={alt || poetSlug}
+            alt={alt || ''}
             width={90}
             height={100}
             className="poet-image"
