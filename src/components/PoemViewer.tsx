@@ -183,6 +183,13 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
             copyToClipboard(poemUrl);
         }
     };
+    const openSource = () => {
+        if (poet) {
+            return poem.fullUrl;
+        } else {
+            return `https://ganjoor.net${poem.fullUrl}`;
+        }
+    }
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text)
