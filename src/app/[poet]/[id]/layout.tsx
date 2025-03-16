@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import customApi from '@/api/CustomApi'
-import { Poet, poetSlugs, isValidPoet, poetNames } from '@/types/poets'
+import { PoetSlug, poetNames } from '@/types/poet'
 
 type Props = {
     params: { id: string, poet: string }
@@ -9,38 +9,28 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     try {
-        // Validate the poet parameter first
-        if (!isValidPoet(params.poet)) {
-            return {
-                title: 'گنجورک',
-                description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی.',
-            }
+        const poetSlug = params.poet as PoetSlug;
+        const poetName = poetNames[poetSlug] || 'شاعر ناشناخته';
+        const id = parseInt(params.id);
+
+        if (isNaN(id)) {
+            throw new Error('Invalid poem ID');
         }
 
-        const poet = params.poet as Poet;
-        const poemId = parseInt(params.id);
+        const poem = await customApi.getPoemById(id, poetSlug);
 
-        // Validate the ID
-        if (isNaN(poemId) || poemId < 1) {
-            return {
-                title: 'گنجورک',
-                description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی.',
-            }
-        }
-
-        const poem = await customApi.getPoemById(poemId, poet);
         return {
-            title: "گنجورک",
-            description: poem.fullTitle + " - " + poetNames[poet],
+            title: `${poem.title} از ${poetName} | گنجورک`,
+            description: poem.plainText.substring(0, 160), // First 160 characters of the poem as description
         }
     } catch (error) {
         return {
-            title: 'گنجورک',
-            description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی.',
+            title: 'شعر | گنجورک',
+            description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی در گنجورک',
         }
     }
 }
 
-export default function Layout({ children }: Props) {
+export default function PoemLayout({ children }: Props) {
     return children
 }

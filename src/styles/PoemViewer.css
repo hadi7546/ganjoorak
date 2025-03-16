@@ -99,7 +99,7 @@
 }
 
 .poet-name {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: rgba(255, 255, 255, 0.7);
     font-weight: 400;
 }
@@ -254,7 +254,7 @@
     }
 
     .poet-name {
-        font-size: 0.875rem;
+        font-size: 1.5rem;
     }
 
     .poem-text {
@@ -359,7 +359,7 @@
     }
 
     .action-buttons {
-        right: 10px;
+        left: 10px;
         bottom: 80px;
     }
 
@@ -369,7 +369,7 @@
     }
 
     .poet-name {
-        font-size: 0.9rem;
+        font-size: 1.2rem;
     }
 
     .m1,
@@ -482,6 +482,7 @@
     flex-direction: column;
     gap: 0.5rem;
     z-index: 10;
+    align-items: center;
 }
 
 .action-button {
@@ -572,12 +573,6 @@
     z-index: 2;
 }
 
-.poet-name {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
 
 .audio-player {
     position: fixed;
@@ -893,5 +888,128 @@
 
     .action-buttons.absolute.left-4 {
         left: 0.75rem;
+    }
+}
+
+.action-buttons.absolute.left-4 {
+    left: 1rem;
+}
+
+/* Poet Profile Styles */
+.poet-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    width: 80px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.poet-profile:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.poet-image-container {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.poet-image-container img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 50%;
+}
+
+.poet-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.poet-profile-name {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    font-weight: 400;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    word-wrap: break-word;
+    line-height: 1.2;
+}
+
+.poet-profile-nickname {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+@media (max-width: 768px) {
+    .poet-profile {
+        width: 60px;
+        padding: 0.5rem;
+    }
+
+    .poet-image-container {
+        width: 45px;
+        height: 45px;
+        margin-bottom: 0.35rem;
+    }
+
+    .poet-profile-name {
+        font-size: 0.75rem;
+    }
+
+    .poet-profile-nickname {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .poet-profile {
+        width: 50px;
+        padding: 0.4rem;
+    }
+
+    .poet-image-container {
+        width: 35px;
+        height: 35px;
+        margin-bottom: 0.25rem;
+    }
+
+    .poet-profile-name {
+        font-size: 0.7rem;
+    }
+
+    .poet-profile-nickname {
+        font-size: 0.6rem;
     }
 }

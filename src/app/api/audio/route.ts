@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic'; // Mark this route as dynamic
 
+// List of allowed domains for audio files
+const ALLOWED_DOMAINS = [
+    'https://bayanbox.ir/',
+    'https://api.ganjoor.net/',
+    'https://ganjgah.ir/'
+];
+
+// Function to check if a URL is from an allowed domain
+function isAllowedDomain(url: string): boolean {
+    return ALLOWED_DOMAINS.some(domain => url.startsWith(domain));
+}
+
 export async function GET(request: NextRequest) {
     try {
         const url = request.nextUrl.searchParams.get('url');
@@ -10,9 +22,15 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'URL parameter is required' }, { status: 400 });
         }
 
-        if (!url.startsWith('https://bayanbox.ir/')) {
-            return NextResponse.json({ error: 'Invalid URL domain' }, { status: 400 });
+        // Security check: Verify the URL is from an allowed domain
+        if (!isAllowedDomain(url)) {
+            console.warn(`Rejected unauthorized audio URL: ${url}`);
+            return NextResponse.json({
+                error: 'Invalid URL domain. Only specific domains are allowed.'
+            }, { status: 403 });
         }
+
+        console.log(`Fetching authorized audio URL: ${url}`);
 
         // Fetch the audio file
         const response = await fetch(url, {
@@ -23,6 +41,7 @@ export async function GET(request: NextRequest) {
         });
 
         if (!response.ok) {
+            console.error(`Error fetching audio: ${response.status} ${response.statusText}`);
             return NextResponse.json({ error: 'Failed to fetch audio' }, { status: response.status });
         }
 

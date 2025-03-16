@@ -1,23 +1,72 @@
 import type { Poem, PoemRecitation } from "@/types/poem";
+import { PoetSlug, poetNames, createPoet, Poet } from "@/types/poet";
+import { list, } from "@vercel/blob";
 import rahmaniPoems from "../../poems/rahmani.json";
-import { Poet, poetNames } from "@/types/poets";
+
+// Cache for poets' poems
+let poetPoemsCache: Record<string, any> = {};
 
 const customApi = {
   /**
-   * Get a random poem from the local collection
+   * Get poet data from blob storage or local cache
    */
-  async getRandomPoem(poet: Poet): Promise<Poem> {
+  async _getPoetData(poetSlug: PoetSlug): Promise<any> {
     try {
-      // For now, we only have Rahmani's poems
-      if (poet !== Poet.RAHMANI) {
-        throw new Error("متأسفانه در حال حاضر شعرهای این شاعر در دسترس نیست");
+      // Return from cache if available
+      if (poetPoemsCache[poetSlug]) {
+        console.log(`Using cached data for poet: ${poetSlug}`);
+        return poetPoemsCache[poetSlug];
       }
 
-      const poems = rahmaniPoems.poems;
+      console.log(`Fetching poet data for: ${poetSlug}`);
+      // Try to fetch from our proxy API route
+      try {
+        const apiUrl = `/api/poet/${poetSlug}`;
+        console.log(`Making request to: ${apiUrl}`);
+
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`API error (${response.status}): ${errorText}`);
+          throw new Error(`Failed to fetch poet data: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(`Successfully fetched data for poet: ${poetSlug}`);
+
+        // Validate the data has the expected structure
+        if (!data || !data.poems || !Array.isArray(data.poems)) {
+          console.error('Invalid data structure received:', data);
+          throw new Error('Invalid data structure received from API');
+        }
+
+        // Cache the data
+        poetPoemsCache[poetSlug] = data;
+        return data;
+      } catch (apiError: any) {
+        console.error("Error fetching from API:", apiError);
+        throw new Error(`متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد: ${apiError?.message || String(apiError)}`);
+      }
+    } catch (error) {
+      console.error(`Error getting poet data for ${poetSlug}:`, error);
+      throw new Error("متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد");
+    }
+  },
+
+  /**
+   * Get a random poem from the local collection
+   */
+  async getRandomPoem(poetSlug: PoetSlug): Promise<Poem> {
+    try {
+      // Get poet's poems from blob or local file
+      const poetData = await customApi._getPoetData(poetSlug);
+      const poems = poetData.poems;
+
       const randomIndex = Math.floor(Math.random() * poems.length);
       const randomPoem = poems[randomIndex];
 
-      return customApi.mapLocalPoemToPoem(randomPoem, poet);
+      return customApi.mapLocalPoemToPoem(randomPoem, poetSlug);
     } catch (error) {
       console.error("Error fetching random poem from local source:", error);
       throw new Error("متأسفانه در دریافت شعر تصادفی مشکلی پیش آمد. لطفاً دوباره تلاش کنید");
@@ -27,26 +76,24 @@ const customApi = {
   /**
    * Get a poem by ID from the local collection
    */
-  async getPoemById(id: number, poet: Poet): Promise<Poem> {
+  async getPoemById(id: number, poetSlug: PoetSlug): Promise<Poem> {
     try {
       // Validate ID before searching
       if (isNaN(id) || id < 1) {
         throw new Error("شناسه شعر معتبر نیست");
       }
 
-      // For now, we only have Rahmani's poems
-      if (poet !== Poet.RAHMANI) {
-        throw new Error("متأسفانه در حال حاضر شعرهای این شاعر در دسترس نیست");
-      }
+      // Get poet's poems from blob or local file
+      const poetData = await customApi._getPoetData(poetSlug);
 
       console.log("Fetching local poem with ID:", id);
-      const poem = rahmaniPoems.poems.find((poem) => poem.id === id);
+      const poem = poetData.poems.find((poem: any) => poem.id === id);
 
       if (!poem) {
         throw new Error("متأسفانه شعر مورد نظر پیدا نشد");
       }
 
-      return customApi.mapLocalPoemToPoem(poem, poet);
+      return customApi.mapLocalPoemToPoem(poem, poetSlug);
     } catch (error) {
       console.error("Error fetching poem by ID from local source:", error);
       throw error;
@@ -54,9 +101,46 @@ const customApi = {
   },
 
   /**
+   * Get poet information including image from blob storage
+   */
+  async getPoetInfo(poetSlug: PoetSlug): Promise<Poet> {
+    try {
+      // Get poet's data from blob or local file
+      const poetData = await customApi._getPoetData(poetSlug);
+
+      // Create a complete Poet object
+      return createPoet({
+        id: 0, // We don't have IDs for local poets
+        name: poetData.poet,
+        nickname: null,
+        fullUrl: "",
+        urlSlug: poetData.poetSlug,
+        imageUrl: poetData.imageUrl,
+        published: true,
+        description: null,
+        rootCatId: 0,
+        birthYearInLHijri: null,
+        validBirthDate: false,
+        deathYearInLHijri: null,
+        validDeathDate: false,
+        pinOrder: 0,
+        birthPlace: null,
+        birthPlaceLatitude: null,
+        birthPlaceLongitude: null,
+        deathPlace: null,
+        deathPlaceLatitude: null,
+        deathPlaceLongitude: null
+      });
+    } catch (error) {
+      console.error("Error fetching poet info:", error);
+      throw new Error("متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد");
+    }
+  },
+
+  /**
    * Map the local poem format to the Poem type used in the app
    */
-  mapLocalPoemToPoem(localPoem: any, poet: Poet): Poem {
+  mapLocalPoemToPoem(localPoem: any, poetSlug: PoetSlug): Poem {
     if (!localPoem || !localPoem.id) {
       throw new Error("متأسفانه شعر مورد نظر یافت نشد");
     }
@@ -65,8 +149,22 @@ const customApi = {
     const plainText = localPoem.htmlPoem;
     const htmlText = localPoem.htmlPoem;
 
+    // Validate recitation URL if present
+    let recitationUrl = "";
+    if (localPoem.recitation) {
+      // Make sure the recitation URL is from an allowed domain
+      const allowedDomains = ['https://bayanbox.ir/', 'https://api.ganjoor.net/', 'https://ganjgah.ir/'];
+      const isAllowed = allowedDomains.some(domain => localPoem.recitation.startsWith(domain));
+
+      if (isAllowed) {
+        recitationUrl = `/api/audio?url=${encodeURIComponent(localPoem.recitation)}`;
+      } else {
+        console.warn(`Skipping unauthorized recitation URL: ${localPoem.recitation}`);
+      }
+    }
+
     // Create a recitation object if available
-    const recitations: PoemRecitation[] = localPoem.recitation
+    const recitations: PoemRecitation[] = recitationUrl
       ? [
         {
           id: localPoem.id,
@@ -74,16 +172,16 @@ const customApi = {
           poemFullTitle: localPoem.title,
           poemFullUrl: localPoem.url || "",
           audioTitle: localPoem.title,
-          audioArtist: poetNames[poet], // Use the display name from our mapping
+          audioArtist: poetNames[poetSlug], // Use the display name from our mapping
           audioArtistUrl: "",
-          audioSrc: `/api/audio?url=${encodeURIComponent(localPoem.recitation)}`,
-          audioSrcUrl: `/api/audio?url=${encodeURIComponent(localPoem.recitation)}`,
+          audioSrc: recitationUrl,
+          audioSrcUrl: recitationUrl,
           legacyAudioGuid: "",
           mp3FileCheckSum: "",
           mp3SizeInBytes: 0,
           publishDate: "",
           fileLastUpdated: "",
-          mp3Url: `/api/audio?url=${encodeURIComponent(localPoem.recitation)}`, // Use proxy endpoint
+          mp3Url: recitationUrl, // Use proxy endpoint
           xmlText: "",
           plainText: plainText,
           htmlText: htmlText,
@@ -105,7 +203,9 @@ const customApi = {
       plainText: plainText,
       htmlText: htmlText,
       recitations: recitations,
-      poet: poetNames[poet], // Use the display name from our mapping
+      poet: poetNames[poetSlug],
+      poetSlug: poetSlug,
+      poetNickname: "",
     };
   },
 };

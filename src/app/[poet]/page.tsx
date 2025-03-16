@@ -1,115 +1,145 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, notFound } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import PoemViewer from "@/components/PoemViewer";
 import LoadingScreen from "@/components/LoadingScreen";
 import ErrorScreen from "@/components/ErrorScreen";
 import customApi from "@/api/CustomApi";
+import ganjoorApi from "@/api/GanjoorApi";
 import { Poem } from "@/types/poem";
-import { Poet, isValidPoet, poetNames } from "@/types/poets";
+import { PoetSlug, isValidPoetSlug, poetNames } from "@/types/poet";
 
 const INITIAL_POEMS_COUNT = 3;
-const PREFETCH_THRESHOLD = 2;
-const BATCH_SIZE = 2;
 
 export default function PoetPage() {
   const params = useParams();
+  const router = useRouter();
   const poetSlug = params.poet as string;
-
-  // Validate the poet parameter
-  if (!isValidPoet(poetSlug)) {
-    notFound();
-  }
-
-  const poet = poetSlug as Poet;
   const [poems, setPoems] = useState<Poem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPoemIndex, setCurrentPoemIndex] = useState(0);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [isGanjoor, setIsGanjoor] = useState<boolean | null>(null);
 
-  // Fetch initial poems
-  const fetchInitialPoems = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Check if the poet exists in Ganjoor or is a custom poet
+  useEffect(() => {
+    const checkPoetSource = async () => {
+      try {
+        console.log('Checking poet source for:', poetSlug);
 
-      // Fetch poems one by one
-      const fetchedPoems: Poem[] = [];
-
-      for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
-        try {
-          const randomPoem = await customApi.getRandomPoem(poet);
-          fetchedPoems.push(randomPoem);
-        } catch (err) {
-          console.error("Error fetching poem:", err);
+        // First check if it's a valid custom poet
+        if (isValidPoetSlug(poetSlug)) {
+          console.log('Valid custom poet found:', poetSlug);
+          setIsGanjoor(false);
+          return;
         }
-      }
+        console.log('Not a custom poet, checking Ganjoor...');
 
-      if (fetchedPoems.length > 0) {
-        setPoems(fetchedPoems);
-        setLoading(false);
-      } else {
-        throw new Error("Could not fetch any poems");
+        // If not a custom poet, try Ganjoor
+        try {
+          const ganjoorPoetId = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+          console.log('Ganjoor poet ID:', ganjoorPoetId);
+
+          if (ganjoorPoetId) {
+            console.log('Valid Ganjoor poet found:', poetSlug);
+            setIsGanjoor(true);
+            return;
+          }
+          console.log('Invalid Ganjoor poet ID:', ganjoorPoetId);
+        } catch (err: any) {
+          console.error("Error checking Ganjoor poet:", err);
+          // If it's a 404 error, continue to not found
+          if (err.response?.status === 404) {
+            console.log('Poet not found in Ganjoor');
+          } else {
+            // For other errors, show error message
+            setError("متأسفانه در بررسی اطلاعات شاعر در گنجور مشکلی پیش آمد");
+            return;
+          }
+        }
+
+        // If we get here, neither custom nor Ganjoor poet was found
+        console.log('No valid poet found, redirecting to 404');
+        router.push('/404');
+      } catch (err) {
+        console.error("Error in checkPoetSource:", err);
+        setError("متأسفانه در بررسی اطلاعات شاعر مشکلی پیش آمد");
       }
-    } catch (err) {
-      console.error("Failed to fetch initial poems:", err);
-      setError("متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
-      setLoading(false);
-    }
-  };
+    };
+
+    checkPoetSource();
+  }, [poetSlug, router]);
 
   // Fetch initial poems
   useEffect(() => {
-    fetchInitialPoems();
-  }, [poet]);
+    const fetchInitialPoems = async () => {
+      if (isGanjoor === null) return; // Wait until we know the source
 
-  // Fetch more poems when approaching the end
-  useEffect(() => {
-    const shouldFetchMore =
-      currentPoemIndex >= poems.length - PREFETCH_THRESHOLD &&
-      poems.length > 0 &&
-      !isFetchingMore;
+      try {
+        setLoading(true);
+        setError(null);
+        const fetchedPoems: Poem[] = [];
 
-    if (shouldFetchMore) {
-      const fetchMorePoems = async () => {
-        try {
-          setIsFetchingMore(true);
-
-          // Fetch poems one by one
-          const newPoems: Poem[] = [];
-
-          for (let i = 0; i < BATCH_SIZE; i++) {
-            try {
-              const randomPoem = await customApi.getRandomPoem(poet);
-              newPoems.push(randomPoem);
-            } catch (err) {
-              console.error("Error fetching additional poem:", err);
+        for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
+          try {
+            if (isGanjoor) {
+              // First get random poem ID
+              const randomPoem = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+              // Then fetch complete poem data
+              const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
+              fetchedPoems.push(fullPoem);
+            } else {
+              const randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
+              fetchedPoems.push(randomPoem);
             }
+          } catch (err) {
+            console.error("Error fetching poem:", err);
           }
-
-          if (newPoems.length > 0) {
-            setPoems((prevPoems) => [...prevPoems, ...newPoems]);
-          }
-        } catch (err) {
-          console.error("Failed to fetch more poems:", err);
-        } finally {
-          setIsFetchingMore(false);
         }
-      };
 
-      fetchMorePoems();
+        if (fetchedPoems.length > 0) {
+          setPoems(fetchedPoems);
+        } else {
+          throw new Error("Could not fetch any poems");
+        }
+      } catch (err) {
+        console.error("Failed to fetch initial poems:", err);
+        setError("متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialPoems();
+  }, [poetSlug, isGanjoor]);
+
+  // Handle next poem
+  const handleNext = async () => {
+    if (isGanjoor === null) return;
+
+    try {
+      let randomPoem: Poem;
+      if (isGanjoor) {
+        // First get random poem ID
+        const initialPoem = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+        // Then fetch complete poem data
+        randomPoem = await ganjoorApi.getPoemById(initialPoem.id);
+      } else {
+        randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
+      }
+      setPoems([...poems, randomPoem]);
+      setCurrentPoemIndex(currentPoemIndex + 1);
+    } catch (err) {
+      console.error("Error fetching next poem:", err);
+      setError("متأسفانه در بارگیری شعر بعدی مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
     }
-  }, [currentPoemIndex, poems.length, isFetchingMore, poet]);
-
-  const handleNext = () => {
-    setCurrentPoemIndex((prevIndex) => prevIndex + 1);
   };
 
+  // Handle previous poem
   const handlePrevious = () => {
     if (currentPoemIndex > 0) {
-      setCurrentPoemIndex((prevIndex) => prevIndex - 1);
+      setCurrentPoemIndex(currentPoemIndex - 1);
     }
   };
 
@@ -118,23 +148,27 @@ export default function PoetPage() {
   }
 
   if (error) {
-    return <ErrorScreen message={error} onRetry={fetchInitialPoems} />;
+    return <ErrorScreen message={error} onRetry={() => window.location.reload()} />;
+  }
+
+  if (!poems.length) {
+    return <ErrorScreen message="متأسفانه شعری یافت نشد" onRetry={() => window.location.reload()} />;
   }
 
   return (
-    <main className="h-screen overflow-hidden">
-      {poems.length > 0 && (
+    <div className="flex flex-col h-screen">
+      <div className="flex-1">
         <PoemViewer
           poem={poems[currentPoemIndex]}
           onNext={handleNext}
           onPrevious={handlePrevious}
           isFirst={currentPoemIndex === 0}
           isLast={currentPoemIndex === poems.length - 1}
-          isModern={true}
-          poet={poet}
+          isModern={!isGanjoor}
+          poetSlug={poetSlug as PoetSlug}
           backUrl="/"
         />
-      )}
-    </main>
+      </div>
+    </div>
   );
 }

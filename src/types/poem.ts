@@ -29,6 +29,8 @@ export interface Poem {
     title: string;
     fullTitle: string;
     poet: string;
+    poetNickname: string;
+    poetSlug: string;
     urlSlug: string;
     fullUrl: string;
     plainText: string;
@@ -49,4 +51,3 @@ export interface ErrorScreenProps {
     onRetry?: () => void;
 }
 
-export type Poet = 'رحمانی' | string;

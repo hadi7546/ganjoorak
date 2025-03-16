@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import customApi from "@/api/CustomApi";
-import { poetNames } from "@/types/poets";
-import { poetSlugs } from "@/types/poets";
+import ganjoorApi from "@/api/GanjoorApi";
+import { PoetSlug, isValidPoetSlug } from "@/types/poet";
 
 type Props = {
   params: { poet: string };
@@ -9,20 +9,27 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const poetSlug = params.poet;
+  let poetName = 'شاعر ناشناخته';
+
   try {
-    const poetName = poetNames[poetSlugs[params.poet]];
-    return {
-      title: "گنجورک",
-      description: "شعرهای " + poetName, // First line of the poem as description
-    };
+    if (isValidPoetSlug(poetSlug)) {
+      const poetData = await customApi.getPoetInfo(poetSlug as PoetSlug);
+      poetName = poetData.name;
+    } else {
+      const poetData = await ganjoorApi.getPoetBySlug(poetSlug);
+      poetName = poetData.nickname || poetData.name;
+    }
   } catch (error) {
-    return {
-      title: "گنجورک",
-      description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی.',
-    };
+    console.error('Error fetching poet info:', error);
   }
+
+  return {
+    title: `${poetName} | گنجورک`,
+    description: `مجموعه‌ای از اشعار ${poetName} در گنجورک`,
+  };
 }
 
-export default function Layout({ children }: Props) {
+export default function PoetLayout({ children }: Props) {
   return children;
 }

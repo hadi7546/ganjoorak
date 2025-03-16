@@ -7,7 +7,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
 import customApi from '@/api/CustomApi';
 import type { Poem } from '@/types/poem';
-import { Poet, isValidPoet, poetNames } from '@/types/poets';
+import { PoetSlug, isValidPoetSlug, poetNames } from '@/types/poet';
 
 export default function PoemPage() {
     const params = useParams();
@@ -23,11 +23,11 @@ export default function PoemPage() {
 
                 // Get and validate poet from params
                 const poetSlug = params?.poet as string;
-                if (!isValidPoet(poetSlug)) {
+                if (!isValidPoetSlug(poetSlug)) {
                     router.push('/');
                     return;
                 }
-                const poet = poetSlug as Poet;
+                const poet = poetSlug as PoetSlug;
 
                 const id = params?.id;
                 if (!id) {
@@ -71,11 +71,11 @@ export default function PoemPage() {
         try {
             setLoading(true);
             const poetSlug = params?.poet as string;
-            if (!isValidPoet(poetSlug)) {
+            if (!isValidPoetSlug(poetSlug)) {
                 router.push('/');
                 return;
             }
-            const poet = poetSlug as Poet;
+            const poet = poetSlug as PoetSlug;
             const newPoem = await customApi.getRandomPoem(poet);
             router.push(`/${poetSlug}/${newPoem.id}`);
         } catch (err) {
@@ -93,18 +93,17 @@ export default function PoemPage() {
         return <ErrorScreen message={error} onRetry={handleNext} />;
     }
 
-    return poem ? (
-        <main className="h-screen overflow-hidden">
-            <PoemViewer
-                poem={poem}
-                onNext={handleNext}
-                onPrevious={() => { }}
-                isFirst={true}
-                isLast={true}
-                isModern={true}
-                poet={params?.poet as Poet}
-                backUrl={`/${params?.poet}`}
-            />
-        </main>
-    ) : null;
+    if (!poem) {
+        return <ErrorScreen message="شعر یافت نشد" onRetry={handleNext} />;
+    }
+
+    return (
+        <PoemViewer
+            poem={poem}
+            onNext={handleNext}
+            poetSlug={params?.poet as PoetSlug}
+            backUrl={`/${params?.poet}`}
+            showNext={true}
+        />
+    );
 }

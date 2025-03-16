@@ -5,20 +5,32 @@ import '../styles/PoemViewer.css';
 import type { Poem, PoemRecitation } from '@/types/poem';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Poet, poetNames } from '@/types/poets';
+import { PoetSlug, poetNames } from '@/types/poet';
+import PoetImage from '@/components/PoetImage';
 
 interface PoemViewerProps {
     poem: Poem;
     onNext: (poem?: Poem) => void;
-    onPrevious: () => void;
-    isFirst: boolean;
-    isLast: boolean;
-    isModern: boolean;
-    poet?: Poet;
+    onPrevious?: () => void;
+    isFirst?: boolean;
+    isLast?: boolean;
+    isModern?: boolean;
+    poetSlug?: PoetSlug;
     backUrl?: string;
+    showNext?: boolean;
 }
 
-const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFirst, isLast, isModern, poet, backUrl }) => {
+const PoemViewer: React.FC<PoemViewerProps> = ({
+    poem,
+    onNext,
+    onPrevious = () => { },
+    isFirst = true,
+    isLast = true,
+    isModern = true,
+    poetSlug,
+    backUrl,
+    showNext = false
+}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isAudioLoading, setIsAudioLoading] = useState(false);
@@ -157,39 +169,40 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
         };
     }, [isFirst, isLast, onPrevious, handleNext]);
 
-    // Handle like action
+
+    const openSource = () => {
+        if (poetSlug) {
+            return poem.fullUrl;
+        } else {
+            return `https://ganjoor.net${poem.fullUrl}`;
+        }
+    }
     // Handle share action
     const sharePoem = async () => {
         const baseUrl = 'https://ganjoorak.ir';
-        // Use /poem/:id format for sharing
         let poemUrl = "";
-        if (poet) {
-            poemUrl = `${baseUrl}/${poet}/${poem.id}`;
+        if (poetSlug) {
+            poemUrl = `${baseUrl}/${poetSlug}/${poem.id}`;
+        } else if (poem.poetSlug) {
+            poemUrl = `${baseUrl}/${poem.poetSlug}/${poem.id}`;
         } else {
             poemUrl = `${baseUrl}/poem/${poem.id}`;
         }
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: poem.title,
-                    text: `${poem.title} - ${poetNames[poet!] || poem.poet}`,
+                    title: `${poem.title} | گنجورک`,
+                    text: `${poem.title} از ${poem.poet} | گنجورک`,
                     url: poemUrl
                 });
             } catch (error) {
                 console.error('Error sharing:', error);
             }
         } else {
-            // On desktop, copy to clipboard
             copyToClipboard(poemUrl);
         }
     };
-    const openSource = () => {
-        if (poet) {
-            return poem.fullUrl;
-        } else {
-            return `https://ganjoor.net${poem.fullUrl}`;
-        }
-    }
+
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text)
@@ -534,7 +547,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: 0.1 }}
                     >
-                        {poetNames[poet!] || poem.poet}
+                        {poem.poet}
                     </motion.div>
                 </div>
                 <div className="poem-text">
@@ -582,7 +595,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                         <FaArrowLeft />
                     </button>
                 )}
-                <button className="action-button" onClick={sharePoem}>
+                <button
+                    className="action-button"
+                    onClick={sharePoem}
+                    title="اشتراک‌گذاری"
+                >
                     <FaShare />
                 </button>
                 <a
@@ -595,6 +612,25 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                 >
                     <FaExternalLinkAlt />
                 </a>
+                <div
+                    className="poet-profile"
+                    onClick={() => {
+                        if (poem.poet && poem.poetSlug) {
+                            router.push(`/${poem.poetSlug}`);
+                        }
+                    }}
+                    role="button"
+                    aria-label={`مشاهده اشعار ${poem.poet}`}
+                    title={`مشاهده اشعار ${poem.poet}`}
+                >
+                    <div className="poet-image-container">
+                        <PoetImage
+                            poetSlug={poem.poetSlug || poetSlug || ''}
+                            alt={poem.poet}
+                        />
+                    </div>
+                    <h3 className="poet-profile-name">{poem.poet}</h3>
+                </div>
             </div>
 
             {/* Navigation controls */}
