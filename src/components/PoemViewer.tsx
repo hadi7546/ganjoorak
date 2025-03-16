@@ -586,12 +586,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onNext, onPrevious, isFir
                     <FaShare />
                 </button>
                 <a
-                    href={`https://ganjoor.net${poem.fullUrl}`}
+                    href={openSource()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="action-button"
-                    title="مشاهده در وبسایت گنجور"
-                    aria-label="مشاهده در وبسایت گنجور"
+                    title="مشاهده منبع"
+                    aria-label="مشاهده منبع"
                 >
                     <FaExternalLinkAlt />
                 </a>
