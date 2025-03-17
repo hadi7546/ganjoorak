@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PoetSlug, poetNames } from '@/types/poet';
 import PoetImage from '@/components/PoetImage';
+import Menu, { MenuButton } from '@/components/Menu';
 
 interface PoemViewerProps {
     poem: Poem;
@@ -41,6 +42,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [isMouseOverPoemText, setIsMouseOverPoemText] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const poemTextRef = useRef<HTMLDivElement>(null);
@@ -515,6 +517,24 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
         >
+            <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
+            <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
+            {/* Loading overlay */}
+            <AnimatePresence>
+                {isLoading && (
+                    <motion.div
+                        className="loading-overlay"
+                        variants={loadingVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                    >
+                        در حال بارگیری...
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Audio player */}
             {poem.recitations && poem.recitations.length > 0 && poem.recitations[currentRecitationIndex] && (
                 <div className="audio-player">

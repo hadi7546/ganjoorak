@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import { HiChevronDown } from 'react-icons/hi2';
 import '../styles/FAQ.css';
+import Menu, { MenuButton } from '@/components/Menu';
 
 const FAQ = () => {
     const [openIndices, setOpenIndices] = useState<number[]>([]);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const faqs = [
         {
@@ -66,6 +68,9 @@ const FAQ = () => {
 
     return (
         <div className="faq-container">
+            <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
+            <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
             <h1 className="faq-title">پرسش‌های متداول</h1>
             <div className="faq-list">
                 {faqs.map((faq, index) => (

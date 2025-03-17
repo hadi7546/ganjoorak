@@ -47,3 +47,62 @@ body {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.1);
 }
+
+/* Menu styles */
+.menu-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.menu-drawer {
+    direction: rtl;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    letter-spacing: 0.5px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.menu-item-text {
+    font-family: 'Vazirmatn', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+}
+
+/* Ensure menu button and drawer are above other content */
+.menu-button {
+    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.menu-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.menu-drawer {
+    z-index: 1001;
+}
+
+.menu-backdrop {
+    z-index: 999;
+}
+
+/* Enhanced blur for desktop */
+@media (min-width: 768px) {
+    .menu-drawer {
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+    }
+
+    .menu-button {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+}

@@ -1,10 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import '../styles/Updates.css';
+import Menu, { MenuButton } from '@/components/Menu';
 
 const Updates = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
     const updates = [
         {
             version: '1.0.2',
@@ -37,6 +40,9 @@ const Updates = () => {
 
     return (
         <div className="updates-container">
+            <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
+            <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
             <h1 className="updates-title">بروزرسانی‌ها</h1>
             <div className="updates-list">
                 {updates.map((update, index) => (
