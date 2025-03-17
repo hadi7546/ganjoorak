@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { HiChevronDown } from 'react-icons/hi2';
 import '../styles/FAQ.css';
 import Menu, { MenuButton } from '@/components/Menu';
+import { motion } from 'framer-motion';
 
 const FAQ = () => {
     const [openIndices, setOpenIndices] = useState<number[]>([]);
@@ -74,7 +75,11 @@ const FAQ = () => {
             <h1 className="faq-title">پرسش‌های متداول</h1>
             <div className="faq-list">
                 {faqs.map((faq, index) => (
-                    <div
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+
                         key={index}
                         className={`faq-item ${openIndices.includes(index) ? 'open' : ''}`}
                         onClick={() => toggleQuestion(index)}
@@ -86,7 +91,7 @@ const FAQ = () => {
                         <div className="faq-answer">
                             {faq.answer}
                         </div>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
         </div>

@@ -15,10 +15,10 @@ export default function PoetImage({ imgUrl, alt }: PoetImageProps) {
         <Image
             src={imgSrc}
             alt={alt || ''}
-            width={90}
-            height={100}
+            width={80}
+            height={80}
             className="poet-image"
-            style={{ objectFit: 'contain' }}
+            style={{ objectFit: 'cover' }}
             priority
         />
     );

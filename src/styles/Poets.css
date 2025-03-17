@@ -127,16 +127,15 @@
 }
 
 .poet-card:hover {
-    transform: translateY(-5px);
     background: rgba(255, 255, 255, 0.15);
 }
 
 .poet-image-container {
-    width: 70px;
+    width: 80px;
     height: 80px;
     margin-bottom: 0.5rem;
     position: relative;
-    border-radius: 0.5rem;
+    border-radius: 50%;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -144,10 +143,10 @@
 }
 
 .poet-image {
-    width: 70px !important;
+    width: 80px !important;
     height: 80px !important;
-    object-fit: contain !important;
-    border-radius: 0.5rem;
+    object-fit: cover !important;
+    border-radius: 50%;
     background: transparent !important;
 }
 

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import '../styles/Updates.css';
 import Menu, { MenuButton } from '@/components/Menu';
-
+import { motion } from 'framer-motion';
 const Updates = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -14,6 +14,7 @@ const Updates = () => {
             date: '۲۷ اسفند ۱۴۰۳',
             changes: [
                 <>اضافه شدن <Link href="/poets" className="link">صفحه شاعران</Link></>,
+                <>اضافه شدن دو شاعر معاصر، <Link href="/poets/rahmani" className="link">نصرت رحمانی</Link> و <Link href="/poets/farrokhzad" className="link">فروغ فرخزاد</Link></>,
                 'اضافه شدن صفحه جدید برای هر شاعر با کلیک در صفحه اصلی یا صفحه شاعران',
                 'اضافه شدن منو',
                 'اصلاح نیم‌فاصله‌ها',
@@ -49,7 +50,12 @@ const Updates = () => {
             <h1 className="updates-title">بروزرسانی‌ها</h1>
             <div className="updates-list">
                 {updates.map((update, index) => (
-                    <div key={index} className="update-item">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+
+                        key={index} className="update-item">
                         <div className="update-header">
                             <h3 className="update-version">نسخه {update.version}</h3>
                             <span className="update-date">{update.date}</span>
@@ -59,7 +65,7 @@ const Updates = () => {
                                 <li key={changeIndex}>{change}</li>
                             ))}
                         </ul>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
         </div>

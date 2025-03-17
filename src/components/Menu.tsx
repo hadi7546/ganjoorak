@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaBars, FaTimes, FaHome, FaQuestionCircle, FaBell } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaQuestionCircle, FaBell, FaUsers } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MenuProps {
@@ -10,6 +10,7 @@ interface MenuProps {
 
 const menuItems = [
     { href: '/', icon: <FaHome />, label: 'صفحه اصلی' },
+    { href: '/poets', icon: <FaUsers />, label: 'شاعران' },
     { href: '/faq', icon: <FaQuestionCircle />, label: 'پرسش‌های متداول' },
     { href: '/updates', icon: <FaBell />, label: 'بروزرسانی‌ها' },
 ];

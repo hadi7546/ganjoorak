@@ -502,7 +502,6 @@
 
 .action-button:hover:not(:disabled) {
     background-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -913,7 +912,6 @@
 }
 
 .poet-profile:hover {
-    transform: translateY(-5px);
     background: rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
@@ -1011,5 +1009,136 @@
 
     .poet-profile-nickname {
         font-size: 0.6rem;
+    }
+}
+
+/* Verse menu styles */
+.verse-menu {
+    position: fixed;
+    z-index: 1000;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 8px 0;
+    min-width: 200px;
+    direction: rtl;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.verse-menu-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: right;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+.verse-menu-button:hover {
+    background-color: #f5f5f5;
+}
+
+.verse-menu-button svg {
+    margin-left: 8px;
+    font-size: 16px;
+    color: #555;
+}
+
+/* Highlight clickable verses */
+.verse-line:hover {
+    color: #4a5568;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.verse-line {
+    transition: background-color 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .verse-menu {
+        min-width: 180px;
+        max-width: 80vw;
+        position: fixed;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%);
+    }
+
+    .verse-menu-button {
+        padding: 12px;
+        font-size: 13px;
+    }
+}
+
+/* Verse tooltip */
+.verse-tooltip {
+    position: fixed;
+    bottom: 6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    z-index: 50;
+    direction: rtl;
+    animation: fadeInOut 5s ease forwards;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 10px);
+    }
+
+    10% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    80% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -10px);
+    }
+}
+
+@media (max-width: 768px) {
+    .verse-tooltip {
+        bottom: 5rem;
+        font-size: 12px;
+        padding: 6px 12px;
+        white-space: nowrap;
     }
 }

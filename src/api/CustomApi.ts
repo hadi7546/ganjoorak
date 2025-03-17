@@ -20,7 +20,9 @@ const customApi = {
       console.log(`Fetching poet data for: ${poetSlug}`);
       // Try to fetch from our proxy API route
       try {
-        const apiUrl = `/api/poet/${poetSlug}`;
+        // Use absolute URL with origin for server components
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+        const apiUrl = `${origin}/api/poet/${poetSlug}`;
         console.log(`Making request to: ${apiUrl}`);
 
         const response = await fetch(apiUrl);
@@ -117,8 +119,8 @@ const customApi = {
       return createPoet({
         id: 0,
         name: poetData.poet,
-        nickname: null,
-        fullUrl: "",
+        nickname: "",
+        fullUrl: poetData.poetSlug,
         urlSlug: poetData.poetSlug,
         imageUrl: poetData.imageUrl,
         published: true,
@@ -139,6 +141,35 @@ const customApi = {
     } catch (error) {
       console.error("Error fetching poet info:", error);
       throw new Error("متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد");
+    }
+  },
+
+  /**
+   * Get all custom poets information
+   */
+  async getPoets(): Promise<Poet[]> {
+    try {
+      // Get all poet slugs from the PoetSlug enum
+      const poetSlugs = Object.values(PoetSlug);
+
+      // Create an array of promises to fetch poet info for each slug
+      const poetPromises = poetSlugs.map(async (slug) => {
+        try {
+          return await customApi.getPoetInfo(slug);
+        } catch (error) {
+          console.error(`Error fetching poet info for ${slug}:`, error);
+          return null;
+        }
+      });
+
+      // Wait for all promises to resolve
+      const poets = await Promise.all(poetPromises);
+
+      // Filter out any null values (failed fetches)
+      return poets.filter((poet): poet is Poet => poet !== null);
+    } catch (error) {
+      console.error("Error fetching all custom poets:", error);
+      return [];
     }
   },
 
