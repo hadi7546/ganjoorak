@@ -16,7 +16,6 @@ interface PoemViewerProps {
     isLast?: boolean;
     isModern?: boolean;
     poetSlug?: PoetSlug;
-    backUrl?: string;
     showNext?: boolean;
     isPoetPage?: boolean;
 }
@@ -29,7 +28,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     isLast = true,
     isModern = true,
     poetSlug,
-    backUrl,
     showNext = false,
     isPoetPage = false
 }) => {
@@ -42,8 +40,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const [error, setError] = useState<string | null>(null);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+    const [isMouseOverPoemText, setIsMouseOverPoemText] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const poemTextRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
     // Define loading animation variants
@@ -416,21 +416,85 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     // Handle keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (!poem.recitations || !poem.recitations.length) return;
+            const poemText = poemTextRef.current;
+            if (!poemText) return;
 
-            if (e.code === 'Space' && !(e.target as Element)?.matches('input, textarea')) {
-                e.preventDefault();
-                toggleAudio();
-            } else if (e.code === 'ArrowLeft' && e.altKey && poem.recitations.length > 1) {
-                handlePreviousRecitation();
-            } else if (e.code === 'ArrowRight' && e.altKey && poem.recitations.length > 1) {
-                handleNextRecitation();
+            const canScroll = () => {
+                return poemText.scrollHeight > poemText.clientHeight;
+            };
+
+            const isAtBottom = () => {
+                const threshold = 20;
+                return poemText.scrollHeight - poemText.scrollTop - poemText.clientHeight < threshold;
+            };
+
+            const isAtTop = () => {
+                return poemText.scrollTop === 0;
+            };
+
+            // Handle audio controls
+            if (poem.recitations && poem.recitations.length > 0) {
+                if (e.code === 'Space' && !(e.target as Element)?.matches('input, textarea')) {
+                    e.preventDefault();
+                    toggleAudio();
+                } else if (e.code === 'ArrowLeft' && e.altKey && poem.recitations.length > 1) {
+                    handlePreviousRecitation();
+                } else if (e.code === 'ArrowRight' && e.altKey && poem.recitations.length > 1) {
+                    handleNextRecitation();
+                }
+            }
+
+            // Handle poem navigation and scrolling
+            if (e.code === 'ArrowDown' || e.code === 'ArrowUp') {
+                const scrollAmount = 100; // Pixels to scroll per key press
+
+                // If mouse is not over poem text
+                if (!isMouseOverPoemText) {
+                    if (e.code === 'ArrowDown' && !isLast) {
+                        e.preventDefault();
+                        handleNext();
+                    } else if (e.code === 'ArrowUp' && !isFirst) {
+                        e.preventDefault();
+                        onPrevious();
+                    }
+                    return;
+                }
+
+                // If mouse is over poem text and content is scrollable
+                if (canScroll()) {
+                    if (e.code === 'ArrowDown') {
+                        if (!isAtBottom()) {
+                            e.preventDefault();
+                            poemText.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+                        } else if (!isLast) {
+                            e.preventDefault();
+                            handleNext();
+                        }
+                    } else if (e.code === 'ArrowUp') {
+                        if (!isAtTop()) {
+                            e.preventDefault();
+                            poemText.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+                        } else if (!isFirst) {
+                            e.preventDefault();
+                            onPrevious();
+                        }
+                    }
+                } else {
+                    // If content is not scrollable, move to next/previous poem
+                    if (e.code === 'ArrowDown' && !isLast) {
+                        e.preventDefault();
+                        handleNext();
+                    } else if (e.code === 'ArrowUp' && !isFirst) {
+                        e.preventDefault();
+                        onPrevious();
+                    }
+                }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [poem.recitations, currentRecitationIndex, isPlaying]);
+    }, [poem.recitations, currentRecitationIndex, isPlaying, isFirst, isLast, onPrevious, isMouseOverPoemText]);
 
     const chunk = (arr: string[], size: number) => {
         return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, (i + 1) * size));
@@ -554,7 +618,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                         </motion.div>
                     )}
                 </div>
-                <div className="poem-text">
+                <div
+                    className="poem-text"
+                    ref={poemTextRef}
+                    onMouseEnter={() => setIsMouseOverPoemText(true)}
+                    onMouseLeave={() => setIsMouseOverPoemText(false)}
+                >
                     {isModern ? (
                         <motion.div
                             className="modern-poem"
@@ -590,15 +659,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
             {/* Action buttons */}
             <div className="action-buttons">
-                {backUrl && (
-                    <button
-                        onClick={() => router.push(backUrl)}
-                        className="action-button"
-                        aria-label="Back"
-                    >
-                        <FaArrowLeft />
-                    </button>
-                )}
                 <button
                     className="action-button"
                     onClick={sharePoem}

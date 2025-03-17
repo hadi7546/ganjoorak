@@ -59,7 +59,7 @@ function CenturySection({ century, title }: { century: Century; title?: string }
                             >
                                 <div className="poet-image-container">
                                     <PoetImage
-                                        poetSlug={poet.fullUrl}
+                                        imgUrl={poet.imageUrl}
                                         alt={poet.name}
                                     />
                                 </div>

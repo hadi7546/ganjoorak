@@ -102,7 +102,6 @@ export default function PoemPage() {
             poem={poem}
             onNext={handleNext}
             poetSlug={params?.poet as PoetSlug}
-            backUrl={`/${params?.poet}`}
             showNext={true}
         />
     );

@@ -21,6 +21,7 @@ export default function PoetPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentPoemIndex, setCurrentPoemIndex] = useState(0);
   const [isGanjoor, setIsGanjoor] = useState<boolean | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   // Check if the poet exists in Ganjoor or is a custom poet
   useEffect(() => {
@@ -38,6 +39,13 @@ export default function PoetPage() {
 
         // If not a custom poet, try Ganjoor
         try {
+          // Check if the poet slug is a reasonable string before making API call
+          if (!poetSlug || poetSlug.length < 2 || /[^a-zA-Z0-9-]/.test(poetSlug)) {
+            console.log('Invalid poet slug format:', poetSlug);
+            setNotFound(true);
+            return;
+          }
+
           const ganjoorPoetId = await ganjoorApi.getRandomPoemByPoet(poetSlug);
           console.log('Ganjoor poet ID:', ganjoorPoetId);
 
@@ -47,11 +55,14 @@ export default function PoetPage() {
             return;
           }
           console.log('Invalid Ganjoor poet ID:', ganjoorPoetId);
+          setNotFound(true);
         } catch (err: any) {
           console.error("Error checking Ganjoor poet:", err);
-          // If it's a 404 error, continue to not found
-          if (err.response?.status === 404) {
+          // If it's a 404 error or any other error indicating poet not found
+          if (err.response?.status === 404 || err.message?.includes('not found')) {
             console.log('Poet not found in Ganjoor');
+            setNotFound(true);
+            return;
           } else {
             // For other errors, show error message
             setError("متأسفانه در بررسی اطلاعات شاعر در گنجور مشکلی پیش آمد");
@@ -59,23 +70,24 @@ export default function PoetPage() {
           }
         }
 
-        // If we get here, neither custom nor Ganjoor poet was found
-        console.log('No valid poet found, redirecting to 404');
-        router.push('/404');
+        // If we get here and no valid poet was found, set not found
+        console.log('No valid poet found');
+        setNotFound(true);
       } catch (err) {
         console.error("Error in checkPoetSource:", err);
-        setError("متأسفانه در بررسی اطلاعات شاعر مشکلی پیش آمد");
+        setNotFound(true);
       }
     };
 
+    // Run the check immediately
     checkPoetSource();
-  }, [poetSlug, router]);
+  }, [poetSlug]);
 
-  // Fetch initial poems
+  // Fetch initial poems only if we have a valid source and poet is found
   useEffect(() => {
-    const fetchInitialPoems = async () => {
-      if (isGanjoor === null) return; // Wait until we know the source
+    if (isGanjoor === null || notFound) return;
 
+    const fetchInitialPoems = async () => {
       try {
         setLoading(true);
         setError(null);
@@ -112,7 +124,7 @@ export default function PoetPage() {
     };
 
     fetchInitialPoems();
-  }, [poetSlug, isGanjoor]);
+  }, [poetSlug, isGanjoor, notFound]);
 
   // Handle next poem
   const handleNext = async () => {
@@ -143,6 +155,15 @@ export default function PoetPage() {
     }
   };
 
+  if (notFound) {
+    return (
+      <ErrorScreen
+        message="شاعر مورد نظر یافت نشد"
+        onRetry={() => router.push('/')}
+      />
+    );
+  }
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -166,7 +187,6 @@ export default function PoetPage() {
           isLast={currentPoemIndex === poems.length - 1}
           isModern={!isGanjoor}
           poetSlug={poetSlug as PoetSlug}
-          backUrl="/"
           isPoetPage={true}
         />
       </div>
