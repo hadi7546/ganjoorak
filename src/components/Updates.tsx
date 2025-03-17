@@ -14,7 +14,7 @@ const Updates = () => {
             date: '۲۷ اسفند ۱۴۰۳',
             changes: [
                 <>اضافه شدن <Link href="/poets" className="link">صفحه شاعران</Link></>,
-                <>اضافه شدن دو شاعر معاصر، <Link href="/poets/rahmani" className="link">نصرت رحمانی</Link> و <Link href="/poets/farrokhzad" className="link">فروغ فرخزاد</Link></>,
+                <>اضافه شدن دو شاعر معاصر، <Link href="/rahmani" className="link">نصرت رحمانی</Link> و <Link href="/farrokhzad" className="link">فروغ فرخزاد</Link></>,
                 'اضافه شدن صفحه جدید برای هر شاعر با کلیک در صفحه اصلی یا صفحه شاعران',
                 'اضافه شدن منو',
                 'اصلاح نیم‌فاصله‌ها',

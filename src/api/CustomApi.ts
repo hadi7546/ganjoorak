@@ -137,6 +137,7 @@ const customApi = {
         deathPlace: null,
         deathPlaceLatitude: null,
         deathPlaceLongitude: null
+
       });
     } catch (error) {
       console.error("Error fetching poet info:", error);
@@ -206,7 +207,7 @@ const customApi = {
           id: localPoem.id,
           poemId: localPoem.id,
           poemFullTitle: localPoem.title,
-          poemFullUrl: localPoem.url || "",
+          poemFullUrl: localPoem.source || "",
           audioTitle: localPoem.title,
           audioArtist: poetNames[poetSlug], // Use the display name from our mapping
           audioArtistUrl: "",
@@ -235,10 +236,11 @@ const customApi = {
       title: localPoem.title,
       fullTitle: localPoem.title,
       urlSlug: "",
-      fullUrl: localPoem.url || "",
+      fullUrl: localPoem.source || "",
       plainText: plainText,
       htmlText: htmlText,
       recitations: recitations,
+      isCustom: true,
       poet: poetNames[poetSlug],
       poetSlug: poetSlug,
       poetNickname: "",

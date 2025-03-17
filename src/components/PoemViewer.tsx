@@ -175,9 +175,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
 
     const openSource = () => {
-        if (poetSlug) {
+        // For custom poems, use the fullUrl directly
+        if (poem.isCustom) {
             return poem.fullUrl;
         } else {
+            // For ganjoor poems, always prepend the ganjoor.net domain
             return `https://ganjoor.net${poem.fullUrl}`;
         }
     }
@@ -185,13 +187,22 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const sharePoem = async () => {
         const baseUrl = 'https://ganjoorak.ir';
         let poemUrl = "";
-        if (poetSlug) {
-            poemUrl = `${baseUrl}/${poetSlug}/${poem.id}`;
-        } else if (poem.poetSlug) {
-            poemUrl = `${baseUrl}/${poem.poetSlug}/${poem.id}`;
+
+        if (poem.isCustom) {
+            // For custom poems, share as /[poet]/id
+            if (poetSlug) {
+                poemUrl = `${baseUrl}/${poetSlug}/${poem.id}`;
+            } else if (poem.poetSlug) {
+                poemUrl = `${baseUrl}/${poem.poetSlug}/${poem.id}`;
+            } else {
+                // Fallback to /poem/:id if no poet slug is available
+                poemUrl = `${baseUrl}/poem/${poem.id}`;
+            }
         } else {
+            // For ganjoor poems, share as /poem/:id
             poemUrl = `${baseUrl}/poem/${poem.id}`;
         }
+
         if (navigator.share) {
             try {
                 await navigator.share({

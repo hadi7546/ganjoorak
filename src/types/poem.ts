@@ -37,6 +37,7 @@ export interface Poem {
     plainText: string;
     htmlText: string;
     recitations: PoemRecitation[];
+    isCustom?: boolean;
 }
 
 export interface PoemViewerProps {
