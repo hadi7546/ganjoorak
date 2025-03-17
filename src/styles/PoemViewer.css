@@ -126,9 +126,11 @@
     margin: 0 auto;
     font-size: 1.2rem;
     -ms-overflow-style: auto;
-    /* Show scrollbar in IE */
-    scrollbar-width: thin;
-    /* Show thin scrollbar in Firefox */
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    contain: content;
+    scroll-behavior: auto;
 }
 
 .poem-text::-webkit-scrollbar {
@@ -161,6 +163,8 @@
     max-width: 1300px;
     padding: 0 0.5rem;
     direction: rtl;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 .verse-line {
@@ -176,6 +180,8 @@
     white-space: normal;
     overflow: visible;
     word-wrap: break-word;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 .verse-line:first-child::after {
@@ -205,6 +211,8 @@
     max-width: 1300px;
     padding: 0 0.5rem;
     direction: rtl;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 .m1 {
@@ -217,6 +225,8 @@
         text-shadow 0.2s ease;
     font-weight: 400;
     font-size: 1.5rem;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 .m2 {
@@ -229,6 +239,8 @@
         text-shadow 0.2s ease;
     font-weight: 400;
     font-size: 1.5rem;
+    will-change: transform, opacity;
+    transform: translateZ(0);
 }
 
 .m1:hover,
@@ -258,9 +270,12 @@
     }
 
     .poem-text {
-        font-size: 1rem;
-        line-height: 1.75;
-        padding: 1rem 0.5rem 5rem;
+        font-size: 1.1rem;
+        line-height: 1.9;
+        padding: 1.5rem 0.5rem 5rem;
+        height: calc(100% - 90px);
+        will-change: transform;
+        contain: content;
     }
 
     .verse-pair {
@@ -335,8 +350,12 @@
     }
 
     .poem-text {
-        font-size: 0.9rem;
+        font-size: 1rem;
         line-height: 1.8;
+        padding: 1rem 0.5rem 4.5rem;
+        height: calc(100% - 80px);
+        will-change: transform;
+        contain: content;
     }
 
     .verse-line {

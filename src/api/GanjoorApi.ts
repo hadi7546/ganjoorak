@@ -45,6 +45,7 @@ const ganjoorApi = {
                 throw new Error('شناسه شعر معتبر نیست');
             }
 
+            // No cache check - always fetch fresh data
             console.log('Fetching poem:', id);
             const response = await axios.get(`${API_BASE_URL}/api/ganjoor/poem/${id}`, {
                 timeout: 5000,
@@ -55,6 +56,7 @@ const ganjoorApi = {
             });
 
             console.log('API Response:', response.data);
+            // Don't cache the response
             return ganjoorApi.mapPoemResponse(response.data);
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -124,6 +126,7 @@ const ganjoorApi = {
     async getRandomPoemByPoet(slug: string): Promise<Poem> {
         const poet = await ganjoorApi.getPoetBySlug(slug);
         try {
+            // Don't use session storage cache - always get fresh data
             const response = await axios.get(`${API_BASE_URL}/api/ganjoor/poem/random?poetId=${poet.id}`, {
                 timeout: 5000,
                 headers: {
@@ -132,6 +135,7 @@ const ganjoorApi = {
                 }
             });
 
+            // Don't check or store in cache
             return ganjoorApi.mapPoemResponse(response.data);
         } catch (error) {
             console.error('Error fetching random poem:', error);

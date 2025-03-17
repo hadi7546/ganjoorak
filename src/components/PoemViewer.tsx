@@ -57,16 +57,23 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     // Turn off loading when a new poem arrives
     useEffect(() => {
         setIsLoading(false);
-    }, [poem.id]);
+
+        // Reset recitation index if needed
+        if (poem.recitations && poem.recitations.length > 0) {
+            if (currentRecitationIndex >= poem.recitations.length) {
+                setCurrentRecitationIndex(0);
+            }
+        }
+    }, [poem.id, poem.recitations]);
 
     // Check if scroll is at the bottom
     const isScrolledToBottom = () => {
-        const poemText = document.querySelector('.poem-text');
-        if (!poemText) return true;
+        if (!poemTextRef.current) return true;
 
         const threshold = 50; // Increased threshold for better detection
-        return poemText.scrollHeight - poemText.scrollTop - poemText.clientHeight < threshold;
+        return poemTextRef.current.scrollHeight - poemTextRef.current.scrollTop - poemTextRef.current.clientHeight < threshold;
     };
+
     // Wrapper to handle next action with loading indicator
     const handleNext = () => {
         if (isPlaying && audioRef.current) {
@@ -77,102 +84,116 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         setCurrentTime(0);
         setDuration(0);
         setCurrentRecitationIndex(0);
-        setIsLoading(true);
+        // Don't set loading state when scrolling through poems
         onNext();
     };
 
-    // Handle swipe gestures and mouse wheel navigation
+    const chunk = (arr: string[], size: number) => {
+        return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, (i + 1) * size));
+    };
+
+    // Helper functions for wheel handling
+    const isAtBottom = () => {
+        if (!poemTextRef.current) return false;
+        const threshold = 20;
+        return poemTextRef.current.scrollHeight - poemTextRef.current.scrollTop - poemTextRef.current.clientHeight < threshold;
+    };
+
+    const isAtTop = () => {
+        if (!poemTextRef.current) return false;
+        return poemTextRef.current.scrollTop <= 1;
+    };
+
+    // Update useEffect for optimized scrolling behavior
     useEffect(() => {
-        const poemText = document.querySelector('.poem-text') as HTMLDivElement;
-        if (!poemText) return;
+        const poemTextElement = poemTextRef.current;
+        if (!poemTextElement) return;
 
-        const canScroll = () => {
-            return poemText.scrollHeight > poemText.clientHeight;
-        };
+        // Debounce mechanism to prevent rapid firing of wheel events
+        let wheelTimeout: NodeJS.Timeout | null = null;
+        let lastWheelTime = 0;
+        const WHEEL_COOLDOWN = 200; // milliseconds - reduced from 500ms for faster response
 
-        const isAtBottom = () => {
-            const threshold = 20;
-            return poemText.scrollHeight - poemText.scrollTop - poemText.clientHeight < threshold;
-        };
+        // Direct wheel handler with improved logic
+        const wheelHandler = (e: WheelEvent) => {
+            // Only check if we're at boundaries
+            const atBottom = isAtBottom();
+            const atTop = isAtTop();
 
-        const isAtTop = () => {
-            return poemText.scrollTop === 0;
-        };
+            // Make sure we don't trigger the event too frequently
+            const isSignificantScroll = Math.abs(e.deltaY) > 5; // Reduced threshold for better sensitivity
 
-        const handleTouchStart = (e: Event) => {
-            const touchEvent = e as TouchEvent;
-            const touchStartY = touchEvent.touches[0].clientY;
-
-            const handleTouchMove = (e: Event) => {
-                const touchEvent = e as TouchEvent;
-                const touchCurrentY = touchEvent.touches[0].clientY;
-                const diff = touchStartY - touchCurrentY;
-
-                // If poem is scrollable, let the user scroll
-                if (canScroll()) {
-                    if ((diff > 0 && !isAtBottom()) || (diff < 0 && !isAtTop())) {
-                        return;
-                    }
-                }
-
-                if (Math.abs(diff) > 50) {
-                    if (diff > 0 && !isLast) {
-                        handleNext();
-                    } else if (diff < 0 && !isFirst) {
-                        onPrevious();
-                    }
-                    document.removeEventListener('touchmove', handleTouchMove);
-                    document.removeEventListener('touchend', handleTouchEnd);
-                }
-            };
-
-            const handleTouchEnd = () => {
-                document.removeEventListener('touchmove', handleTouchMove);
-                document.removeEventListener('touchend', handleTouchEnd);
-            };
-
-            document.addEventListener('touchmove', handleTouchMove);
-            document.addEventListener('touchend', handleTouchEnd);
-        };
-
-        const handleWheel = (e: Event) => {
-            const wheelEvent = e as WheelEvent;
-            const poemTextRect = poemText.getBoundingClientRect();
-            const isMouseOverPoemText =
-                wheelEvent.clientY >= poemTextRect.top &&
-                wheelEvent.clientY <= poemTextRect.bottom;
-
-            if (!isMouseOverPoemText) return;
-
-            // If poem is scrollable, let the user scroll unless at boundaries
-            if (canScroll()) {
-                if (wheelEvent.deltaY > 0 && !isAtBottom()) {
-                    return;
-                }
-                if (wheelEvent.deltaY < 0 && !isAtTop()) {
-                    return;
-                }
+            // Debounce implementation
+            const now = Date.now();
+            if (now - lastWheelTime < WHEEL_COOLDOWN) {
+                return; // Still in cooldown period
             }
 
-            // Only navigate if we're at the boundaries
-            if (wheelEvent.deltaY > 0 && !isLast) {
-                wheelEvent.preventDefault();
+            // If we're at the bottom and scrolling down, go to next poem
+            if (atBottom && e.deltaY > 0 && !isLast && isSignificantScroll) {
+                e.preventDefault();
                 handleNext();
-            } else if (wheelEvent.deltaY < 0 && !isFirst) {
-                wheelEvent.preventDefault();
+                lastWheelTime = now;
+                return;
+            }
+
+            // If we're at the top and scrolling up, go to previous poem
+            if (atTop && e.deltaY < 0 && !isFirst && isSignificantScroll) {
+                e.preventDefault();
                 onPrevious();
+                lastWheelTime = now;
+                return;
             }
         };
 
-        poemText.addEventListener('touchstart', handleTouchStart as EventListener);
-        poemText.addEventListener('wheel', handleWheel as EventListener);
+        // Touch event handlers
+        let touchStartY = 0;
+        let isTouching = false;
+
+        const handleTouchStart = (e: TouchEvent) => {
+            touchStartY = e.touches[0].clientY;
+            isTouching = true;
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (!isTouching) return;
+
+            const touchCurrentY = e.touches[0].clientY;
+            const diff = touchStartY - touchCurrentY;
+
+            // If poem is scrollable, let the user scroll
+            if (poemTextElement.scrollHeight > poemTextElement.clientHeight) {
+                if ((diff > 0 && !isAtBottom()) || (diff < 0 && !isAtTop())) {
+                    return;
+                }
+            }
+
+            if (Math.abs(diff) > 50) {
+                if (diff > 0 && !isLast) {
+                    handleNext();
+                } else if (diff < 0 && !isFirst) {
+                    onPrevious();
+                }
+                isTouching = false;
+            }
+        };
+
+        const handleTouchEnd = () => {
+            isTouching = false;
+        };
+
+        poemTextElement.addEventListener('touchstart', handleTouchStart, { passive: true });
+        poemTextElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+        poemTextElement.addEventListener('touchend', handleTouchEnd, { passive: true });
+        poemTextElement.addEventListener('wheel', wheelHandler, { passive: false });
 
         return () => {
-            poemText.removeEventListener('touchstart', handleTouchStart as EventListener);
-            poemText.removeEventListener('wheel', handleWheel as EventListener);
+            poemTextElement.removeEventListener('touchstart', handleTouchStart);
+            poemTextElement.removeEventListener('touchmove', handleTouchMove);
+            poemTextElement.removeEventListener('touchend', handleTouchEnd);
+            poemTextElement.removeEventListener('wheel', wheelHandler);
         };
     }, [isFirst, isLast, onPrevious, handleNext]);
-
 
     const openSource = () => {
         // For custom poems, use the fullUrl directly
@@ -509,10 +530,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [poem.recitations, currentRecitationIndex, isPlaying, isFirst, isLast, onPrevious, isMouseOverPoemText]);
 
-    const chunk = (arr: string[], size: number) => {
-        return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, (i + 1) * size));
-    };
-
     const hasNextRecitation = poem.recitations && currentRecitationIndex < poem.recitations.length - 1;
     const hasPreviousRecitation = poem.recitations && currentRecitationIndex > 0;
 
@@ -531,7 +548,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
             <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-            {/* Loading overlay */}
+            {/* Loading overlay is now permanently hidden when scrolling through poems 
             <AnimatePresence>
                 {isLoading && (
                     <motion.div
@@ -544,10 +561,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                         در حال بارگیری...
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence> */}
 
             {/* Audio player */}
-            {poem.recitations && poem.recitations.length > 0 && poem.recitations[currentRecitationIndex] && (
+            {poem.recitations && poem.recitations.length > 0 && (
                 <div className="audio-player">
                     <div className="audio-controls">
                         <button
@@ -595,7 +612,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
                     <audio
                         ref={audioRef}
-                        src={poem.recitations[currentRecitationIndex].mp3Url}
+                        src={poem.recitations[currentRecitationIndex]?.mp3Url}
                         onTimeUpdate={handleTimeUpdate}
                         onLoadedMetadata={() => {
                             if (audioRef.current) {

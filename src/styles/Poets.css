@@ -96,6 +96,7 @@
 
 .poets-grid-container.open {
     height: var(--grid-height);
+    overflow: visible;
 }
 
 .poets-grid {
@@ -226,9 +227,28 @@
     }
 
     .poets-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 0.5rem;
         padding: 0.5rem 0.75rem 1.25rem;
+    }
+
+    .poet-card {
+        padding: 0.5rem 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .poet-image-container {
+        width: 70px;
+        height: 70px;
+    }
+
+    .poet-image {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .poets-grid-container.open {
+        overflow: visible;
     }
 }
 
@@ -238,7 +258,7 @@
     flex-direction: column;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 1rem;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .category-section>button {
@@ -263,11 +283,16 @@
     margin-bottom: 0.5rem;
 }
 
+.category-section>.poets-grid-container {
+    overflow: visible;
+}
+
 .category-section>.poets-grid-container>div {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     padding-bottom: 0;
+    overflow: visible;
 }
 
 .category-section>button:hover {
@@ -297,4 +322,5 @@
 .category-section>.poets-grid-container.open>div {
     opacity: 1;
     transform: translateY(0);
+    overflow: visible;
 }

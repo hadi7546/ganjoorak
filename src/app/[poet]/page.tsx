@@ -93,13 +93,15 @@ export default function PoetPage() {
         setError(null);
         const fetchedPoems: Poem[] = [];
 
-        for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
+        // Fetch two poems initially for better experience
+        const initialFetchCount = 2; // Increased from 1 to 2
+        for (let i = 0; i < initialFetchCount; i++) {
           try {
             if (isGanjoor) {
               // First get random poem ID
-              const randomPoem = await ganjoorApi.getRandomPoemByPoet(poetSlug);
-              // Then fetch complete poem data
-              const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
+              const randomPoemInitial = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+              // Then fetch complete poem data with recitations
+              const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
               fetchedPoems.push(fullPoem);
             } else {
               const randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
@@ -112,6 +114,11 @@ export default function PoetPage() {
 
         if (fetchedPoems.length > 0) {
           setPoems(fetchedPoems);
+
+          // Then fetch more poems in the background
+          setTimeout(() => {
+            fetchMorePoemsInBackground();
+          }, 1000);
         } else {
           throw new Error("Could not fetch any poems");
         }
@@ -123,6 +130,36 @@ export default function PoetPage() {
       }
     };
 
+    // Function to fetch more poems in the background after displaying the first ones
+    const fetchMorePoemsInBackground = async () => {
+      try {
+        const additionalPoems: Poem[] = [];
+        const remainingCount = INITIAL_POEMS_COUNT - 2; // We've already fetched two poems
+
+        for (let i = 0; i < remainingCount; i++) {
+          try {
+            if (isGanjoor) {
+              const randomPoemInitial = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+              // Always fetch complete data with recitations
+              const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
+              additionalPoems.push(fullPoem);
+            } else {
+              const randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
+              additionalPoems.push(randomPoem);
+            }
+          } catch (err) {
+            console.error("Error fetching additional poem:", err);
+          }
+        }
+
+        if (additionalPoems.length > 0) {
+          setPoems(prev => [...prev, ...additionalPoems]);
+        }
+      } catch (err) {
+        console.error("Error fetching additional poems:", err);
+      }
+    };
+
     fetchInitialPoems();
   }, [poetSlug, isGanjoor, notFound]);
 
@@ -131,20 +168,28 @@ export default function PoetPage() {
     if (isGanjoor === null) return;
 
     try {
+      // Don't show loading state when scrolling/wheel navigation
+      // setLoading(true);
+
       let randomPoem: Poem;
       if (isGanjoor) {
         // First get random poem ID
         const initialPoem = await ganjoorApi.getRandomPoemByPoet(poetSlug);
-        // Then fetch complete poem data
+        // Then always fetch complete poem data with recitations
         randomPoem = await ganjoorApi.getPoemById(initialPoem.id);
       } else {
         randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
       }
-      setPoems([...poems, randomPoem]);
-      setCurrentPoemIndex(currentPoemIndex + 1);
+
+      // Update poems state and index - always add to the end
+      setPoems(prevPoems => [...prevPoems, randomPoem]);
+      setCurrentPoemIndex(prevIndex => prevIndex + 1);
     } catch (err) {
       console.error("Error fetching next poem:", err);
       setError("متأسفانه در بارگیری شعر بعدی مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
+    } finally {
+      // Don't hide loading state since we didn't show it
+      // setLoading(false);
     }
   };
 
@@ -154,6 +199,43 @@ export default function PoetPage() {
       setCurrentPoemIndex(currentPoemIndex - 1);
     }
   };
+
+  // Preload the next poem when reaching or approaching the last visible poem
+  useEffect(() => {
+    // Start preloading when we're at the second-to-last poem or the last poem
+    const shouldPreload = isGanjoor !== null &&
+      !notFound &&
+      poems.length > 0 &&
+      (currentPoemIndex >= poems.length - 2);
+
+    if (shouldPreload) {
+      // Preload the next poem
+      const preloadNextPoem = async () => {
+        try {
+          // Determine how many poems to preload (always maintain 2 ahead)
+          const poemsToPreload = Math.max(0, 2 - (poems.length - currentPoemIndex - 1));
+
+          for (let i = 0; i < poemsToPreload; i++) {
+            let nextPoem: Poem;
+            if (isGanjoor) {
+              const initialPoem = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+              nextPoem = await ganjoorApi.getPoemById(initialPoem.id);
+
+              // Add the preloaded poem to the list
+              setPoems(prevPoems => [...prevPoems, nextPoem]);
+            } else {
+              const randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
+              setPoems(prevPoems => [...prevPoems, randomPoem]);
+            }
+          }
+        } catch (err) {
+          console.error("Error preloading next poem:", err);
+        }
+      };
+
+      preloadNextPoem();
+    }
+  }, [currentPoemIndex, poems.length, isGanjoor, notFound, poetSlug]);
 
   if (notFound) {
     return (
