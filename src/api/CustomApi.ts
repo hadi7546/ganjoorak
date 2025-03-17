@@ -5,6 +5,12 @@ import { list } from "@vercel/blob";
 // Cache for poets' poems
 let poetPoemsCache: Record<string, any> = {};
 
+// Define fallback paths for local JSON files
+const poetFallbackPaths: Record<string, string> = {
+  'rahmani': '/poems/rahmani.json',
+  'farrokhzad': '/poems/farrokhzad.json',
+};
+
 const customApi = {
   /**
    * Get poet data from blob storage or local cache
@@ -21,7 +27,12 @@ const customApi = {
       // Try to fetch from our proxy API route
       try {
         // Use absolute URL with origin for server components
-        const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+        const origin = typeof window !== 'undefined'
+          ? window.location.origin
+          : process.env.VERCEL_URL
+            ? `https://${process.env.VERCEL_URL}`
+            : 'http://localhost:3000';
+
         const apiUrl = `${origin}/api/poet/${poetSlug}`;
         console.log(`Making request to: ${apiUrl}`);
 
@@ -47,7 +58,37 @@ const customApi = {
         return data;
       } catch (apiError: any) {
         console.error("Error fetching from API:", apiError);
-        throw new Error(`متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد: ${apiError?.message || String(apiError)}`);
+
+        // Try fallback to local JSON files
+        try {
+          console.log(`Trying fallback to local file for poet: ${poetSlug}`);
+          const fallbackPath = poetFallbackPaths[poetSlug];
+
+          if (!fallbackPath) {
+            throw new Error(`No fallback path defined for poet: ${poetSlug}`);
+          }
+
+          console.log(`Fetching from fallback path: ${fallbackPath}`);
+          const fallbackResponse = await fetch(fallbackPath);
+
+          if (!fallbackResponse.ok) {
+            throw new Error(`Fallback fetch failed: ${fallbackResponse.status}`);
+          }
+
+          const fallbackData = await fallbackResponse.json();
+          console.log(`Successfully fetched fallback data for poet: ${poetSlug}`);
+
+          if (!fallbackData || !fallbackData.poems || !Array.isArray(fallbackData.poems)) {
+            throw new Error('Invalid data structure in fallback data');
+          }
+
+          // Cache the fallback data
+          poetPoemsCache[poetSlug] = fallbackData;
+          return fallbackData;
+        } catch (fallbackError) {
+          console.error("Error fetching from fallback:", fallbackError);
+          throw new Error(`Failed to fetch poet data: ${apiError?.message || String(apiError)}`);
+        }
       }
     } catch (error) {
       console.error(`Error getting poet data for ${poetSlug}:`, error);
@@ -152,19 +193,54 @@ const customApi = {
     try {
       // Get all poet slugs from the PoetSlug enum
       const poetSlugs = Object.values(PoetSlug);
+      console.log(`Attempting to fetch ${poetSlugs.length} custom poets`, poetSlugs);
 
       // Create an array of promises to fetch poet info for each slug
       const poetPromises = poetSlugs.map(async (slug) => {
         try {
-          return await customApi.getPoetInfo(slug);
+          const poetInfo = await customApi.getPoetInfo(slug);
+          console.log(`Successfully fetched poet info for ${slug}`);
+          return poetInfo;
         } catch (error) {
           console.error(`Error fetching poet info for ${slug}:`, error);
-          return null;
+
+          // Create fallback poet info if fetch fails
+          try {
+            console.log(`Creating fallback poet info for ${slug}`);
+            const fallbackPoet = createPoet({
+              id: 0,
+              name: poetNames[slug],
+              nickname: "",
+              fullUrl: slug,
+              urlSlug: slug,
+              imageUrl: `/images/poets/${slug}.jpg`, // Fallback to local image
+              published: true,
+              description: null,
+              rootCatId: 0,
+              birthYearInLHijri: null,
+              validBirthDate: false,
+              deathYearInLHijri: null,
+              validDeathDate: false,
+              pinOrder: 0,
+              birthPlace: null,
+              birthPlaceLatitude: null,
+              birthPlaceLongitude: null,
+              deathPlace: null,
+              deathPlaceLatitude: null,
+              deathPlaceLongitude: null
+            });
+            console.log(`Created fallback poet for ${slug}:`, fallbackPoet);
+            return fallbackPoet;
+          } catch (fallbackError) {
+            console.error(`Failed to create fallback poet for ${slug}:`, fallbackError);
+            return null;
+          }
         }
       });
 
       // Wait for all promises to resolve
       const poets = await Promise.all(poetPromises);
+      console.log(`Fetched ${poets.filter(p => p !== null).length} poets out of ${poetSlugs.length}`);
 
       // Filter out any null values (failed fetches)
       return poets.filter((poet): poet is Poet => poet !== null);

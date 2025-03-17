@@ -273,6 +273,7 @@
 
 .category-section .century-section {
     margin: 0.5rem 1rem;
+    overflow: visible;
 }
 
 .category-section .century-section:first-of-type {
@@ -284,14 +285,14 @@
 }
 
 .category-section>.poets-grid-container {
-    overflow: visible;
+    transition: height 0.4s ease-in-out, opacity 0.3s ease;
 }
 
 .category-section>.poets-grid-container>div {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding-bottom: 0;
+    padding-bottom: 1rem;
     overflow: visible;
 }
 
@@ -323,4 +324,25 @@
     opacity: 1;
     transform: translateY(0);
     overflow: visible;
+}
+
+/* Fix for mobile devices */
+@media (max-width: 480px) {
+    .category-section .century-section {
+        margin: 0.5rem 0.5rem;
+    }
+
+    .category-section>.poets-grid-container.open {
+        overflow: visible !important;
+        height: auto !important;
+        /* Ensure it expands fully on mobile */
+    }
+
+    .poets-grid-container.open {
+        overflow: visible !important;
+    }
+
+    .century-section .poets-grid-container.open {
+        overflow: visible !important;
+    }
 }

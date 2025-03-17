@@ -20,8 +20,21 @@ function CenturySection({ century, title }: { century: Century; title?: string }
         if (!gridRef.current) return;
 
         if (isOpen) {
-            const height = gridRef.current.scrollHeight;
-            setHeight(height);
+            // Use setTimeout to ensure full content is measured
+            const updateHeight = () => {
+                if (gridRef.current) {
+                    const height = gridRef.current.scrollHeight;
+                    setHeight(height);
+                }
+            };
+
+            // Initial calculation
+            updateHeight();
+
+            // Second calculation after a slight delay to catch any dynamic content
+            const timer = setTimeout(updateHeight, 50);
+
+            return () => clearTimeout(timer);
         } else {
             setHeight(0);
         }
@@ -54,7 +67,10 @@ function CenturySection({ century, title }: { century: Century; title?: string }
             </button>
             <div
                 className={`poets-grid-container ${isOpen ? 'open' : ''}`}
-                style={{ height: height === undefined ? 'auto' : `${height}px` }}
+                style={{
+                    height: height === undefined ? 'auto' : `${height}px`,
+                    overflow: isOpen ? 'visible' : 'hidden'
+                }}
             >
                 <div className="poets-grid" ref={gridRef}>
                     {century.poets
@@ -88,12 +104,47 @@ function CategorySection({ title, children, isOpen: initialIsOpen = false }: { t
     const contentRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState<number | undefined>(undefined);
 
+    // Recalculate height when the section is opened
     useEffect(() => {
         if (!contentRef.current) return;
 
         if (isOpen) {
-            const height = contentRef.current.scrollHeight;
-            setHeight(height);
+            // Use setTimeout to ensure all children elements are rendered
+            // before calculating the height
+            const updateHeight = () => {
+                if (contentRef.current) {
+                    const newHeight = contentRef.current.scrollHeight;
+                    setHeight(newHeight);
+
+                    // Set a safe maximum height for mobile devices
+                    if (window.innerWidth <= 480) {
+                        // Add extra space for mobile to ensure everything is visible
+                        setHeight(newHeight + 100);
+                    }
+                }
+            };
+
+            // Initial update
+            updateHeight();
+
+            // Additional update after a short delay to capture any dynamic content
+            const timer = setTimeout(updateHeight, 50);
+
+            // Set up a resize observer to handle content changes
+            const resizeObserver = new ResizeObserver(() => {
+                if (isOpen && contentRef.current) {
+                    updateHeight();
+                }
+            });
+
+            if (contentRef.current) {
+                resizeObserver.observe(contentRef.current);
+            }
+
+            return () => {
+                clearTimeout(timer);
+                resizeObserver.disconnect();
+            };
         } else {
             setHeight(0);
         }
@@ -117,7 +168,10 @@ function CategorySection({ title, children, isOpen: initialIsOpen = false }: { t
             </button>
             <div
                 className={`poets-grid-container ${isOpen ? 'open' : ''}`}
-                style={{ height: height === undefined ? 'auto' : `${height}px` }}
+                style={{
+                    height: height === undefined ? 'auto' : `${height}px`,
+                    overflow: isOpen ? 'visible' : 'hidden'
+                }}
             >
                 <div ref={contentRef}>
                     {children}
@@ -161,26 +215,30 @@ export default function PoetsContent({ centuries, customPoets = [] }: { centurie
     const [isLoading, setIsLoading] = useState(true);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    // Extract featured century (century 0) and other centuries
+    const featuredCentury = centuries.find(c => c.id === 0);
+    const otherCenturies = centuries.filter(c => c.id !== 0);
+
+    // Determine if there are any custom poets to display
+    const hasCustomPoets = customPoets && customPoets.length > 0;
+
+    // Show loading state briefly for smooth transition
     useEffect(() => {
-        // Simulate loading for at least 500ms for better UX
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 500);
+        }, 300);
 
         return () => clearTimeout(timer);
     }, []);
 
     if (isLoading) {
-        return <LoadingScreen />;
+        return (
+            <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <div className="loading-text">در حال بارگیری...</div>
+            </div>
+        );
     }
-
-    // Get featured poets (century with id=0)
-    const featuredCentury = centuries.find(c => c.id === 0);
-    // Get all other centuries
-    const otherCenturies = centuries.filter(c => c.id !== 0);
-
-    // Check if we have custom poets to display
-    const hasCustomPoets = customPoets.length > 0;
 
     return (
         <>
@@ -194,6 +252,7 @@ export default function PoetsContent({ centuries, customPoets = [] }: { centurie
                     title="شاعران محبوب"
                 />
             )}
+
             {/* Contemporary Poets Section */}
             <CategorySection title="شاعران معاصر" isOpen={false}>
                 {hasCustomPoets ? (
@@ -212,18 +271,26 @@ export default function PoetsContent({ centuries, customPoets = [] }: { centurie
                     </div>
                 )}
             </CategorySection>
-            {/* Classical Poets Section */}
+
+            {/* Classical Poets Section - with improved rendering */}
             <CategorySection title="شاعران کهن" isOpen={false}>
-                {/* Other Centuries */}
-                {otherCenturies.map((century) => (
-                    <CenturySection
-                        key={century.id}
-                        century={century}
-                    />
-                ))}
+                {otherCenturies.length > 0 ? (
+                    otherCenturies.map((century) => (
+                        <CenturySection
+                            key={century.id}
+                            century={century}
+                        />
+                    ))
+                ) : (
+                    <div className="century-section">
+                        <div className="century-title-button">
+                            <h2 className="century-title">
+                                در حال بارگیری...
+                            </h2>
+                        </div>
+                    </div>
+                )}
             </CategorySection>
-
-
         </>
     );
 } 

@@ -8,17 +8,35 @@ import '@/styles/Poets.css';
 const vazirmatn = Vazirmatn({ subsets: ['arabic'] });
 
 async function getCenturies(): Promise<Century[]> {
-    const centuries = await ganjoorApi.getCenturies();
-    return centuries.sort((a, b) => a.halfCenturyOrder - b.halfCenturyOrder);
+    try {
+        const centuries = await ganjoorApi.getCenturies();
+        return centuries.sort((a, b) => a.halfCenturyOrder - b.halfCenturyOrder);
+    } catch (error) {
+        console.error("Error fetching centuries:", error);
+        return [];
+    }
 }
 
 async function getCustomPoets(): Promise<Poet[]> {
-    return await customApi.getPoets();
+    try {
+        console.log("Fetching custom poets...");
+        const poets = await customApi.getPoets();
+        console.log(`Found ${poets.length} custom poets`);
+        return poets;
+    } catch (error) {
+        console.error("Error fetching custom poets:", error);
+        return [];
+    }
 }
 
 export default async function PoetsPage() {
-    const centuries = await getCenturies();
-    const customPoets = await getCustomPoets();
+    // Fetch data in parallel for better performance
+    const [centuries, customPoets] = await Promise.all([
+        getCenturies(),
+        getCustomPoets()
+    ]);
+
+    console.log(`Rendering poets page with ${centuries.length} centuries and ${customPoets.length} custom poets`);
 
     return (
         <div className={`poets-container ${vazirmatn.className}`}>
