@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { list } from '@vercel/blob';
 
+export const dynamic = 'force-dynamic'; // Mark this route as dynamic
+
 // CORS headers
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
