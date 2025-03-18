@@ -213,7 +213,7 @@ const customApi = {
               nickname: "",
               fullUrl: slug,
               urlSlug: slug,
-              imageUrl: `https://7elmsr3m4bc7q4th.public.blob.vercel-storage.com/poets/${slug}.jpg`, // Fallback to local image
+              imageUrl: `https://7elmsr3m4bc7q4th.public.blob.vercel-storage.com/poets/${slug}.jpeg`, // Fallback to local image
               published: true,
               description: null,
               rootCatId: 0,
