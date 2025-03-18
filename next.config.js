@@ -9,12 +9,26 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'api.ganjoor.net',
-                pathname: '/api/ganjoor/poet/image/**',
+                port: '',
+                pathname: '/**',
             },
             {
                 protocol: 'https',
-                hostname: '7elmsr3m4bc7q4th.public.blob.vercel-storage.com',
-                pathname: '/poets/**',
+                hostname: 'ganjgah.ir',
+                port: '',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'iranganje.ir',
+                port: '',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'i.ibb.co',
+                port: '',
+                pathname: '/**',
             },
         ],
 

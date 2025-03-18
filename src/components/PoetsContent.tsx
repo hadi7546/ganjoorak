@@ -85,6 +85,7 @@ function CenturySection({ century, title }: { century: Century; title?: string }
                                     <PoetImage
                                         imgUrl={poet.imageUrl}
                                         alt={poet.name}
+                                        poetSlug={poet.urlSlug}
                                     />
                                 </div>
                                 <h2 className="poet-name">{poet.nickname || poet.name}</h2>
@@ -199,6 +200,7 @@ function PoetsList({ poets }: { poets: Poet[] }) {
                             <PoetImage
                                 imgUrl={poet.imageUrl}
                                 alt={poet.name}
+                                poetSlug={poet.urlSlug}
                             />
                         </div>
                         <h2 className="poet-name">{poet.nickname || poet.name}</h2>
@@ -232,12 +234,7 @@ export default function PoetsContent({ centuries, customPoets = [] }: { centurie
     }, []);
 
     if (isLoading) {
-        return (
-            <div className="loading-container">
-                <div className="loading-spinner"></div>
-                <div className="loading-text">در حال بارگیری...</div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

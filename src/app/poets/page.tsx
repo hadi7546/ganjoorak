@@ -3,6 +3,7 @@ import { Century, Poet } from '@/types/poet';
 import ganjoorApi from '@/api/GanjoorApi';
 import customApi from '@/api/CustomApi';
 import PoetsContent from '@/components/PoetsContent';
+import LoadingScreen from '@/components/LoadingScreen';
 import '@/styles/Poets.css';
 
 const vazirmatn = Vazirmatn({ subsets: ['arabic'] });
