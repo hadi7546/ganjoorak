@@ -14,27 +14,9 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'ganjgah.ir',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'iranganje.ir',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'i.ibb.co',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
                 hostname: '7elmsr3m4bc7q4th.public.blob.vercel-storage.com',
                 port: '',
-                pathname: '/**',
+                pathname: '/poets/**',
             },
         ],
 

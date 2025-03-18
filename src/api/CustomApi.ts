@@ -213,7 +213,7 @@ const customApi = {
               nickname: "",
               fullUrl: slug,
               urlSlug: slug,
-              imageUrl: `/images/poets/${slug}.jpg`, // Fallback to local image
+              imageUrl: await customApi._getPoetImageUrl(slug), // Fallback to local image
               published: true,
               description: null,
               rootCatId: 0,
