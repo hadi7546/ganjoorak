@@ -24,7 +24,10 @@ export const metadata: Metadata = {
     openGraph: {
         images: [
             {
-                url: 'icon-192-maskable.png',
+                url: '/banner.png',
+                width: 1200,
+                height: 630,
+                alt: 'گنجورک',
             },
         ],
         type: 'website',
