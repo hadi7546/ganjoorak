@@ -41,7 +41,12 @@ const nextConfig = {
 
     // Enable experimental features for better performance
     experimental: {
-        optimizeCss: true,
+        optimizeCss: {
+            cssModules: true,
+            fontLoaders: [
+                { loader: '@next/font/google', options: { subsets: ['latin', 'arabic'] } },
+            ],
+        },
         scrollRestoration: true,
         optimisticClientCache: true,
     },

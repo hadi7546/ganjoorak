@@ -64,24 +64,6 @@ export default function RootLayout({
 }) {
     return (
         <html lang="fa" dir="rtl" className={vazirmatn.className}>
-            <head>
-                {/* Preload critical resources */}
-                <link
-                    rel="preconnect"
-                    href="https://7elmsr3m4bc7q4th.public.blob.vercel-storage.com"
-                    crossOrigin="anonymous"
-                />
-                <link
-                    rel="dns-prefetch"
-                    href="https://7elmsr3m4bc7q4th.public.blob.vercel-storage.com"
-                />
-                {/* Preload CSS */}
-                <link
-                    rel="preload"
-                    href="/styles/PoemViewer.css"
-                    as="style"
-                />
-            </head>
             <body className={inter.className}>
                 {children}
                 <Analytics />

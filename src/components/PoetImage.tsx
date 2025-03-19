@@ -8,9 +8,16 @@ interface PoetImageProps {
     alt?: string;
     poetSlug?: string;
     priority?: boolean;
+    onLoadingComplete?: () => void;
 }
 
-export default function PoetImage({ imgUrl, alt, poetSlug, priority = false }: PoetImageProps) {
+export default function PoetImage({
+    imgUrl,
+    alt,
+    poetSlug,
+    priority = false,
+    onLoadingComplete
+}: PoetImageProps) {
     const [imgSrc, setImgSrc] = useState<string>(imgUrl);
     const [error, setError] = useState(false);
 
@@ -27,6 +34,9 @@ export default function PoetImage({ imgUrl, alt, poetSlug, priority = false }: P
             onError={() => {
                 setError(true);
                 // You could set a fallback image here if needed
+            }}
+            onLoadingComplete={() => {
+                if (onLoadingComplete) onLoadingComplete();
             }}
             sizes="(max-width: 480px) 50px, (max-width: 768px) 60px, 80px"
         />

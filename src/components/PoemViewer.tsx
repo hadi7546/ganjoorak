@@ -47,6 +47,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const poemTextRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
+    const [imageLoaded, setImageLoaded] = useState(false);
 
     // Define loading animation variants
     const loadingVariants = {
@@ -533,6 +534,15 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const hasNextRecitation = poem.recitations && currentRecitationIndex < poem.recitations.length - 1;
     const hasPreviousRecitation = poem.recitations && currentRecitationIndex > 0;
 
+    // Preload poet image
+    useEffect(() => {
+        if (poem.poetImageUrl) {
+            const img = new Image();
+            img.src = poem.poetImageUrl;
+            img.onload = () => setImageLoaded(true);
+        }
+    }, [poem.poetImageUrl]);
+
     if (!poem) return null;
 
     return (
@@ -734,6 +744,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                             imgUrl={poem.poetImageUrl}
                             alt={poem.poet}
                             priority={true}
+                            onLoadingComplete={() => setImageLoaded(true)}
                         />
                     </div>
                     <h3 className="poet-profile-name">{poem.poet}</h3>

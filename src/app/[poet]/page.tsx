@@ -17,7 +17,7 @@ const BATCH_SIZE = 2;
 export default function PoetPage() {
   const params = useParams();
   const router = useRouter();
-  const poetSlug = params.poet as string;
+  const poetSlug = params?.poet ? (params.poet as string) : '';
   const [poems, setPoems] = useState<Poem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
