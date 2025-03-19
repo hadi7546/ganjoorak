@@ -739,6 +739,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                         <PoetImage
                             imgUrl={poem.poetImageUrl}
                             alt={poem.poet}
+                            width={60}
+                            height={60}
                         />
                     </div>
                     <h3 className="poet-profile-name">{poem.poet}</h3>

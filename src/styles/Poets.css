@@ -132,8 +132,8 @@
 }
 
 .poet-image-container {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     margin-bottom: 0.5rem;
     position: relative;
     border-radius: 50%;
@@ -144,8 +144,8 @@
 }
 
 .poet-image {
-    width: 80px !important;
-    height: 80px !important;
+    width: 60px !important;
+    height: 60px !important;
     object-fit: cover !important;
     border-radius: 50%;
     background: transparent !important;
@@ -238,13 +238,13 @@
     }
 
     .poet-image-container {
-        width: 70px;
-        height: 70px;
+        width: 50px;
+        height: 50px;
     }
 
     .poet-image {
-        width: 70px !important;
-        height: 70px !important;
+        width: 50px !important;
+        height: 50px !important;
     }
 
     .poets-grid-container.open {

@@ -7,9 +7,11 @@ interface PoetImageProps {
     imgUrl: string;
     alt?: string;
     poetSlug?: string;
+    width?: number;
+    height?: number;
 }
 
-export default function PoetImage({ imgUrl, alt, poetSlug }: PoetImageProps) {
+export default function PoetImage({ imgUrl, alt, poetSlug, width = 60, height = 60 }: PoetImageProps) {
     const [imgSrc, setImgSrc] = useState<string>(imgUrl);
     const [error, setError] = useState(false);
 
@@ -19,8 +21,8 @@ export default function PoetImage({ imgUrl, alt, poetSlug }: PoetImageProps) {
         <Image
             src={imgSrc}
             alt={alt || ''}
-            width={80}
-            height={80}
+            width={width}
+            height={height}
             className="poet-image"
             style={{ objectFit: 'cover' }}
             priority

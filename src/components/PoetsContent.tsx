@@ -86,6 +86,8 @@ function CenturySection({ century, title }: { century: Century; title?: string }
                                         imgUrl={poet.imageUrl}
                                         alt={poet.name}
                                         poetSlug={poet.urlSlug}
+                                        width={60}
+                                        height={60}
                                     />
                                 </div>
                                 <h2 className="poet-name">{poet.nickname || poet.name}</h2>
@@ -201,6 +203,8 @@ function PoetsList({ poets }: { poets: Poet[] }) {
                                 imgUrl={poet.imageUrl}
                                 alt={poet.name}
                                 poetSlug={poet.urlSlug}
+                                width={60}
+                                height={60}
                             />
                         </div>
                         <h2 className="poet-name">{poet.nickname || poet.name}</h2>
