@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface PoetImageProps {
     imgUrl: string;
@@ -21,9 +21,17 @@ export default function PoetImage({
     const [imgSrc, setImgSrc] = useState<string>(imgUrl);
     const [error, setError] = useState(false);
 
+    // Update imgSrc if imgUrl prop changes
+    useEffect(() => {
+        setImgSrc(imgUrl);
+        setError(false);
+    }, [imgUrl]);
+
+    const fallbackImage = '/poet-placeholder.png';
+
     return (
         <Image
-            src={imgSrc}
+            src={error ? fallbackImage : imgSrc}
             alt={alt || ''}
             width={80}
             height={80}
@@ -32,13 +40,14 @@ export default function PoetImage({
             priority={priority}
             loading={priority ? 'eager' : 'lazy'}
             onError={() => {
+                console.error(`Failed to load image: ${imgSrc}`);
                 setError(true);
-                // You could set a fallback image here if needed
             }}
             onLoadingComplete={() => {
                 if (onLoadingComplete) onLoadingComplete();
             }}
             sizes="(max-width: 480px) 50px, (max-width: 768px) 60px, 80px"
+            unoptimized={imgSrc.includes('api.ganjoor.net')}
         />
     );
 } 

@@ -11,6 +11,7 @@ const nextConfig = {
 
     // Improve image loading with sharp
     images: {
+        domains: ['api.ganjoor.net', '7elmsr3m4bc7q4th.public.blob.vercel-storage.com'],
         remotePatterns: [
             {
                 protocol: 'https',
@@ -22,13 +23,14 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: '7elmsr3m4bc7q4th.public.blob.vercel-storage.com',
                 port: '',
-                pathname: '/poets/**',
+                pathname: '/**',
             },
         ],
         // Optimize image loading
         formats: ['image/avif', 'image/webp'],
         minimumCacheTTL: 60,
         deviceSizes: [50, 60, 80, 96, 128, 256, 384, 512, 640, 750, 828, 1080, 1200],
+        dangerouslyAllowSVG: true,
     },
 
     // Optimize asset loading
@@ -36,17 +38,14 @@ const nextConfig = {
 
     // Improve compile-time optimization
     compiler: {
-        removeConsole: process.env.NODE_ENV === 'production',
+        removeConsole: process.env.NODE_ENV === 'production' ? {
+            exclude: ['error', 'warn'],
+        } : false,
     },
 
     // Enable experimental features for better performance
     experimental: {
-        optimizeCss: {
-            cssModules: true,
-            fontLoaders: [
-                { loader: '@next/font/google', options: { subsets: ['latin', 'arabic'] } },
-            ],
-        },
+        // Removing CSS optimization that might cause issues
         scrollRestoration: true,
         optimisticClientCache: true,
     },
