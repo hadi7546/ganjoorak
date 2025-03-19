@@ -1,28 +1,37 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Vazirmatn } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+// Optimize font loading with display swap
+const inter = Inter({
+    subsets: ['latin'],
+    display: 'swap',
+    preload: true,
+});
+
+const vazirmatn = Vazirmatn({
+    subsets: ['arabic'],
+    display: 'swap',
+    preload: true,
+});
 
 export const metadata: Metadata = {
     title: 'گنجورک',
     description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی.',
-
+    metadataBase: new URL('https://ganjoorak.ir'),
     openGraph: {
-        // little image for open graph
-
         images: [
             {
                 url: 'icon-192-maskable.png',
-
             },
-
         ],
+        type: 'website',
+        locale: 'fa_IR',
+        siteName: 'گنجورک',
     },
     icons: {
-
         icon: [
             { url: '/favicon.ico' },
             { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
@@ -54,7 +63,25 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" dir="rtl">
+        <html lang="fa" dir="rtl" className={vazirmatn.className}>
+            <head>
+                {/* Preload critical resources */}
+                <link
+                    rel="preconnect"
+                    href="https://7elmsr3m4bc7q4th.public.blob.vercel-storage.com"
+                    crossOrigin="anonymous"
+                />
+                <link
+                    rel="dns-prefetch"
+                    href="https://7elmsr3m4bc7q4th.public.blob.vercel-storage.com"
+                />
+                {/* Preload CSS */}
+                <link
+                    rel="preload"
+                    href="/styles/PoemViewer.css"
+                    as="style"
+                />
+            </head>
             <body className={inter.className}>
                 {children}
                 <Analytics />

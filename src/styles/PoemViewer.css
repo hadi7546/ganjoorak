@@ -1,6 +1,7 @@
-/* Add Vazirmatn font import */
+/* Add Vazirmatn font import with display swap for faster text rendering */
 @import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500&display=swap");
 
+/* Critical styles for initial render */
 .poem-viewer {
     position: fixed;
     top: 0;
@@ -17,6 +18,7 @@
     overflow: hidden;
     z-index: 1;
     font-family: "Vazirmatn", sans-serif;
+    contain: layout size;
 }
 
 .poem-content {
@@ -32,6 +34,8 @@
     overflow-y: hidden;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    will-change: transform;
+    contain: content;
 }
 
 .poem-content::-webkit-scrollbar {
@@ -70,12 +74,11 @@
     padding: 2rem 1rem;
     direction: rtl;
     background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     position: sticky;
     top: 0;
     z-index: 2;
     width: 100%;
+    contain: layout style;
 }
 
 .poem-title {
@@ -102,6 +105,12 @@
     font-size: 1.5rem;
     color: rgba(255, 255, 255, 0.7);
     font-weight: 400;
+}
+
+/* Load backdrop-filter after critical content */
+.title-section {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .poem-text {
@@ -938,8 +947,8 @@
 }
 
 .poet-image-container {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     overflow: hidden;
     margin-bottom: 0.5rem;
@@ -998,8 +1007,8 @@
     }
 
     .poet-image-container {
-        width: 45px;
-        height: 45px;
+        width: 60px;
+        height: 60px;
         margin-bottom: 0.35rem;
     }
 
@@ -1019,8 +1028,8 @@
     }
 
     .poet-image-container {
-        width: 35px;
-        height: 35px;
+        width: 50px;
+        height: 50px;
         margin-bottom: 0.25rem;
     }
 

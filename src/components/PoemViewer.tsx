@@ -647,23 +647,17 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             {/* Poem content */}
             <div className="poem-content">
                 <div className="title-section">
-                    <motion.h2
+                    <h2
                         className="poem-title"
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
                     >
                         {poem.title}
-                    </motion.h2>
+                    </h2>
                     {!isPoetPage && (
-                        <motion.div
+                        <div
                             className="poet-name"
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.1 }}
                         >
                             {poem.poet}
-                        </motion.div>
+                        </div>
                     )}
                 </div>
                 <div
@@ -739,6 +733,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                         <PoetImage
                             imgUrl={poem.poetImageUrl}
                             alt={poem.poet}
+                            priority={true}
                         />
                     </div>
                     <h3 className="poet-profile-name">{poem.poet}</h3>
