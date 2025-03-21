@@ -15,7 +15,12 @@ export default function PoetImage({ imgUrl, alt, poetSlug, width = 60, height = 
     const [imgSrc, setImgSrc] = useState<string>(imgUrl);
     const [error, setError] = useState(false);
 
-
+    const handleError = () => {
+        if (!error) {
+            setImgSrc('/default-poet-image.jpg');
+            setError(true);
+        }
+    };
 
     return (
         <Image
@@ -26,6 +31,7 @@ export default function PoetImage({ imgUrl, alt, poetSlug, width = 60, height = 
             className="poet-image"
             style={{ objectFit: 'cover' }}
             priority
+            onError={handleError}
         />
     );
 } 

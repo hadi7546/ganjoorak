@@ -105,3 +105,38 @@ body {
         -webkit-backdrop-filter: blur(12px);
     }
 }
+
+/* CSS styles to affect the display of images */
+.poet-image {
+    border-radius: 50%;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.poet-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    transition: background 0.3s ease;
+}
+
+.poet-card:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.poet-name {
+    margin-top: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.poet-nickname {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+}
