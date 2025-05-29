@@ -9,7 +9,6 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "@prisma/client": "^6.5.0",
         "@types/cheerio": "^0.22.35",
         "@vercel/blob": "^0.27.3",
         "@vercel/speed-insights": "^1.2.0",
@@ -18,7 +17,6 @@
         "framer-motion": "^10.16.5",
         "mongodb": "^6.14.2",
         "next": "^14.2.24",
-        "prisma": "^6.5.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-icons": "^4.12.0",
