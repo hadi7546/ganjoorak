@@ -1,7 +1,6 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server';
 import { list } from '@vercel/blob';
-import fs from 'fs';
-import path from 'path';
 
 export const dynamic = 'force-dynamic'; // Mark this route as dynamic
 export const revalidate = 0; // Disable caching for this route
