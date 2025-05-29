@@ -1,38 +1,43 @@
 {
-    "name": "gtok",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start",
-        "lint": "next lint"
-    },
-    "dependencies": {
-        "@types/cheerio": "^0.22.35",
-        "@vercel/blob": "^0.27.3",
-        "@vercel/speed-insights": "^1.2.0",
-        "axios": "^1.8.2",
-        "cheerio": "^1.0.0",
-        "framer-motion": "^10.16.5",
-        "mongodb": "^6.14.2",
-        "next": "^14.2.24",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "react-icons": "^4.12.0",
-        "react-router-dom": "^7.3.0",
-        "styled-components": "^6.1.1"
-    },
-    "devDependencies": {
-        "@types/node": "^20.17.24",
-        "@types/react": "^18.2.57",
-        "@types/react-dom": "^18.2.19",
-        "@vercel/analytics": "^1.5.0",
-        "autoprefixer": "^10.4.17",
-        "eslint": "^8.56.0",
-        "eslint-config-next": "14.1.0",
-        "postcss": "^8.4.35",
-        "tailwindcss": "^3.4.1",
-        "typescript": "^5.8.2"
-    }
+  "name": "gtok",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "preview": "opennextjs-cloudflare && wrangler dev",
+    "deploy": "opennextjs-cloudflare && wrangler deploy",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+  },
+  "dependencies": {
+    "@types/cheerio": "^0.22.35",
+    "@vercel/blob": "^0.27.3",
+    "@vercel/speed-insights": "^1.2.0",
+    "axios": "^1.8.2",
+    "cheerio": "^1.0.0",
+    "framer-motion": "^10.16.5",
+    "mongodb": "^6.14.2",
+    "next": "^14.2.24",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.12.0",
+    "react-router-dom": "^7.3.0",
+    "styled-components": "^6.1.1"
+  },
+  "devDependencies": {
+    "@opennextjs/cloudflare": "^1.1.0",
+    "@types/node": "^20.17.24",
+    "@types/react": "^18.2.57",
+    "@types/react-dom": "^18.2.19",
+    "@vercel/analytics": "^1.5.0",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.1.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.8.2",
+    "wrangler": "^4.18.0"
+  }
 }

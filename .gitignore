@@ -47,3 +47,6 @@ scrapes/
 .env.test.local
 .env.production.local
 
+
+# OpenNext build output
+.open-next
