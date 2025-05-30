@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react'; // useState was not used
 import Link from 'next/link';
-import { FaBars, FaTimes, FaHome, FaQuestionCircle, FaBell, FaUsers } from 'react-icons/fa';
+import { FaBars, FaHome, FaQuestionCircle, FaBell, FaUsers } from 'react-icons/fa'; // FaTimes was not used
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggleButton from './ThemeToggleButton'; // Import the toggle button
 
 interface MenuProps {
     isOpen: boolean;
@@ -51,6 +52,12 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose }) => {
                                         </Link>
                                     </li>
                                 ))}
+                                {/* Theme Toggle Button Item */}
+                                <li className="pt-2 mt-2 border-t border-gray-700">
+                                    <div className="flex items-center justify-center py-2 px-3">
+                                        <ThemeToggleButton />
+                                    </div>
+                                </li>
                             </ul>
                         </nav>
                     </motion.div>

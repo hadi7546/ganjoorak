@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Vazirmatn } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { ThemeProvider } from '../context/ThemeContext'; // Corrected path
 import './globals.css';
 
 // Optimize font loading with display swap
@@ -68,9 +69,11 @@ export default function RootLayout({
     return (
         <html lang="fa" dir="rtl" className={vazirmatn.className}>
             <body className={inter.className}>
-                {children}
-                <Analytics />
-                <SpeedInsights />
+                <ThemeProvider>
+                    {children}
+                    <Analytics />
+                    <SpeedInsights />
+                </ThemeProvider>
             </body>
         </html>
     );

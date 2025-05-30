@@ -5,15 +5,25 @@
 @tailwind utilities;
 
 :root {
-    --foreground-rgb: 0, 0, 0;
-    --background-rgb: 0, 0, 0;
+    --foreground-rgb: 0, 0, 0; /* Black text for light mode */
+    --background-rgb: 255, 255, 255; /* White background for light mode */
+    --card-background-rgb: 240, 240, 240;
+    --button-background-rgb: 230, 230, 230;
+    --menu-background-rgb: 250, 250, 250; /* Slightly off-white for menu */
+    --menu-button-background-rgb: 220, 220, 220; /* Light gray for menu button */
+    --scrollbar-thumb-rgb: 80, 80, 80; /* Darker gray for light theme scrollbar thumb */
+    --scrollbar-track-rgb: 230, 230, 230; /* Lighter gray for light theme scrollbar track */
 }
 
-@media (max-width: 768px) {
-    :root {
-        --foreground-rgb: 255, 255, 255;
-        --background-rgb: 0, 0, 0;
-    }
+.dark {
+    --foreground-rgb: 255, 255, 255; /* White text for dark mode */
+    --background-rgb: 17, 24, 39; /* Dark blue-gray background for dark mode */
+    --card-background-rgb: 31, 41, 55; /* Darker card background */
+    --button-background-rgb: 55, 65, 81; /* Darker button background */
+    --menu-background-rgb: 31, 41, 55; /* Darker menu background */
+    --menu-button-background-rgb: 55, 65, 81; /* Darker menu button background */
+    --scrollbar-thumb-rgb: 156, 163, 175; /* Lighter gray for dark theme scrollbar thumb */
+    --scrollbar-track-rgb: 31, 41, 55; /* Darker gray for dark theme scrollbar track */
 }
 
 body {
@@ -28,60 +38,61 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(var(--scrollbar-track-rgb), 0.5);
     border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(var(--scrollbar-thumb-rgb), 0.8);
     border-radius: 5px;
     transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(var(--scrollbar-thumb-rgb), 1);
 }
 
 /* Firefox */
 * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.1);
+    scrollbar-color: rgba(var(--scrollbar-thumb-rgb), 0.8) rgba(var(--scrollbar-track-rgb), 0.5);
 }
 
 /* Menu styles */
 .menu-backdrop {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5); /* This can remain as is, or be themed if desired */
 }
 
 .menu-drawer {
     direction: rtl;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(var(--menu-background-rgb), 0.85); /* Adjusted alpha for better readability */
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     letter-spacing: 0.5px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Shadow could also be themed */
 }
 
 .menu-item-text {
     font-family: 'Vazirmatn', serif;
     font-size: 1.1rem;
     letter-spacing: 0.05em;
+    color: rgb(var(--foreground-rgb)); /* Ensure menu text also uses theme color */
 }
 
 /* Ensure menu button and drawer are above other content */
 .menu-button {
     z-index: 1000;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(var(--menu-button-background-rgb), 0.7); /* Themed button background */
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: none;
+    border: 1px solid rgba(var(--foreground-rgb), 0.1); /* Subtle border */
     border-radius: 50%;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Shadow could also be themed */
 }
 
 .menu-button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(var(--menu-button-background-rgb), 0.9); /* Darken on hover */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
