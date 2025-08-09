@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import PoemViewer from "@/components/PoemViewer";
 import LoadingScreen from "@/components/LoadingScreen";
 import ErrorScreen from "@/components/ErrorScreen";
 import customApi from "@/api/CustomApi";
 import ganjoorApi from "@/api/GanjoorApi";
 import { Poem } from "@/types/poem";
+import AppNotFound from "@/app/not-found";
 import { PoetSlug, isValidPoetSlug, poetNames } from "@/types/poet";
 
 const INITIAL_POEMS_COUNT = 3;
@@ -16,7 +17,6 @@ const BATCH_SIZE = 2;
 
 export default function PoetPage() {
   const params = useParams();
-  const router = useRouter();
   const poetSlug = params.poet as string;
   const [poems, setPoems] = useState<Poem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -213,12 +213,7 @@ export default function PoetPage() {
   };
 
   if (notFound) {
-    return (
-      <ErrorScreen
-        message="شاعر مورد نظر یافت نشد"
-        onRetry={() => router.push('/')}
-      />
-    );
+    return <AppNotFound />;
   }
 
   if (loading) {
