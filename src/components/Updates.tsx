@@ -8,7 +8,30 @@ import { motion } from 'framer-motion';
 const Updates = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const updates = [
+    type Update = {
+        version: string;
+        date: string;
+        changes: React.ReactNode[];
+        videoSrc?: string;
+    };
+
+    const updates: Update[] = [
+        {
+            version: '1.1.0',
+            date: '۲۰ مرداد ۱۴۰۴',
+            changes: [
+                'هماهنگ‌‌و‌برجسته‌سازی مصرع‌ها همراه با پخش‌شدن خوانش‌ها. دکمه‌ای هم تعبیه شده تا بتونید این ویژگی رو خاموش کنید.'
+            ],
+            videoSrc: '/videos/sync.mp4',
+        },
+        {
+            version: '1.0.3',
+            date: '۱۸ مرداد ۱۴۰۴',
+            changes: [
+                'حالا با اضافه کردن gnjk.ir یا ganjoorak.ir به پشت دامنه گنجور، در هر شعری، آن را در گنجورک ببینید و گوش کنید.'
+            ],
+            videoSrc: '/videos/redirect.mp4',
+        },
         {
             version: '1.0.2',
             date: '۲۷ اسفند ۱۴۰۳',
@@ -65,6 +88,14 @@ const Updates = () => {
                                 <li key={changeIndex}>{change}</li>
                             ))}
                         </ul>
+                        {update.videoSrc && (
+                            <div className="update-media">
+                                <video className="update-video" controls preload="metadata">
+                                    <source src={update.videoSrc} type="video/mp4" />
+                                    مرورگر شما از ویدیو پشتیبانی نمی‌کند.
+                                </video>
+                            </div>
+                        )}
                     </motion.div>
                 ))}
             </div>

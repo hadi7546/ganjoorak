@@ -172,9 +172,7 @@
     text-align: center;
     position: relative;
     max-width: 800px;
-    transition:
-        color 0.2s ease,
-        text-shadow 0.2s ease;
+    transition: color 0.25s ease, font-weight 0.25s ease;
     font-weight: 400;
     font-size: 1.5rem;
     white-space: normal;
@@ -182,6 +180,27 @@
     word-wrap: break-word;
     will-change: transform, opacity;
     transform: translateZ(0);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+/* When highlighting is active, softly blur non-highlighted lines */
+.poem-text.highlight-on .verse-line {
+    opacity: 0.82;
+    transition: opacity 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
+}
+
+.poem-text.highlight-on .verse-line.verse-highlighted {
+    opacity: 1;
+}
+
+/* Only blur the verse text content, not the decorative bullet ::after */
+.poem-text.highlight-on .verse-line .verse-text {
+    filter: blur(1px);
+    transition: filter 0.3s ease;
+}
+
+.poem-text.highlight-on .verse-line.verse-highlighted .verse-text {
+    filter: none;
 }
 
 .verse-line:first-child::after {
@@ -197,6 +216,18 @@
 .verse-line:hover {
     color: rgba(255, 255, 255, 1);
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* Verse highlighting for synchronized audio */
+.verse-highlighted {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+/* Enhanced highlighting for modern poems */
+.modern-poem .verse-highlighted {
+    margin: 0.1rem 0;
 }
 
 /* Style the verses from htmlText */
@@ -515,19 +546,26 @@
     background-color: rgba(255, 255, 255, 0.1);
     color: #fff;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition:
+        transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+        background-color 0.22s ease,
+        box-shadow 0.28s ease;
     backdrop-filter: blur(8px);
 }
 
 .action-button:hover:not(:disabled) {
     background-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
 }
 
 .action-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.action-button:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
 }
 
 .action-button svg {
@@ -592,7 +630,6 @@
     z-index: 2;
 }
 
-
 .audio-player {
     position: fixed;
     bottom: 0;
@@ -630,7 +667,11 @@
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 50%;
-    transition: all 0.2s ease;
+    transition:
+        transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+        background-color 0.22s ease,
+        color 0.22s ease,
+        box-shadow 0.28s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -639,14 +680,23 @@
     font-size: 1.25rem;
 }
 
+.audio-control-button.active {
+    background: rgba(255, 255, 255, 0.15);
+}
+
 .audio-control-button:hover {
     background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px) scale(1.02);
 }
 
 .audio-control-button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
     color: rgba(255, 255, 255, 0.5);
+}
+
+.audio-control-button:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
 }
 
 .audio-progress {
@@ -673,6 +723,8 @@
     min-width: 2.5rem;
     text-align: center;
 }
+
+/* .audio-right removed: toggle now sits next to Next button */
 
 @media (max-width: 768px) {
     .audio-player {
