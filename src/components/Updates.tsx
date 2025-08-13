@@ -17,6 +17,13 @@ const Updates = () => {
 
     const updates: Update[] = [
         {
+            version: '1.1.1',
+            date: '۲۲ مرداد ۱۴۰۴',
+            changes: [
+                'اضافه شدن پوسته روشن.'
+            ],
+        },
+        {
             version: '1.1.0',
             date: '۲۰ مرداد ۱۴۰۴',
             changes: [
