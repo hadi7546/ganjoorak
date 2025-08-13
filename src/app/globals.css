@@ -22,6 +22,41 @@ body {
     font-family: 'Vazirmatn', sans-serif;
 }
 
+.wormy {
+    --foreground-rgb: 101, 123, 131 !important;
+    --background-rgb: 253, 246, 227 !important;
+}
+
+.wormy ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.wormy ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.wormy ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3) !important;
+}
+
+.wormy * {
+    scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.1) !important;
+}
+
+.wormy .menu-drawer {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+}
+
+.wormy .menu-button {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.wormy .menu-button:hover {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
 /* Modern Scrollbar Styles */
 ::-webkit-scrollbar {
     width: 10px;

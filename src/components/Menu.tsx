@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { FaBars, FaTimes, FaHome, FaQuestionCircle, FaBell, FaUsers } from 'react-icons/fa';
+import { FaBars, FaHome, FaQuestionCircle, FaBell, FaUsers, FaSun, FaMoon } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface MenuProps {
     isOpen: boolean;
@@ -16,6 +17,8 @@ const menuItems = [
 ];
 
 const Menu: React.FC<MenuProps> = ({ isOpen, onClose }) => {
+    const { theme, toggleTheme } = useTheme();
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -51,6 +54,19 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose }) => {
                                         </Link>
                                     </li>
                                 ))}
+                                <li>
+                                    <button
+                                        onClick={toggleTheme}
+                                        className="flex items-center gap-3 text-white hover:text-gray-300 transition-colors py-2 px-3 rounded-xl hover:bg-gray-550 w-full"
+                                    >
+                                        <span className="text-base opacity-80">
+                                            {theme === 'dark' ? <FaSun /> : <FaMoon />}
+                                        </span>
+                                        <span className="menu-item-text">
+                                            {theme === 'dark' ? 'حالت روشن' : 'حالت تاریک'}
+                                        </span>
+                                    </button>
+                                </li>
                             </ul>
                         </nav>
                     </motion.div>

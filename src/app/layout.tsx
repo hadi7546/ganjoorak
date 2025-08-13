@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Providers } from './providers';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -56,9 +57,11 @@ export default function RootLayout({
     return (
         <html lang="en" dir="rtl">
             <body className={inter.className}>
-                {children}
-                <Analytics />
-                <SpeedInsights />
+                <Providers>
+                    {children}
+                    <Analytics />
+                    <SpeedInsights />
+                </Providers>
             </body>
         </html>
     );
