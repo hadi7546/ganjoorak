@@ -11,7 +11,7 @@
 
 .faq-title {
     text-align: center;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgb(var(--foreground) / 0.95);
     font-size: 2.5rem;
     margin-bottom: 2rem;
     font-weight: 500;
@@ -24,7 +24,7 @@
 }
 
 .faq-item {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(var(--card));
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 1rem;
@@ -34,14 +34,14 @@
 }
 
 .faq-item:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgb(var(--card) / 0.9);
 }
 
 .faq-question {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgb(var(--foreground) / 0.95);
     margin: 0;
 }
 
@@ -54,7 +54,7 @@
 .faq-arrow {
     width: 1.5rem;
     height: 1.5rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(var(--foreground) / 0.7);
     transition: transform 0.3s ease;
 }
 
@@ -63,7 +63,7 @@
 }
 
 .faq-answer {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgb(var(--foreground) / 0.8);
     line-height: 1.8;
     font-size: 1.1rem;
     max-height: 0;
@@ -80,13 +80,13 @@
 }
 
 .link {
-    color: #00c6ff;
+    color: rgb(var(--primary));
     text-decoration: none;
     transition: all 0.2s ease;
 }
 
 .link:hover {
-    color: #33d1ff;
+    color: rgb(var(--primary) / 0.8);
     text-decoration: underline;
 }
 
@@ -99,14 +99,14 @@
 }
 
 .social-links .link {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(var(--card) / 0.1);
     padding: 0.5rem 1rem;
     border-radius: 2rem;
     transition: all 0.2s ease;
 }
 
 .social-links .link:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgb(var(--card) / 0.2);
     text-decoration: none;
 }
 

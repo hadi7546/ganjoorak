@@ -870,8 +870,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             : ""
             }`}
           ref={poemTextRef}
-          onMouseEnter={() => setIsMouseOverPoemText(true)}
-          onMouseLeave={() => setIsMouseOverPoemText(false)}
         >
           {isModern ? (
             <motion.div

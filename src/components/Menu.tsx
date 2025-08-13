@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaBars, FaTimes, FaHome, FaQuestionCircle, FaBell, FaUsers } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaQuestionCircle, FaBell, FaUsers, FaSun, FaMoon } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MenuProps {
@@ -16,6 +16,21 @@ const menuItems = [
 ];
 
 const Menu: React.FC<MenuProps> = ({ isOpen, onClose }) => {
+    const [theme, setTheme] = useState('light');
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }, []);
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -35,7 +50,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose }) => {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: -20 }}
                         transition={{ type: 'spring', duration: 0.3, bounce: 0.2 }}
-                        className="menu-drawer fixed top-16 right-4 w-50 rounded-2xl p-3 shadow-2xl bg-gray-900 bg-opacity-80"
+                        className="menu-drawer fixed top-16 right-4 w-50 rounded-2xl p-3 shadow-2xl"
                     >
                         <nav>
                             <ul className="space-y-1">
@@ -43,7 +58,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose }) => {
                                     <li key={item.href}>
                                         <Link
                                             href={item.href}
-                                            className="flex items-center gap-3 text-white hover:text-gray-300 transition-colors py-2 px-3 rounded-xl hover:bg-gray-550"
+                                            className="flex items-center gap-3 text-foreground transition-colors py-2 px-3 rounded-xl"
                                             onClick={onClose}
                                         >
                                             <span className="text-base opacity-80">{item.icon}</span>
@@ -53,6 +68,12 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose }) => {
                                 ))}
                             </ul>
                         </nav>
+                        <div className="border-t border-border mt-2 pt-2">
+                            <button onClick={toggleTheme} className="flex items-center gap-3 text-foreground transition-colors py-2 px-3 rounded-xl w-full">
+                                {theme === 'light' ? <FaMoon /> : <FaSun />}
+                                <span className="menu-item-text">تغییر پوسته</span>
+                            </button>
+                        </div>
                     </motion.div>
                 </>
             )}
@@ -64,7 +85,7 @@ export function MenuButton({ onClick }: { onClick: () => void }) {
     return (
         <button
             onClick={onClick}
-            className="menu-button fixed top-4 right-4 w-10 h-10 flex items-center justify-center bg-gray-900 bg-opacity-80 rounded-full text-white hover:bg-gray-550 transition-all"
+            className="menu-button fixed top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full text-foreground transition-all"
             aria-label="Open menu"
         >
             <FaBars size={16} />

@@ -11,9 +11,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to bottom,
-            rgba(0, 0, 0, 0.7),
-            rgba(0, 0, 0, 0.9));
+    background: linear-gradient(to bottom, rgb(var(--background) / 0.7), rgb(var(--background) / 0.9));
     overflow: hidden;
     z-index: 1;
     font-family: "Vazirmatn", sans-serif;
@@ -43,17 +41,17 @@
 }
 
 .poem-content::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgb(var(--background) / 0.2);
     border-radius: 4px;
 }
 
 .poem-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(var(--foreground) / 0.3);
     border-radius: 4px;
 }
 
 .poem-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgb(var(--foreground) / 0.4);
 }
 
 .poem-header {
@@ -69,7 +67,7 @@
     text-align: center;
     padding: 2rem 1rem;
     direction: rtl;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgb(var(--background) / 0.4);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     position: sticky;
@@ -81,7 +79,7 @@
 .poem-title {
     font-size: 2.5rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgb(var(--foreground) / 0.95);
     margin: 0;
     margin-bottom: 1rem;
 }
@@ -93,14 +91,14 @@
     height: 1px;
     background: linear-gradient(90deg,
             transparent,
-            rgba(255, 255, 255, 0.3),
+            rgb(var(--foreground) / 0.3),
             transparent);
     margin: 0.75rem auto 0;
 }
 
 .poet-name {
     font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(var(--foreground) / 0.7);
     font-weight: 400;
 }
 
@@ -110,7 +108,7 @@
     line-height: 2;
     direction: ltr;
     width: 100%;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgb(var(--foreground) / 0.9);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -118,7 +116,7 @@
     font-weight: 400;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2);
+    scrollbar-color: rgb(var(--foreground) / 0.3) rgb(var(--background) / 0.2);
     -webkit-overflow-scrolling: touch;
     height: calc(100% - 100px);
     scrollbar-gutter: stable right;
@@ -139,17 +137,17 @@
 }
 
 .poem-text::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgb(var(--background) / 0.2);
     border-radius: 3px;
 }
 
 .poem-text::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(var(--foreground) / 0.3);
     border-radius: 3px;
 }
 
 .poem-text::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgb(var(--foreground) / 0.4);
 }
 
 .verse-pair {
@@ -180,7 +178,7 @@
     word-wrap: break-word;
     will-change: transform, opacity;
     transform: translateZ(0);
-    color: rgba(255, 255, 255, 0.92);
+    color: rgb(var(--foreground) / 0.92);
 }
 
 /* When highlighting is active, softly blur non-highlighted lines */
@@ -209,20 +207,19 @@
     right: 1rem;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.3);
+    color: rgb(var(--foreground) / 0.3);
     font-size: 1.2rem;
 }
 
 .verse-line:hover {
-    color: rgba(255, 255, 255, 1);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    color: rgb(var(--foreground) / 1);
+    text-shadow: 0 0 8px rgb(var(--foreground) / 0.3);
 }
 
 /* Verse highlighting for synchronized audio */
 .verse-highlighted {
     font-weight: 700;
-    color: rgba(255, 255, 255, 1);
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.35);
+    color: rgb(var(--foreground) / 1);
 }
 
 /* Enhanced highlighting for modern poems */
@@ -276,8 +273,8 @@
 
 .m1:hover,
 .m2:hover {
-    color: rgba(255, 255, 255, 1);
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    color: rgb(var(--foreground) / 1);
+    text-shadow: 0 0 8px rgb(var(--foreground) / 0.3);
 }
 
 @media (max-width: 768px) {
@@ -287,7 +284,7 @@
 
     .title-section {
         padding: 1.5rem 1rem;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgb(var(--background) / 0.6);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
     }
@@ -433,7 +430,7 @@
     align-items: center;
     padding: 0.5rem 1rem;
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgb(var(--foreground) / 0.1);
     border-radius: 0.5rem;
     text-decoration: none;
     font-size: 0.875rem;
@@ -441,7 +438,7 @@
 }
 
 .ganjoor-link:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgb(var(--foreground) / 0.2);
     transform: translateY(-1px);
 }
 
@@ -462,7 +459,7 @@
 }
 
 .nav-button {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgb(var(--foreground) / 0.2);
     border: none;
     border-radius: 50%;
     width: 40px;
@@ -470,14 +467,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: rgb(var(--foreground));
     font-size: 1.2rem;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgb(var(--foreground) / 0.1);
 }
 
 .nav-button::before {
@@ -485,7 +482,7 @@
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(var(--foreground) / 0.3);
     transform: scale(0);
     transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -496,12 +493,12 @@
 }
 
 .nav-button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background-color: rgb(var(--foreground) / 0.2);
+    box-shadow: 0 4px 12px rgb(var(--background) / 0.2);
 }
 
 .nav-button:active {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgb(var(--foreground) / 0.15);
 }
 
 .nav-button.intent::before {
@@ -509,7 +506,7 @@
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(var(--foreground) / 0.3);
     transform: scale(0);
     animation: fillIntent 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
@@ -543,8 +540,8 @@
     justify-content: center;
     border: none;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background-color: rgb(var(--foreground) / 0.1);
+    color: rgb(var(--foreground));
     cursor: pointer;
     transition:
         transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -554,9 +551,9 @@
 }
 
 .action-button:hover:not(:disabled) {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgb(var(--foreground) / 0.2);
     transform: translateY(-1px) scale(1.02);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 6px 16px rgb(var(--background) / 0.22);
 }
 
 .action-button:disabled {
@@ -635,7 +632,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgb(var(--background) / 0.85);
     backdrop-filter: blur(10px);
     padding: 0.75rem;
     display: flex;
@@ -652,10 +649,10 @@
     align-items: center;
     justify-content: center;
     gap: 2rem;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgb(var(--background) / 0.4);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    padding: 1rem;
+    padding: 0;
     border-radius: 1rem;
     direction: ltr;
 }
@@ -663,7 +660,7 @@
 .audio-control-button {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgb(var(--foreground) / 0.9);
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 50%;
@@ -681,18 +678,18 @@
 }
 
 .audio-control-button.active {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgb(var(--foreground) / 0.15);
 }
 
 .audio-control-button:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(var(--foreground) / 0.1);
     transform: translateY(-1px) scale(1.02);
 }
 
 .audio-control-button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgb(var(--foreground) / 0.5);
 }
 
 .audio-control-button:active:not(:disabled) {
@@ -703,7 +700,7 @@
     width: 100%;
     max-width: 500px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(var(--foreground) / 0.1);
     border-radius: 2px;
     cursor: pointer;
     position: relative;
@@ -719,7 +716,7 @@
 
 .audio-time {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(var(--foreground) / 0.7);
     min-width: 2.5rem;
     text-align: center;
 }
@@ -755,7 +752,7 @@
 .progress-bar {
     width: 100%;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(var(--foreground) / 0.1);
     border-radius: 2px;
     cursor: pointer;
     margin: 0.5rem 0;
@@ -763,7 +760,7 @@
 
 .progress {
     height: 100%;
-    background: #00c6ff;
+    background: rgb(var(--primary));
     border-radius: 2px;
     transition: width 0.1s linear;
 }
@@ -781,7 +778,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgb(var(--background) / 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -795,7 +792,7 @@
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgb(var(--background) / 0.8);
     color: white;
     padding: 0.75rem 1.5rem;
     border-radius: 2rem;
@@ -899,7 +896,7 @@
     direction: rtl;
     padding: 0 1rem;
     text-align: center;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgb(var(--foreground) / 0.9);
 }
 
 .modern-poem p {
@@ -907,7 +904,7 @@
     line-height: 2;
     text-align: center;
     font-size: 1.8rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgb(var(--foreground) / 0.9);
 }
 
 .modern-poem br {
@@ -974,19 +971,19 @@
     justify-content: center;
     padding: 0.75rem;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgb(var(--foreground) / 0.15);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     transition: all 0.2s ease;
     cursor: pointer;
     width: 80px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgb(var(--background) / 0.2);
 }
 
 .poet-profile:hover {
     transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background: rgb(var(--foreground) / 0.2);
+    box-shadow: 0 4px 12px rgb(var(--background) / 0.3);
 }
 
 .poet-image-container {
@@ -995,7 +992,7 @@
     border-radius: 50%;
     overflow: hidden;
     margin-bottom: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(var(--foreground) / 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1017,7 +1014,7 @@
 
 .poet-profile-name {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgb(var(--foreground) / 0.9);
     text-align: center;
     margin: 0;
     padding: 0;
@@ -1032,7 +1029,7 @@
 
 .poet-profile-nickname {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgb(var(--foreground) / 0.6);
     text-align: center;
     margin: 0;
     padding: 0;

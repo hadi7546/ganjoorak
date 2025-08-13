@@ -5,21 +5,55 @@
 @tailwind utilities;
 
 :root {
-    --foreground-rgb: 0, 0, 0;
-    --background-rgb: 0, 0, 0;
+    --background: 250 250 250;
+    --foreground: 10 10 10;
+    --card: 255 255 255;
+    --card-foreground: 10 10 10;
+    --popover: 255 255 255;
+    --popover-foreground: 10 10 10;
+    --primary: 60 60 60;
+    --primary-foreground: 250 250 250;
+    --secondary: 245 245 245;
+    --secondary-foreground: 60 60 60;
+    --muted: 245 245 245;
+    --muted-foreground: 160 160 160;
+    --accent: 245 245 245;
+    --accent-foreground: 60 60 60;
+    --destructive: 255 0 0;
+    --destructive-foreground: 250 250 250;
+    --border: 235 235 235;
+    --input: 235 235 235;
+    --ring: 10 10 10;
 }
 
-@media (max-width: 768px) {
-    :root {
-        --foreground-rgb: 255, 255, 255;
-        --background-rgb: 0, 0, 0;
-    }
+[data-theme="dark"] {
+    --background: 10 10 10;
+    --foreground: 250 250 250;
+    --card: 20 20 20;
+    --card-foreground: 250 250 250;
+    --popover: 20 20 20;
+    --popover-foreground: 250 250 250;
+    --primary: 250 250 250;
+    --primary-foreground: 20 20 20;
+    --secondary: 30 30 30;
+    --secondary-foreground: 250 250 250;
+    --muted: 30 30 30;
+    --muted-foreground: 150 150 150;
+    --accent: 30 30 30;
+    --accent-foreground: 250 250 250;
+    --destructive: 255 100 100;
+    --destructive-foreground: 10 10 10;
+    --border: 40 40 40;
+    --input: 40 40 40;
+    --ring: 250 250 250;
 }
 
 body {
-    color: rgb(var(--foreground-rgb));
-    background: rgb(var(--background-rgb));
+    color: rgb(var(--foreground));
+    background: rgb(var(--background));
     font-family: 'Vazirmatn', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Modern Scrollbar Styles */
@@ -28,24 +62,24 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(var(--foreground), 0.1);
     border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(var(--foreground), 0.2);
     border-radius: 5px;
     transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(var(--foreground), 0.3);
 }
 
 /* Firefox */
 * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.1);
+    scrollbar-color: rgba(var(--foreground), 0.2) rgba(var(--foreground), 0.1);
 }
 
 /* Menu styles */
@@ -66,6 +100,22 @@ body {
     font-family: 'Vazirmatn', serif;
     font-size: 1.1rem;
     letter-spacing: 0.05em;
+}
+
+/* Menu item hover */
+.menu-drawer a {
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    border-radius: 0.75rem;
+}
+
+.menu-drawer a:hover {
+    background-color: rgb(var(--foreground) / 0.06);
+    transform: translateY(-1px);
+}
+
+.menu-drawer a:active {
+    background-color: rgb(var(--foreground) / 0.08);
+    transform: translateY(0);
 }
 
 /* Ensure menu button and drawer are above other content */
@@ -104,4 +154,20 @@ body {
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
     }
+}
+
+/* Light theme: align menu button with navigation buttons */
+[data-theme="light"] .menu-button {
+    background-color: rgb(var(--foreground) / 0.1);
+    box-shadow: none;
+}
+
+[data-theme="light"] .menu-button:hover {
+    background-color: rgb(var(--foreground) / 0.2);
+    box-shadow: 0 4px 12px rgb(var(--background) / 0.2);
+}
+
+/* Light theme: make menu drawer white */
+[data-theme="light"] .menu-drawer {
+    background-color: #ffffff;
 }

@@ -11,7 +11,7 @@
 
 .updates-title {
     text-align: center;
-    color: rgba(255, 255, 255, 0.95);
+    color: rgb(var(--foreground) / 0.95);
     font-size: 2.5rem;
     margin-bottom: 2rem;
     font-weight: 500;
@@ -24,7 +24,7 @@
 }
 
 .update-item {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(var(--card));
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 1rem;
@@ -40,14 +40,14 @@
 }
 
 .update-version {
-    color: rgba(255, 255, 255, 0.95);
+    color: rgb(var(--foreground) / 0.95);
     font-size: 1.25rem;
     font-weight: 500;
     margin: 0;
 }
 
 .update-date {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(var(--foreground) / 0.7);
     font-size: 0.9rem;
 }
 
@@ -55,7 +55,7 @@
     list-style-type: none;
     padding: 0;
     margin: 0;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgb(var(--foreground) / 0.8);
 }
 
 .update-changes li {
@@ -69,17 +69,17 @@
     content: "•";
     position: absolute;
     right: 0.5rem;
-    color: #00c6ff;
+    color: rgb(var(--primary));
 }
 
 .link {
-    color: #00c6ff;
+    color: rgb(var(--primary));
     text-decoration: none;
     transition: all 0.2s ease;
 }
 
 .link:hover {
-    color: #33d1ff;
+    color: rgb(var(--primary) / 0.8);
     text-decoration: underline;
 }
 
