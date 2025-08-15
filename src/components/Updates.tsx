@@ -21,7 +21,7 @@ const Updates = () => {
       version: "1.1.1",
       date: "۲۲ مرداد ۱۴۰۴",
       changes: ["اضافه شدن پوسته روشن."],
-      image: "/images/updates/light-theme.jpgs",
+      image: "/images/updates/light-theme.jpg",
     },
     {
       version: "1.1.0",
