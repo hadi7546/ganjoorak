@@ -30,19 +30,11 @@ export default function PoetPage() {
   useEffect(() => {
     const checkPoetSource = async () => {
       try {
-        // First check if it's a valid custom poet
-        if (isValidPoetSlug(poetSlug)) {
-          setIsGanjoor(false);
+        // Validate poet slug format first
+        if (!poetSlug || poetSlug.length < 2 || !/^[a-zA-Z0-9-]+$/.test(poetSlug) || poetSlug.startsWith('.') || poetSlug.startsWith('/')) {
+          setNotFound(true);
           return;
         }
-
-        // If not a custom poet, try Ganjoor
-        try {
-          // Check if the poet slug is a reasonable string before making API call
-          if (!poetSlug || poetSlug.length < 2 || /[^a-zA-Z0-9-]/.test(poetSlug)) {
-            setNotFound(true);
-            return;
-          }
 
           const ganjoorPoetId = await ganjoorApi.getRandomPoemByPoet(poetSlug);
 
