@@ -10,7 +10,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const poetSlug = params.poet;
-  let poetName = 'شاعر ناشناخته';
+  let poetName = "یافت نشد";
 
   try {
     if (isValidPoetSlug(poetSlug)) {
@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       poetName = poetData.nickname || poetData.name;
     }
   } catch (error) {
-    console.error('Error fetching poet info:', error);
+    console.error("Error fetching poet info:", error);
+    poetName = "یافت نشد";
   }
 
   return {
