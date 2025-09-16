@@ -229,6 +229,7 @@ const customApi = {
             
             return fallbackPoet;
           } catch (fallbackError) {
+            console.error(
               `Failed to create fallback poet for ${slug}:`,
               fallbackError,
             );
