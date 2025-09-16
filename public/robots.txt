@@ -1,17 +1,10 @@
-# robots.txt for ganjoorak.com
-# https://ganjoorak.com/robots.txt
-
+# *
 User-agent: *
 Allow: /
 
-# Sitemap location
+# Host
+Host: https://ganjoorak.com
+
+# Sitemaps
 Sitemap: https://ganjoorak.com/sitemap.xml
-
-# Crawl-delay (optional)
-Crawl-delay: 1
-
-# Allow search engines to crawl all content
-Disallow: /api/
-Disallow: /_next/
-Disallow: /admin/
-Disallow: /private/
+Sitemap: https://ganjoorak.com/server-sitemap.xml

@@ -10,7 +10,14 @@ const vazirmatn = Vazirmatn({ subsets: ["arabic"] });
 
 async function getCenturies(): Promise<Century[]> {
   try {
-    const centuries = await ganjoorApi.getCenturies();
+    // Add timeout to prevent build hanging
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Centuries fetch timeout")), 10000),
+    );
+
+    const centuriesPromise = ganjoorApi.getCenturies();
+    const centuries = await Promise.race([centuriesPromise, timeoutPromise]);
+
     return centuries.sort((a, b) => a.halfCenturyOrder - b.halfCenturyOrder);
   } catch (error) {
     console.error("Error fetching centuries:", error);
@@ -20,7 +27,14 @@ async function getCenturies(): Promise<Century[]> {
 
 async function getCustomPoets(): Promise<Poet[]> {
   try {
-    const poets = await customApi.getPoets();
+    // Add timeout to prevent build hanging
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Custom poets fetch timeout")), 15000),
+    );
+
+    const poetsPromise = customApi.getPoets();
+    const poets = await Promise.race([poetsPromise, timeoutPromise]);
+
     return poets;
   } catch (error) {
     console.error("Error fetching custom poets:", error);
@@ -29,10 +43,27 @@ async function getCustomPoets(): Promise<Poet[]> {
 }
 
 export default async function PoetsPage() {
-  const [centuries, customPoets] = await Promise.all([
-    getCenturies(),
-    getCustomPoets(),
-  ]);
+  let centuries: Century[] = [];
+  let customPoets: Poet[] = [];
+
+  try {
+    // Add overall timeout for the page
+    const pageTimeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Poets page timeout")), 20000),
+    );
+
+    const dataPromise = Promise.all([getCenturies(), getCustomPoets()]);
+
+    [centuries, customPoets] = await Promise.race([
+      dataPromise,
+      pageTimeoutPromise,
+    ]);
+  } catch (error) {
+    console.error("Error loading poets page data:", error);
+    // Return empty arrays on timeout or error to prevent build failure
+    centuries = [];
+    customPoets = [];
+  }
 
   return (
     <div className={`poets-container ${vazirmatn.className}`}>
