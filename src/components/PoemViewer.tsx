@@ -42,7 +42,7 @@ interface PoemViewerProps {
 const PoemViewer: React.FC<PoemViewerProps> = ({
   poem,
   onNext,
-  onPrevious = () => { },
+  onPrevious = () => {},
   isFirst = true,
   isLast = true,
   isModern = true,
@@ -70,29 +70,24 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const poemTextRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Define loading animation variants
   const loadingVariants = {
     hidden: { opacity: 0, y: "-100%" },
     visible: { opacity: 1, y: "0%" },
   };
 
-  // Turn off loading when a new poem arrives
   useEffect(() => {
     setIsLoading(false);
 
-    // Reset recitation index if needed
     if (poem.recitations && poem.recitations.length > 0) {
       if (currentRecitationIndex >= poem.recitations.length) {
         setCurrentRecitationIndex(0);
       }
     }
 
-    // Reset verse sync data when poem changes
     setVerseSync([]);
     setCurrentHighlightedVerse(-1);
   }, [poem.id, poem.recitations]);
 
-  // Fetch verse synchronization data when recitation changes
   useEffect(() => {
     const fetchVerseSync = async () => {
       if (!poem.recitations || poem.recitations.length === 0) {
@@ -112,7 +107,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           currentRecitation.id,
         );
         setVerseSync(verseSyncData);
-        // Immediately set to highlight first verse (order 1) when sync data loads
         const firstVerse = verseSyncData.find((v) => v.verseOrder === 1);
         if (firstVerse) {
           setCurrentHighlightedVerse(1);
@@ -129,7 +123,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     fetchVerseSync();
   }, [poem.recitations, currentRecitationIndex]);
 
-  // Update highlighted verse based on current audio time
   useEffect(() => {
     if (!verseSync.length) {
       return;
@@ -142,25 +135,18 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
     const currentTimeMs = currentTime * 1000;
 
-    // Find the appropriate verse to highlight
     let highlightedVerseIndex = -1;
 
-
-    // At the very beginning (0-2000ms), always start with verse order 1
     if (currentTimeMs <= 2000) {
-      highlightedVerseIndex = 1; // Force first verse
-      // keep first verse highlighted briefly at the very beginning
+      highlightedVerseIndex = 1;
     } else {
-      // For other times, find the verse that should be playing
       let selectedVerse = null;
 
-      // Go through verses in order and find the right one
       for (let i = 0; i < verseSync.length; i++) {
         const verse = verseSync[i];
         const nextVerse = verseSync[i + 1];
 
         if (currentTimeMs >= verse.audioStartMilliseconds) {
-          // Check if we're within this verse's time range
           if (!nextVerse || currentTimeMs < nextVerse.audioStartMilliseconds) {
             selectedVerse = verse;
             break;
@@ -173,13 +159,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       }
     }
 
-    // Fallback if nothing found
     if (highlightedVerseIndex === -1) {
       const firstVerse =
         verseSync.find((v) => v.verseOrder === 1) || verseSync[0];
       if (firstVerse) {
         highlightedVerseIndex = firstVerse.verseOrder;
-        // fallback to the very first verse
       }
     }
 
@@ -188,30 +172,26 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     }
   }, [currentTime, verseSync, isPlaying, currentHighlightedVerse]);
 
-  // Check if scroll is at the bottom
   const isScrolledToBottom = () => {
     if (!poemTextRef.current) return true;
 
-    const threshold = 50; // Increased threshold for better detection
+    const threshold = 50;
     return (
       poemTextRef.current.scrollHeight -
-      poemTextRef.current.scrollTop -
-      poemTextRef.current.clientHeight <
+        poemTextRef.current.scrollTop -
+        poemTextRef.current.clientHeight <
       threshold
     );
   };
 
-  // Wrapper to handle next action with loading indicator
   const handleNext = () => {
     if (isPlaying && audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
     }
-    // Reset audio states
     setCurrentTime(0);
     setDuration(0);
     setCurrentRecitationIndex(0);
-    // Don't set loading state when scrolling through poems
     onNext();
   };
 
@@ -221,14 +201,13 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     );
   };
 
-  // Helper functions for wheel handling
   const isAtBottom = () => {
     if (!poemTextRef.current) return false;
     const threshold = 20;
     return (
       poemTextRef.current.scrollHeight -
-      poemTextRef.current.scrollTop -
-      poemTextRef.current.clientHeight <
+        poemTextRef.current.scrollTop -
+        poemTextRef.current.clientHeight <
       threshold
     );
   };
@@ -238,32 +217,25 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     return poemTextRef.current.scrollTop <= 1;
   };
 
-  // Update useEffect for optimized scrolling behavior
   useEffect(() => {
     const poemTextElement = poemTextRef.current;
     if (!poemTextElement) return;
 
-    // Debounce mechanism to prevent rapid firing of wheel events
     let wheelTimeout: NodeJS.Timeout | null = null;
     let lastWheelTime = 0;
-    const WHEEL_COOLDOWN = 150; // milliseconds - slightly faster response
+    const WHEEL_COOLDOWN = 150;
 
-    // Direct wheel handler with improved logic
     const wheelHandler = (e: WheelEvent) => {
-      // Only check if we're at boundaries
       const atBottom = isAtBottom();
       const atTop = isAtTop();
 
-      // Make sure we don't trigger the event too frequently
-      const isSignificantScroll = Math.abs(e.deltaY) > 5; // Reduced threshold for better sensitivity
+      const isSignificantScroll = Math.abs(e.deltaY) > 5;
 
-      // Debounce implementation
       const now = Date.now();
       if (now - lastWheelTime < WHEEL_COOLDOWN) {
-        return; // Still in cooldown period
+        return;
       }
 
-      // If we're at the bottom and scrolling down, go to next poem
       if (atBottom && e.deltaY > 0 && !isLast && isSignificantScroll) {
         e.preventDefault();
         handleNext();
@@ -271,7 +243,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         return;
       }
 
-      // If we're at the top and scrolling up, go to previous poem
       if (atTop && e.deltaY < 0 && !isFirst && isSignificantScroll) {
         e.preventDefault();
         onPrevious();
@@ -280,7 +251,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       }
     };
 
-    // Touch event handlers
     let touchStartY = 0;
     let isTouching = false;
 
@@ -295,7 +265,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       const touchCurrentY = e.touches[0].clientY;
       const diff = touchStartY - touchCurrentY;
 
-      // If poem is scrollable, let the user scroll
       if (poemTextElement.scrollHeight > poemTextElement.clientHeight) {
         if ((diff > 0 && !isAtBottom()) || (diff < 0 && !isAtTop())) {
           return;
@@ -336,31 +305,26 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   }, [isFirst, isLast, onPrevious, handleNext]);
 
   const openSource = () => {
-    // For custom poems, use the fullUrl directly
     if (poem.isCustom) {
       return poem.fullUrl;
     } else {
-      // For ganjoor poems, always prepend the ganjoor.net domain
       return `https://ganjoor.net${poem.fullUrl}`;
     }
   };
-  // Handle share action
+
   const sharePoem = async () => {
     const baseUrl = "https://ganjoorak.ir";
     let poemUrl = "";
 
     if (poem.isCustom) {
-      // For custom poems, share as /[poet]/id
       if (poetSlug) {
         poemUrl = `${baseUrl}/${poetSlug}/${poem.id}`;
       } else if (poem.poetSlug) {
         poemUrl = `${baseUrl}/${poem.poetSlug}/${poem.id}`;
       } else {
-        // Fallback to /poem/:id if no poet slug is available
         poemUrl = `${baseUrl}/poem/${poem.id}`;
       }
     } else {
-      // For ganjoor poems, share as /poem/:id
       poemUrl = `${baseUrl}/poem/${poem.id}`;
     }
 
@@ -395,7 +359,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       });
   };
 
-  // Handle audio playback and navigation
   const toggleAudio = () => {
     if (!audioRef.current || isAudioLoading) return;
 
@@ -499,11 +462,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     }
   };
 
-  // Helper function to get verse class with highlighting
   const getVerseClass = (lineIndexZeroBased: number): string => {
     let className = "verse-line";
 
-    // verseOrder from API is 1-based, rendered line indices are 0-based
     const lineOrderOneBased = lineIndexZeroBased + 1;
     const shouldHighlight =
       isHighlightEnabled &&
@@ -526,7 +487,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const percentage = x / width;
     const newTime = percentage * duration;
 
-    // Set loading state while seeking
     setIsAudioLoading(true);
 
     try {
@@ -573,25 +533,20 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     setIsPlaying(false);
   };
 
-  // Format time in MM:SS format
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  // Auto-play first recitation when poem changes
   useEffect(() => {
-    // Reset audio states
     setCurrentTime(0);
     setDuration(0);
 
-    // Only reset if there are no recitations in the new poem
     if (!poem.recitations || poem.recitations.length === 0) {
       setIsPlaying(false);
       setCurrentRecitationIndex(0);
     } else {
-      // Keep the current recitation index if possible
       const maxIndex = poem.recitations.length - 1;
       if (currentRecitationIndex > maxIndex) {
         setCurrentRecitationIndex(0);
@@ -599,7 +554,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     }
     setError(null);
 
-    // Try to play the first recitation if available and was playing before
     if (poem.recitations?.length > 0 && audioRef.current && isPlaying) {
       setIsAudioLoading(true);
       audioRef.current
@@ -619,12 +573,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     }
   }, [poem.id]);
 
-  // Reset error when audio source changes
   useEffect(() => {
     setError(null);
   }, [poem.recitations, currentRecitationIndex]);
 
-  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const poemText = poemTextRef.current;
@@ -637,7 +589,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
       const isAtTop = () => poemText.scrollTop === 0;
 
-      // Handle audio controls
       if (poem.recitations && poem.recitations.length > 0) {
         if (
           e.code === "Space" &&
@@ -660,11 +611,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         }
       }
 
-      // Handle poem navigation and scrolling
       if (e.code === "ArrowDown" || e.code === "ArrowUp") {
-        const scrollAmount = 100; // Pixels to scroll per key press
+        const scrollAmount = 100;
 
-        // If mouse is not over poem text
         if (!isMouseOverPoemText) {
           if (e.code === "ArrowDown" && !isLast) {
             e.preventDefault();
@@ -676,7 +625,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           return;
         }
 
-        // If mouse is over poem text and content is scrollable
         if (canScroll()) {
           if (e.code === "ArrowDown") {
             if (!isAtBottom()) {
@@ -696,7 +644,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             }
           }
         } else {
-          // If content is not scrollable, move to next/previous poem
           if (e.code === "ArrowDown" && !isLast) {
             e.preventDefault();
             handleNext();
@@ -739,22 +686,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
       <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      {/* Loading overlay is now permanently hidden when scrolling through poems
-            <AnimatePresence>
-                {isLoading && (
-                    <motion.div
-                        className="loading-overlay"
-                        variants={loadingVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="hidden"
-                    >
-                        در حال بارگیری...
-                    </motion.div>
-                )}
-            </AnimatePresence> */}
-
-      {/* Audio player - show only when a recitation is available */}
       {poem.recitations && poem.recitations.length > 0 && (
         <div className="audio-player">
           <div className="audio-controls">
@@ -791,7 +722,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             <button
               className={`audio-control-button ${isHighlightEnabled ? "active" : ""}`}
               onClick={() => setIsHighlightEnabled((v) => !v)}
-              title={isHighlightEnabled ? "خاموش کردن برجسته‌سازی" : "روشن کردن برجسته‌سازی"}
+              title={
+                isHighlightEnabled
+                  ? "خاموش کردن برجسته‌سازی"
+                  : "روشن کردن برجسته‌سازی"
+              }
             >
               {isHighlightEnabled ? <FaEye /> : <FaEyeSlash />}
             </button>
@@ -842,7 +777,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         </div>
       )}
 
-      {/* Poem content */}
       <div className="poem-content">
         <div className="title-section">
           <motion.h2
@@ -865,10 +799,13 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           )}
         </div>
         <div
-          className={`poem-text ${isHighlightEnabled && verseSync.length > 0 && currentHighlightedVerse !== -1
-            ? "highlight-on"
-            : ""
-            }`}
+          className={`poem-text ${
+            isHighlightEnabled &&
+            verseSync.length > 0 &&
+            currentHighlightedVerse !== -1
+              ? "highlight-on"
+              : ""
+          }`}
           ref={poemTextRef}
         >
           {isModern ? (
@@ -915,7 +852,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         </div>
       </div>
 
-      {/* Action buttons */}
       <div className="action-buttons">
         <button
           className="action-button"
@@ -957,7 +893,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         </div>
       </div>
 
-      {/* Navigation controls */}
       <div className="navigation-controls">
         {!isFirst && (
           <button className="nav-button up" onClick={onPrevious}>
@@ -976,7 +911,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   );
 };
 
-// Function to extract poet name from fullTitle
 const getPoetName = (fullTitle: string): string => {
   const parts = fullTitle.split(" » ");
   return parts[0];

@@ -4,7 +4,6 @@ import type { Poet, Century } from "@/types/poet";
 
 const API_BASE_URL = "https://api.ganjoor.net";
 
-// Cache for poet data
 const poetCache: Record<string, Poet> = {};
 
 const helpers = {
@@ -44,7 +43,6 @@ const ganjoorApi = {
 
   async getPoemById(id: number): Promise<Poem> {
     try {
-      // Validate ID before making request
       if (isNaN(id) || id < 1) {
         throw new Error("شناسه شعر معتبر نیست");
       }
@@ -60,7 +58,6 @@ const ganjoorApi = {
         },
       );
 
-      // Don't cache the response
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -89,7 +86,7 @@ const ganjoorApi = {
       name: poet.name,
       description: poet.description,
       fullUrl: poet.fullUrl,
-      urlSlug: poet.fullUrl.slice(1), // Remove the leading slash
+      urlSlug: poet.fullUrl.slice(1),
       rootCatId: poet.rootCatId,
       nickname: poet.nickname,
       published: poet.published,
@@ -117,7 +114,6 @@ const ganjoorApi = {
       },
     });
 
-    // Transform the response to fix image URLs
     return response.data.map((century: any) => ({
       ...century,
       poets: century.poets.map((poet: any) => ({
@@ -133,7 +129,6 @@ const ganjoorApi = {
   async getRandomPoemByPoet(slug: string): Promise<Poem> {
     const poet = await ganjoorApi.getPoetBySlug(slug);
     try {
-      // Don't use session storage cache - always get fresh data
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/random?poetId=${poet.id}`,
         {
@@ -145,7 +140,6 @@ const ganjoorApi = {
         },
       );
 
-      // Don't check or store in cache
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
       throw new Error(
@@ -273,7 +267,6 @@ const ganjoorApi = {
       throw new Error("متأسفانه شعر مورد نظر یافت نشد");
     }
 
-    // Map recitations to our type if available
     const recitations: PoemRecitation[] =
       data.recitations?.map((rec: any) => ({
         id: rec.id,
@@ -301,7 +294,6 @@ const ganjoorApi = {
         upVotedByUser: rec.upVotedByUser,
       })) || [];
 
-    // Clean up HTML text by removing unnecessary divs and keeping only meaningful structure
     const cleanHtml =
       data.htmlText
         ?.replace(/<div[^>]*class="([^"]*)"[^>]*>/g, "")

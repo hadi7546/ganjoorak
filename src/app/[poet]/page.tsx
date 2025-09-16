@@ -26,11 +26,9 @@ export default function PoetPage() {
   const [notFound, setNotFound] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-  // Check if the poet exists in Ganjoor or is a custom poet
   useEffect(() => {
     const checkPoetSource = async () => {
       try {
-        // Validate poet slug format first
         if (
           !poetSlug ||
           poetSlug.length < 2 ||
@@ -52,7 +50,6 @@ export default function PoetPage() {
           setNotFound(true);
           return;
         } catch (err: any) {
-          // If it's a 404 error or any other error indicating poet not found
           if (
             err.response?.status === 404 ||
             err.message?.includes("not found")
@@ -60,7 +57,6 @@ export default function PoetPage() {
             setNotFound(true);
             return;
           } else {
-            // For other errors, show error message
             setError("متأسفانه در بررسی اطلاعات شاعر در گنجور مشکلی پیش آمد");
             return;
           }
@@ -71,11 +67,9 @@ export default function PoetPage() {
       }
     };
 
-    // Run the check immediately
     checkPoetSource();
   }, [poetSlug]);
 
-  // Fetch initial poems only if we have a valid source and poet is found
   useEffect(() => {
     if (isGanjoor === null || notFound) return;
 
@@ -85,17 +79,14 @@ export default function PoetPage() {
         setError(null);
         const fetchedPoems: Poem[] = [];
 
-        // Fetch initial poems in parallel for better performance
         const initialFetchPromises = [];
         for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
           if (isGanjoor) {
             initialFetchPromises.push(
               (async () => {
                 try {
-                  // First get random poem ID
                   const randomPoemInitial =
                     await ganjoorApi.getRandomPoemByPoet(poetSlug);
-                  // Then fetch complete poem data with recitations
                   const fullPoem = await ganjoorApi.getPoemById(
                     randomPoemInitial.id,
                   );
@@ -123,10 +114,8 @@ export default function PoetPage() {
           }
         }
 
-        // Wait for all poems to be fetched
         const fetchedPoemsResults = await Promise.all(initialFetchPromises);
 
-        // Filter out null values
         const validPoems = fetchedPoemsResults.filter(
           (poem) => poem !== null,
         ) as Poem[];
@@ -149,7 +138,6 @@ export default function PoetPage() {
     fetchInitialPoems();
   }, [poetSlug, isGanjoor, notFound]);
 
-  // Fetch more poems when approaching the end
   useEffect(() => {
     const shouldFetchMore =
       isGanjoor !== null &&
@@ -224,12 +212,10 @@ export default function PoetPage() {
     isFetchingMore,
   ]);
 
-  // Handle next poem
   const handleNext = () => {
     setCurrentPoemIndex((prevIndex) => prevIndex + 1);
   };
 
-  // Handle previous poem
   const handlePrevious = () => {
     if (currentPoemIndex > 0) {
       setCurrentPoemIndex(currentPoemIndex - 1);

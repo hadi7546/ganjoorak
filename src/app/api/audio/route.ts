@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic"; // Mark this route as dynamic
+export const dynamic = "force-dynamic";
 
-// List of allowed domains for audio files
 const ALLOWED_DOMAINS = [
   "https://bayanbox.ir/",
   "https://api.ganjoor.net/",
   "https://ganjgah.ir/",
 ];
 
-// Function to check if a URL is from an allowed domain
 function isAllowedDomain(url: string): boolean {
   return ALLOWED_DOMAINS.some((domain) => url.startsWith(domain));
 }
@@ -25,7 +23,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Security check: Verify the URL is from an allowed domain
     if (!isAllowedDomain(url)) {
       console.warn(`Rejected unauthorized audio URL: ${url}`);
       return NextResponse.json(
@@ -36,13 +33,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch the audio file
     const response = await fetch(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
-      cache: "no-store", // Prevent caching at fetch level
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -58,7 +54,6 @@ export async function GET(request: NextRequest) {
     const audioBuffer = await response.arrayBuffer();
     const fileSize = audioBuffer.byteLength;
 
-    // Parse range header
     const range = request.headers.get("range");
     if (range) {
       const parts = range.replace(/bytes=/, "").split("-");
@@ -66,7 +61,6 @@ export async function GET(request: NextRequest) {
       const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
       const chunkSize = end - start + 1;
 
-      // Extract the requested chunk from the buffer
       const chunk = audioBuffer.slice(start, end + 1);
 
       const head = {
@@ -86,7 +80,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // If no range was requested, return the entire file
     return new NextResponse(audioBuffer, {
       status: 200,
       headers: {

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -51,12 +51,11 @@
 body {
     color: rgb(var(--foreground));
     background: rgb(var(--background));
-    font-family: 'Vazirmatn', sans-serif;
+    font-family: "Vazirmatn", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Modern Scrollbar Styles */
 ::-webkit-scrollbar {
     width: 10px;
 }
@@ -76,13 +75,11 @@ body {
     background: rgba(var(--foreground), 0.3);
 }
 
-/* Firefox */
 * {
     scrollbar-width: thin;
     scrollbar-color: rgba(var(--foreground), 0.2) rgba(var(--foreground), 0.1);
 }
 
-/* Menu styles */
 .menu-backdrop {
     background-color: rgba(0, 0, 0, 0.5);
 }
@@ -97,14 +94,16 @@ body {
 }
 
 .menu-item-text {
-    font-family: 'Vazirmatn', serif;
+    font-family: "Vazirmatn", serif;
     font-size: 1.1rem;
     letter-spacing: 0.05em;
 }
 
-/* Menu item hover */
 .menu-drawer a {
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease;
     border-radius: 0.75rem;
 }
 
@@ -118,7 +117,6 @@ body {
     transform: translateY(0);
 }
 
-/* Ensure menu button and drawer are above other content */
 .menu-button {
     z-index: 1000;
     background-color: rgba(255, 255, 255, 0.1);
@@ -143,7 +141,6 @@ body {
     z-index: 999;
 }
 
-/* Enhanced blur for desktop */
 @media (min-width: 768px) {
     .menu-drawer {
         backdrop-filter: blur(24px);
@@ -156,7 +153,6 @@ body {
     }
 }
 
-/* Light theme: align menu button with navigation buttons */
 [data-theme="light"] .menu-button {
     background-color: rgb(var(--foreground) / 0.1);
     box-shadow: none;
@@ -167,7 +163,6 @@ body {
     box-shadow: 0 4px 12px rgb(var(--background) / 0.2);
 }
 
-/* Light theme: make menu drawer white */
 [data-theme="light"] .menu-drawer {
     background-color: #ffffff;
 }
