@@ -1,4 +1,3 @@
-/* Add Vazirmatn font import */
 @import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500&display=swap");
 
 .poem-viewer {
@@ -11,7 +10,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to bottom, rgb(var(--background) / 0.7), rgb(var(--background) / 0.9));
+    background: linear-gradient(
+        to bottom,
+        rgb(var(--background) / 0.7),
+        rgb(var(--background) / 0.9)
+    );
     overflow: hidden;
     z-index: 1;
     font-family: "Vazirmatn", sans-serif;
@@ -89,10 +92,12 @@
     display: block;
     width: 80px;
     height: 1px;
-    background: linear-gradient(90deg,
-            transparent,
-            rgb(var(--foreground) / 0.3),
-            transparent);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgb(var(--foreground) / 0.3),
+        transparent
+    );
     margin: 0.75rem auto 0;
 }
 
@@ -170,7 +175,9 @@
     text-align: center;
     position: relative;
     max-width: 800px;
-    transition: color 0.25s ease, font-weight 0.25s ease;
+    transition:
+        color 0.25s ease,
+        font-weight 0.25s ease;
     font-weight: 400;
     font-size: 1.5rem;
     white-space: normal;
@@ -181,17 +188,18 @@
     color: rgb(var(--foreground) / 0.92);
 }
 
-/* When highlighting is active, softly blur non-highlighted lines */
 .poem-text.highlight-on .verse-line {
     opacity: 0.82;
-    transition: opacity 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
+    transition:
+        opacity 0.3s ease,
+        color 0.3s ease,
+        font-weight 0.3s ease;
 }
 
 .poem-text.highlight-on .verse-line.verse-highlighted {
     opacity: 1;
 }
 
-/* Only blur the verse text content, not the decorative bullet ::after */
 .poem-text.highlight-on .verse-line .verse-text {
     filter: blur(1px);
     transition: filter 0.3s ease;
@@ -216,18 +224,15 @@
     text-shadow: 0 0 8px rgb(var(--foreground) / 0.3);
 }
 
-/* Verse highlighting for synchronized audio */
 .verse-highlighted {
     font-weight: 700;
     color: rgb(var(--foreground) / 1);
 }
 
-/* Enhanced highlighting for modern poems */
 .modern-poem .verse-highlighted {
     margin: 0.1rem 0;
 }
 
-/* Style the verses from htmlText */
 .b {
     display: flex;
     justify-content: center;
@@ -721,8 +726,6 @@
     text-align: center;
 }
 
-/* .audio-right removed: toggle now sits next to Next button */
-
 @media (max-width: 768px) {
     .audio-player {
         padding: 0.35rem 0.75rem;
@@ -913,7 +916,6 @@
     margin: 0.5rem 0;
 }
 
-/* Responsive styles for modern poems */
 @media (max-width: 768px) {
     .modern-poem {
         padding: 0 0.5rem;
@@ -963,7 +965,6 @@
     left: 1rem;
 }
 
-/* Poet Profile Styles */
 .poet-profile {
     display: flex;
     flex-direction: column;
@@ -997,87 +998,4 @@
     align-items: center;
     justify-content: center;
     position: relative;
-}
-
-.poet-image-container img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    border-radius: 50%;
-}
-
-.poet-avatar {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.poet-profile-name {
-    font-size: 0.9rem;
-    color: rgb(var(--foreground) / 0.9);
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    font-weight: 400;
-    white-space: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-    word-wrap: break-word;
-    line-height: 1.2;
-}
-
-.poet-profile-nickname {
-    font-size: 0.7rem;
-    color: rgb(var(--foreground) / 0.6);
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    font-weight: 400;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 120px;
-}
-
-@media (max-width: 768px) {
-    .poet-profile {
-        width: 60px;
-        padding: 0.5rem;
-    }
-
-    .poet-image-container {
-        width: 45px;
-        height: 45px;
-        margin-bottom: 0.35rem;
-    }
-
-    .poet-profile-name {
-        font-size: 0.75rem;
-    }
-
-    .poet-profile-nickname {
-        font-size: 0.65rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .poet-profile {
-        width: 50px;
-        padding: 0.4rem;
-    }
-
-    .poet-image-container {
-        width: 35px;
-        height: 35px;
-        margin-bottom: 0.25rem;
-    }
-
-    .poet-profile-name {
-        font-size: 0.7rem;
-    }
-
-    .poet-profile-nickname {
-        font-size: 0.6rem;
-    }
 }

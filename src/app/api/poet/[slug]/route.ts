@@ -3,17 +3,15 @@ import { list } from "@vercel/blob";
 import fs from "fs";
 import path from "path";
 
-export const dynamic = "force-dynamic"; // Mark this route as dynamic
-export const revalidate = 0; // Disable caching for this route
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-// CORS headers
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-// Handle OPTIONS request for CORS preflight
 export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
@@ -25,16 +23,13 @@ export async function GET(
   try {
     const poetSlug = params.slug;
 
-    // Try to fetch from blob storage
     try {
       const { blobs } = await list({
-        prefix: `poems/${poetSlug}`, // Only look in the poems directory with the specific poet slug
+        prefix: `poems/${poetSlug}`,
       });
 
       if (blobs.length === 0) {
-        // Try to read from local file in public directory as fallback
         try {
-          // Refer to the fallback path - this won't work in the API route but helps with debugging
           const fallbackPath = `/poems/${poetSlug}.json`;
 
           return NextResponse.json(
@@ -54,10 +49,8 @@ export async function GET(
         }
       }
 
-      // Get the first matching blob (should only be one)
       const poetBlob = blobs[0];
 
-      // Get the blob content
       const response = await fetch(poetBlob.url, {
         headers: {
           "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -78,7 +71,6 @@ export async function GET(
 
       const data = await response.json();
 
-      // Add cache control headers to prevent caching
       const headers = {
         ...corsHeaders,
         "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -86,7 +78,6 @@ export async function GET(
         Expires: "0",
       };
 
-      // Return the data with headers
       return NextResponse.json(data, { headers });
     } catch (blobError: any) {
       console.error("Error fetching from blob storage:", blobError);

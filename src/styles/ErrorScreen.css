@@ -56,7 +56,6 @@
     background: #0066d6;
 }
 
-/* Media queries for responsiveness */
 @media (max-width: 768px) {
     .error-icon {
         font-size: 2.5rem;

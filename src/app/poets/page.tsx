@@ -29,7 +29,6 @@ async function getCustomPoets(): Promise<Poet[]> {
 }
 
 export default async function PoetsPage() {
-  // Fetch data in parallel for better performance
   const [centuries, customPoets] = await Promise.all([
     getCenturies(),
     getCustomPoets(),
