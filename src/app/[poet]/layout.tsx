@@ -8,12 +8,13 @@ import {
 } from "@/components/StructuredData";
 
 type Props = {
-  params: { poet: string };
+  params: Promise<{ poet: string }>;
   children: React.ReactNode;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const poetSlug = params.poet;
+  const { poet } = await params;
+  const poetSlug = poet;
   let poetName = "یافت نشد";
 
   try {
@@ -41,7 +42,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PoetLayout({ children, params }: Props) {
-  const poetSlug = params.poet;
+  const { poet } = await params;
+  const poetSlug = poet;
   let poetName = "یافت نشد";
 
   try {

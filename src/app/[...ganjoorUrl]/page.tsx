@@ -6,10 +6,12 @@ import { redirectWhitelist } from "@/data/redirect-whitelist";
 export default async function GanjoorRedirectPage({
   params,
 }: {
-  params: { ganjoorUrl: string[] };
+  params: Promise<{ ganjoorUrl: string[] }>;
 }) {
-  const host = headers().get("host")?.toLowerCase() || "";
-  const decodedSegments = params.ganjoorUrl.map(decodeURIComponent);
+  const { ganjoorUrl } = await params;
+  const headersList = await headers();
+  const host = headersList.get("host")?.toLowerCase() || "";
+  const decodedSegments = ganjoorUrl.map(decodeURIComponent);
 
   let path;
   let hostname;

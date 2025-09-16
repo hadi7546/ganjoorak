@@ -18,10 +18,11 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const poetSlug = params.slug;
+    const { slug } = await params;
+    const poetSlug = slug;
 
     try {
       const { blobs } = await list({

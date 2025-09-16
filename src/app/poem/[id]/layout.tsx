@@ -2,13 +2,14 @@ import { Metadata } from "next";
 import ganjoorApi from "@/api/GanjoorApi";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
   children: React.ReactNode;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const poem = await ganjoorApi.getPoemById(parseInt(params.id));
+    const { id } = await params;
+    const poem = await ganjoorApi.getPoemById(parseInt(id));
     return {
       title: `${poem.fullTitle || poem.title} - ${poem.poet}`,
       description: `مجموعه‌ای از اشعار ${poem.poet}`,
