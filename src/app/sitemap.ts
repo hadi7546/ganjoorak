@@ -1,47 +1,6 @@
 import { MetadataRoute } from 'next'
 import { poets } from '@/data/poets';
 
-interface Poem {
-  id: number;
-  // Add other poem properties if needed
-}
-
-interface CategoryPoems {
-  cat?: {
-    poems?: Poem[];
-  };
-}
-
-async function fetchPoemIds(): Promise<number[]> {
-  const categoryIds = [
-    102,
-    31,
-    24,
-    25,
-    26,
-    144,
-    122,
-    141
-  ];
-  let poemIds: Set<number> = new Set();
-
-  for (const catId of categoryIds) {
-    try {
-      const response = await fetch(`https://api.ganjoor.net/api/ganjoor/cat/${catId}?poems=true&mainSections=false`);
-      if (response.ok) {
-        const data: CategoryPoems = await response.json();
-        if (data.cat && data.cat.poems) {
-          data.cat.poems.forEach(poem => poemIds.add(poem.id));
-        }
-      }
-    } catch (error) {
-      console.error(`Error fetching poems for category ${catId}:`, error);
-    }
-  }
-
-  return Array.from(poemIds);
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = 'https://ganjoorak.com';
 
@@ -69,15 +28,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  const poemIds = await fetchPoemIds();
-  const poemPages = poemIds.map((id) => ({
-    url: `${siteUrl}/poem/${id}`,
+  const poetSitemaps = poets.map((poet) => ({
+    url: `${siteUrl}/sitemap/${poet.urlSlug}`,
     lastModified: new Date(),
   }));
 
   return [
     ...staticPages,
     ...poetPages,
-    ...poemPages,
+    ...poetSitemaps,
   ];
 }
