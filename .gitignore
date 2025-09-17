@@ -47,3 +47,4 @@ scrapes/
 .env.test.local
 .env.production.local
 
+poembot/
