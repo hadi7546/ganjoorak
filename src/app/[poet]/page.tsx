@@ -26,21 +26,24 @@ export default function PoetPage() {
   const [notFound, setNotFound] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
+  // Check if the poet exists in Ganjoor or is a custom poet
   useEffect(() => {
     const checkPoetSource = async () => {
       try {
-        if (
-          !poetSlug ||
-          poetSlug.length < 2 ||
-          !/^[a-zA-Z0-9-]+$/.test(poetSlug) ||
-          poetSlug.startsWith(".") ||
-          poetSlug.startsWith("/")
-        ) {
-          setNotFound(true);
+        // First check if it's a valid custom poet
+        if (isValidPoetSlug(poetSlug)) {
+          setIsGanjoor(false);
           return;
         }
 
+        // If not a custom poet, try Ganjoor
         try {
+          // Check if the poet slug is a reasonable string before making API call
+          if (!poetSlug || poetSlug.length < 2 || /[^a-zA-Z0-9-]/.test(poetSlug)) {
+            setNotFound(true);
+            return;
+          }
+
           const ganjoorPoetId = await ganjoorApi.getRandomPoemByPoet(poetSlug);
 
           if (ganjoorPoetId) {
@@ -48,28 +51,31 @@ export default function PoetPage() {
             return;
           }
           setNotFound(true);
-          return;
         } catch (err: any) {
-          if (
-            err.response?.status === 404 ||
-            err.message?.includes("not found")
-          ) {
+          // If it's a 404 error or any other error indicating poet not found
+          if (err.response?.status === 404 || err.message?.includes('not found')) {
             setNotFound(true);
             return;
           } else {
+            // For other errors, show error message
             setError("متأسفانه در بررسی اطلاعات شاعر در گنجور مشکلی پیش آمد");
             return;
           }
         }
+
+        // If we get here and no valid poet was found, set not found
+        setNotFound(true);
       } catch (err) {
         console.error("Error in checkPoetSource:", err);
         setNotFound(true);
       }
     };
 
+    // Run the check immediately
     checkPoetSource();
   }, [poetSlug]);
 
+  // Fetch initial poems only if we have a valid source and poet is found
   useEffect(() => {
     if (isGanjoor === null || notFound) return;
 
@@ -79,46 +85,44 @@ export default function PoetPage() {
         setError(null);
         const fetchedPoems: Poem[] = [];
 
+        // Fetch initial poems in parallel for better performance
         const initialFetchPromises = [];
         for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
           if (isGanjoor) {
             initialFetchPromises.push(
               (async () => {
                 try {
-                  const randomPoemInitial =
-                    await ganjoorApi.getRandomPoemByPoet(poetSlug);
-                  const fullPoem = await ganjoorApi.getPoemById(
-                    randomPoemInitial.id,
-                  );
+                  // First get random poem ID
+                  const randomPoemInitial = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+                  // Then fetch complete poem data with recitations
+                  const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
                   return fullPoem;
                 } catch (err) {
                   console.error("Error fetching poem:", err);
                   return null;
                 }
-              })(),
+              })()
             );
           } else {
             initialFetchPromises.push(
               (async () => {
                 try {
-                  const randomPoem = await customApi.getRandomPoem(
-                    poetSlug as PoetSlug,
-                  );
+                  const randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
                   return randomPoem;
                 } catch (err) {
                   console.error("Error fetching poem:", err);
                   return null;
                 }
-              })(),
+              })()
             );
           }
         }
 
+        // Wait for all poems to be fetched
         const fetchedPoemsResults = await Promise.all(initialFetchPromises);
 
-        const validPoems = fetchedPoemsResults.filter(
-          (poem) => poem !== null,
-        ) as Poem[];
+        // Filter out null values
+        const validPoems = fetchedPoemsResults.filter(poem => poem !== null) as Poem[];
 
         if (validPoems.length > 0) {
           setPoems(validPoems);
@@ -128,9 +132,7 @@ export default function PoetPage() {
         }
       } catch (err) {
         console.error("Failed to fetch initial poems:", err);
-        setError(
-          "متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
-        );
+        setError("متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
         setLoading(false);
       }
     };
@@ -138,9 +140,9 @@ export default function PoetPage() {
     fetchInitialPoems();
   }, [poetSlug, isGanjoor, notFound]);
 
+  // Fetch more poems when approaching the end
   useEffect(() => {
-    const shouldFetchMore =
-      isGanjoor !== null &&
+    const shouldFetchMore = isGanjoor !== null &&
       !notFound &&
       poems.length > 0 &&
       currentPoemIndex >= poems.length - PREFETCH_THRESHOLD &&
@@ -157,42 +159,35 @@ export default function PoetPage() {
               newPoemsPromises.push(
                 (async () => {
                   try {
-                    const randomPoemInitial =
-                      await ganjoorApi.getRandomPoemByPoet(poetSlug);
-                    const fullPoem = await ganjoorApi.getPoemById(
-                      randomPoemInitial.id,
-                    );
+                    const randomPoemInitial = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+                    const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
                     return fullPoem;
                   } catch (err) {
                     console.error("Error fetching additional poem:", err);
                     return null;
                   }
-                })(),
+                })()
               );
             } else {
               newPoemsPromises.push(
                 (async () => {
                   try {
-                    const randomPoem = await customApi.getRandomPoem(
-                      poetSlug as PoetSlug,
-                    );
+                    const randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
                     return randomPoem;
                   } catch (err) {
                     console.error("Error fetching additional poem:", err);
                     return null;
                   }
-                })(),
+                })()
               );
             }
           }
 
           const newPoemsResults = await Promise.all(newPoemsPromises);
-          const validNewPoems = newPoemsResults.filter(
-            (poem) => poem !== null,
-          ) as Poem[];
+          const validNewPoems = newPoemsResults.filter(poem => poem !== null) as Poem[];
 
           if (validNewPoems.length > 0) {
-            setPoems((prevPoems) => [...prevPoems, ...validNewPoems]);
+            setPoems(prevPoems => [...prevPoems, ...validNewPoems]);
           }
         } catch (err) {
           console.error("Failed to fetch more poems:", err);
@@ -203,19 +198,14 @@ export default function PoetPage() {
 
       fetchMorePoems();
     }
-  }, [
-    currentPoemIndex,
-    poems.length,
-    isGanjoor,
-    notFound,
-    poetSlug,
-    isFetchingMore,
-  ]);
+  }, [currentPoemIndex, poems.length, isGanjoor, notFound, poetSlug, isFetchingMore]);
 
+  // Handle next poem
   const handleNext = () => {
-    setCurrentPoemIndex((prevIndex) => prevIndex + 1);
+    setCurrentPoemIndex(prevIndex => prevIndex + 1);
   };
 
+  // Handle previous poem
   const handlePrevious = () => {
     if (currentPoemIndex > 0) {
       setCurrentPoemIndex(currentPoemIndex - 1);
@@ -231,18 +221,11 @@ export default function PoetPage() {
   }
 
   if (error) {
-    return (
-      <ErrorScreen message={error} onRetry={() => window.location.reload()} />
-    );
+    return <ErrorScreen message={error} onRetry={() => window.location.reload()} />;
   }
 
   if (!poems.length) {
-    return (
-      <ErrorScreen
-        message="متأسفانه شعری یافت نشد"
-        onRetry={() => window.location.reload()}
-      />
-    );
+    return <ErrorScreen message="متأسفانه شعری یافت نشد" onRetry={() => window.location.reload()} />;
   }
 
   return (

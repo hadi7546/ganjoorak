@@ -14,8 +14,9 @@ export default async function GanjoorRedirectPage({
   let path;
   let hostname;
 
-  if (decodedSegments[0] === "http:" || decodedSegments[0] === "https:") {
-    path = decodedSegments[0] + "//" + decodedSegments.slice(1).join("/");
+  if (decodedSegments[0] === 'http:' || decodedSegments[0] === 'https:') {
+    // Full URL form: gnjk.ir/https://ganjoor.net/...
+    path = decodedSegments[0] + '//' + decodedSegments.slice(1).join('/');
     try {
       const url = new URL(path);
       hostname = url.hostname;
@@ -23,7 +24,9 @@ export default async function GanjoorRedirectPage({
       notFound();
     }
   } else if (decodedSegments.length > 0 && /\./.test(decodedSegments[0])) {
-    path = "https://" + decodedSegments.join("/");
+    // Host-only or no-scheme form: gnjk.ir/ganjoor.net/... or gnjk.ir/www.ganjoor.net/...
+    // Assume https and parse
+    path = 'https://' + decodedSegments.join('/');
     try {
       const url = new URL(path);
       hostname = url.hostname;
@@ -31,15 +34,11 @@ export default async function GanjoorRedirectPage({
       notFound();
     }
   } else {
-    path = "/" + decodedSegments.join("/");
+    // Path-only form: treat as Ganjoor path directly
+    path = '/' + decodedSegments.join('/');
   }
 
-  if (
-    hostname &&
-    !redirectWhitelist.some(
-      (domain) => hostname === domain || hostname.endsWith("." + domain),
-    )
-  ) {
+  if (hostname && !redirectWhitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain))) {
     notFound();
   }
 
