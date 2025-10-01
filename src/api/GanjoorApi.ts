@@ -4,6 +4,7 @@ import type { Poet, Century } from "@/types/poet";
 
 const API_BASE_URL = "https://api.ganjoor.net";
 
+// Cache for poet data
 const poetCache: Record<string, Poet> = {};
 
 const helpers = {
@@ -35,6 +36,7 @@ const ganjoorApi = {
 
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
+      console.error("Error fetching random poem:", error);
       throw new Error(
         "متأسفانه در دریافت شعر تصادفی مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
       );
@@ -43,10 +45,13 @@ const ganjoorApi = {
 
   async getPoemById(id: number): Promise<Poem> {
     try {
+      // Validate ID before making request
       if (isNaN(id) || id < 1) {
         throw new Error("شناسه شعر معتبر نیست");
       }
 
+      // No cache check - always fetch fresh data
+      console.log("Fetching poem:", id);
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/${id}`,
         {
@@ -58,9 +63,12 @@ const ganjoorApi = {
         },
       );
 
+      console.log("API Response:", response.data);
+      // Don't cache the response
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        console.error("API Error:", error.response?.data);
         if (error.response?.status === 404) {
           throw new Error("متأسفانه شعر مورد نظر پیدا نشد");
         }
@@ -86,7 +94,7 @@ const ganjoorApi = {
       name: poet.name,
       description: poet.description,
       fullUrl: poet.fullUrl,
-      urlSlug: poet.fullUrl.slice(1),
+      urlSlug: poet.fullUrl.slice(1), // Remove the leading slash
       rootCatId: poet.rootCatId,
       nickname: poet.nickname,
       published: poet.published,
@@ -114,6 +122,7 @@ const ganjoorApi = {
       },
     });
 
+    // Transform the response to fix image URLs
     return response.data.map((century: any) => ({
       ...century,
       poets: century.poets.map((poet: any) => ({
@@ -129,6 +138,7 @@ const ganjoorApi = {
   async getRandomPoemByPoet(slug: string): Promise<Poem> {
     const poet = await ganjoorApi.getPoetBySlug(slug);
     try {
+      // Don't use session storage cache - always get fresh data
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/random?poetId=${poet.id}`,
         {
@@ -140,8 +150,10 @@ const ganjoorApi = {
         },
       );
 
+      // Don't check or store in cache
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
+      console.error("Error fetching random poem:", error);
       throw new Error(
         "متأسفانه در دریافت شعر مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
       );
@@ -252,6 +264,7 @@ const ganjoorApi = {
         audioStartMilliseconds: verse.audioStartMilliseconds,
       }));
     } catch (error) {
+      console.error("Error fetching recitation verses:", error);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 404) {
           throw new Error("متأسفانه اطلاعات همزمان‌سازی این خوانش یافت نشد");
@@ -267,6 +280,7 @@ const ganjoorApi = {
       throw new Error("متأسفانه شعر مورد نظر یافت نشد");
     }
 
+    // Map recitations to our type if available
     const recitations: PoemRecitation[] =
       data.recitations?.map((rec: any) => ({
         id: rec.id,
@@ -294,6 +308,7 @@ const ganjoorApi = {
         upVotedByUser: rec.upVotedByUser,
       })) || [];
 
+    // Clean up HTML text by removing unnecessary divs and keeping only meaningful structure
     const cleanHtml =
       data.htmlText
         ?.replace(/<div[^>]*class="([^"]*)"[^>]*>/g, "")
