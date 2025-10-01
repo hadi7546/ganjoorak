@@ -5,10 +5,12 @@ import { HiChevronDown } from 'react-icons/hi2';
 import '../styles/FAQ.css';
 import Menu, { MenuButton } from '@/components/Menu';
 import { motion } from 'framer-motion';
+import { useUpdateNotification } from '@/hooks/useUpdateNotification';
 
 const FAQ = () => {
     const [openIndices, setOpenIndices] = useState<number[]>([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
     const faqs = [
         {
@@ -69,8 +71,13 @@ const FAQ = () => {
 
     return (
         <div className="faq-container">
-            <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
-            <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+            <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} hasNotification={hasNewUpdates} />
+            <Menu
+                isOpen={isMenuOpen}
+                onClose={() => setIsMenuOpen(false)}
+                hasNewUpdates={hasNewUpdates}
+                onUpdatesViewed={markAsRead}
+            />
 
             <h1 className="faq-title">پرسش‌های متداول</h1>
             <div className="faq-list">

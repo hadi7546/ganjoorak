@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -26,6 +28,8 @@ import { useRouter } from "next/navigation";
 import { PoetSlug, poetNames } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import Menu, { MenuButton } from "@/components/Menu";
+import { useSettings } from "@/context/SettingsContext";
+import { useUpdateNotification } from "@/hooks/useUpdateNotification";
 
 interface PoemViewerProps {
   poem: Poem;
@@ -69,6 +73,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const poemTextRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { settings } = useSettings();
+  const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
   // Define loading animation variants
   const loadingVariants = {
@@ -503,6 +509,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const getVerseClass = (lineIndexZeroBased: number): string => {
     let className = "verse-line";
 
+    if (settings.showLineNumbers) {
+      className += " verse-line-numbered";
+    }
+
     // verseOrder from API is 1-based, rendered line indices are 0-based
     const lineOrderOneBased = lineIndexZeroBased + 1;
     const shouldHighlight =
@@ -736,8 +746,16 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
-      <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MenuButton
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        hasNotification={hasNewUpdates}
+      />
+      <Menu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        hasNewUpdates={hasNewUpdates}
+        onUpdatesViewed={markAsRead}
+      />
 
       {/* Loading overlay is now permanently hidden when scrolling through poems
             <AnimatePresence>
@@ -881,6 +899,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               {poem.plainText.split("\n").map((line, index) => {
                 return (
                   <div key={index} className={getVerseClass(index)}>
+                    {settings.showLineNumbers && (
+                      <span className="verse-number">{index + 1}</span>
+                    )}
                     <span className="verse-text">{line}</span>
                   </div>
                 );
@@ -905,6 +926,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                       key={lineIndex}
                       className={getVerseClass(globalLineIndex)}
                     >
+                      {settings.showLineNumbers && (
+                        <span className="verse-number">{globalLineIndex + 1}</span>
+                      )}
                       <span className="verse-text">{line}</span>
                     </div>
                   );

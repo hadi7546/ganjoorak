@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
+import { SettingsProvider } from "@/context/SettingsContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -56,12 +57,12 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var s=localStorage.getItem('theme');var t=s?s:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'dark');document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();",
+              "(function(){try{var settings=localStorage.getItem('ganjoorak:settings');var parsed=settings?JSON.parse(settings):null;var theme=parsed&&parsed.theme?parsed.theme:localStorage.getItem('theme');var prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var fallback=prefersDark?'dark':'dark';var allowed=['dark','light','paper'];var finalTheme=allowed.indexOf(theme)>=0?theme:fallback;document.documentElement.setAttribute('data-theme',finalTheme);localStorage.setItem('theme',finalTheme);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();",
           }}
         />
       </head>
       <body className={inter.className}>
-        {children}
+        <SettingsProvider>{children}</SettingsProvider>
         <Analytics />
         <SpeedInsights />
       </body>
