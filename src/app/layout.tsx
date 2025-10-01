@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { SettingsProvider } from "@/context/SettingsContext";
-
-const inter = Inter({ subsets: ["latin"] });
+import "@fontsource/vazirmatn/400.css";
+import "@fontsource/vazirmatn/700.css";
 
 export const metadata: Metadata = {
   title: "گنجورک",
@@ -61,7 +60,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body>
         <SettingsProvider>{children}</SettingsProvider>
         <Analytics />
         <SpeedInsights />

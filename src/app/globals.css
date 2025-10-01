@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -73,7 +71,7 @@
 body {
     color: rgb(var(--foreground));
     background: rgb(var(--background));
-    font-family: 'Vazirmatn', sans-serif;
+    font-family: 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }

@@ -134,8 +134,13 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onU
 export function MenuButton({ onClick, hasNotification = false }: { onClick: () => void; hasNotification?: boolean }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="menu-button fixed top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full text-foreground transition-all"
+      className={[
+        "menu-button fixed top-4 right-4 w-10 h-10",
+        "flex items-center justify-center rounded-full",
+        "text-foreground transition-all",
+      ].join(" ")}
       aria-label="Open menu"
     >
       <FaBars size={16} />
