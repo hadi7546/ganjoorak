@@ -1,0 +1,8 @@
+{
+  "uuid": "ganj-poem@ganjoor",
+  "name": "Ganj Random Poem",
+  "description": "Display a random Ganjoor poem from the panel menu with support for GNOME 49.",
+  "version": 1,
+  "shell-version": ["47", "48", "49"],
+  "url": "https://ganjoor.net"
+}
