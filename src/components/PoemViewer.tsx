@@ -27,6 +27,7 @@ import Link from "next/link";
 import { PoetSlug, poetNames } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import Menu, { MenuButton } from "@/components/Menu";
+import SettingsDialog from "@/components/SettingsDialog";
 import { useSettings } from "@/context/SettingsContext";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
 
@@ -69,6 +70,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const [toastMessage, setToastMessage] = useState("");
   const [isMouseOverPoemText, setIsMouseOverPoemText] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [verseSync, setVerseSync] = useState<VerseSync[]>([]);
   const [currentHighlightedVerse, setCurrentHighlightedVerse] =
     useState<number>(-1);
@@ -758,7 +760,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         onClose={() => setIsMenuOpen(false)}
         hasNewUpdates={hasNewUpdates}
         onUpdatesViewed={markAsRead}
+        onOpenSettings={() => {
+          setIsSettingsOpen(true);
+          setIsMenuOpen(false);
+        }}
       />
+      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
       {/* Loading overlay is now permanently hidden when scrolling through poems
             <AnimatePresence>

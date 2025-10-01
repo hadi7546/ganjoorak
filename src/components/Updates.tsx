@@ -3,12 +3,14 @@
 import React, { useEffect, useState } from "react";
 import "../styles/Updates.css";
 import Menu, { MenuButton } from "@/components/Menu";
+import SettingsDialog from "@/components/SettingsDialog";
 import { motion } from "framer-motion";
 import { updates } from "@/data/updates";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
 
 const Updates = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
   useEffect(() => {
@@ -26,7 +28,12 @@ const Updates = () => {
         onClose={() => setIsMenuOpen(false)}
         hasNewUpdates={hasNewUpdates}
         onUpdatesViewed={markAsRead}
+        onOpenSettings={() => {
+          setIsSettingsOpen(true);
+          setIsMenuOpen(false);
+        }}
       />
+      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
       <h1 className="updates-title">بروزرسانی‌ها</h1>
       <div className="updates-list">

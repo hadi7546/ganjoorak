@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { FaBars, FaHome, FaQuestionCircle, FaBell, FaUsers, FaSlidersH } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import SettingsDialog from "@/components/SettingsDialog";
 import { useRouter } from "next/navigation";
 
 interface MenuProps {
@@ -12,10 +11,16 @@ interface MenuProps {
   onClose: () => void;
   hasNewUpdates?: boolean;
   onUpdatesViewed?: () => void;
+  onOpenSettings: () => void;
 }
 
-const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onUpdatesViewed }) => {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+const Menu: React.FC<MenuProps> = ({
+  isOpen,
+  onClose,
+  hasNewUpdates = false,
+  onUpdatesViewed,
+  onOpenSettings,
+}) => {
   const router = useRouter();
 
   const menuItems = useMemo(
@@ -86,7 +91,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onU
                       type="button"
                       className="menu-link menu-link-button"
                       onClick={() => {
-                        setIsSettingsOpen(true);
+                        onOpenSettings();
                         onClose();
                       }}
                     >
@@ -102,7 +107,6 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onU
           </>
         )}
       </AnimatePresence>
-      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   );
 };

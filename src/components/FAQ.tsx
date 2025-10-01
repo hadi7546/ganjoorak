@@ -4,12 +4,14 @@ import React, { useState } from 'react';
 import { HiChevronDown } from 'react-icons/hi2';
 import '../styles/FAQ.css';
 import Menu, { MenuButton } from '@/components/Menu';
+import SettingsDialog from '@/components/SettingsDialog';
 import { motion } from 'framer-motion';
 import { useUpdateNotification } from '@/hooks/useUpdateNotification';
 
 const FAQ = () => {
     const [openIndices, setOpenIndices] = useState<number[]>([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
     const faqs = [
@@ -77,7 +79,12 @@ const FAQ = () => {
                 onClose={() => setIsMenuOpen(false)}
                 hasNewUpdates={hasNewUpdates}
                 onUpdatesViewed={markAsRead}
+                onOpenSettings={() => {
+                    setIsSettingsOpen(true);
+                    setIsMenuOpen(false);
+                }}
             />
+            <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
             <h1 className="faq-title">پرسش‌های متداول</h1>
             <div className="faq-list">
