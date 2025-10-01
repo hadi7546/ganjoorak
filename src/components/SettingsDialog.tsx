@@ -112,12 +112,14 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                 <h3 className="settings-section-title">نمایش شماره بیت</h3>
                 <div className="settings-toggle">
                   <span className="settings-toggle-label">نمایش شماره بیت</span>
-                  <input
-                    type="checkbox"
-                    checked={settings.showLineNumbers}
-                    onChange={toggleLineNumbers}
-                    aria-label="تغییر نمایش شماره بیت"
-                  />
+                  <button
+                    type="button"
+                    className={`settings-toggle-button ${settings.showLineNumbers ? "active" : ""}`}
+                    onClick={toggleLineNumbers}
+                    aria-pressed={settings.showLineNumbers}
+                  >
+                    {settings.showLineNumbers ? "روشن" : "خاموش"}
+                  </button>
                 </div>
               </section>
 

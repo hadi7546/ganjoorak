@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaChevronUp,
@@ -78,26 +78,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const poemTextRef = useRef<HTMLDivElement>(null);
   const { settings } = useSettings();
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
-
-  const poemLines = useMemo(
-    () => poem.plainText.split("\n").filter((line) => line.trim().length > 0),
-    [poem.plainText],
-  );
-
-  const coupletCount = useMemo(() => {
-    if (!poemLines.length) {
-      return 0;
-    }
-
-    if (isModern) {
-      return poemLines.length;
-    }
-
-    return Math.ceil(poemLines.length / 2);
-  }, [poemLines, isModern]);
-
-  const coupletLabel = isModern ? "خط" : "بیت";
-  const showCoupletCount = coupletCount > 0;
 
   // Define loading animation variants
   const loadingVariants = {
@@ -922,18 +902,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               </div>
               <span className="poet-profile-inline-name">{poem.poet}</span>
             </Link>
-          )}
-          {showCoupletCount && (
-            <motion.div
-              className="poem-meta"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.15 }}
-            >
-              <span className="poem-meta-item" title={`تعداد ${coupletLabel}`}>
-                {formatPersianNumber(coupletCount)} {coupletLabel}
-              </span>
-            </motion.div>
           )}
         </div>
         <div

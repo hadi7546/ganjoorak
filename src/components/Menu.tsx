@@ -40,71 +40,70 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onU
     });
   }, [menuItems, router]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setIsSettingsOpen(false);
-    }
-  }, [isOpen]);
-
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="menu-backdrop fixed inset-0 bg-black bg-opacity-30 z-40"
-          />
+    <>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={onClose}
+              className="menu-backdrop fixed inset-0 bg-black bg-opacity-30 z-40"
+            />
 
-          {/* Menu popup */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -20 }}
-            transition={{ type: "spring", duration: 0.3, bounce: 0.2 }}
-            className="menu-drawer fixed top-16 right-4 w-72 rounded-2xl p-4 shadow-2xl"
-          >
-            <nav>
-              <ul className="space-y-1">
-                {menuItems.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      prefetch
-                      className="menu-link"
+            {/* Menu popup */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              transition={{ type: "spring", duration: 0.3, bounce: 0.2 }}
+              className="menu-drawer fixed top-16 right-4 w-72 rounded-2xl p-4 shadow-2xl"
+            >
+              <nav>
+                <ul className="space-y-1">
+                  {menuItems.map((item) => (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        prefetch
+                        className="menu-link"
+                        onClick={() => {
+                          item.onClick?.();
+                          onClose();
+                        }}
+                      >
+                        <span className="menu-link-icon">{item.icon}</span>
+                        <span className="menu-item-text">{item.label}</span>
+                        {item.showBadge && <span className="menu-badge" />}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      type="button"
+                      className="menu-link menu-link-button"
                       onClick={() => {
-                        item.onClick?.();
+                        setIsSettingsOpen(true);
                         onClose();
                       }}
                     >
-                      <span className="menu-link-icon">{item.icon}</span>
-                      <span className="menu-item-text">{item.label}</span>
-                      {item.showBadge && <span className="menu-badge" />}
-                    </Link>
+                      <span className="menu-link-icon">
+                        <FaSlidersH />
+                      </span>
+                      <span className="menu-item-text">تنظیمات</span>
+                    </button>
                   </li>
-                ))}
-                <li>
-                  <button
-                    type="button"
-                    className="menu-link menu-link-button"
-                    onClick={() => setIsSettingsOpen(true)}
-                  >
-                    <span className="menu-link-icon">
-                      <FaSlidersH />
-                    </span>
-                    <span className="menu-item-text">تنظیمات</span>
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </motion.div>
-          <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-        </>
-      )}
-    </AnimatePresence>
+                </ul>
+              </nav>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+    </>
   );
 };
 
