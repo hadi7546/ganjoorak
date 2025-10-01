@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { themeInitializerScript } from "@/services/theme";
 import "./globals.css";
 import { SettingsProvider } from "@/context/SettingsContext";
 import "@fontsource/vazirmatn/400.css";
@@ -61,12 +63,9 @@ export default function RootLayout({
   return (
     <html lang="en" dir="rtl" suppressHydrationWarning data-font="vazirmatn">
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){try{var settings=localStorage.getItem('ganjoorak:settings');var parsed=settings?JSON.parse(settings):null;var theme=parsed&&parsed.theme?parsed.theme:localStorage.getItem('theme');var prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var fallback=prefersDark?'dark':'dark';var allowedThemes=['dark','light','paper'];var finalTheme=allowedThemes.indexOf(theme)>=0?theme:fallback;var allowedFonts=['vazirmatn','samim','tanha','shabnam','gandom','parastoo','sahel','vazircode','nahid'];var storedFont=parsed&&parsed.fontFamily&&allowedFonts.indexOf(parsed.fontFamily)>=0?parsed.fontFamily:'vazirmatn';document.documentElement.setAttribute('data-theme',finalTheme);document.documentElement.setAttribute('data-font',storedFont);localStorage.setItem('theme',finalTheme);}catch(e){document.documentElement.setAttribute('data-theme','dark');document.documentElement.setAttribute('data-font','vazirmatn');}})();",
-          }}
-        />
+        <Script id="theme-initializer" strategy="beforeInteractive">
+          {themeInitializerScript}
+        </Script>
       </head>
       <body>
         <SettingsProvider>{children}</SettingsProvider>
