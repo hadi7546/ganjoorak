@@ -22,6 +22,7 @@
     --border: 235 235 235;
     --input: 235 235 235;
     --ring: 10 10 10;
+    --app-font: 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
 }
 
 [data-theme="dark"] {
@@ -68,10 +69,46 @@
     --ring: 120 90 50;
 }
 
+:root[data-font="vazirmatn"] {
+    --app-font: 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+:root[data-font="samim"] {
+    --app-font: 'Samim', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+:root[data-font="tanha"] {
+    --app-font: 'Tanha', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+:root[data-font="shabnam"] {
+    --app-font: 'Shabnam', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+:root[data-font="gandom"] {
+    --app-font: 'Gandom', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+:root[data-font="parastoo"] {
+    --app-font: 'Parastoo', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+:root[data-font="sahel"] {
+    --app-font: 'Sahel', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
+:root[data-font="vazircode"] {
+    --app-font: 'Vazir Code', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', monospace;
+}
+
+:root[data-font="nahid"] {
+    --app-font: 'Nahid', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+}
+
 body {
     color: rgb(var(--foreground));
     background: rgb(var(--background));
-    font-family: 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    font-family: var(--app-font);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -142,6 +179,15 @@ body {
     opacity: 0.75;
 }
 
+.menu-link-button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    text-align: right;
+}
+
 .menu-badge {
     position: absolute;
     left: 0.85rem;
@@ -201,6 +247,198 @@ body {
     font-size: 1rem;
 }
 
+.settings-backdrop {
+    background-color: rgba(0, 0, 0, 0.55);
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+}
+
+.settings-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.settings-panel {
+    width: min(100% - 2rem, 480px);
+    max-height: min(90vh, 640px);
+    overflow-y: auto;
+    border-radius: 1.25rem;
+    background-color: rgb(var(--card));
+    color: rgb(var(--card-foreground));
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    padding: 1.5rem;
+    pointer-events: auto;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.settings-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.settings-close {
+    border: none;
+    border-radius: 9999px;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgb(var(--secondary));
+    color: rgb(var(--secondary-foreground));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.settings-close:hover {
+    transform: rotate(-10deg);
+    background-color: rgb(var(--secondary) / 0.8);
+}
+
+.settings-section {
+    padding: 1.25rem 0;
+    border-top: 1px solid rgb(var(--border));
+}
+
+.settings-section:first-of-type {
+    padding-top: 0;
+    border-top: none;
+}
+
+.settings-section-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    color: rgb(var(--foreground) / 0.7);
+}
+
+.settings-theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0.75rem;
+}
+
+.settings-theme-button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
+    padding: 0.85rem 1rem;
+    background-color: rgb(var(--secondary));
+    color: rgb(var(--secondary-foreground));
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.settings-theme-button svg {
+    font-size: 1rem;
+}
+
+.settings-theme-button:hover {
+    transform: translateY(-1px);
+}
+
+.settings-theme-button.active {
+    border-color: rgb(var(--primary));
+    background-color: rgb(var(--primary) / 0.12);
+    color: rgb(var(--primary));
+}
+
+.settings-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 0.85rem;
+    background-color: rgb(var(--secondary));
+    color: rgb(var(--secondary-foreground));
+}
+
+.settings-toggle-label {
+    font-size: 0.95rem;
+}
+
+.settings-toggle input {
+    accent-color: rgb(var(--primary));
+}
+
+.settings-font-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.settings-font-button {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.85rem;
+    border-radius: 0.85rem;
+    border: 1px solid rgb(var(--border));
+    background-color: rgb(var(--card));
+    color: rgb(var(--card-foreground));
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    text-align: right;
+}
+
+.settings-font-button:hover {
+    transform: translateY(-1px);
+    border-color: rgb(var(--primary));
+}
+
+.settings-font-button.active {
+    border-color: rgb(var(--primary));
+    box-shadow: 0 0 0 2px rgba(var(--primary) / 0.2);
+}
+
+.settings-font-button .font-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.settings-font-button .font-note {
+    font-size: 0.75rem;
+    color: rgb(var(--foreground) / 0.6);
+}
+
+.settings-preview {
+    margin-top: 1.25rem;
+    border-radius: 1rem;
+    border: 1px dashed rgb(var(--border));
+    background-color: rgb(var(--secondary) / 0.5);
+    padding: 1.25rem;
+    line-height: 2.1;
+    font-size: 1.05rem;
+    text-align: center;
+}
+
+.settings-preview p {
+    margin-bottom: 0.75rem;
+}
+
+.settings-preview p:last-child {
+    margin-bottom: 0;
+}
+
 .menu-toggle {
     display: flex;
     align-items: center;
@@ -249,23 +487,26 @@ body {
 }
 
 .menu-item-text {
-    font-family: 'Vazirmatn', serif;
+    font-family: var(--app-font);
     font-size: 1.1rem;
     letter-spacing: 0.05em;
 }
 
 /* Menu item hover */
-.menu-drawer a {
+.menu-drawer a,
+.menu-drawer button.menu-link {
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
     border-radius: 0.75rem;
 }
 
-.menu-drawer a:hover {
+.menu-drawer a:hover,
+.menu-drawer button.menu-link:hover {
     background-color: rgb(var(--foreground) / 0.06);
     transform: translateY(-1px);
 }
 
-.menu-drawer a:active {
+.menu-drawer a:active,
+.menu-drawer button.menu-link:active {
     background-color: rgb(var(--foreground) / 0.08);
     transform: translateY(0);
 }

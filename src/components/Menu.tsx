@@ -1,19 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  FaBars,
-  FaHome,
-  FaQuestionCircle,
-  FaBell,
-  FaUsers,
-  FaSun,
-  FaMoon,
-  FaRegNewspaper,
-} from "react-icons/fa";
+import { FaBars, FaHome, FaQuestionCircle, FaBell, FaUsers, FaSlidersH } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSettings, type ThemeOption } from "@/context/SettingsContext";
+import SettingsDialog from "@/components/SettingsDialog";
 import { useRouter } from "next/navigation";
 
 interface MenuProps {
@@ -23,14 +14,8 @@ interface MenuProps {
   onUpdatesViewed?: () => void;
 }
 
-const THEME_OPTIONS: Array<{ value: ThemeOption; label: string; icon: React.ReactNode }> = [
-  { value: "dark", label: "تاریک", icon: <FaMoon /> },
-  { value: "light", label: "روشن", icon: <FaSun /> },
-  { value: "paper", label: "کاغذی", icon: <FaRegNewspaper /> },
-];
-
 const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onUpdatesViewed }) => {
-  const { settings, setTheme, toggleLineNumbers } = useSettings();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const router = useRouter();
 
   const menuItems = useMemo(
@@ -54,6 +39,12 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onU
       router.prefetch(item.href);
     });
   }, [menuItems, router]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsSettingsOpen(false);
+    }
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
@@ -95,36 +86,22 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onU
                     </Link>
                   </li>
                 ))}
+                <li>
+                  <button
+                    type="button"
+                    className="menu-link menu-link-button"
+                    onClick={() => setIsSettingsOpen(true)}
+                  >
+                    <span className="menu-link-icon">
+                      <FaSlidersH />
+                    </span>
+                    <span className="menu-item-text">تنظیمات</span>
+                  </button>
+                </li>
               </ul>
             </nav>
-            <div className="menu-section">
-              <h3 className="menu-section-title">تنظیمات ظاهر</h3>
-              <div className="menu-theme-options">
-                {THEME_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={`menu-theme-button ${settings.theme === option.value ? "active" : ""}`}
-                    onClick={() => setTheme(option.value)}
-                  >
-                    <span className="menu-theme-icon">{option.icon}</span>
-                    <span>{option.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="menu-section">
-              <label className="menu-toggle">
-                <input
-                  type="checkbox"
-                  checked={settings.showLineNumbers}
-                  onChange={toggleLineNumbers}
-                />
-                <span className="menu-toggle-indicator" aria-hidden="true" />
-                <span className="menu-toggle-label">نمایش شماره بیت</span>
-              </label>
-            </div>
           </motion.div>
+          <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
         </>
       )}
     </AnimatePresence>

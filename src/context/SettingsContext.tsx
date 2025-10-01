@@ -3,21 +3,48 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 type ThemeOption = "dark" | "light" | "paper";
+type FontFamilyOption =
+  | "vazirmatn"
+  | "samim"
+  | "tanha"
+  | "shabnam"
+  | "gandom"
+  | "parastoo"
+  | "sahel"
+  | "vazircode"
+  | "nahid";
 
 interface SettingsState {
   theme: ThemeOption;
   showLineNumbers: boolean;
+  fontFamily: FontFamilyOption;
 }
 
 interface SettingsContextValue {
   settings: SettingsState;
   setTheme: (theme: ThemeOption) => void;
   toggleLineNumbers: () => void;
+  setFontFamily: (fontFamily: FontFamilyOption) => void;
 }
+
+const FONT_STACKS: Record<FontFamilyOption, string> = {
+  vazirmatn: "'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+  samim: "'Samim', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+  tanha: "'Tanha', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+  shabnam: "'Shabnam', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+  gandom: "'Gandom', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+  parastoo: "'Parastoo', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+  sahel: "'Sahel', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+  vazircode: "'Vazir Code', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', monospace",
+  nahid: "'Nahid', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+};
+
+const FONT_OPTIONS = Object.keys(FONT_STACKS) as FontFamilyOption[];
 
 const DEFAULT_SETTINGS: SettingsState = {
   theme: "dark",
   showLineNumbers: false,
+  fontFamily: "vazirmatn",
 };
 
 const STORAGE_KEY = "ganjoorak:settings";
@@ -37,10 +64,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSettings((prev) => ({
           ...prev,
           ...parsed,
+          fontFamily: parsed.fontFamily && FONT_OPTIONS.includes(parsed.fontFamily)
+            ? parsed.fontFamily
+            : prev.fontFamily,
         }));
         if (parsed.theme) {
           document.documentElement.setAttribute("data-theme", parsed.theme);
           window.localStorage.setItem("theme", parsed.theme);
+        }
+        if (parsed.fontFamily && FONT_OPTIONS.includes(parsed.fontFamily)) {
+          document.documentElement.setAttribute("data-font", parsed.fontFamily);
         }
       } else {
         const legacyTheme = window.localStorage.getItem("theme");
@@ -54,6 +87,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (error) {
       console.error("Failed to load settings", error);
       document.documentElement.setAttribute("data-theme", DEFAULT_SETTINGS.theme);
+      document.documentElement.setAttribute("data-font", DEFAULT_SETTINGS.fontFamily);
     }
   }, []);
 
@@ -68,6 +102,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     document.documentElement.setAttribute("data-theme", settings.theme);
   }, [settings.theme]);
 
+  useEffect(() => {
+    document.documentElement.setAttribute("data-font", settings.fontFamily);
+  }, [settings.fontFamily]);
+
   const setTheme = useCallback((theme: ThemeOption) => {
     setSettings((prev) => ({ ...prev, theme }));
   }, []);
@@ -76,13 +114,21 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setSettings((prev) => ({ ...prev, showLineNumbers: !prev.showLineNumbers }));
   }, []);
 
+  const setFontFamily = useCallback((fontFamily: FontFamilyOption) => {
+    if (!FONT_OPTIONS.includes(fontFamily)) {
+      return;
+    }
+    setSettings((prev) => ({ ...prev, fontFamily }));
+  }, []);
+
   const value = useMemo(
     () => ({
       settings,
       setTheme,
       toggleLineNumbers,
+      setFontFamily,
     }),
-    [settings, setTheme, toggleLineNumbers],
+    [settings, setTheme, toggleLineNumbers, setFontFamily],
   );
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
@@ -96,4 +142,5 @@ export const useSettings = (): SettingsContextValue => {
   return context;
 };
 
-export type { ThemeOption };
+export type { ThemeOption, FontFamilyOption };
+export { FONT_STACKS, FONT_OPTIONS };
