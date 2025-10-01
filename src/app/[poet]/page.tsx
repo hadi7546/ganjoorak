@@ -37,6 +37,13 @@ export default function PoetPage() {
           poetSlug.startsWith("/")
         ) {
           setNotFound(true);
+          setIsGanjoor(null);
+          return;
+        }
+
+        if (isValidPoetSlug(poetSlug)) {
+          setIsGanjoor(false);
+          setNotFound(false);
           return;
         }
 
@@ -45,25 +52,32 @@ export default function PoetPage() {
 
           if (ganjoorPoetId) {
             setIsGanjoor(true);
+            setNotFound(false);
             return;
           }
+
           setNotFound(true);
           return;
         } catch (err: any) {
-          if (
-            err.response?.status === 404 ||
-            err.message?.includes("not found")
-          ) {
-            setNotFound(true);
-            return;
-          } else {
-            setError("متأسفانه در بررسی اطلاعات شاعر در گنجور مشکلی پیش آمد");
+          const message =
+            typeof err?.message === "string" ? err.message.toLowerCase() : "";
+          const isNotFoundError =
+            err?.response?.status === 404 || message.includes("not found");
+
+          if (isNotFoundError) {
+            setIsGanjoor(false);
+            setNotFound(false);
             return;
           }
+
+          setError("متأسفانه در بررسی اطلاعات شاعر در گنجور مشکلی پیش آمد");
+          setIsGanjoor(null);
+          return;
         }
       } catch (err) {
         console.error("Error in checkPoetSource:", err);
-        setNotFound(true);
+        setError("متأسفانه در بررسی اطلاعات شاعر در گنجور مشکلی پیش آمد");
+        setIsGanjoor(null);
       }
     };
 
