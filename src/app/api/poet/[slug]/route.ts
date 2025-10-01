@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { list } from "@vercel/blob";
-import fs from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 
 export const dynamic = "force-dynamic";
@@ -30,14 +30,24 @@ export async function GET(
 
       if (blobs.length === 0) {
         try {
-          const fallbackPath = `/poems/${poetSlug}.json`;
-
-          return NextResponse.json(
-            {
-              error: `Poet data not found for ${poetSlug}. Please check the client-side fallback.`,
-            },
-            { status: 404, headers: corsHeaders },
+          const fallbackFilePath = path.join(
+            process.cwd(),
+            "public",
+            "poems",
+            `${poetSlug}.json`,
           );
+
+          const fallbackContent = await fs.readFile(fallbackFilePath, "utf-8");
+          const fallbackData = JSON.parse(fallbackContent);
+
+          const headers = {
+            ...corsHeaders,
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          };
+
+          return NextResponse.json(fallbackData, { headers });
         } catch (localError) {
           console.error("Error with local file fallback:", localError);
           return NextResponse.json(
