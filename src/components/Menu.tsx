@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   FaBars,
@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSettings, type ThemeOption } from "@/context/SettingsContext";
+import { useRouter } from "next/navigation";
 
 interface MenuProps {
   isOpen: boolean;
@@ -30,19 +31,29 @@ const THEME_OPTIONS: Array<{ value: ThemeOption; label: string; icon: React.Reac
 
 const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onUpdatesViewed }) => {
   const { settings, setTheme, toggleLineNumbers } = useSettings();
+  const router = useRouter();
 
-  const menuItems = [
-    { href: "/", icon: <FaHome />, label: "صفحه اصلی" },
-    { href: "/poets", icon: <FaUsers />, label: "شاعران" },
-    { href: "/faq", icon: <FaQuestionCircle />, label: "پرسش‌های متداول" },
-    {
-      href: "/updates",
-      icon: <FaBell />,
-      label: "بروزرسانی‌ها",
-      showBadge: hasNewUpdates,
-      onClick: () => onUpdatesViewed?.(),
-    },
-  ];
+  const menuItems = useMemo(
+    () => [
+      { href: "/", icon: <FaHome />, label: "صفحه اصلی" },
+      { href: "/poets", icon: <FaUsers />, label: "شاعران" },
+      { href: "/faq", icon: <FaQuestionCircle />, label: "پرسش‌های متداول" },
+      {
+        href: "/updates",
+        icon: <FaBell />,
+        label: "بروزرسانی‌ها",
+        showBadge: hasNewUpdates,
+        onClick: () => onUpdatesViewed?.(),
+      },
+    ],
+    [hasNewUpdates, onUpdatesViewed],
+  );
+
+  useEffect(() => {
+    menuItems.forEach((item) => {
+      router.prefetch(item.href);
+    });
+  }, [menuItems, router]);
 
   return (
     <AnimatePresence>
@@ -71,6 +82,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onU
                   <li key={item.href}>
                     <Link
                       href={item.href}
+                      prefetch
                       className="menu-link"
                       onClick={() => {
                         item.onClick?.();

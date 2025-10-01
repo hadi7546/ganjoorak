@@ -24,7 +24,6 @@ import "../styles/PoemViewer.css";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
 import ganjoorApi from "@/api/GanjoorApi";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { PoetSlug, poetNames } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import Menu, { MenuButton } from "@/components/Menu";
@@ -77,7 +76,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const poemTextRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   const { settings } = useSettings();
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
@@ -995,27 +993,25 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         >
           <FaExternalLinkAlt />
         </a>
-        <div
-          className="poet-profile"
-          onClick={() => {
-            if (poem.poet && poem.poetSlug) {
-              router.push(`/${poem.poetSlug}`);
-            }
-          }}
-          role="button"
-          aria-label={`مشاهده اشعار ${poem.poet}`}
-          title={`مشاهده اشعار ${poem.poet}`}
-        >
-          <div className="poet-image-container">
-            <PoetImage
-              imgUrl={poem.poetImageUrl}
-              alt={poem.poet}
-              width={60}
-              height={60}
-            />
-          </div>
-          <h3 className="poet-profile-name">{poem.poet}</h3>
-        </div>
+        {poem.poet && poem.poetSlug && (
+          <Link
+            href={`/${poem.poetSlug}`}
+            className="poet-profile"
+            prefetch
+            aria-label={`مشاهده اشعار ${poem.poet}`}
+            title={`مشاهده اشعار ${poem.poet}`}
+          >
+            <div className="poet-image-container">
+              <PoetImage
+                imgUrl={poem.poetImageUrl}
+                alt={poem.poet}
+                width={60}
+                height={60}
+              />
+            </div>
+            <h3 className="poet-profile-name">{poem.poet}</h3>
+          </Link>
+        )}
       </div>
 
       {/* Navigation controls */}
