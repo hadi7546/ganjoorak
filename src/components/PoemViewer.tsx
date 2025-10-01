@@ -904,6 +904,25 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               {poem.poet}
             </motion.div>
           )}
+          {!isPoetPage && poem.poet && poem.poetSlug && (
+            <Link
+              href={`/${poem.poetSlug}`}
+              prefetch
+              className="poet-profile-inline"
+              aria-label={`مشاهده اشعار ${poem.poet}`}
+              title={`مشاهده اشعار ${poem.poet}`}
+            >
+              <div className="poet-profile-inline-avatar">
+                <PoetImage
+                  imgUrl={poem.poetImageUrl}
+                  alt={poem.poet}
+                  width={44}
+                  height={44}
+                />
+              </div>
+              <span className="poet-profile-inline-name">{poem.poet}</span>
+            </Link>
+          )}
           {showCoupletCount && (
             <motion.div
               className="poem-meta"

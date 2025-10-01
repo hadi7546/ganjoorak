@@ -306,6 +306,13 @@ body {
     z-index: 999;
 }
 
+@media (max-width: 640px) {
+    .menu-button {
+        top: calc(env(safe-area-inset-top) + 0.75rem);
+        right: calc(env(safe-area-inset-right) + 0.75rem);
+    }
+}
+
 /* Enhanced blur for desktop */
 @media (min-width: 768px) {
     .menu-drawer {
