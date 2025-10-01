@@ -177,7 +177,7 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 0.75rem;
-    gap: 2rem;
+    gap: 1.5rem;
     position: relative;
     width: 100%;
     max-width: 1300px;
@@ -185,6 +185,33 @@
     direction: rtl;
     will-change: transform, opacity;
     transform: translateZ(0);
+}
+
+.verse-pair-numbered {
+    align-items: stretch;
+}
+
+.verse-number-pair {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.8ch;
+    height: 100%;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    color: rgb(var(--foreground) / 0.7);
+    background-color: rgb(var(--foreground) / 0.08);
+    border-radius: 9999px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.verse-pair-lines {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    flex: 1;
 }
 
 .verse-line {

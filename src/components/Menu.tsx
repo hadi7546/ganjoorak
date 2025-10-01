@@ -121,7 +121,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose, hasNewUpdates = false, onU
                   onChange={toggleLineNumbers}
                 />
                 <span className="menu-toggle-indicator" aria-hidden="true" />
-                <span className="menu-toggle-label">نمایش شماره مصرع</span>
+                <span className="menu-toggle-label">نمایش شماره بیت</span>
               </label>
             </div>
           </motion.div>

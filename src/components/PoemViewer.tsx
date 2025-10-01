@@ -532,7 +532,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const getVerseClass = (lineIndexZeroBased: number): string => {
     let className = "verse-line";
 
-    if (settings.showLineNumbers) {
+    if (settings.showLineNumbers && isModern) {
       className += " verse-line-numbered";
     }
 
@@ -949,25 +949,31 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             ).map((pair, index) => (
               <motion.div
                 key={index}
-                className="verse-pair"
+                className={`verse-pair ${
+                  settings.showLineNumbers ? "verse-pair-numbered" : ""
+                }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                {pair.map((line, lineIndex) => {
-                  const globalLineIndex = index * 2 + lineIndex;
-                  return (
-                    <div
-                      key={lineIndex}
-                      className={getVerseClass(globalLineIndex)}
-                    >
-                      {settings.showLineNumbers && (
-                        <span className="verse-number">{globalLineIndex + 1}</span>
-                      )}
-                      <span className="verse-text">{line}</span>
-                    </div>
-                  );
-                })}
+                {settings.showLineNumbers && (
+                  <span className="verse-number verse-number-pair">
+                    {formatPersianNumber(index + 1)}
+                  </span>
+                )}
+                <div className="verse-pair-lines">
+                  {pair.map((line, lineIndex) => {
+                    const globalLineIndex = index * 2 + lineIndex;
+                    return (
+                      <div
+                        key={lineIndex}
+                        className={getVerseClass(globalLineIndex)}
+                      >
+                        <span className="verse-text">{line}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </motion.div>
             ))
           )}
