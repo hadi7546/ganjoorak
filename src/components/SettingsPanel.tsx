@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FaTimes, FaSave, FaUndo, FaPalette, FaFont, FaListOl } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import type { PoemSettings, ThemeOption, PoemFontOption } from '@/types/settings';
 
 interface SettingsPanelProps {
@@ -16,30 +16,30 @@ interface SettingsPanelProps {
 const themeOptions: { value: ThemeOption; label: string }[] = [
     {
         value: 'light',
-        label: 'پوسته روشن',
+        label: 'روشن',
     },
     {
         value: 'dark',
-        label: 'پوسته تاریک',
+        label: 'تاریک',
     },
     {
         value: 'paper',
-        label: 'پوسته کاغذی',
+        label: 'کاغذی',
     },
 ];
 
 const fontOptions: { value: PoemFontOption; label: string }[] = [
     {
         value: 'vazirmatn',
-        label: 'وزیرمتن',
+        label: 'فونت فارسی وزیرمتن',
     },
     {
         value: 'noto',
-        label: 'نوتو نسخ',
+        label: 'فونت فارسی نسخ',
     },
     {
         value: 'scheherazade',
-        label: 'شهرزاد',
+        label: 'فونت فارسی شهرزاد',
     },
 ];
 
@@ -53,6 +53,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     isModern,
 }) => {
     const disableCoupletNumbers = isModern;
+
+    const numberingButtonLabel = settings.showCoupletNumbers ? 'پنهان کردن شماره بیت' : 'نمایش شماره بیت';
 
     return (
         <AnimatePresence>
@@ -75,84 +77,71 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <button className="settings-close" onClick={onClose} aria-label="بستن تنظیمات">
                             <FaTimes />
                         </button>
-                        <div className="settings-controls">
-                            <div className="settings-group">
-                                <div className="settings-group-header">
-                                    <FaPalette />
-                                    <h3>پوسته</h3>
-                                </div>
-                                <div className="settings-options">
+
+                        <div className="settings-content">
+                            <div className="settings-section">
+                                <h3 className="settings-section-title">حالت نمایش</h3>
+                                <div className="settings-button-grid settings-button-grid--theme">
                                     {themeOptions.map(option => (
-                                        <label
+                                        <button
                                             key={option.value}
-                                            className={`settings-option ${settings.theme === option.value ? 'active' : ''}`}
+                                            type="button"
+                                            className={`settings-choice ${settings.theme === option.value ? 'active' : ''}`}
+                                            onClick={() => onChange({ theme: option.value })}
                                         >
-                                            <input
-                                                type="radio"
-                                                name="theme"
-                                                value={option.value}
-                                                checked={settings.theme === option.value}
-                                                onChange={() => onChange({ theme: option.value })}
-                                            />
-                                            <span className="option-label">{option.label}</span>
-                                        </label>
+                                            {option.label}
+                                        </button>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="settings-group">
-                                <div className="settings-group-header">
-                                    <FaFont />
-                                    <h3>فونت شعر</h3>
-                                </div>
-                                <div className="settings-options">
-                                    {fontOptions.map(option => (
-                                        <label
-                                            key={option.value}
-                                            className={`settings-option ${settings.font === option.value ? 'active' : ''}`}
-                                        >
-                                            <input
-                                                type="radio"
-                                                name="font"
-                                                value={option.value}
-                                                checked={settings.font === option.value}
-                                                onChange={() => onChange({ font: option.value })}
-                                            />
-                                            <span className="option-label">{option.label}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="settings-group">
-                                <div className="settings-group-header">
-                                    <FaListOl />
-                                    <h3>نمایش شماره ابیات</h3>
-                                </div>
-                                <label className={`settings-toggle ${disableCoupletNumbers ? 'disabled' : ''}`}>
-                                    <input
-                                        type="checkbox"
-                                        checked={settings.showCoupletNumbers}
-                                        disabled={disableCoupletNumbers}
-                                        onChange={event =>
-                                            onChange({ showCoupletNumbers: event.target.checked })
+                            <div className="settings-section">
+                                <h3 className="settings-section-title">نمایش شماره بیت</h3>
+                                <div className="settings-button-grid settings-button-grid--single">
+                                    <button
+                                        type="button"
+                                        className={`settings-choice ${settings.showCoupletNumbers ? 'active' : ''} ${
+                                            disableCoupletNumbers ? 'disabled' : ''
+                                        }`}
+                                        onClick={() =>
+                                            onChange({ showCoupletNumbers: !settings.showCoupletNumbers })
                                         }
-                                    />
-                                    <span className="toggle-slider" />
-                                    <span className="toggle-label">نمایش شماره مصرع‌ها در شعرهای کلاسیک</span>
-                                </label>
+                                        disabled={disableCoupletNumbers}
+                                        title={
+                                            disableCoupletNumbers
+                                                ? 'این گزینه فقط برای شعرهای کلاسیک فعال است'
+                                                : undefined
+                                        }
+                                    >
+                                        {numberingButtonLabel}
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="settings-actions">
-                                <button className="settings-action save" onClick={onSave}>
-                                    <FaSave />
-                                    <span>ذخیره</span>
-                                </button>
-                                <button className="settings-action discard" onClick={onDiscard}>
-                                    <FaUndo />
-                                    <span>صرف‌نظر</span>
-                                </button>
+                            <div className="settings-section">
+                                <h3 className="settings-section-title">فونت شعر</h3>
+                                <div className="settings-button-grid settings-button-grid--fonts">
+                                    {fontOptions.map(option => (
+                                        <button
+                                            key={option.value}
+                                            type="button"
+                                            className={`settings-choice ${settings.font === option.value ? 'active' : ''}`}
+                                            onClick={() => onChange({ font: option.value })}
+                                        >
+                                            {option.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
+                        </div>
+
+                        <div className="settings-footer">
+                            <button type="button" className="settings-footer-button primary" onClick={onSave}>
+                                ذخیره
+                            </button>
+                            <button type="button" className="settings-footer-button" onClick={onDiscard}>
+                                صرف‌نظر
+                            </button>
                         </div>
                     </motion.div>
                 </motion.div>
