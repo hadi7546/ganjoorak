@@ -100,12 +100,6 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     document.documentElement.setAttribute("data-theme", pendingTheme);
   }, [isOpen, pendingTheme]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    if (typeof document === "undefined") return;
-    document.documentElement.setAttribute("data-font", pendingFontFamily);
-  }, [isOpen, pendingFontFamily]);
-
   const handleSave = () => {
     hasSavedRef.current = true;
     setTheme(pendingTheme);
@@ -171,7 +165,10 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                 <aside className="settings-preview" aria-hidden="true">
                   <div className="settings-preview-inner">
                     <div className="settings-preview-title">پیش‌نمایش</div>
-                    <div className="settings-preview-poem">
+                    <div
+                      className="settings-preview-poem"
+                      style={{ fontFamily: FONT_STACKS[pendingFontFamily] }}
+                    >
                       {previewCouplets.map((couplet, coupletIndex) => (
                         <div
                           key={coupletIndex}
