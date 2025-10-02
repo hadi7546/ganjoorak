@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaChevronUp,
@@ -290,20 +290,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     setDraftSettings({ ...poemSettings });
     setIsSettingsOpen(false);
   };
-
-  const previewCouplets = useMemo(() => {
-    if (!poem) {
-      return [] as string[][];
-    }
-
-    const lines = poem.plainText.split("\n").filter((line) => line.trim());
-
-    if (isModern) {
-      return lines.slice(0, 4).map((line) => [line]);
-    }
-
-    return chunk(lines, 2).slice(0, 3);
-  }, [poem, isModern]);
 
   // Helper functions for wheel handling
   const isAtBottom = () => {
@@ -1080,7 +1066,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         onSave={handleSettingsSave}
         onDiscard={handleSettingsDiscard}
         onClose={handleSettingsDiscard}
-        previewCouplets={previewCouplets}
         isModern={isModern}
       />
 

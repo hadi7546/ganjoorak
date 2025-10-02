@@ -10,43 +10,36 @@ interface SettingsPanelProps {
     onSave: () => void;
     onDiscard: () => void;
     onClose: () => void;
-    previewCouplets: string[][];
     isModern: boolean;
 }
 
-const themeOptions: { value: ThemeOption; label: string; description: string }[] = [
+const themeOptions: { value: ThemeOption; label: string }[] = [
     {
         value: 'light',
         label: 'پوسته روشن',
-        description: 'پس‌زمینه روشن با کنتراست بالا برای خوانایی بیشتر.',
     },
     {
         value: 'dark',
         label: 'پوسته تاریک',
-        description: 'پس‌زمینه تیره برای مطالعه در محیط‌های کم‌نور.',
     },
     {
         value: 'paper',
         label: 'پوسته کاغذی',
-        description: 'حس کاغذ قدیمی با رنگ‌های گرم و بافت ملایم.',
     },
 ];
 
-const fontOptions: { value: PoemFontOption; label: string; description: string }[] = [
+const fontOptions: { value: PoemFontOption; label: string }[] = [
     {
         value: 'vazirmatn',
         label: 'وزیرمتن',
-        description: 'فونت مدرن و خوانا، مناسب برای صفحه‌نمایش‌های امروزی.',
     },
     {
         value: 'noto',
         label: 'نوتو نسخ',
-        description: 'فونت کلاسیک با حروف نسخ برای حس سنتی‌تر.',
     },
     {
         value: 'scheherazade',
         label: 'شهرزاد',
-        description: 'فونت نرم و ادبی برای تجربه‌ای شاعرانه‌تر.',
     },
 ];
 
@@ -57,10 +50,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
     onSave,
     onDiscard,
     onClose,
-    previewCouplets,
     isModern,
 }) => {
-    const showCoupletNumbers = settings.showCoupletNumbers && !isModern;
+    const disableCoupletNumbers = isModern;
 
     return (
         <AnimatePresence>
@@ -83,34 +75,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <button className="settings-close" onClick={onClose} aria-label="بستن تنظیمات">
                             <FaTimes />
                         </button>
-                        <div className={`settings-preview ${settings.theme}`} data-poem-font={settings.font}>
-                            <div className="settings-preview-inner">
-                                <h3 className="settings-section-title">پیش‌نمایش</h3>
-                                <div className={`settings-preview-body ${isModern ? 'modern' : ''}`}>
-                                    {previewCouplets.length === 0 ? (
-                                        <p className="settings-preview-placeholder">
-                                            برای نمایش پیش‌نمایش ابتدا شعری بارگیری کنید.
-                                        </p>
-                                    ) : (
-                                        previewCouplets.map((couplet, index) => (
-                                            <div
-                                                key={`preview-${index}`}
-                                                className={`settings-preview-verse ${showCoupletNumbers ? 'with-number' : ''}`}
-                                            >
-                                                {showCoupletNumbers && (
-                                                    <span className="settings-preview-number">{index + 1}</span>
-                                                )}
-                                                {couplet.map((line, lineIndex) => (
-                                                    <div key={`line-${index}-${lineIndex}`} className="settings-preview-line">
-                                                        <span className="verse-text">{line}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        </div>
                         <div className="settings-controls">
                             <div className="settings-group">
                                 <div className="settings-group-header">
@@ -130,10 +94,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 checked={settings.theme === option.value}
                                                 onChange={() => onChange({ theme: option.value })}
                                             />
-                                            <div className="option-content">
-                                                <span className="option-label">{option.label}</span>
-                                                <span className="option-description">{option.description}</span>
-                                            </div>
+                                            <span className="option-label">{option.label}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -157,10 +118,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 checked={settings.font === option.value}
                                                 onChange={() => onChange({ font: option.value })}
                                             />
-                                            <div className="option-content">
-                                                <span className="option-label">{option.label}</span>
-                                                <span className="option-description">{option.description}</span>
-                                            </div>
+                                            <span className="option-label">{option.label}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -171,11 +129,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <FaListOl />
                                     <h3>نمایش شماره ابیات</h3>
                                 </div>
-                                <label className="settings-toggle">
+                                <label className={`settings-toggle ${disableCoupletNumbers ? 'disabled' : ''}`}>
                                     <input
                                         type="checkbox"
                                         checked={settings.showCoupletNumbers}
-                                        onChange={event => onChange({ showCoupletNumbers: event.target.checked })}
+                                        disabled={disableCoupletNumbers}
+                                        onChange={event =>
+                                            onChange({ showCoupletNumbers: event.target.checked })
+                                        }
                                     />
                                     <span className="toggle-slider" />
                                     <span className="toggle-label">نمایش شماره مصرع‌ها در شعرهای کلاسیک</span>
