@@ -99,52 +99,6 @@
     font-weight: 400;
 }
 
-.poem-meta {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 1rem;
-    color: rgb(var(--foreground) / 0.65);
-    font-size: 1rem;
-    direction: rtl;
-}
-
-.poet-profile-inline {
-    display: none;
-}
-
-.poet-profile-inline-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: rgb(var(--foreground) / 0.1);
-}
-
-.poet-profile-inline-avatar img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-}
-
-.poet-profile-inline-name {
-    font-size: 0.95rem;
-    color: rgb(var(--foreground) / 0.85);
-    font-weight: 500;
-}
-
-.poem-meta-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    background: rgb(var(--foreground) / 0.08);
-    padding: 0.35rem 0.9rem;
-    border-radius: 9999px;
-    font-weight: 500;
-    line-height: 1;
-}
-
 .poem-text {
     text-align: center;
     font-size: 1.25rem;
@@ -177,17 +131,6 @@
 .poem-text::-webkit-scrollbar {
     display: block;
     width: 6px;
-}
-
-@media (max-width: 768px) {
-    .poem-text {
-        padding: 1.5rem 1.25rem 7.5rem;
-        scrollbar-width: none;
-    }
-
-    .poem-text::-webkit-scrollbar {
-        display: none;
-    }
 }
 
 .poem-text::-webkit-scrollbar-track {
@@ -1179,80 +1122,5 @@
 
     .poet-profile-nickname {
         font-size: 0.6rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .poet-profile-inline {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.65rem;
-        margin-top: 1.25rem;
-        padding: 0.6rem 1rem;
-        border-radius: 9999px;
-        background: rgb(var(--foreground) / 0.08);
-        text-decoration: none;
-        color: inherit;
-        transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-
-    .poet-profile-inline:hover {
-        background: rgb(var(--foreground) / 0.12);
-    }
-
-    .poet-profile-inline:active {
-        transform: translateY(1px);
-    }
-}
-
-@media (max-width: 640px) {
-    .poet-profile {
-        display: none;
-    }
-
-    .action-buttons {
-        position: static;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        gap: 0.75rem;
-        margin: 1.5rem 0 0;
-        padding: 0 1rem;
-    }
-
-    .action-button {
-        width: 2.75rem;
-        height: 2.75rem;
-    }
-
-    .action-buttons .poet-profile {
-        display: none;
-    }
-}
-
-@media (max-width: 480px) {
-    .poet-profile-inline {
-        gap: 0.5rem;
-        padding: 0.55rem 0.85rem;
-    }
-
-    .poet-profile-inline-avatar {
-        width: 38px;
-        height: 38px;
-    }
-
-    .poet-profile-inline-name {
-        font-size: 0.85rem;
-    }
-
-    .action-buttons {
-        margin-top: 1.25rem;
-        gap: 0.6rem;
-    }
-
-    .action-button {
-        width: 2.5rem;
-        height: 2.5rem;
     }
 }
