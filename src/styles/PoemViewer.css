@@ -353,15 +353,15 @@
 
     .verse-pair {
         flex-direction: column;
-        gap: 0.25rem;
-        margin-bottom: 1.5rem;
+        gap: 0.2rem;
+        margin-bottom: 1rem;
         max-width: 100%;
         padding: 0;
         position: relative;
     }
 
     .verse-pair-numbered {
-        padding: 0 0.5rem 2rem;
+        padding: 0 0.5rem 1.75rem;
     }
 
     .verse-line {
@@ -373,7 +373,7 @@
     }
 
     .verse-line:first-child {
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.15rem;
     }
 
     .verse-pair:not(:last-child)::after {
@@ -398,7 +398,7 @@
         justify-content: center;
         position: absolute;
         right: 50%;
-        bottom: -1.5rem;
+        bottom: -1rem;
         top: auto;
         transform: translate(50%, 0);
     }
