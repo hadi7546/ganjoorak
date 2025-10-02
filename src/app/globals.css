@@ -23,10 +23,10 @@
     --input: 235 235 235;
     --ring: 10 10 10;
     --app-font: 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
-    --poem-content-max-width: min(96vw, 1680px);
-    --poem-text-max-width: min(92vw, 1280px);
-    --poem-verse-pair-max-width: min(90vw, 1500px);
-    --poem-verse-line-max-width: min(44ch, 640px);
+    --poem-content-max-width: min(98vw, 1920px);
+    --poem-text-max-width: min(96vw, 1560px);
+    --poem-verse-pair-max-width: min(94vw, 1720px);
+    --poem-verse-line-max-width: min(52ch, 780px);
 }
 
 [data-theme="dark"] {

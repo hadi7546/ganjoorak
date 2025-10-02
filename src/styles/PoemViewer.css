@@ -20,9 +20,9 @@
     align-items: center;
     width: 100%;
     height: 100%;
-    max-width: var(--poem-content-max-width, min(96vw, 1680px));
+    max-width: var(--poem-content-max-width, min(98vw, 1920px));
     margin: 0 auto;
-    padding: 0;
+    padding: 0 clamp(1.5rem, 6vw, 4rem);
     position: relative;
     overflow-y: hidden;
     -ms-overflow-style: none;
@@ -109,7 +109,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 0rem 6rem;
+    padding: 2.5rem clamp(1.5rem, 6vw, 3.75rem) 6rem;
     font-weight: 400;
     overflow-y: auto;
     scrollbar-width: thin;
@@ -117,7 +117,7 @@
     -webkit-overflow-scrolling: touch;
     height: calc(100% - 100px);
     scrollbar-gutter: stable right;
-    max-width: var(--poem-text-max-width, min(92vw, 1280px));
+    max-width: var(--poem-text-max-width, min(96vw, 1560px));
     margin: 0 auto;
     font-size: 1.2rem;
     -ms-overflow-style: auto;
@@ -152,10 +152,10 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 0.75rem;
-    gap: 2rem;
+    gap: clamp(1.75rem, 4vw, 3.5rem);
     position: relative;
     width: 100%;
-    max-width: var(--poem-verse-pair-max-width, min(90vw, 1500px));
+    max-width: var(--poem-verse-pair-max-width, min(94vw, 1720px));
     padding: 0 0.5rem;
     direction: rtl;
     will-change: transform, opacity;
@@ -194,7 +194,7 @@
     flex: 1;
     text-align: center;
     position: relative;
-    max-width: var(--poem-verse-line-max-width, min(44ch, 640px));
+    max-width: var(--poem-verse-line-max-width, min(52ch, 780px));
     transition: color 0.25s ease, font-weight 0.25s ease;
     font-weight: 400;
     font-size: 1.5rem;
