@@ -1,105 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
+import React, { useEffect, useState } from "react";
 import "../styles/Updates.css";
 import Menu, { MenuButton } from "@/components/Menu";
+import SettingsDialog from "@/components/SettingsDialog";
 import { motion } from "framer-motion";
+import { updates } from "@/data/updates";
+import { useUpdateNotification } from "@/hooks/useUpdateNotification";
+
 const Updates = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
-  type Update = {
-    version: string;
-    date: string;
-    changes: React.ReactNode[];
-    video?: string;
-    image?: string;
-  };
-
-  const updates: Update[] = [
-    {
-      version: "1.1.1",
-      date: "۲۲ مرداد ۱۴۰۴",
-      changes: ["اضافه شدن پوسته روشن."],
-      image: "/images/updates/light-theme.jpg",
-    },
-    {
-      version: "1.1.0",
-      date: "۲۰ مرداد ۱۴۰۴",
-      changes: [
-        "هماهنگ‌‌و‌برجسته‌سازی مصرع‌ها همراه با پخش‌شدن خوانش‌ها. دکمه‌ای هم تعبیه شده تا بتونید این ویژگی رو خاموش کنید.",
-      ],
-      video: "/videos/sync.mp4",
-    },
-    {
-      version: "1.0.3",
-      date: "۱۸ مرداد ۱۴۰۴",
-      changes: [
-        "حالا با اضافه کردن gnjk.ir یا ganjoorak.ir به پشت دامنه گنجور، در هر شعری، آن را در گنجورک ببینید و گوش کنید.",
-      ],
-      video: "/videos/redirect.mp4",
-    },
-    {
-      version: "1.0.2",
-      date: "۲۷ اسفند ۱۴۰۳",
-      changes: [
-        <>
-          اضافه شدن{" "}
-          <Link href="/poets" className="link">
-            صفحه شاعران
-          </Link>
-        </>,
-        <>
-          اضافه شدن دو شاعر معاصر،{" "}
-          <Link href="/rahmani" className="link">
-            نصرت رحمانی
-          </Link>{" "}
-          و{" "}
-          <Link href="/farrokhzad" className="link">
-            فروغ فرخزاد
-          </Link>
-        </>,
-        "اضافه شدن صفحه جدید برای هر شاعر با کلیک در صفحه اصلی یا صفحه شاعران",
-        "اضافه شدن منو",
-        "اصلاح نیم‌فاصله‌ها",
-        "پیمایش بین شعرها و محتوای شعرها با کیبورد",
-      ],
-    },
-    {
-      version: "1.0.1",
-      date: "۲۵ اسفند ۱۴۰۳",
-      changes: [
-        <>
-          اضافه شدن{" "}
-          <Link href="/faq" className="link">
-            صفحه پرسش‌های متداول
-          </Link>
-        </>,
-        <>
-          اضافه شدن{" "}
-          <Link href="/updates" className="link">
-            صفحه بروزرسانی‌ها
-          </Link>
-        </>,
-        "بهبود رابط کاربری و انیمیشن‌ها",
-        "رفع باگ‌های جزئی",
-      ],
-    },
-    {
-      version: "1.0.0",
-      date: "۲۰ اسفند ۱۴۰۳",
-      changes: [
-        "انتشار نسخه اولیه گنجورک",
-        "امکان مشاهده اشعار به صورت تصادفی",
-        "پخش صوت اشعار",
-      ],
-    },
-  ];
+  useEffect(() => {
+    markAsRead();
+  }, [markAsRead]);
 
   return (
     <div className="updates-container">
-      <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
-      <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MenuButton
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        hasNotification={hasNewUpdates}
+      />
+      <Menu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        hasNewUpdates={hasNewUpdates}
+        onUpdatesViewed={markAsRead}
+        onOpenSettings={() => {
+          setIsSettingsOpen(true);
+          setIsMenuOpen(false);
+        }}
+      />
+      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
       <h1 className="updates-title">بروزرسانی‌ها</h1>
       <div className="updates-list">

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -22,10 +24,17 @@ import "../styles/PoemViewer.css";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
 import ganjoorApi from "@/api/GanjoorApi";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { PoetSlug, poetNames } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import Menu, { MenuButton } from "@/components/Menu";
+import SettingsDialog from "@/components/SettingsDialog";
+import { useSettings } from "@/context/SettingsContext";
+import { useUpdateNotification } from "@/hooks/useUpdateNotification";
+
+const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
+
+const formatPersianNumber = (value: number) =>
+  persianNumberFormatter.format(value);
 
 interface PoemViewerProps {
   poem: Poem;
@@ -61,6 +70,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const [toastMessage, setToastMessage] = useState("");
   const [isMouseOverPoemText, setIsMouseOverPoemText] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [verseSync, setVerseSync] = useState<VerseSync[]>([]);
   const [currentHighlightedVerse, setCurrentHighlightedVerse] =
     useState<number>(-1);
@@ -68,7 +78,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const poemTextRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const { settings } = useSettings();
+  const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
   // Define loading animation variants
   const loadingVariants = {
@@ -503,6 +514,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const getVerseClass = (lineIndexZeroBased: number): string => {
     let className = "verse-line";
 
+    if (settings.showLineNumbers && isModern) {
+      className += " verse-line-numbered";
+    }
+
     // verseOrder from API is 1-based, rendered line indices are 0-based
     const lineOrderOneBased = lineIndexZeroBased + 1;
     const shouldHighlight =
@@ -736,8 +751,21 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
-      <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MenuButton
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        hasNotification={hasNewUpdates}
+      />
+      <Menu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        hasNewUpdates={hasNewUpdates}
+        onUpdatesViewed={markAsRead}
+        onOpenSettings={() => {
+          setIsSettingsOpen(true);
+          setIsMenuOpen(false);
+        }}
+      />
+      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
       {/* Loading overlay is now permanently hidden when scrolling through poems
             <AnimatePresence>
@@ -881,6 +909,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               {poem.plainText.split("\n").map((line, index) => {
                 return (
                   <div key={index} className={getVerseClass(index)}>
+                    {settings.showLineNumbers && (
+                      <span className="verse-number">{index + 1}</span>
+                    )}
                     <span className="verse-text">{line}</span>
                   </div>
                 );
@@ -893,7 +924,14 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             ).map((pair, index) => (
               <motion.div
                 key={index}
-                className="verse-pair"
+                className={`verse-pair ${
+                  settings.showLineNumbers ? "verse-pair-numbered" : ""
+                }`}
+                data-couplet-number={
+                  settings.showLineNumbers
+                    ? formatPersianNumber(index + 1)
+                    : undefined
+                }
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -934,27 +972,25 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         >
           <FaExternalLinkAlt />
         </a>
-        <div
-          className="poet-profile"
-          onClick={() => {
-            if (poem.poet && poem.poetSlug) {
-              router.push(`/${poem.poetSlug}`);
-            }
-          }}
-          role="button"
-          aria-label={`مشاهده اشعار ${poem.poet}`}
-          title={`مشاهده اشعار ${poem.poet}`}
-        >
-          <div className="poet-image-container">
-            <PoetImage
-              imgUrl={poem.poetImageUrl}
-              alt={poem.poet}
-              width={60}
-              height={60}
-            />
-          </div>
-          <h3 className="poet-profile-name">{poem.poet}</h3>
-        </div>
+        {poem.poet && poem.poetSlug && (
+          <Link
+            href={`/${poem.poetSlug}`}
+            className="poet-profile"
+            prefetch
+            aria-label={`مشاهده اشعار ${poem.poet}`}
+            title={`مشاهده اشعار ${poem.poet}`}
+          >
+            <div className="poet-image-container">
+              <PoetImage
+                imgUrl={poem.poetImageUrl}
+                alt={poem.poet}
+                width={60}
+                height={60}
+              />
+            </div>
+            <h3 className="poet-profile-name">{poem.poet}</h3>
+          </Link>
+        )}
       </div>
 
       {/* Navigation controls */}
