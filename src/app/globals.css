@@ -23,6 +23,10 @@
     --input: 235 235 235;
     --ring: 10 10 10;
     --app-font: 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --poem-content-max-width: min(96vw, 1680px);
+    --poem-text-max-width: min(92vw, 1280px);
+    --poem-verse-pair-max-width: min(90vw, 1500px);
+    --poem-verse-line-max-width: min(44ch, 640px);
 }
 
 [data-theme="dark"] {
@@ -348,6 +352,9 @@ body {
     background-color: rgb(var(--card) / 0.6);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    --poem-text-max-width: 100%;
+    --poem-verse-pair-max-width: 100%;
+    --poem-verse-line-max-width: 100%;
 }
 
 .settings-preview-poem .verse-pair {

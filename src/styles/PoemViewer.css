@@ -11,7 +11,7 @@
     background: linear-gradient(to bottom, rgb(var(--background) / 0.7), rgb(var(--background) / 0.9));
     overflow: hidden;
     z-index: 1;
-    font-family: "Vazirmatn", sans-serif;
+    font-family: var(--app-font);
 }
 
 .poem-content {
@@ -20,7 +20,7 @@
     align-items: center;
     width: 100%;
     height: 100%;
-    max-width: 1400px;
+    max-width: var(--poem-content-max-width, min(96vw, 1680px));
     margin: 0 auto;
     padding: 0;
     position: relative;
@@ -117,7 +117,7 @@
     -webkit-overflow-scrolling: touch;
     height: calc(100% - 100px);
     scrollbar-gutter: stable right;
-    max-width: 1000px;
+    max-width: var(--poem-text-max-width, min(92vw, 1280px));
     margin: 0 auto;
     font-size: 1.2rem;
     -ms-overflow-style: auto;
@@ -155,7 +155,7 @@
     gap: 2rem;
     position: relative;
     width: 100%;
-    max-width: 1300px;
+    max-width: var(--poem-verse-pair-max-width, min(90vw, 1500px));
     padding: 0 0.5rem;
     direction: rtl;
     will-change: transform, opacity;
@@ -194,7 +194,7 @@
     flex: 1;
     text-align: center;
     position: relative;
-    max-width: 800px;
+    max-width: var(--poem-verse-line-max-width, min(44ch, 640px));
     transition: color 0.25s ease, font-weight 0.25s ease;
     font-weight: 400;
     font-size: 1.5rem;
