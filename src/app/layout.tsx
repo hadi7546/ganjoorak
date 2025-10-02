@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import { SettingsProvider } from "@/context/SettingsContext";
+import "@fontsource/vazirmatn/400.css";
+import "@fontsource/vazirmatn/700.css";
+import "samim-font/dist/font-face.css";
+import "tanha-font/dist/font-face.css";
+import "shabnam-font/dist/font-face.css";
+import "gandom-font/dist/font-face.css";
+import "parastoo-font/dist/font-face.css";
+import "sahel-font/dist/font-face.css";
+import "vazir-code-font/dist/font-face.css";
+import "nahid-font/dist/font-face.css";
 
 export const metadata: Metadata = {
   title: "گنجورک",
@@ -51,17 +59,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" dir="rtl" suppressHydrationWarning>
+    <html lang="en" dir="rtl" suppressHydrationWarning data-font="vazirmatn">
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var s=localStorage.getItem('theme');var t=s?s:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'dark');document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();",
+              "(function(){try{var settings=localStorage.getItem('ganjoorak:settings');var parsed=settings?JSON.parse(settings):null;var theme=parsed&&parsed.theme?parsed.theme:localStorage.getItem('theme');var prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var fallback=prefersDark?'dark':'dark';var allowedThemes=['dark','light','paper'];var finalTheme=allowedThemes.indexOf(theme)>=0?theme:fallback;var allowedFonts=['vazirmatn','samim','tanha','shabnam','gandom','parastoo','sahel','vazircode','nahid'];var storedFont=parsed&&parsed.fontFamily&&allowedFonts.indexOf(parsed.fontFamily)>=0?parsed.fontFamily:'vazirmatn';document.documentElement.setAttribute('data-theme',finalTheme);document.documentElement.setAttribute('data-font',storedFont);localStorage.setItem('theme',finalTheme);}catch(e){document.documentElement.setAttribute('data-theme','dark');document.documentElement.setAttribute('data-font','vazirmatn');}})();",
           }}
         />
       </head>
-      <body className={inter.className}>
-        {children}
+      <body>
+        <SettingsProvider>{children}</SettingsProvider>
         <Analytics />
         <SpeedInsights />
       </body>
