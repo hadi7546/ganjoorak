@@ -15,20 +15,43 @@ const menuItems = [
     { href: '/updates', icon: <FaBell />, label: 'بروزرسانی‌ها' },
 ];
 
+const availableThemes = ['dark', 'light', 'paper'] as const;
+type ThemeOption = typeof availableThemes[number];
+
+const themeLabels: Record<ThemeOption, string> = {
+    dark: 'تاریک',
+    light: 'روشن',
+    paper: 'کاغذی',
+};
+
 const Menu: React.FC<MenuProps> = ({ isOpen, onClose }) => {
-    const [theme, setTheme] = useState('dark');
+    const [theme, setTheme] = useState<ThemeOption>('dark');
 
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        setTheme(savedTheme);
-        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedTheme = (localStorage.getItem('theme') as ThemeOption) || 'dark';
+        const nextTheme = availableThemes.includes(savedTheme) ? savedTheme : 'dark';
+        setTheme(nextTheme);
+        document.documentElement.setAttribute('data-theme', nextTheme);
     }, []);
 
     const toggleTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
-        document.documentElement.setAttribute('data-theme', newTheme);
+        const currentIndex = availableThemes.indexOf(theme);
+        const nextTheme = availableThemes[(currentIndex + 1) % availableThemes.length];
+        setTheme(nextTheme);
+        localStorage.setItem('theme', nextTheme);
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        const storedSettings = localStorage.getItem('poemViewerSettings');
+        if (storedSettings) {
+            try {
+                const parsed = JSON.parse(storedSettings);
+                localStorage.setItem('poemViewerSettings', JSON.stringify({
+                    ...parsed,
+                    theme: nextTheme,
+                }));
+            } catch (error) {
+                console.warn('Failed to update stored settings theme', error);
+            }
+        }
     };
 
     return (
@@ -71,7 +94,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onClose }) => {
                         <div className="border-t border-border mt-2 pt-2">
                             <button onClick={toggleTheme} className="flex items-center gap-3 text-foreground transition-colors py-2 px-3 rounded-xl w-full">
                                 {theme === 'light' ? <FaMoon /> : <FaSun />}
-                                <span className="menu-item-text">تغییر پوسته</span>
+                                <span className="menu-item-text">پوسته: {themeLabels[theme]}</span>
                             </button>
                         </div>
                     </motion.div>

@@ -1,31 +1,94 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaChevronUp,
   FaChevronDown,
-  FaHeart,
   FaShare,
   FaPause,
   FaPlay,
-  FaStepBackward,
-  FaStepForward,
   FaExternalLinkAlt,
   FaBackward,
   FaForward,
-  FaInfoCircle,
   FaSpinner,
-  FaArrowLeft,
   FaEye,
   FaEyeSlash,
+  FaCog,
 } from "react-icons/fa";
 import "../styles/PoemViewer.css";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
 import ganjoorApi from "@/api/GanjoorApi";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PoetSlug, poetNames } from "@/types/poet";
+import { PoetSlug } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import Menu, { MenuButton } from "@/components/Menu";
+import SettingsPanel, {
+  FontOption,
+  FontOptionConfig,
+  ThemeOption,
+  ThemeOptionConfig,
+  UserSettings,
+} from "@/components/SettingsPanel";
+
+const THEME_OPTIONS: ThemeOptionConfig[] = [
+  {
+    value: "dark",
+    label: "تاریک",
+    description: "نمایش با پس‌زمینه تیره برای مطالعه در شب.",
+    preview: {
+      background: "radial-gradient(circle at top, #1f1f1f, #0d0d0d)",
+      foreground: "#f4f4f4",
+      accent: "rgba(244, 244, 244, 0.08)",
+    },
+  },
+  {
+    value: "light",
+    label: "روشن",
+    description: "پس‌زمینه روشن و متعادل برای مطالعه روزانه.",
+    preview: {
+      background: "linear-gradient(135deg, #f7f7f7, #ebebeb)",
+      foreground: "#2f2f2f",
+      accent: "rgba(47, 47, 47, 0.08)",
+    },
+  },
+  {
+    value: "paper",
+    label: "کاغذی",
+    description: "حس کاغذ سنتی با رنگ‌های گرم و ملایم.",
+    preview: {
+      background: "linear-gradient(135deg, #f5eee0, #efe2cc)",
+      foreground: "#4a3726",
+      accent: "rgba(74, 55, 38, 0.1)",
+    },
+  },
+];
+
+const FONT_OPTIONS: FontOptionConfig[] = [
+  {
+    value: "vazirmatn",
+    label: "وزیرمتن",
+    description: "نمایش خوانا و مدرن مناسب برای متن‌های طولانی.",
+    fontFamily: "'Vazirmatn', sans-serif",
+  },
+  {
+    value: "scheherazade",
+    label: "شهرزاد",
+    description: "فونت سنتی و خوش‌خوان برای اشعار کلاسیک.",
+    fontFamily: "'Scheherazade New', serif",
+  },
+  {
+    value: "nastaliq",
+    label: "نستعلیق",
+    description: "نمایش نستعلیق برای تجربه‌ای نزدیک به نسخه‌های چاپی.",
+    fontFamily: "'Noto Nastaliq Urdu', serif",
+  },
+];
+
+const FONT_STACKS: Record<FontOption, string> = {
+  vazirmatn: "'Vazirmatn', sans-serif",
+  scheherazade: "'Scheherazade New', serif",
+  nastaliq: "'Noto Nastaliq Urdu', serif",
+};
 
 interface PoemViewerProps {
   poem: Poem;
@@ -65,10 +128,108 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const [currentHighlightedVerse, setCurrentHighlightedVerse] =
     useState<number>(-1);
   const [isHighlightEnabled, setIsHighlightEnabled] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState<UserSettings>({
+    theme: "dark",
+    poemFont: "vazirmatn",
+    showCoupletNumbers: false,
+  });
+  const [draftSettings, setDraftSettings] = useState<UserSettings>(settings);
   const audioRef = useRef<HTMLAudioElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const poemTextRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const themeOptions = THEME_OPTIONS;
+  const fontOptions = FONT_OPTIONS;
+
+  const applySettings = useCallback(
+    (next: UserSettings) => {
+      if (typeof document === "undefined") return;
+      document.documentElement.setAttribute("data-theme", next.theme);
+      document.documentElement.style.setProperty(
+        "--poem-font",
+        FONT_STACKS[next.poemFont],
+      );
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const storedSettings = window.localStorage.getItem("poemViewerSettings");
+    const storedTheme = window.localStorage.getItem("theme");
+
+    if (storedSettings) {
+      try {
+        const parsed = JSON.parse(storedSettings) as UserSettings;
+        const validTheme = THEME_OPTIONS.some(
+          (option) => option.value === parsed.theme,
+        )
+          ? parsed.theme
+          : (storedTheme as ThemeOption);
+        const validFont = FONT_OPTIONS.some(
+          (option) => option.value === parsed.poemFont,
+        )
+          ? parsed.poemFont
+          : "vazirmatn";
+        const nextSettings: UserSettings = {
+          theme: validTheme || "dark",
+          poemFont: validFont,
+          showCoupletNumbers:
+            typeof parsed.showCoupletNumbers === "boolean"
+              ? parsed.showCoupletNumbers
+              : false,
+        };
+        setSettings(nextSettings);
+        setDraftSettings(nextSettings);
+        applySettings(nextSettings);
+        window.localStorage.setItem("theme", nextSettings.theme);
+        return;
+      } catch (error) {
+        console.warn("Failed to parse saved settings", error);
+      }
+    }
+
+    const initialTheme = (storedTheme as ThemeOption) || "dark";
+    const initialSettings: UserSettings = {
+      theme: initialTheme,
+      poemFont: "vazirmatn",
+      showCoupletNumbers: false,
+    };
+    setSettings(initialSettings);
+    setDraftSettings(initialSettings);
+    applySettings(initialSettings);
+    window.localStorage.setItem("poemViewerSettings", JSON.stringify(initialSettings));
+  }, [applySettings]);
+
+  const openSettings = () => {
+    setDraftSettings(settings);
+    setIsSettingsOpen(true);
+  };
+
+  const handleSettingsChange = (changes: Partial<UserSettings>) => {
+    setDraftSettings((prev) => ({ ...prev, ...changes }));
+  };
+
+  const handleDiscardSettings = () => {
+    setDraftSettings(settings);
+    setIsSettingsOpen(false);
+  };
+
+  const handleSaveSettings = () => {
+    setSettings(draftSettings);
+    applySettings(draftSettings);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        "poemViewerSettings",
+        JSON.stringify(draftSettings),
+      );
+      window.localStorage.setItem("theme", draftSettings.theme);
+    }
+    setIsSettingsOpen(false);
+  };
 
   // Define loading animation variants
   const loadingVariants = {
@@ -738,6 +899,15 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     >
       <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
       <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        settings={draftSettings}
+        onChange={handleSettingsChange}
+        onSave={handleSaveSettings}
+        onDiscard={handleDiscardSettings}
+        themeOptions={themeOptions}
+        fontOptions={fontOptions}
+      />
 
       {/* Loading overlay is now permanently hidden when scrolling through poems
             <AnimatePresence>
@@ -865,10 +1035,15 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           )}
         </div>
         <div
-          className={`poem-text ${isHighlightEnabled && verseSync.length > 0 && currentHighlightedVerse !== -1
+          className={`poem-text ${
+            settings.showCoupletNumbers ? "show-couplet-numbers" : ""
+          } ${
+            isHighlightEnabled &&
+            verseSync.length > 0 &&
+            currentHighlightedVerse !== -1
             ? "highlight-on"
             : ""
-            }`}
+          }`}
           ref={poemTextRef}
         >
           {isModern ? (
@@ -893,11 +1068,18 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             ).map((pair, index) => (
               <motion.div
                 key={index}
-                className="verse-pair"
+                className={`verse-pair ${
+                  settings.showCoupletNumbers ? "with-couplet-number" : ""
+                }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
+                {settings.showCoupletNumbers && (
+                  <div className="couplet-number" aria-hidden="true">
+                    {(index + 1).toLocaleString("fa-IR")}
+                  </div>
+                )}
                 {pair.map((line, lineIndex) => {
                   const globalLineIndex = index * 2 + lineIndex;
                   return (
@@ -917,6 +1099,13 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
       {/* Action buttons */}
       <div className="action-buttons">
+        <button
+          className="action-button settings-button"
+          onClick={openSettings}
+          title="تنظیمات نمایش"
+        >
+          <FaCog />
+        </button>
         <button
           className="action-button"
           onClick={sharePoem}
