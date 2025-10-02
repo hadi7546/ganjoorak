@@ -152,7 +152,7 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 0.75rem;
-    gap: 1.5rem;
+    gap: 2rem;
     position: relative;
     width: 100%;
     max-width: 1300px;
@@ -163,16 +163,31 @@
 }
 
 .verse-pair-numbered {
-    align-items: stretch;
     padding-right: 4rem;
 }
 
-.verse-pair-lines {
-    display: flex;
-    justify-content: center;
+.verse-pair-numbered::before {
+    content: attr(data-couplet-number);
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    display: inline-flex;
     align-items: center;
-    gap: 2rem;
-    flex: 1;
+    justify-content: center;
+    min-width: 2.8ch;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1;
+    background-color: rgb(var(--foreground) / 0.08);
+    color: rgb(var(--foreground) / 0.7);
+    border-radius: 9999px;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 0 0 1px rgb(var(--foreground) / 0.04);
+}
+
+.verse-pair-numbered .verse-line:first-child::after {
+    display: none;
 }
 
 .verse-line {
@@ -238,22 +253,6 @@
     transform: translateY(-50%);
     color: rgb(var(--foreground) / 0.3);
     font-size: 1.2rem;
-}
-
-.verse-line[data-couplet-number]::after {
-    content: attr(data-couplet-number);
-    min-width: 2.8ch;
-    padding: 0.35rem 0.75rem;
-    font-size: 0.85rem;
-    line-height: 1;
-    background-color: rgb(var(--foreground) / 0.08);
-    color: rgb(var(--foreground) / 0.7);
-    border-radius: 9999px;
-    font-variant-numeric: tabular-nums;
-    right: -3.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    box-shadow: 0 0 0 1px rgb(var(--foreground) / 0.04);
 }
 
 .verse-line:hover {
@@ -353,15 +352,15 @@
 
     .verse-pair {
         flex-direction: column;
-        gap: 0.2rem;
-        margin-bottom: 1rem;
+        gap: 0.25rem;
+        margin-bottom: 1.5rem;
         max-width: 100%;
         padding: 0;
         position: relative;
     }
 
     .verse-pair-numbered {
-        padding: 0 0.5rem 1.75rem;
+        padding-right: 0.5rem;
     }
 
     .verse-line {
@@ -373,10 +372,10 @@
     }
 
     .verse-line:first-child {
-        margin-bottom: 0.15rem;
+        margin-bottom: 0.25rem;
     }
 
-    .verse-pair:not(:last-child)::after {
+    .verse-pair:not(.verse-pair-numbered):not(:last-child)::after {
         content: "•";
         display: block;
         position: absolute;
@@ -392,24 +391,28 @@
         display: none;
     }
 
-    .verse-line[data-couplet-number]::after {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        right: 50%;
-        bottom: -1rem;
-        top: auto;
-        transform: translate(50%, 0);
-    }
-
-    .verse-pair-numbered:not(:last-child)::after {
+    .verse-pair-numbered::before {
         display: none;
     }
 
-    .verse-pair-lines {
-        flex-direction: column;
-        width: 100%;
+    .verse-pair-numbered::after {
+        content: attr(data-couplet-number);
+        position: absolute;
+        right: 50%;
+        bottom: -1rem;
+        transform: translateX(50%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.8ch;
+        padding: 0.3rem 0.65rem;
+        font-size: 0.8rem;
+        line-height: 1;
+        background-color: rgb(var(--foreground) / 0.1);
+        color: rgb(var(--foreground) / 0.75);
+        border-radius: 9999px;
+        font-variant-numeric: tabular-nums;
+        box-shadow: 0 0 0 1px rgb(var(--foreground) / 0.05);
     }
 
     .navigation-controls {
