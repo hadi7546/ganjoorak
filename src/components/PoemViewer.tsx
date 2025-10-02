@@ -927,15 +927,15 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                 className={`verse-pair ${
                   settings.showLineNumbers ? "verse-pair-numbered" : ""
                 }`}
+                data-couplet-number={
+                  settings.showLineNumbers
+                    ? formatPersianNumber(index + 1)
+                    : undefined
+                }
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                {settings.showLineNumbers && (
-                  <span className="verse-number verse-number-pair">
-                    {formatPersianNumber(index + 1)}
-                  </span>
-                )}
                 <div className="verse-pair-lines">
                   {pair.map((line, lineIndex) => {
                     const globalLineIndex = index * 2 + lineIndex;
@@ -943,6 +943,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                       <div
                         key={lineIndex}
                         className={getVerseClass(globalLineIndex)}
+                        data-couplet-number={
+                          settings.showLineNumbers && lineIndex === 0
+                            ? formatPersianNumber(index + 1)
+                            : undefined
+                        }
                       >
                         <span className="verse-text">{line}</span>
                       </div>

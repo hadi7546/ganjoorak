@@ -164,21 +164,7 @@
 
 .verse-pair-numbered {
     align-items: stretch;
-}
-
-.verse-number-pair {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 2.8ch;
-    height: 100%;
-    padding: 0.35rem 0.75rem;
-    font-size: 0.85rem;
-    color: rgb(var(--foreground) / 0.7);
-    background-color: rgb(var(--foreground) / 0.08);
-    border-radius: 9999px;
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
+    padding-right: 4rem;
 }
 
 .verse-pair-lines {
@@ -252,6 +238,22 @@
     transform: translateY(-50%);
     color: rgb(var(--foreground) / 0.3);
     font-size: 1.2rem;
+}
+
+.verse-line[data-couplet-number]::after {
+    content: attr(data-couplet-number);
+    min-width: 2.8ch;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1;
+    background-color: rgb(var(--foreground) / 0.08);
+    color: rgb(var(--foreground) / 0.7);
+    border-radius: 9999px;
+    font-variant-numeric: tabular-nums;
+    right: -3.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 1px rgb(var(--foreground) / 0.04);
 }
 
 .verse-line:hover {
@@ -358,6 +360,10 @@
         position: relative;
     }
 
+    .verse-pair-numbered {
+        padding: 0 0.5rem 2rem;
+    }
+
     .verse-line {
         white-space: normal;
         overflow: visible;
@@ -384,6 +390,26 @@
 
     .verse-line:first-child::after {
         display: none;
+    }
+
+    .verse-line[data-couplet-number]::after {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        right: 50%;
+        bottom: -1.5rem;
+        top: auto;
+        transform: translate(50%, 0);
+    }
+
+    .verse-pair-numbered:not(:last-child)::after {
+        display: none;
+    }
+
+    .verse-pair-lines {
+        flex-direction: column;
+        width: 100%;
     }
 
     .navigation-controls {
