@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaChevronUp,
@@ -17,6 +17,7 @@ import {
   FaArrowLeft,
   FaEye,
   FaEyeSlash,
+  FaCog,
 } from "react-icons/fa";
 import "../styles/PoemViewer.css";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
@@ -26,6 +27,9 @@ import { useRouter } from "next/navigation";
 import { PoetSlug, poetNames } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import Menu, { MenuButton } from "@/components/Menu";
+import SettingsPanel from "@/components/SettingsPanel";
+import type { PoemSettings } from "@/types/settings";
+import { DEFAULT_SETTINGS } from "@/types/settings";
 
 interface PoemViewerProps {
   poem: Poem;
@@ -61,6 +65,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const [toastMessage, setToastMessage] = useState("");
   const [isMouseOverPoemText, setIsMouseOverPoemText] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [poemSettings, setPoemSettings] = useState<PoemSettings>(DEFAULT_SETTINGS);
+  const [draftSettings, setDraftSettings] = useState<PoemSettings>(DEFAULT_SETTINGS);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [verseSync, setVerseSync] = useState<VerseSync[]>([]);
   const [currentHighlightedVerse, setCurrentHighlightedVerse] =
     useState<number>(-1);
@@ -75,6 +82,50 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     hidden: { opacity: 0, y: "-100%" },
     visible: { opacity: 1, y: "0%" },
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const savedSettings = localStorage.getItem("poemSettings");
+      if (savedSettings) {
+        const parsed: PoemSettings = {
+          ...DEFAULT_SETTINGS,
+          ...JSON.parse(savedSettings),
+        };
+        setPoemSettings(parsed);
+        setDraftSettings(parsed);
+        document.documentElement.setAttribute("data-theme", parsed.theme);
+        localStorage.setItem("theme", parsed.theme);
+        return;
+      }
+
+      const storedTheme = localStorage.getItem("theme");
+      if (storedTheme === "light" || storedTheme === "dark" || storedTheme === "paper") {
+        const fallback: PoemSettings = { ...DEFAULT_SETTINGS, theme: storedTheme };
+        setPoemSettings(fallback);
+        setDraftSettings(fallback);
+        document.documentElement.setAttribute("data-theme", fallback.theme);
+      }
+    } catch (error) {
+      console.warn("Unable to load poem settings:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("poemSettings", JSON.stringify(poemSettings));
+    } catch (error) {
+      console.warn("Unable to persist poem settings:", error);
+    }
+  }, [poemSettings]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    document.documentElement.setAttribute("data-theme", poemSettings.theme);
+    localStorage.setItem("theme", poemSettings.theme);
+  }, [poemSettings.theme]);
 
   // Turn off loading when a new poem arrives
   useEffect(() => {
@@ -220,6 +271,39 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       arr.slice(i * size, (i + 1) * size),
     );
   };
+
+  const handleOpenSettings = () => {
+    setDraftSettings(poemSettings);
+    setIsSettingsOpen(true);
+  };
+
+  const handleSettingsChange = (changes: Partial<PoemSettings>) => {
+    setDraftSettings((prev) => ({ ...prev, ...changes }));
+  };
+
+  const handleSettingsSave = () => {
+    setPoemSettings({ ...draftSettings });
+    setIsSettingsOpen(false);
+  };
+
+  const handleSettingsDiscard = () => {
+    setDraftSettings({ ...poemSettings });
+    setIsSettingsOpen(false);
+  };
+
+  const previewCouplets = useMemo(() => {
+    if (!poem) {
+      return [] as string[][];
+    }
+
+    const lines = poem.plainText.split("\n").filter((line) => line.trim());
+
+    if (isModern) {
+      return lines.slice(0, 4).map((line) => [line]);
+    }
+
+    return chunk(lines, 2).slice(0, 3);
+  }, [poem, isModern]);
 
   // Helper functions for wheel handling
   const isAtBottom = () => {
@@ -723,18 +807,26 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const hasNextRecitation =
     poem.recitations && currentRecitationIndex < poem.recitations.length - 1;
   const hasPreviousRecitation = poem.recitations && currentRecitationIndex > 0;
+  const showCoupletNumbers = poemSettings.showCoupletNumbers && !isModern;
+  const viewerClassName = [
+    "poem-viewer",
+    showCoupletNumbers ? "show-couplet-numbers" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   if (!poem) return null;
 
   return (
     <motion.div
-      className="poem-viewer"
+      className={viewerClassName}
       key={poem.id}
       ref={containerRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
+      data-poem-font={poemSettings.font}
     >
       <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
       <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
@@ -893,11 +985,14 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             ).map((pair, index) => (
               <motion.div
                 key={index}
-                className="verse-pair"
+                className={`verse-pair ${showCoupletNumbers ? "with-number" : ""}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
+                {showCoupletNumbers && (
+                  <span className="couplet-number">{index + 1}</span>
+                )}
                 {pair.map((line, lineIndex) => {
                   const globalLineIndex = index * 2 + lineIndex;
                   return (
@@ -917,6 +1012,13 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
       {/* Action buttons */}
       <div className="action-buttons">
+        <button
+          className="action-button"
+          onClick={handleOpenSettings}
+          title="تنظیمات نمایش"
+        >
+          <FaCog />
+        </button>
         <button
           className="action-button"
           onClick={sharePoem}
@@ -970,6 +1072,17 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           </button>
         )}
       </div>
+
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        settings={draftSettings}
+        onChange={handleSettingsChange}
+        onSave={handleSettingsSave}
+        onDiscard={handleSettingsDiscard}
+        onClose={handleSettingsDiscard}
+        previewCouplets={previewCouplets}
+        isModern={isModern}
+      />
 
       {showToast && <div className="toast-message">{toastMessage}</div>}
     </motion.div>
