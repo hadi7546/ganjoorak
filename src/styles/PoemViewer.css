@@ -399,8 +399,8 @@
         content: attr(data-couplet-number);
         position: absolute;
         right: 50%;
-        bottom: -1rem;
-        transform: translateX(50%);
+        top: -1rem;
+        transform: translate(50%, -100%);
         display: inline-flex;
         align-items: center;
         justify-content: center;

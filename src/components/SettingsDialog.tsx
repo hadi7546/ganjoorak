@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaMoon, FaSun, FaRegNewspaper, FaTimes } from "react-icons/fa";
 import {
@@ -33,16 +33,22 @@ const FONT_CHOICES: Array<{ value: FontFamilyOption; label: string; note?: strin
   { value: "nahid", label: "فونت فارسی ناهید", note: "توقف توسعه" },
 ];
 
-const COUPLET_PREVIEW: Array<[string, string]> = [
-  ["به صحرا بنگرم صحرا ته وینم", "به دریا بنگرم دریا ته وینم"],
-  ["به هر جا بنگرم کوه و در و دشت", "نشان روی زیبای ته وینم"],
-];
-
 const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
-  const { settings, setTheme, toggleLineNumbers, setFontFamily } = useSettings();
+  const { settings, setTheme, setShowLineNumbers, setFontFamily } = useSettings();
+  const [pendingTheme, setPendingTheme] = useState<ThemeOption>(settings.theme);
+  const [pendingShowLineNumbers, setPendingShowLineNumbers] = useState<boolean>(
+    settings.showLineNumbers,
+  );
+  const [pendingFontFamily, setPendingFontFamily] = useState<FontFamilyOption>(
+    settings.fontFamily,
+  );
 
   useEffect(() => {
     if (!isOpen) return undefined;
+
+    setPendingTheme(settings.theme);
+    setPendingShowLineNumbers(settings.showLineNumbers);
+    setPendingFontFamily(settings.fontFamily);
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -52,7 +58,18 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, settings.fontFamily, settings.showLineNumbers, settings.theme]);
+
+  const handleSave = () => {
+    setTheme(pendingTheme);
+    setShowLineNumbers(pendingShowLineNumbers);
+    setFontFamily(pendingFontFamily);
+    onClose();
+  };
+
+  const handleCancel = () => {
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -97,9 +114,11 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                     <button
                       key={option.value}
                       type="button"
-                      className={`settings-theme-button ${settings.theme === option.value ? "active" : ""}`}
-                      onClick={() => setTheme(option.value)}
-                      aria-pressed={settings.theme === option.value}
+                      className={`settings-theme-button ${
+                        pendingTheme === option.value ? "active" : ""
+                      }`}
+                      onClick={() => setPendingTheme(option.value)}
+                      aria-pressed={pendingTheme === option.value}
                     >
                       {option.icon}
                       <span>{option.label}</span>
@@ -114,11 +133,13 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                   <span className="settings-toggle-label">نمایش شماره بیت</span>
                   <button
                     type="button"
-                    className={`settings-toggle-button ${settings.showLineNumbers ? "active" : ""}`}
-                    onClick={toggleLineNumbers}
-                    aria-pressed={settings.showLineNumbers}
+                    className={`settings-toggle-button ${
+                      pendingShowLineNumbers ? "active" : ""
+                    }`}
+                    onClick={() => setPendingShowLineNumbers((prev) => !prev)}
+                    aria-pressed={pendingShowLineNumbers}
                   >
-                    {settings.showLineNumbers ? "روشن" : "خاموش"}
+                    {pendingShowLineNumbers ? "روشن" : "خاموش"}
                   </button>
                 </div>
               </section>
@@ -130,26 +151,27 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                     <button
                       key={font.value}
                       type="button"
-                      className={`settings-font-button ${settings.fontFamily === font.value ? "active" : ""}`}
+                      className={`settings-font-button ${
+                        pendingFontFamily === font.value ? "active" : ""
+                      }`}
                       style={{ fontFamily: FONT_STACKS[font.value] }}
-                      onClick={() => setFontFamily(font.value)}
-                      aria-pressed={settings.fontFamily === font.value}
+                      onClick={() => setPendingFontFamily(font.value)}
+                      aria-pressed={pendingFontFamily === font.value}
                     >
                       <span className="font-label">{font.label}</span>
                       {font.note && <span className="font-note">({font.note})</span>}
                     </button>
                   ))}
                 </div>
-                <div className="settings-preview" style={{ fontFamily: FONT_STACKS[settings.fontFamily] }}>
-                  {COUPLET_PREVIEW.map(([first, second], index) => (
-                    <p key={index}>
-                      {first}
-                      <br />
-                      {second}
-                    </p>
-                  ))}
-                </div>
               </section>
+              <footer className="settings-actions">
+                <button type="button" className="settings-action-button secondary" onClick={handleCancel}>
+                  لغو
+                </button>
+                <button type="button" className="settings-action-button primary" onClick={handleSave}>
+                  ذخیره
+                </button>
+              </footer>
             </motion.div>
           </motion.div>
         </>

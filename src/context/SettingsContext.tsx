@@ -24,6 +24,7 @@ interface SettingsContextValue {
   settings: SettingsState;
   setTheme: (theme: ThemeOption) => void;
   toggleLineNumbers: () => void;
+  setShowLineNumbers: (show: boolean) => void;
   setFontFamily: (fontFamily: FontFamilyOption) => void;
 }
 
@@ -114,6 +115,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setSettings((prev) => ({ ...prev, showLineNumbers: !prev.showLineNumbers }));
   }, []);
 
+  const setShowLineNumbers = useCallback((show: boolean) => {
+    setSettings((prev) => ({ ...prev, showLineNumbers: show }));
+  }, []);
+
   const setFontFamily = useCallback((fontFamily: FontFamilyOption) => {
     if (!FONT_OPTIONS.includes(fontFamily)) {
       return;
@@ -126,9 +131,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       settings,
       setTheme,
       toggleLineNumbers,
+      setShowLineNumbers,
       setFontFamily,
     }),
-    [settings, setTheme, toggleLineNumbers, setFontFamily],
+    [settings, setTheme, toggleLineNumbers, setShowLineNumbers, setFontFamily],
   );
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
