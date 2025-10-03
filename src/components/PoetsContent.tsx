@@ -7,6 +7,8 @@ import PoetImage from '@/components/PoetImage';
 import LoadingScreen from '@/components/LoadingScreen';
 import { motion } from 'framer-motion';
 import Menu, { MenuButton } from '@/components/Menu';
+import SettingsDialog from '@/components/SettingsDialog';
+import { useUpdateNotification } from '@/hooks/useUpdateNotification';
 
 function CenturySection({ century, title }: { century: Century; title?: string }) {
     const [isOpen, setIsOpen] = useState(century.id === 0);
@@ -220,6 +222,8 @@ function PoetsList({ poets }: { poets: Poet[] }) {
 export default function PoetsContent({ centuries, customPoets = [] }: { centuries: Century[], customPoets?: Poet[] }) {
     const [isLoading, setIsLoading] = useState(true);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
     // Extract featured century (century 0) and other centuries
     const featuredCentury = centuries.find(c => c.id === 0);
@@ -243,8 +247,18 @@ export default function PoetsContent({ centuries, customPoets = [] }: { centurie
 
     return (
         <>
-            <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
-            <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+            <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} hasNotification={hasNewUpdates} />
+            <Menu
+                isOpen={isMenuOpen}
+                onClose={() => setIsMenuOpen(false)}
+                hasNewUpdates={hasNewUpdates}
+                onUpdatesViewed={markAsRead}
+                onOpenSettings={() => {
+                    setIsSettingsOpen(true);
+                    setIsMenuOpen(false);
+                }}
+            />
+            <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
             {/* Featured Poets Section */}
             {featuredCentury && (

@@ -1,10 +1,12 @@
-import Updates from '../../components/Updates';
-import { Vazirmatn } from 'next/font/google';
+import Updates from "../../components/Updates";
+import { Vazirmatn } from "next/font/google";
 
-const vazirmatn = Vazirmatn({ subsets: ['arabic'] });
+const vazirmatn = Vazirmatn({ subsets: ["arabic"] });
 
 export default function UpdatesPage() {
-    return (
-        <Updates />
-    );
-} 
+  return (
+    <div className={vazirmatn.className}>
+      <Updates />
+    </div>
+  );
+}
