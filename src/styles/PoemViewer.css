@@ -8,7 +8,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to bottom, rgb(var(--background) / 0.7), rgb(var(--background) / 0.9));
+    background: linear-gradient(to bottom,
+            rgb(var(--background) / 0.7),
+            rgb(var(--background) / 0.9));
     overflow: hidden;
     z-index: 1;
     font-family: var(--app-font);
@@ -195,7 +197,9 @@
     text-align: center;
     position: relative;
     max-width: var(--poem-verse-line-max-width, min(52ch, 780px));
-    transition: color 0.25s ease, font-weight 0.25s ease;
+    transition:
+        color 0.25s ease,
+        font-weight 0.25s ease;
     font-weight: 400;
     font-size: 1.5rem;
     white-space: normal;
@@ -228,7 +232,10 @@
 /* When highlighting is active, softly blur non-highlighted lines */
 .poem-text.highlight-on .verse-line {
     opacity: 0.82;
-    transition: opacity 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
+    transition:
+        opacity 0.3s ease,
+        color 0.3s ease,
+        font-weight 0.3s ease;
 }
 
 .poem-text.highlight-on .verse-line.verse-highlighted {
@@ -361,6 +368,7 @@
 
     .verse-pair-numbered {
         padding-right: 0.5rem;
+        padding-top: 1.6rem;
     }
 
     .verse-line {
@@ -398,9 +406,9 @@
     .verse-pair-numbered::after {
         content: attr(data-couplet-number);
         position: absolute;
-        right: 50%;
-        top: -1rem;
-        transform: translate(50%, -100%);
+        left: 50%;
+        top: 0.8rem;
+        transform: translate(-50%, -50%);
         display: inline-flex;
         align-items: center;
         justify-content: center;
