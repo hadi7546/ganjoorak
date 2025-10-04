@@ -22,7 +22,7 @@
     --border: 235 235 235;
     --input: 235 235 235;
     --ring: 10 10 10;
-    --app-font: 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --app-font: "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", sans-serif;
     --poem-content-max-width: min(98vw, 1920px);
     --poem-text-max-width: min(96vw, 1560px);
     --poem-verse-pair-max-width: min(94vw, 1720px);
@@ -74,39 +74,47 @@
 }
 
 :root[data-font="vazirmatn"] {
-    --app-font: 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --app-font: "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", sans-serif;
 }
 
 :root[data-font="samim"] {
-    --app-font: 'Samim', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --app-font:
+        "Samim", "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", sans-serif;
 }
 
 :root[data-font="tanha"] {
-    --app-font: 'Tanha', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --app-font:
+        "Tanha", "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", sans-serif;
 }
 
 :root[data-font="shabnam"] {
-    --app-font: 'Shabnam', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --app-font:
+        "Shabnam", "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", sans-serif;
 }
 
 :root[data-font="gandom"] {
-    --app-font: 'Gandom', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --app-font:
+        "Gandom", "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", sans-serif;
 }
 
 :root[data-font="parastoo"] {
-    --app-font: 'Parastoo', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --app-font:
+        "Parastoo", "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", sans-serif;
 }
 
 :root[data-font="sahel"] {
-    --app-font: 'Sahel', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --app-font:
+        "Sahel", "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", sans-serif;
 }
 
 :root[data-font="vazircode"] {
-    --app-font: 'Vazir Code', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', monospace;
+    --app-font:
+        "Vazir Code", "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", monospace;
 }
 
 :root[data-font="nahid"] {
-    --app-font: 'Nahid', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif;
+    --app-font:
+        "Nahid", "Vazirmatn", "IRANSans", "Tahoma", "Segoe UI", sans-serif;
 }
 
 body {
@@ -117,30 +125,99 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Modern Scrollbar Styles */
+/* Modern Scrollbar Styles - Minimal and Clean */
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(var(--foreground), 0.1);
-    border-radius: 5px;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(var(--foreground), 0.2);
-    border-radius: 5px;
+    background: rgba(var(--foreground), 0.15);
+    border-radius: 3px;
     transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(var(--foreground), 0.3);
+    background: rgba(var(--foreground), 0.25);
 }
 
-/* Firefox */
+/* Firefox - Minimal scrollbar */
 * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(var(--foreground), 0.2) rgba(var(--foreground), 0.1);
+    scrollbar-color: rgba(var(--foreground), 0.15) transparent;
+}
+
+/* Mobile-friendly scrollbar */
+@media (max-width: 767px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(var(--foreground), 0.05);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(var(--foreground), 0.3);
+        border-radius: 4px;
+        border: 1px solid rgba(var(--foreground), 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(var(--foreground), 0.4);
+    }
+
+    ::-webkit-scrollbar-thumb:active {
+        background: rgba(var(--foreground), 0.5);
+    }
+
+    /* Firefox mobile */
+    * {
+        scrollbar-width: auto;
+        scrollbar-color: rgba(var(--foreground), 0.3)
+            rgba(var(--foreground), 0.05);
+    }
+
+    /* Settings panel scrollbar should be inside content only */
+    .settings-panel {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-height: 90vh;
+    }
+
+    .settings-header {
+        flex-shrink: 0;
+        position: sticky;
+        top: 0;
+        background-color: rgb(var(--card));
+        z-index: 10;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgb(var(--border));
+    }
+
+    .settings-body {
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .settings-actions {
+        flex-shrink: 0;
+        position: sticky;
+        bottom: 0;
+        background-color: rgb(var(--card));
+        padding-top: 1rem;
+        margin-top: 0;
+        border-top: 1px solid rgb(var(--border));
+    }
+
 }
 
 /* Menu styles */
@@ -164,7 +241,10 @@ body {
     padding: 0.65rem 0.85rem;
     border-radius: 0.75rem;
     color: rgb(var(--foreground));
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease;
     position: relative;
 }
 
@@ -234,7 +314,11 @@ body {
     background-color: rgb(var(--secondary));
     color: rgb(var(--secondary-foreground));
     font-size: 0.85rem;
-    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease;
 }
 
 .menu-theme-button:hover {
@@ -269,9 +353,11 @@ body {
 }
 
 .settings-panel {
-    width: min(100% - 2rem, 940px);
+    width: min(100% - 2rem, 720px);
     max-height: min(90vh, 640px);
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     border-radius: 1.25rem;
     background-color: rgb(var(--card));
     color: rgb(var(--card-foreground));
@@ -280,34 +366,12 @@ body {
     pointer-events: auto;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    scrollbar-width: thin;
-    scrollbar-color: rgb(var(--foreground) / 0.3) rgb(var(--card) / 0.2);
-    -webkit-overflow-scrolling: touch;
-    scrollbar-gutter: stable;
-}
-
-.settings-panel::-webkit-scrollbar {
-    width: 6px;
-}
-
-.settings-panel::-webkit-scrollbar-track {
-    background: rgb(var(--card) / 0.2);
-    border-radius: 3px;
-}
-
-.settings-panel::-webkit-scrollbar-thumb {
-    background: rgb(var(--foreground) / 0.3);
-    border-radius: 3px;
-}
-
-.settings-panel::-webkit-scrollbar-thumb:hover {
-    background: rgb(var(--foreground) / 0.4);
 }
 
 .settings-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
@@ -316,61 +380,40 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--foreground) / 0.3) transparent;
+    padding-right: 0.75rem;
+    padding-left: 0.25rem;
 }
 
-.settings-preview {
-    flex: 1;
+.settings-header,
+.settings-actions {
+    flex-shrink: 0;
 }
 
-.settings-preview-inner {
-    border-radius: 1rem;
-    border: 1px solid rgb(var(--border));
-    background: linear-gradient(
-        135deg,
-        rgb(var(--muted) / 0.6) 0%,
-        rgb(var(--muted) / 0.3) 100%
-    );
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    box-shadow: inset 0 1px 0 rgb(var(--foreground) / 0.05);
+.settings-body::-webkit-scrollbar {
+    width: 6px;
 }
 
-.settings-preview-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: rgb(var(--foreground) / 0.7);
+.settings-body::-webkit-scrollbar-track {
+    background: rgb(var(--background) / 0.2);
+    border-radius: 3px;
 }
 
-.settings-preview-poem {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.75rem;
-    background-color: rgb(var(--card) / 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    --poem-text-max-width: 100%;
-    --poem-verse-pair-max-width: 100%;
-    --poem-verse-line-max-width: 100%;
+.settings-body::-webkit-scrollbar-thumb {
+    background: rgb(var(--foreground) / 0.3);
+    border-radius: 3px;
 }
 
-.settings-preview-poem .verse-pair {
-    margin-bottom: 0;
-    gap: 1.5rem;
-    padding: 0 0.75rem;
+.settings-body::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--foreground) / 0.4);
 }
 
-.settings-preview-poem .verse-line {
-    font-size: 1.1rem;
-    color: rgb(var(--foreground) / 0.85);
-}
-
-.settings-preview-poem .verse-text {
-    display: block;
-}
 
 .settings-form {
     flex: 1.25;
@@ -382,6 +425,7 @@ body {
 }
 
 .settings-close {
+    order: -1;
     border: none;
     border-radius: 9999px;
     width: 2.5rem;
@@ -392,7 +436,9 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    transition:
+        transform 0.2s ease,
+        background-color 0.2s ease;
 }
 
 .settings-close:hover {
@@ -433,7 +479,10 @@ body {
     color: rgb(var(--secondary-foreground));
     border: 1px solid transparent;
     cursor: pointer;
-    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background-color 0.2s ease;
     font-size: 0.9rem;
 }
 
@@ -479,7 +528,11 @@ body {
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .settings-toggle-button:hover {
@@ -508,7 +561,10 @@ body {
     background-color: rgb(var(--card));
     color: rgb(var(--card-foreground));
     cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
     text-align: right;
 }
 
@@ -534,21 +590,18 @@ body {
 
 .settings-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 0.75rem;
     margin-top: 1.5rem;
 }
 
+.settings-action-button.primary {
+    order: -1;
+}
+
 @media (min-width: 768px) {
     .settings-body {
-        flex-direction: row;
-        align-items: flex-start;
-    }
-
-    .settings-preview {
-        max-width: 320px;
-        position: sticky;
-        top: 1.5rem;
+        flex-direction: column;
     }
 }
 
@@ -560,7 +613,11 @@ body {
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
-    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .settings-action-button.secondary {
@@ -641,7 +698,10 @@ body {
 /* Menu item hover */
 .menu-drawer a,
 .menu-drawer button.menu-link {
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease;
     border-radius: 0.75rem;
 }
 
@@ -730,8 +790,17 @@ body {
 }
 
 [data-theme="paper"] body {
-    background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.65), transparent 60%),
-        radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.55), transparent 55%),
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(255, 255, 255, 0.65),
+            transparent 60%
+        ),
+        radial-gradient(
+            circle at 80% 0%,
+            rgba(255, 255, 255, 0.55),
+            transparent 55%
+        ),
         linear-gradient(135deg, rgb(252 248 238), rgb(243 235 217));
 }
 

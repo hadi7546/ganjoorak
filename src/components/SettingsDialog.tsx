@@ -15,26 +15,34 @@ interface SettingsDialogProps {
   onClose: () => void;
 }
 
-const THEME_OPTIONS: Array<{ value: ThemeOption; label: string; icon: React.ReactNode }> = [
+const THEME_OPTIONS: Array<{
+  value: ThemeOption;
+  label: string;
+  icon: React.ReactNode;
+}> = [
   { value: "dark", label: "تاریک", icon: <FaMoon /> },
   { value: "light", label: "روشن", icon: <FaSun /> },
   { value: "paper", label: "کاغذی", icon: <FaRegNewspaper /> },
 ];
 
-const FONT_CHOICES: Array<{ value: FontFamilyOption; label: string; note?: string }> = [
-  { value: "vazirmatn", label: "فونت فارسی/عربی وزیرمتن" },
-  { value: "samim", label: "فونت فارسی صمیم", note: "توقف توسعه" },
-  { value: "tanha", label: "فونت فارسی تنها", note: "توقف توسعه" },
-  { value: "shabnam", label: "فونت فارسی شبنم", note: "توقف توسعه" },
-  { value: "gandom", label: "فونت فارسی گندم", note: "توقف توسعه" },
-  { value: "parastoo", label: "فونت فارسی پرستو", note: "توقف توسعه" },
-  { value: "sahel", label: "فونت فارسی ساحل" },
-  { value: "vazircode", label: "فونت فارسی وزیرکد", note: "برای برنامه‌نویسی" },
-  { value: "nahid", label: "فونت فارسی ناهید", note: "توقف توسعه" },
+const FONT_CHOICES: Array<{
+  value: FontFamilyOption;
+  label: string;
+  note?: string;
+}> = [
+  { value: "vazirmatn", label: "وزیرمتن" },
+  { value: "samim", label: "صمیم" },
+  { value: "tanha", label: "تنها" },
+  { value: "shabnam", label: "شبنم" },
+  { value: "gandom", label: "گندم" },
+  { value: "parastoo", label: "پرستو" },
+  { value: "sahel", label: "ساحل" },
+  { value: "nahid", label: "سناهید" },
 ];
 
 const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
-  const { settings, setTheme, setShowLineNumbers, setFontFamily } = useSettings();
+  const { settings, setTheme, setShowLineNumbers, setFontFamily } =
+    useSettings();
   const [pendingTheme, setPendingTheme] = useState<ThemeOption>(settings.theme);
   const [pendingShowLineNumbers, setPendingShowLineNumbers] = useState<boolean>(
     settings.showLineNumbers,
@@ -44,6 +52,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   );
   const originalThemeRef = useRef<ThemeOption>(settings.theme);
   const originalFontRef = useRef<FontFamilyOption>(settings.fontFamily);
+  const originalLineNumbersRef = useRef<boolean>(settings.showLineNumbers);
   const hasSavedRef = useRef(false);
   const latestOnCloseRef = useRef(onClose);
 
@@ -53,9 +62,13 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
 
   const restoreAppearance = useCallback(() => {
     if (typeof document === "undefined") return;
-    document.documentElement.setAttribute("data-theme", originalThemeRef.current);
+    document.documentElement.setAttribute(
+      "data-theme",
+      originalThemeRef.current,
+    );
     document.documentElement.setAttribute("data-font", originalFontRef.current);
-  }, []);
+    setShowLineNumbers(originalLineNumbersRef.current);
+  }, [setShowLineNumbers]);
 
   const requestCloseWithoutSaving = useCallback(() => {
     hasSavedRef.current = false;
@@ -70,6 +83,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
 
     originalThemeRef.current = settings.theme;
     originalFontRef.current = settings.fontFamily;
+    originalLineNumbersRef.current = settings.showLineNumbers;
     setPendingTheme(settings.theme);
     setPendingShowLineNumbers(settings.showLineNumbers);
     setPendingFontFamily(settings.fontFamily);
@@ -100,6 +114,17 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     document.documentElement.setAttribute("data-theme", pendingTheme);
   }, [isOpen, pendingTheme]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    if (typeof document === "undefined") return;
+    document.documentElement.setAttribute("data-font", pendingFontFamily);
+  }, [isOpen, pendingFontFamily]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setShowLineNumbers(pendingShowLineNumbers);
+  }, [isOpen, pendingShowLineNumbers, setShowLineNumbers]);
+
   const handleSave = () => {
     hasSavedRef.current = true;
     setTheme(pendingTheme);
@@ -111,14 +136,6 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const handleCancel = () => {
     requestCloseWithoutSaving();
   };
-
-  const formatPersianNumber = (value: number) =>
-    new Intl.NumberFormat("fa-IR", { useGrouping: false }).format(value);
-
-  const previewCouplets: Array<[string, string]> = [
-    ["به صحرا بنگرم صحرا ته وینم", "به دریا بنگرم دریا ته وینم"],
-    ["به هر جا بنگرم کوه و در و دشت", "نشان روی زیبای ته وینم"],
-  ];
 
   return (
     <AnimatePresence>
@@ -162,38 +179,11 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
               </header>
 
               <div className="settings-body">
-                <aside className="settings-preview" aria-hidden="true">
-                  <div className="settings-preview-inner">
-                    <div className="settings-preview-title">پیش‌نمایش</div>
-                    <div
-                      className="settings-preview-poem"
-                      style={{ fontFamily: FONT_STACKS[pendingFontFamily] }}
-                    >
-                      {previewCouplets.map((couplet, coupletIndex) => (
-                        <div
-                          key={coupletIndex}
-                          className={`verse-pair ${
-                            pendingShowLineNumbers ? "verse-pair-numbered" : ""
-                          }`}
-                          data-couplet-number={
-                            pendingShowLineNumbers
-                              ? formatPersianNumber(coupletIndex + 1)
-                              : undefined
-                          }
-                        >
-                          {couplet.map((line, lineIndex) => (
-                            <div key={lineIndex} className="verse-line">
-                              <span className="verse-text">{line}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </aside>
-
                 <div className="settings-form" aria-live="polite">
-                  <section className="settings-section" aria-label="انتخاب حالت نمایش">
+                  <section
+                    className="settings-section"
+                    aria-label="انتخاب حالت نمایش"
+                  >
                     <h3 className="settings-section-title">حالت نمایش</h3>
                     <div className="settings-theme-grid">
                       {THEME_OPTIONS.map((option) => (
@@ -213,16 +203,23 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                     </div>
                   </section>
 
-                  <section className="settings-section" aria-label="شماره‌گذاری شعر">
+                  <section
+                    className="settings-section"
+                    aria-label="شماره‌گذاری شعر"
+                  >
                     <h3 className="settings-section-title">نمایش شماره بیت</h3>
                     <div className="settings-toggle">
-                      <span className="settings-toggle-label">نمایش شماره بیت</span>
+                      <span className="settings-toggle-label">
+                        نمایش شماره بیت
+                      </span>
                       <button
                         type="button"
                         className={`settings-toggle-button ${
                           pendingShowLineNumbers ? "active" : ""
                         }`}
-                        onClick={() => setPendingShowLineNumbers((prev) => !prev)}
+                        onClick={() =>
+                          setPendingShowLineNumbers((prev) => !prev)
+                        }
                         aria-pressed={pendingShowLineNumbers}
                       >
                         {pendingShowLineNumbers ? "روشن" : "خاموش"}
@@ -230,7 +227,10 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                     </div>
                   </section>
 
-                  <section className="settings-section" aria-label="انتخاب فونت شعر">
+                  <section
+                    className="settings-section"
+                    aria-label="انتخاب فونت شعر"
+                  >
                     <h3 className="settings-section-title">فونت شعر</h3>
                     <div className="settings-font-grid">
                       {FONT_CHOICES.map((font) => (
@@ -245,7 +245,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                           aria-pressed={pendingFontFamily === font.value}
                         >
                           <span className="font-label">{font.label}</span>
-                          {font.note && <span className="font-note">({font.note})</span>}
+                          {font.note && (
+                            <span className="font-note">({font.note})</span>
+                          )}
                         </button>
                       ))}
                     </div>
@@ -253,10 +255,18 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
               <footer className="settings-actions">
-                <button type="button" className="settings-action-button secondary" onClick={handleCancel}>
+                <button
+                  type="button"
+                  className="settings-action-button secondary"
+                  onClick={handleCancel}
+                >
                   لغو
                 </button>
-                <button type="button" className="settings-action-button primary" onClick={handleSave}>
+                <button
+                  type="button"
+                  className="settings-action-button primary"
+                  onClick={handleSave}
+                >
                   ذخیره
                 </button>
               </footer>
