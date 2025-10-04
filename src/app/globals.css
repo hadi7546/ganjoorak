@@ -500,6 +500,12 @@ body {
     color: rgb(var(--primary));
 }
 
+.settings-toggle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
 .settings-toggle {
     display: flex;
     align-items: center;

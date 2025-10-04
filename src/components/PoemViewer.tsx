@@ -81,6 +81,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const poemTextRef = useRef<HTMLDivElement>(null);
   const { settings } = useSettings();
+  const poemViewerVisibility = settings.poemViewerVisibility;
+  const showTitleSection = poemViewerVisibility.titleSection;
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
   // Define loading animation variants
@@ -805,6 +807,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const hasNextRecitation =
     poem.recitations && currentRecitationIndex < poem.recitations.length - 1;
   const hasPreviousRecitation = poem.recitations && currentRecitationIndex > 0;
+  const hasRecitations = (poem.recitations?.length ?? 0) > 0;
 
   const showNavigationControls =
     (isAtTop && !isFirst) || (isAtBottom && !isLast);
@@ -854,7 +857,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             </AnimatePresence> */}
 
       {/* Audio player - show only when a recitation is available */}
-      {poem.recitations && poem.recitations.length > 0 && (
+      {poemViewerVisibility.audioPlayer && hasRecitations && (
         <div className="audio-player">
           <div className="audio-controls">
             <button
@@ -942,27 +945,29 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       )}
 
       {/* Poem content */}
-      <div className="poem-content">
-        <div className="title-section">
-          <motion.h2
-            className="poem-title"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {poem.title}
-          </motion.h2>
-          {!isPoetPage && (
-            <motion.div
-              className="poet-name"
-              initial={{ opacity: 0, y: -10 }}
+      <div className={`poem-content${showTitleSection ? "" : " poem-content--centered"}`}>
+        {showTitleSection && (
+          <div className="title-section">
+            <motion.h2
+              className="poem-title"
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
+              transition={{ duration: 0.3 }}
             >
-              {poem.poet}
-            </motion.div>
-          )}
-        </div>
+              {poem.title}
+            </motion.h2>
+            {!isPoetPage && (
+              <motion.div
+                className="poet-name"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              >
+                {poem.poet}
+              </motion.div>
+            )}
+          </div>
+        )}
         <div
           className={`poem-text ${isHighlightEnabled && verseSync.length > 0 && currentHighlightedVerse !== -1
             ? "highlight-on"
@@ -1025,62 +1030,66 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       </div>
 
       {/* Action buttons */}
-      <div className={`action-buttons${showActionButtons ? "" : " is-hidden"}`}>
-        <button
-          className="action-button"
-          onClick={sharePoem}
-          title="اشتراک‌گذاری"
-        >
-          <FaShare />
-        </button>
-        <a
-          href={openSource()}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="action-button"
-          title="مشاهده منبع"
-          aria-label="مشاهده منبع"
-        >
-          <FaExternalLinkAlt />
-        </a>
-        {poem.poet && poem.poetSlug && (
-          <Link
-            href={`/${poem.poetSlug}`}
-            className="poet-profile"
-            prefetch
-            aria-label={`مشاهده اشعار ${poem.poet}`}
-            title={`مشاهده اشعار ${poem.poet}`}
+      {poemViewerVisibility.actionButtons && (
+        <div className={`action-buttons${showActionButtons ? "" : " is-hidden"}`}>
+          <button
+            className="action-button"
+            onClick={sharePoem}
+            title="اشتراک‌گذاری"
           >
-            <div className="poet-image-container">
-              <PoetImage
-                imgUrl={poem.poetImageUrl}
-                alt={poem.poet}
-                width={60}
-                height={60}
-              />
-            </div>
-            <h3 className="poet-profile-name">{poem.poet}</h3>
-          </Link>
-        )}
-      </div>
+            <FaShare />
+          </button>
+          <a
+            href={openSource()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="action-button"
+            title="مشاهده منبع"
+            aria-label="مشاهده منبع"
+          >
+            <FaExternalLinkAlt />
+          </a>
+          {poem.poet && poem.poetSlug && (
+            <Link
+              href={`/${poem.poetSlug}`}
+              className="poet-profile"
+              prefetch
+              aria-label={`مشاهده اشعار ${poem.poet}`}
+              title={`مشاهده اشعار ${poem.poet}`}
+            >
+              <div className="poet-image-container">
+                <PoetImage
+                  imgUrl={poem.poetImageUrl}
+                  alt={poem.poet}
+                  width={60}
+                  height={60}
+                />
+              </div>
+              <h3 className="poet-profile-name">{poem.poet}</h3>
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* Navigation controls */}
-      <div
-        className={`navigation-controls${
-          showNavigationControls ? "" : " is-hidden"
-        }`}
-      >
-        {!isFirst && (
-          <button className="nav-button up" onClick={onPrevious}>
-            <FaChevronUp />
-          </button>
-        )}
-        {!isLast && (
-          <button className="nav-button down" onClick={handleNext}>
-            <FaChevronDown />
-          </button>
-        )}
-      </div>
+      {poemViewerVisibility.navigationControls && (
+        <div
+          className={`navigation-controls${
+            showNavigationControls ? "" : " is-hidden"
+          }`}
+        >
+          {!isFirst && (
+            <button className="nav-button up" onClick={onPrevious}>
+              <FaChevronUp />
+            </button>
+          )}
+          {!isLast && (
+            <button className="nav-button down" onClick={handleNext}>
+              <FaChevronDown />
+            </button>
+          )}
+        </div>
+      )}
 
       {showToast && <div className="toast-message">{toastMessage}</div>}
     </motion.div>

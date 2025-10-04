@@ -14,10 +14,20 @@ type FontFamilyOption =
   | "vazircode"
   | "nahid";
 
+type PoemViewerComponentVisibility = {
+  titleSection: boolean;
+  audioPlayer: boolean;
+  actionButtons: boolean;
+  navigationControls: boolean;
+};
+
+type PoemViewerComponentKey = keyof PoemViewerComponentVisibility;
+
 interface SettingsState {
   theme: ThemeOption;
   showLineNumbers: boolean;
   fontFamily: FontFamilyOption;
+  poemViewerVisibility: PoemViewerComponentVisibility;
 }
 
 interface SettingsContextValue {
@@ -26,6 +36,7 @@ interface SettingsContextValue {
   toggleLineNumbers: () => void;
   setShowLineNumbers: (show: boolean) => void;
   setFontFamily: (fontFamily: FontFamilyOption) => void;
+  setPoemViewerVisibility: (visibility: Partial<PoemViewerComponentVisibility>) => void;
 }
 
 const FONT_STACKS: Record<FontFamilyOption, string> = {
@@ -42,10 +53,44 @@ const FONT_STACKS: Record<FontFamilyOption, string> = {
 
 const FONT_OPTIONS = Object.keys(FONT_STACKS) as FontFamilyOption[];
 
+const DEFAULT_POEM_VIEWER_VISIBILITY: PoemViewerComponentVisibility = {
+  titleSection: true,
+  audioPlayer: true,
+  actionButtons: true,
+  navigationControls: true,
+};
+
+const VALID_THEMES: ThemeOption[] = ["dark", "light", "paper"];
+
+const POEM_VIEWER_COMPONENT_KEYS: PoemViewerComponentKey[] = [
+  "titleSection",
+  "audioPlayer",
+  "actionButtons",
+  "navigationControls",
+];
+
+const sanitizePoemViewerVisibility = (
+  value?: Partial<PoemViewerComponentVisibility>,
+): Partial<PoemViewerComponentVisibility> => {
+  if (!value) {
+    return {};
+  }
+
+  return POEM_VIEWER_COMPONENT_KEYS.reduce<
+    Partial<PoemViewerComponentVisibility>
+  >((accumulator, key) => {
+    if (typeof value[key] === "boolean") {
+      accumulator[key] = value[key] as boolean;
+    }
+    return accumulator;
+  }, {});
+};
+
 const DEFAULT_SETTINGS: SettingsState = {
   theme: "dark",
   showLineNumbers: false,
   fontFamily: "vazirmatn",
+  poemViewerVisibility: DEFAULT_POEM_VIEWER_VISIBILITY,
 };
 
 const STORAGE_KEY = "ganjoorak:settings";
@@ -62,20 +107,34 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const stored = window.localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as Partial<SettingsState>;
+        const nextTheme =
+          parsed.theme && VALID_THEMES.includes(parsed.theme)
+            ? parsed.theme
+            : DEFAULT_SETTINGS.theme;
+        const nextFontFamily =
+          parsed.fontFamily && FONT_OPTIONS.includes(parsed.fontFamily)
+            ? parsed.fontFamily
+            : DEFAULT_SETTINGS.fontFamily;
+        const nextShowLineNumbers =
+          typeof parsed.showLineNumbers === "boolean"
+            ? parsed.showLineNumbers
+            : DEFAULT_SETTINGS.showLineNumbers;
+        const nextVisibility = {
+          ...DEFAULT_POEM_VIEWER_VISIBILITY,
+          ...sanitizePoemViewerVisibility(parsed.poemViewerVisibility),
+        };
+
         setSettings((prev) => ({
           ...prev,
-          ...parsed,
-          fontFamily: parsed.fontFamily && FONT_OPTIONS.includes(parsed.fontFamily)
-            ? parsed.fontFamily
-            : prev.fontFamily,
+          theme: nextTheme,
+          fontFamily: nextFontFamily,
+          showLineNumbers: nextShowLineNumbers,
+          poemViewerVisibility: nextVisibility,
         }));
-        if (parsed.theme) {
-          document.documentElement.setAttribute("data-theme", parsed.theme);
-          window.localStorage.setItem("theme", parsed.theme);
-        }
-        if (parsed.fontFamily && FONT_OPTIONS.includes(parsed.fontFamily)) {
-          document.documentElement.setAttribute("data-font", parsed.fontFamily);
-        }
+
+        document.documentElement.setAttribute("data-theme", nextTheme);
+        document.documentElement.setAttribute("data-font", nextFontFamily);
+        window.localStorage.setItem("theme", nextTheme);
       } else {
         const legacyTheme = window.localStorage.getItem("theme");
         if (legacyTheme === "light" || legacyTheme === "dark" || legacyTheme === "paper") {
@@ -126,6 +185,19 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setSettings((prev) => ({ ...prev, fontFamily }));
   }, []);
 
+  const setPoemViewerVisibility = useCallback(
+    (visibility: Partial<PoemViewerComponentVisibility>) => {
+      setSettings((prev) => ({
+        ...prev,
+        poemViewerVisibility: {
+          ...prev.poemViewerVisibility,
+          ...sanitizePoemViewerVisibility(visibility),
+        },
+      }));
+    },
+    [],
+  );
+
   const value = useMemo(
     () => ({
       settings,
@@ -133,8 +205,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       toggleLineNumbers,
       setShowLineNumbers,
       setFontFamily,
+      setPoemViewerVisibility,
     }),
-    [settings, setTheme, toggleLineNumbers, setShowLineNumbers, setFontFamily],
+    [
+      settings,
+      setTheme,
+      toggleLineNumbers,
+      setShowLineNumbers,
+      setFontFamily,
+      setPoemViewerVisibility,
+    ],
   );
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
@@ -149,4 +229,5 @@ export const useSettings = (): SettingsContextValue => {
 };
 
 export type { ThemeOption, FontFamilyOption };
-export { FONT_STACKS, FONT_OPTIONS };
+export type { PoemViewerComponentVisibility, PoemViewerComponentKey };
+export { FONT_STACKS, FONT_OPTIONS, DEFAULT_POEM_VIEWER_VISIBILITY };

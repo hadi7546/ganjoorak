@@ -7,6 +7,8 @@ import {
   useSettings,
   type ThemeOption,
   type FontFamilyOption,
+  type PoemViewerComponentKey,
+  type PoemViewerComponentVisibility,
   FONT_STACKS,
 } from "@/context/SettingsContext";
 
@@ -40,9 +42,24 @@ const FONT_CHOICES: Array<{
   { value: "nahid", label: "سناهید" },
 ];
 
+const POEM_VIEWER_COMPONENT_OPTIONS: Array<{
+  key: PoemViewerComponentKey;
+  label: string;
+}> = [
+  { key: "titleSection", label: "سربرگ شعر (عنوان و نام شاعر)" },
+  { key: "audioPlayer", label: "پخش‌کننده صوت" },
+  { key: "actionButtons", label: "دکمه‌های اشتراک و شاعر" },
+  { key: "navigationControls", label: "دکمه‌های جابه‌جایی" },
+];
+
 const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
-  const { settings, setTheme, setShowLineNumbers, setFontFamily } =
-    useSettings();
+  const {
+    settings,
+    setTheme,
+    setShowLineNumbers,
+    setFontFamily,
+    setPoemViewerVisibility,
+  } = useSettings();
   const [pendingTheme, setPendingTheme] = useState<ThemeOption>(settings.theme);
   const [pendingShowLineNumbers, setPendingShowLineNumbers] = useState<boolean>(
     settings.showLineNumbers,
@@ -50,9 +67,15 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const [pendingFontFamily, setPendingFontFamily] = useState<FontFamilyOption>(
     settings.fontFamily,
   );
+  const [pendingVisibility, setPendingVisibility] = useState<PoemViewerComponentVisibility>(
+    { ...settings.poemViewerVisibility },
+  );
   const originalThemeRef = useRef<ThemeOption>(settings.theme);
   const originalFontRef = useRef<FontFamilyOption>(settings.fontFamily);
   const originalLineNumbersRef = useRef<boolean>(settings.showLineNumbers);
+  const originalVisibilityRef = useRef<PoemViewerComponentVisibility>({
+    ...settings.poemViewerVisibility,
+  });
   const hasSavedRef = useRef(false);
   const latestOnCloseRef = useRef(onClose);
 
@@ -68,7 +91,8 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     );
     document.documentElement.setAttribute("data-font", originalFontRef.current);
     setShowLineNumbers(originalLineNumbersRef.current);
-  }, [setShowLineNumbers]);
+    setPoemViewerVisibility(originalVisibilityRef.current);
+  }, [setShowLineNumbers, setPoemViewerVisibility]);
 
   const requestCloseWithoutSaving = useCallback(() => {
     hasSavedRef.current = false;
@@ -84,9 +108,11 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     originalThemeRef.current = settings.theme;
     originalFontRef.current = settings.fontFamily;
     originalLineNumbersRef.current = settings.showLineNumbers;
+    originalVisibilityRef.current = { ...settings.poemViewerVisibility };
     setPendingTheme(settings.theme);
     setPendingShowLineNumbers(settings.showLineNumbers);
     setPendingFontFamily(settings.fontFamily);
+    setPendingVisibility({ ...settings.poemViewerVisibility });
     hasSavedRef.current = false;
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -130,11 +156,23 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     setTheme(pendingTheme);
     setShowLineNumbers(pendingShowLineNumbers);
     setFontFamily(pendingFontFamily);
+    setPoemViewerVisibility(pendingVisibility);
     latestOnCloseRef.current();
   };
 
   const handleCancel = () => {
     requestCloseWithoutSaving();
+  };
+
+  const handleVisibilityToggle = (component: PoemViewerComponentKey) => {
+    setPendingVisibility((prev) => {
+      const next = {
+        ...prev,
+        [component]: !prev[component],
+      };
+      setPoemViewerVisibility(next);
+      return next;
+    });
   };
 
   return (
@@ -249,6 +287,32 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                             <span className="font-note">({font.note})</span>
                           )}
                         </button>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section
+                    className="settings-section"
+                    aria-label="اجزای نمایش شعر"
+                  >
+                    <h3 className="settings-section-title">نمایش اجزای شعر</h3>
+                    <div className="settings-toggle-list">
+                      {POEM_VIEWER_COMPONENT_OPTIONS.map((component) => (
+                        <div key={component.key} className="settings-toggle">
+                          <span className="settings-toggle-label">
+                            {component.label}
+                          </span>
+                          <button
+                            type="button"
+                            className={`settings-toggle-button ${
+                              pendingVisibility[component.key] ? "active" : ""
+                            }`}
+                            onClick={() => handleVisibilityToggle(component.key)}
+                            aria-pressed={pendingVisibility[component.key]}
+                          >
+                            {pendingVisibility[component.key] ? "نمایش" : "مخفی"}
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </section>
