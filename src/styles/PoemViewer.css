@@ -31,6 +31,16 @@
     scrollbar-width: none;
 }
 
+.poem-content.poem-content--centered {
+    justify-content: center;
+    padding: clamp(2rem, 6vw, 4rem);
+}
+
+.poem-content.poem-content--centered .poem-text {
+    height: auto;
+    padding: clamp(2rem, 6vw, 4rem);
+}
+
 .poem-content::-webkit-scrollbar {
     display: none;
 }
@@ -188,10 +198,6 @@
     box-shadow: 0 0 0 1px rgb(var(--foreground) / 0.04);
 }
 
-.verse-pair-numbered .verse-line:first-child::after {
-    display: none;
-}
-
 .verse-line {
     flex: 1;
     text-align: center;
@@ -208,6 +214,30 @@
     will-change: transform, opacity;
     transform: translateZ(0);
     color: rgb(var(--foreground) / 0.92);
+}
+
+.verse-pair .verse-line:first-child {
+    padding-inline-start: 1.8rem;
+}
+
+.verse-pair .verse-line:first-child::after {
+    content: "•";
+    position: absolute;
+    inset-inline-start: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgb(var(--foreground) / 0.35);
+    font-size: 1.2rem;
+    pointer-events: none;
+    line-height: 1;
+}
+
+.verse-pair-numbered .verse-line:first-child {
+    padding-inline-start: 0;
+}
+
+.verse-pair-numbered .verse-line:first-child::after {
+    display: none;
 }
 
 .verse-line-numbered {
@@ -242,7 +272,7 @@
     opacity: 1;
 }
 
-/* Only blur the verse text content, not the decorative bullet ::after */
+/* Only blur the verse text content, not the decorative bullet */
 .poem-text.highlight-on .verse-line .verse-text {
     filter: blur(1px);
     transition: filter 0.3s ease;
@@ -252,14 +282,19 @@
     filter: none;
 }
 
-.verse-line:first-child::after {
-    content: "•";
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgb(var(--foreground) / 0.3);
-    font-size: 1.2rem;
+.poem-text.highlight-on .verse-line .verse-number {
+    color: rgb(var(--foreground) / 0.35);
+    background-color: rgb(var(--foreground) / 0.04);
+    transition:
+        color 0.3s ease,
+        background-color 0.3s ease,
+        transform 0.3s ease;
+}
+
+.poem-text.highlight-on .verse-line.verse-highlighted .verse-number {
+    color: rgb(var(--accent-foreground) / 1);
+    background-color: rgb(var(--accent) / 0.65);
+    transform: translateY(-1px) scale(1.05);
 }
 
 .verse-line:hover {
@@ -333,6 +368,16 @@
         padding: 0;
     }
 
+    .poem-content.poem-content--centered {
+        justify-content: flex-start;
+        padding: 0;
+    }
+
+    .poem-content.poem-content--centered .poem-text {
+        height: calc(100% - 90px);
+        padding: 1.5rem 0.5rem 5rem;
+    }
+
     .title-section {
         padding: 1.5rem 1rem;
         background: rgb(var(--background) / 0.6);
@@ -358,6 +403,7 @@
     }
 
     .verse-pair {
+        display: flex;
         flex-direction: column;
         gap: 0.25rem;
         margin-bottom: 1.5rem;
@@ -381,6 +427,11 @@
 
     .verse-line:first-child {
         margin-bottom: 0.25rem;
+        padding-inline-start: 0;
+    }
+
+    .verse-pair .verse-line:first-child::after {
+        display: none;
     }
 
     .verse-pair:not(.verse-pair-numbered):not(:last-child)::after {
@@ -393,10 +444,6 @@
         font-size: 0.75rem;
         opacity: 0.4;
         line-height: 1;
-    }
-
-    .verse-line:first-child::after {
-        display: none;
     }
 
     .verse-pair-numbered::before {
@@ -536,6 +583,7 @@
     flex-direction: column;
     gap: 20px;
     z-index: 2;
+    transition: opacity 0.25s ease;
 }
 
 .nav-button {
@@ -610,6 +658,7 @@
     gap: 0.5rem;
     z-index: 10;
     align-items: center;
+    transition: opacity 0.25s ease;
 }
 
 .action-button {
@@ -651,12 +700,32 @@
 }
 
 @media (max-width: 768px) {
+    .poem-text {
+        padding-inline: clamp(1.25rem, 6vw, 2.75rem);
+        padding-bottom: calc(11rem + env(safe-area-inset-bottom));
+    }
+
     .navigation-controls {
-        right: 12px;
-        gap: 12px;
+        position: fixed;
+        top: auto;
+        left: 50%;
+        right: auto;
+        bottom: calc(5rem + env(safe-area-inset-bottom));
+        transform: translateX(-50%);
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.35rem 0.75rem;
+        background: rgb(var(--background) / 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 9999px;
+        box-shadow: 0 10px 30px rgb(var(--background) / 0.35);
+        z-index: 12;
     }
 
     .nav-button {
+        position: static;
         width: 36px;
         height: 36px;
         font-size: 1rem;
@@ -665,7 +734,7 @@
     .action-buttons {
         left: 1rem !important;
         right: auto;
-        bottom: 3rem;
+        bottom: calc(6.25rem + env(safe-area-inset-bottom));
         gap: 0.35rem;
     }
 
@@ -678,12 +747,24 @@
         width: 1rem;
         height: 1rem;
     }
+
+    .navigation-controls.is-hidden,
+    .action-buttons.is-hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
 }
 
 @media (max-width: 480px) {
+    .poem-text {
+        padding-inline: 1.25rem;
+        padding-bottom: calc(12rem + env(safe-area-inset-bottom));
+    }
+
     .navigation-controls {
-        right: 8px;
-        gap: 10px;
+        gap: 0.5rem;
+        padding: 0.3rem 0.65rem;
+        bottom: calc(4.75rem + env(safe-area-inset-bottom));
     }
 
     .nav-button {
@@ -693,8 +774,7 @@
     }
 
     .action-buttons {
-        left: 1rem !important;
-        right: auto;
+        bottom: calc(6rem + env(safe-area-inset-bottom));
     }
 }
 
