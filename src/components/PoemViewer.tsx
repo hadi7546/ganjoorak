@@ -75,6 +75,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const [currentHighlightedVerse, setCurrentHighlightedVerse] =
     useState<number>(-1);
   const [isHighlightEnabled, setIsHighlightEnabled] = useState(true);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const [isAtBottom, setIsAtBottom] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const poemTextRef = useRef<HTMLDivElement>(null);
@@ -199,19 +201,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     }
   }, [currentTime, verseSync, isPlaying, currentHighlightedVerse]);
 
-  // Check if scroll is at the bottom
-  const isScrolledToBottom = () => {
-    if (!poemTextRef.current) return true;
-
-    const threshold = 50; // Increased threshold for better detection
-    return (
-      poemTextRef.current.scrollHeight -
-      poemTextRef.current.scrollTop -
-      poemTextRef.current.clientHeight <
-      threshold
-    );
-  };
-
   // Wrapper to handle next action with loading indicator
   const handleNext = () => {
     if (isPlaying && audioRef.current) {
@@ -233,7 +222,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   };
 
   // Helper functions for wheel handling
-  const isAtBottom = () => {
+  const isScrollNearBottom = () => {
     if (!poemTextRef.current) return false;
     const threshold = 20;
     return (
@@ -244,7 +233,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     );
   };
 
-  const isAtTop = () => {
+  const isScrollNearTop = () => {
     if (!poemTextRef.current) return false;
     return poemTextRef.current.scrollTop <= 1;
   };
@@ -254,40 +243,72 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const poemTextElement = poemTextRef.current;
     if (!poemTextElement) return;
 
-    // Debounce mechanism to prevent rapid firing of wheel events
-    let wheelTimeout: NodeJS.Timeout | null = null;
+    // Debounce/accumulation helpers to require deliberate scroll gestures
+    let wheelResetTimer: NodeJS.Timeout | null = null;
     let lastWheelTime = 0;
-    const WHEEL_COOLDOWN = 150; // milliseconds - slightly faster response
+    let downwardAccumulatedDelta = 0;
+    let upwardAccumulatedDelta = 0;
+    const WHEEL_RESET_TIMEOUT = 400; // ms before clearing accumulated delta
+    const WHEEL_TRIGGER_DELTA = 220; // total delta required to trigger navigation
 
     // Direct wheel handler with improved logic
+    const SWIPE_TRIGGER_DISTANCE = 100; // px finger travel before navigating
+
     const wheelHandler = (e: WheelEvent) => {
       // Only check if we're at boundaries
-      const atBottom = isAtBottom();
-      const atTop = isAtTop();
+      const atBottom = isScrollNearBottom();
+      const atTop = isScrollNearTop();
 
-      // Make sure we don't trigger the event too frequently
-      const isSignificantScroll = Math.abs(e.deltaY) > 5; // Reduced threshold for better sensitivity
-
-      // Debounce implementation
       const now = Date.now();
-      if (now - lastWheelTime < WHEEL_COOLDOWN) {
-        return; // Still in cooldown period
-      }
+      const deltaY = e.deltaY;
 
-      // If we're at the bottom and scrolling down, go to next poem
-      if (atBottom && e.deltaY > 0 && !isLast && isSignificantScroll) {
-        e.preventDefault();
-        handleNext();
-        lastWheelTime = now;
+      if (Math.abs(deltaY) < 1) {
         return;
       }
 
-      // If we're at the top and scrolling up, go to previous poem
-      if (atTop && e.deltaY < 0 && !isFirst && isSignificantScroll) {
-        e.preventDefault();
-        onPrevious();
-        lastWheelTime = now;
-        return;
+      if (now - lastWheelTime > WHEEL_RESET_TIMEOUT) {
+        downwardAccumulatedDelta = 0;
+        upwardAccumulatedDelta = 0;
+      }
+      lastWheelTime = now;
+
+      if (wheelResetTimer) {
+        clearTimeout(wheelResetTimer);
+      }
+      wheelResetTimer = setTimeout(() => {
+        downwardAccumulatedDelta = 0;
+        upwardAccumulatedDelta = 0;
+        wheelResetTimer = null;
+      }, WHEEL_RESET_TIMEOUT);
+
+      if (deltaY > 0) {
+        upwardAccumulatedDelta = 0;
+        if (!atBottom) {
+          downwardAccumulatedDelta = 0;
+          return;
+        }
+
+        downwardAccumulatedDelta += deltaY;
+        if (downwardAccumulatedDelta >= WHEEL_TRIGGER_DELTA && !isLast) {
+          e.preventDefault();
+          handleNext();
+          downwardAccumulatedDelta = 0;
+          upwardAccumulatedDelta = 0;
+        }
+      } else {
+        downwardAccumulatedDelta = 0;
+        if (!atTop) {
+          upwardAccumulatedDelta = 0;
+          return;
+        }
+
+        upwardAccumulatedDelta += Math.abs(deltaY);
+        if (upwardAccumulatedDelta >= WHEEL_TRIGGER_DELTA && !isFirst) {
+          e.preventDefault();
+          onPrevious();
+          downwardAccumulatedDelta = 0;
+          upwardAccumulatedDelta = 0;
+        }
       }
     };
 
@@ -308,12 +329,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
       // If poem is scrollable, let the user scroll
       if (poemTextElement.scrollHeight > poemTextElement.clientHeight) {
-        if ((diff > 0 && !isAtBottom()) || (diff < 0 && !isAtTop())) {
+        if ((diff > 0 && !isScrollNearBottom()) || (diff < 0 && !isScrollNearTop())) {
           return;
         }
       }
 
-      if (Math.abs(diff) > 50) {
+      if (Math.abs(diff) > SWIPE_TRIGGER_DISTANCE) {
         if (diff > 0 && !isLast) {
           handleNext();
         } else if (diff < 0 && !isFirst) {
@@ -343,6 +364,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       poemTextElement.removeEventListener("touchmove", handleTouchMove);
       poemTextElement.removeEventListener("touchend", handleTouchEnd);
       poemTextElement.removeEventListener("wheel", wheelHandler);
+      if (wheelResetTimer) {
+        clearTimeout(wheelResetTimer);
+      }
     };
   }, [isFirst, isLast, onPrevious, handleNext]);
 
@@ -639,6 +663,49 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     setError(null);
   }, [poem.recitations, currentRecitationIndex]);
 
+  useEffect(() => {
+    setIsAtTop(true);
+    setIsAtBottom(false);
+  }, [poem.id]);
+
+  useEffect(() => {
+    const poemElement = poemTextRef.current;
+    if (!poemElement) {
+      return;
+    }
+
+    const thresholdPx = 32;
+
+    const updateScrollEdges = () => {
+      const { scrollTop, scrollHeight, clientHeight } = poemElement;
+      const maxScrollable = scrollHeight - clientHeight;
+      const effectiveThreshold = Math.min(
+        Math.max(thresholdPx, clientHeight * 0.05),
+        64,
+      );
+
+      const atTop = scrollTop <= effectiveThreshold;
+      const atBottom =
+        maxScrollable <= effectiveThreshold ||
+        maxScrollable - scrollTop <= effectiveThreshold;
+
+      setIsAtTop(atTop);
+      setIsAtBottom(atBottom);
+    };
+
+    updateScrollEdges();
+
+    const handleScroll = () => {
+      updateScrollEdges();
+    };
+
+    poemElement.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      poemElement.removeEventListener("scroll", handleScroll);
+    };
+  }, [poem.id]);
+
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -738,6 +805,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const hasNextRecitation =
     poem.recitations && currentRecitationIndex < poem.recitations.length - 1;
   const hasPreviousRecitation = poem.recitations && currentRecitationIndex > 0;
+
+  const showNavigationControls =
+    (isAtTop && !isFirst) || (isAtBottom && !isLast);
+  const showActionButtons = isAtTop || isAtBottom;
 
   if (!poem) return null;
 
@@ -954,7 +1025,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       </div>
 
       {/* Action buttons */}
-      <div className="action-buttons">
+      <div className={`action-buttons${showActionButtons ? "" : " is-hidden"}`}>
         <button
           className="action-button"
           onClick={sharePoem}
@@ -994,7 +1065,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       </div>
 
       {/* Navigation controls */}
-      <div className="navigation-controls">
+      <div
+        className={`navigation-controls${
+          showNavigationControls ? "" : " is-hidden"
+        }`}
+      >
         {!isFirst && (
           <button className="nav-button up" onClick={onPrevious}>
             <FaChevronUp />
