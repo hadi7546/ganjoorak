@@ -250,8 +250,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     let lastWheelTime = 0;
     let downwardAccumulatedDelta = 0;
     let upwardAccumulatedDelta = 0;
+    let bottomBoundaryEntryTime: number | null = null;
+    let topBoundaryEntryTime: number | null = null;
     const WHEEL_RESET_TIMEOUT = 400; // ms before clearing accumulated delta
     const WHEEL_TRIGGER_DELTA = 220; // total delta required to trigger navigation
+    const BOUNDARY_SETTLE_DELAY = 300; // ms required at boundary before navigating
 
     // Direct wheel handler with improved logic
     const SWIPE_TRIGGER_DISTANCE = 100; // px finger travel before navigating
@@ -266,6 +269,22 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
       if (Math.abs(deltaY) < 1) {
         return;
+      }
+
+      if (atBottom) {
+        if (bottomBoundaryEntryTime === null) {
+          bottomBoundaryEntryTime = now;
+        }
+      } else {
+        bottomBoundaryEntryTime = null;
+      }
+
+      if (atTop) {
+        if (topBoundaryEntryTime === null) {
+          topBoundaryEntryTime = now;
+        }
+      } else {
+        topBoundaryEntryTime = null;
       }
 
       if (now - lastWheelTime > WHEEL_RESET_TIMEOUT) {
@@ -290,6 +309,14 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           return;
         }
 
+        if (
+          bottomBoundaryEntryTime === null ||
+          now - bottomBoundaryEntryTime < BOUNDARY_SETTLE_DELAY
+        ) {
+          downwardAccumulatedDelta = 0;
+          return;
+        }
+
         downwardAccumulatedDelta += deltaY;
         if (downwardAccumulatedDelta >= WHEEL_TRIGGER_DELTA && !isLast) {
           e.preventDefault();
@@ -300,6 +327,14 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       } else {
         downwardAccumulatedDelta = 0;
         if (!atTop) {
+          upwardAccumulatedDelta = 0;
+          return;
+        }
+
+        if (
+          topBoundaryEntryTime === null ||
+          now - topBoundaryEntryTime < BOUNDARY_SETTLE_DELAY
+        ) {
           upwardAccumulatedDelta = 0;
           return;
         }
@@ -328,6 +363,25 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
       const touchCurrentY = e.touches[0].clientY;
       const diff = touchStartY - touchCurrentY;
+      const now = Date.now();
+      const atBottom = isScrollNearBottom();
+      const atTop = isScrollNearTop();
+
+      if (atBottom) {
+        if (bottomBoundaryEntryTime === null) {
+          bottomBoundaryEntryTime = now;
+        }
+      } else {
+        bottomBoundaryEntryTime = null;
+      }
+
+      if (atTop) {
+        if (topBoundaryEntryTime === null) {
+          topBoundaryEntryTime = now;
+        }
+      } else {
+        topBoundaryEntryTime = null;
+      }
 
       // If poem is scrollable, let the user scroll
       if (poemTextElement.scrollHeight > poemTextElement.clientHeight) {
@@ -337,9 +391,19 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       }
 
       if (Math.abs(diff) > SWIPE_TRIGGER_DISTANCE) {
-        if (diff > 0 && !isLast) {
+        if (
+          diff > 0 &&
+          !isLast &&
+          bottomBoundaryEntryTime !== null &&
+          now - bottomBoundaryEntryTime >= BOUNDARY_SETTLE_DELAY
+        ) {
           handleNext();
-        } else if (diff < 0 && !isFirst) {
+        } else if (
+          diff < 0 &&
+          !isFirst &&
+          topBoundaryEntryTime !== null &&
+          now - topBoundaryEntryTime >= BOUNDARY_SETTLE_DELAY
+        ) {
           onPrevious();
         }
         isTouching = false;
