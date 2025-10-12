@@ -8,11 +8,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(
-        to bottom,
-        rgb(var(--background) / 0.7),
-        rgb(var(--background) / 0.9)
-    );
+    background: linear-gradient(to bottom,
+            rgb(var(--background) / 0.7),
+            rgb(var(--background) / 0.9));
     overflow: hidden;
     z-index: 1;
     font-family: var(--app-font);
@@ -55,6 +53,7 @@
     padding-top: clamp(2rem, 6vw, 4rem);
     padding-bottom: clamp(2rem, 6vw, 3rem);
 }
+
 .poem-content::-webkit-scrollbar {
     display: none;
 }
@@ -112,12 +111,10 @@
     display: block;
     width: 80px;
     height: 1px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgb(var(--foreground) / 0.3),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgb(var(--foreground) / 0.3),
+            transparent);
     margin: 0.75rem auto 0;
 }
 
@@ -1273,6 +1270,7 @@
 }
 
 @media (max-width: 768px) {
+
     .poem-text.poem-text--no-audio,
     .poem-text.poem-text--minimal {
         padding-top: 2rem;
@@ -1281,6 +1279,7 @@
 }
 
 @media (max-width: 480px) {
+
     .poem-text.poem-text--no-audio,
     .poem-text.poem-text--minimal {
         padding-top: 1.75rem;

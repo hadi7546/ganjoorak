@@ -51,7 +51,7 @@ interface PoemViewerProps {
 const PoemViewer: React.FC<PoemViewerProps> = ({
   poem,
   onNext,
-  onPrevious = () => {},
+  onPrevious = () => { },
   isFirst = true,
   isLast = true,
   isModern = true,
@@ -228,8 +228,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const threshold = 20;
     return (
       poemTextRef.current.scrollHeight -
-        poemTextRef.current.scrollTop -
-        poemTextRef.current.clientHeight <
+      poemTextRef.current.scrollTop -
+      poemTextRef.current.clientHeight <
       threshold
     );
   };
@@ -1030,9 +1030,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             ).map((pair, index) => (
               <motion.div
                 key={index}
-                className={`verse-pair ${
-                  settings.showLineNumbers ? "verse-pair-numbered" : ""
-                }`}
+                className={`verse-pair ${settings.showLineNumbers ? "verse-pair-numbered" : ""
+                  }`}
                 data-couplet-number={
                   settings.showLineNumbers
                     ? formatPersianNumber(index + 1)
@@ -1106,9 +1105,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       {/* Navigation controls */}
       {poemViewerVisibility.navigationControls && (
         <div
-          className={`navigation-controls${
-            showNavigationControls ? "" : " is-hidden"
-          }`}
+          className={`navigation-controls${showNavigationControls ? "" : " is-hidden"
+            }`}
         >
           {!isFirst && (
             <button className="nav-button up" onClick={onPrevious}>
