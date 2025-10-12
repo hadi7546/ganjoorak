@@ -18,14 +18,16 @@
 }
 
 .poets-container .faq-item {
-    background: rgb(var(--background) / 0.05);
+    background: rgb(var(--card));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 1rem;
     padding: 1.25rem 1.5rem;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .poets-container .faq-item:hover {
-    background: rgb(var(--background) / 0.08);
+    background: rgb(var(--card) / 0.9);
 }
 
 .poets-question {
