@@ -217,7 +217,6 @@ body {
         margin-top: 0;
         border-top: 1px solid rgb(var(--border));
     }
-
 }
 
 /* Menu styles */
@@ -413,7 +412,6 @@ body {
 .settings-body::-webkit-scrollbar-thumb:hover {
     background: rgb(var(--foreground) / 0.4);
 }
-
 
 .settings-form {
     flex: 1.25;

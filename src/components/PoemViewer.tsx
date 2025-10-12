@@ -51,7 +51,7 @@ interface PoemViewerProps {
 const PoemViewer: React.FC<PoemViewerProps> = ({
   poem,
   onNext,
-  onPrevious = () => { },
+  onPrevious = () => {},
   isFirst = true,
   isLast = true,
   isModern = true,
@@ -160,7 +160,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     // Find the appropriate verse to highlight
     let highlightedVerseIndex = -1;
 
-
     // At the very beginning (0-2000ms), always start with verse order 1
     if (currentTimeMs <= 2000) {
       highlightedVerseIndex = 1; // Force first verse
@@ -229,8 +228,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const threshold = 20;
     return (
       poemTextRef.current.scrollHeight -
-      poemTextRef.current.scrollTop -
-      poemTextRef.current.clientHeight <
+        poemTextRef.current.scrollTop -
+        poemTextRef.current.clientHeight <
       threshold
     );
   };
@@ -331,7 +330,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
       // If poem is scrollable, let the user scroll
       if (poemTextElement.scrollHeight > poemTextElement.clientHeight) {
-        if ((diff > 0 && !isScrollNearBottom()) || (diff < 0 && !isScrollNearTop())) {
+        if (
+          (diff > 0 && !isScrollNearBottom()) ||
+          (diff < 0 && !isScrollNearTop())
+        ) {
           return;
         }
       }
@@ -808,11 +810,36 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     poem.recitations && currentRecitationIndex < poem.recitations.length - 1;
   const hasPreviousRecitation = poem.recitations && currentRecitationIndex > 0;
   const hasRecitations = (poem.recitations?.length ?? 0) > 0;
+  const isAudioPlayerVisible =
+    poemViewerVisibility.audioPlayer && hasRecitations;
+  const isMinimalPoemView =
+    !showTitleSection &&
+    !poemViewerVisibility.actionButtons &&
+    !poemViewerVisibility.navigationControls &&
+    !isAudioPlayerVisible;
+  const highlightActive =
+    isHighlightEnabled &&
+    verseSync.length > 0 &&
+    currentHighlightedVerse !== -1;
+  const poemContentClassName = [
+    "poem-content",
+    !showTitleSection ? "poem-content--centered" : "",
+    isMinimalPoemView ? "poem-content--minimal" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const poemTextClassName = [
+    "poem-text",
+    highlightActive ? "highlight-on" : "",
+    !isAudioPlayerVisible ? "poem-text--no-audio" : "",
+    isMinimalPoemView ? "poem-text--minimal" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const showNavigationControls =
     (isAtTop && !isFirst) || (isAtBottom && !isLast);
   const showActionButtons = isAtTop || isAtBottom;
-
   if (!poem) return null;
 
   return (
@@ -839,7 +866,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           setIsMenuOpen(false);
         }}
       />
-      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsDialog
+        isOpen={isSettingsOpen}
+        onClose={() => {
+          setIsSettingsOpen(false);
+        }}
+      />
 
       {/* Loading overlay is now permanently hidden when scrolling through poems
             <AnimatePresence>
@@ -857,7 +889,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             </AnimatePresence> */}
 
       {/* Audio player - show only when a recitation is available */}
-      {poemViewerVisibility.audioPlayer && hasRecitations && (
+      {isAudioPlayerVisible && (
         <div className="audio-player">
           <div className="audio-controls">
             <button
@@ -893,7 +925,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             <button
               className={`audio-control-button ${isHighlightEnabled ? "active" : ""}`}
               onClick={() => setIsHighlightEnabled((v) => !v)}
-              title={isHighlightEnabled ? "خاموش کردن برجسته‌سازی" : "روشن کردن برجسته‌سازی"}
+              title={
+                isHighlightEnabled
+                  ? "خاموش کردن برجسته‌سازی"
+                  : "روشن کردن برجسته‌سازی"
+              }
             >
               {isHighlightEnabled ? <FaEye /> : <FaEyeSlash />}
             </button>
@@ -945,7 +981,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       )}
 
       {/* Poem content */}
-      <div className={`poem-content${showTitleSection ? "" : " poem-content--centered"}`}>
+      <div className={poemContentClassName}>
         {showTitleSection && (
           <div className="title-section">
             <motion.h2
@@ -968,13 +1004,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             )}
           </div>
         )}
-        <div
-          className={`poem-text ${isHighlightEnabled && verseSync.length > 0 && currentHighlightedVerse !== -1
-            ? "highlight-on"
-            : ""
-            }`}
-          ref={poemTextRef}
-        >
+        <div className={poemTextClassName} ref={poemTextRef}>
           {isModern ? (
             <motion.div
               className="modern-poem"
@@ -1031,7 +1061,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
       {/* Action buttons */}
       {poemViewerVisibility.actionButtons && (
-        <div className={`action-buttons${showActionButtons ? "" : " is-hidden"}`}>
+        <div
+          className={`action-buttons${showActionButtons ? "" : " is-hidden"}`}
+        >
           <button
             className="action-button"
             onClick={sharePoem}

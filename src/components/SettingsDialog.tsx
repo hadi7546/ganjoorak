@@ -43,10 +43,9 @@ const FONT_CHOICES: Array<{
 ];
 
 const POEM_VIEWER_COMPONENT_OPTIONS: Array<{
-  key: PoemViewerComponentKey;
+  key: Exclude<PoemViewerComponentKey, "titleSection">;
   label: string;
 }> = [
-  { key: "titleSection", label: "سربرگ شعر (عنوان و نام شاعر)" },
   { key: "audioPlayer", label: "پخش‌کننده صوت" },
   { key: "actionButtons", label: "دکمه‌های اشتراک و شاعر" },
   { key: "navigationControls", label: "دکمه‌های جابه‌جایی" },
@@ -67,9 +66,10 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const [pendingFontFamily, setPendingFontFamily] = useState<FontFamilyOption>(
     settings.fontFamily,
   );
-  const [pendingVisibility, setPendingVisibility] = useState<PoemViewerComponentVisibility>(
-    { ...settings.poemViewerVisibility },
-  );
+  const [pendingVisibility, setPendingVisibility] =
+    useState<PoemViewerComponentVisibility>({
+      ...settings.poemViewerVisibility,
+    });
   const originalThemeRef = useRef<ThemeOption>(settings.theme);
   const originalFontRef = useRef<FontFamilyOption>(settings.fontFamily);
   const originalLineNumbersRef = useRef<boolean>(settings.showLineNumbers);
@@ -267,9 +267,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
 
                   <section
                     className="settings-section"
-                    aria-label="انتخاب فونت شعر"
+                    aria-label="انتخاب قلم شعر"
                   >
-                    <h3 className="settings-section-title">فونت شعر</h3>
+                    <h3 className="settings-section-title">قلم شعر</h3>
                     <div className="settings-font-grid">
                       {FONT_CHOICES.map((font) => (
                         <button
@@ -307,10 +307,14 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                             className={`settings-toggle-button ${
                               pendingVisibility[component.key] ? "active" : ""
                             }`}
-                            onClick={() => handleVisibilityToggle(component.key)}
+                            onClick={() =>
+                              handleVisibilityToggle(component.key)
+                            }
                             aria-pressed={pendingVisibility[component.key]}
                           >
-                            {pendingVisibility[component.key] ? "نمایش" : "مخفی"}
+                            {pendingVisibility[component.key]
+                              ? "نمایش"
+                              : "مخفی"}
                           </button>
                         </div>
                       ))}

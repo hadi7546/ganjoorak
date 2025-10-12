@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 type ThemeOption = "dark" | "light" | "paper";
 type FontFamilyOption =
@@ -36,18 +43,23 @@ interface SettingsContextValue {
   toggleLineNumbers: () => void;
   setShowLineNumbers: (show: boolean) => void;
   setFontFamily: (fontFamily: FontFamilyOption) => void;
-  setPoemViewerVisibility: (visibility: Partial<PoemViewerComponentVisibility>) => void;
+  setPoemViewerVisibility: (
+    visibility: Partial<PoemViewerComponentVisibility>,
+  ) => void;
 }
 
 const FONT_STACKS: Record<FontFamilyOption, string> = {
   vazirmatn: "'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
   samim: "'Samim', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
   tanha: "'Tanha', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
-  shabnam: "'Shabnam', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+  shabnam:
+    "'Shabnam', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
   gandom: "'Gandom', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
-  parastoo: "'Parastoo', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
+  parastoo:
+    "'Parastoo', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
   sahel: "'Sahel', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
-  vazircode: "'Vazir Code', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', monospace",
+  vazircode:
+    "'Vazir Code', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', monospace",
   nahid: "'Nahid', 'Vazirmatn', 'IRANSans', 'Tahoma', 'Segoe UI', sans-serif",
 };
 
@@ -79,6 +91,9 @@ const sanitizePoemViewerVisibility = (
   return POEM_VIEWER_COMPONENT_KEYS.reduce<
     Partial<PoemViewerComponentVisibility>
   >((accumulator, key) => {
+    if (key === "titleSection") {
+      return accumulator;
+    }
     if (typeof value[key] === "boolean") {
       accumulator[key] = value[key] as boolean;
     }
@@ -95,9 +110,13 @@ const DEFAULT_SETTINGS: SettingsState = {
 
 const STORAGE_KEY = "ganjoorak:settings";
 
-const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
+const SettingsContext = createContext<SettingsContextValue | undefined>(
+  undefined,
+);
 
-export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [settings, setSettings] = useState<SettingsState>(DEFAULT_SETTINGS);
 
   useEffect(() => {
@@ -123,6 +142,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           ...DEFAULT_POEM_VIEWER_VISIBILITY,
           ...sanitizePoemViewerVisibility(parsed.poemViewerVisibility),
         };
+        nextVisibility.titleSection = true;
 
         setSettings((prev) => ({
           ...prev,
@@ -137,17 +157,30 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         window.localStorage.setItem("theme", nextTheme);
       } else {
         const legacyTheme = window.localStorage.getItem("theme");
-        if (legacyTheme === "light" || legacyTheme === "dark" || legacyTheme === "paper") {
+        if (
+          legacyTheme === "light" ||
+          legacyTheme === "dark" ||
+          legacyTheme === "paper"
+        ) {
           setSettings((prev) => ({ ...prev, theme: legacyTheme }));
           document.documentElement.setAttribute("data-theme", legacyTheme);
         } else {
-          document.documentElement.setAttribute("data-theme", DEFAULT_SETTINGS.theme);
+          document.documentElement.setAttribute(
+            "data-theme",
+            DEFAULT_SETTINGS.theme,
+          );
         }
       }
     } catch (error) {
       console.error("Failed to load settings", error);
-      document.documentElement.setAttribute("data-theme", DEFAULT_SETTINGS.theme);
-      document.documentElement.setAttribute("data-font", DEFAULT_SETTINGS.fontFamily);
+      document.documentElement.setAttribute(
+        "data-theme",
+        DEFAULT_SETTINGS.theme,
+      );
+      document.documentElement.setAttribute(
+        "data-font",
+        DEFAULT_SETTINGS.fontFamily,
+      );
     }
   }, []);
 
@@ -171,7 +204,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const toggleLineNumbers = useCallback(() => {
-    setSettings((prev) => ({ ...prev, showLineNumbers: !prev.showLineNumbers }));
+    setSettings((prev) => ({
+      ...prev,
+      showLineNumbers: !prev.showLineNumbers,
+    }));
   }, []);
 
   const setShowLineNumbers = useCallback((show: boolean) => {
@@ -192,6 +228,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         poemViewerVisibility: {
           ...prev.poemViewerVisibility,
           ...sanitizePoemViewerVisibility(visibility),
+          titleSection: true,
         },
       }));
     },
@@ -217,7 +254,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     ],
   );
 
-  return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
+  return (
+    <SettingsContext.Provider value={value}>
+      {children}
+    </SettingsContext.Provider>
+  );
 };
 
 export const useSettings = (): SettingsContextValue => {

@@ -2,7 +2,14 @@
 
 import React, { useEffect, useMemo } from "react";
 import Link from "next/link";
-import { FaBars, FaHome, FaQuestionCircle, FaBell, FaUsers, FaSlidersH } from "react-icons/fa";
+import {
+  FaBars,
+  FaHome,
+  FaQuestionCircle,
+  FaBell,
+  FaUsers,
+  FaSlidersH,
+} from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 
@@ -111,7 +118,13 @@ const Menu: React.FC<MenuProps> = ({
   );
 };
 
-export function MenuButton({ onClick, hasNotification = false }: { onClick: () => void; hasNotification?: boolean }) {
+export function MenuButton({
+  onClick,
+  hasNotification = false,
+}: {
+  onClick: () => void;
+  hasNotification?: boolean;
+}) {
   return (
     <button
       type="button"
@@ -124,7 +137,9 @@ export function MenuButton({ onClick, hasNotification = false }: { onClick: () =
       aria-label="Open menu"
     >
       <FaBars size={16} />
-      {hasNotification && <span className="menu-button-indicator" aria-hidden="true" />}
+      {hasNotification && (
+        <span className="menu-button-indicator" aria-hidden="true" />
+      )}
     </button>
   );
 }

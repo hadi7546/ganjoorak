@@ -33,7 +33,12 @@ const Updates = () => {
           setIsMenuOpen(false);
         }}
       />
-      <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsDialog
+        isOpen={isSettingsOpen}
+        onClose={() => {
+          setIsSettingsOpen(false);
+        }}
+      />
 
       <h1 className="updates-title">بروزرسانی‌ها</h1>
       <div className="updates-list">
