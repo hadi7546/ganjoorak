@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
+import type { Poem, PoemRecitation, PoemSearchResult, VerseSync } from "@/types/poem";
 import type { Poet, Century } from "@/types/poet";
 
 const API_BASE_URL = "https://api.ganjoor.net";
@@ -239,6 +239,100 @@ const ganjoorApi = {
   async getPoemIdByUrl(url: string): Promise<number> {
     const poem = await this.getPoemByUrl(url);
     return poem.id;
+  },
+
+  async searchPoems(
+    term: string,
+    options?: {
+      pageNumber?: number;
+      pageSize?: number;
+      poetId?: number;
+      catId?: number;
+    },
+  ): Promise<PoemSearchResult[]> {
+    const trimmed = term.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    const params: Record<string, number | string> = {
+      term: trimmed,
+      PageNumber: options?.pageNumber ?? 1,
+      PageSize: options?.pageSize ?? 20,
+    };
+
+    if (typeof options?.poetId === "number" && options.poetId > 0) {
+      params.poetId = options.poetId;
+    }
+    if (typeof options?.catId === "number" && options.catId > 0) {
+      params.catId = options.catId;
+    }
+
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/ganjoor/poems/search`,
+        {
+          timeout: 8000,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          params,
+        },
+      );
+
+      const sanitizeExcerpt = (value: string, maxLength = 160) => {
+        if (!value) return "";
+        const clean = value
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        if (!clean) return "";
+        if (clean.length <= maxLength) return clean;
+        return `${clean.slice(0, maxLength - 1)}…`;
+      };
+
+      return (response.data || []).map((item: any) => {
+        const poetFullUrl = item.category?.poet?.fullUrl || "";
+        const poetSlug = helpers.getPoetSlug(poetFullUrl || item.fullUrl || "");
+        const poetName =
+          item.category?.poet?.name ||
+          helpers.getPoetName(item.fullTitle || item.title || "");
+        const excerptSource =
+          item.poemSummary || item.excerpt || item.plainText || item.htmlText || "";
+
+        const fullUrl = (() => {
+          if (typeof item.fullUrl === "string" && item.fullUrl.length > 0) {
+            return item.fullUrl.startsWith("/") ? item.fullUrl : `/${item.fullUrl}`;
+          }
+          if (typeof item.urlSlug === "string" && item.urlSlug.length > 0) {
+            return `/${item.urlSlug}`;
+          }
+          return "";
+        })();
+
+        return {
+          id: item.id ?? 0,
+          title: item.title || item.fullTitle || "",
+          fullTitle: item.fullTitle || item.title || "",
+          fullUrl,
+          poetName,
+          poetSlug,
+          excerpt: sanitizeExcerpt(excerptSource),
+        } satisfies PoemSearchResult;
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Error searching poems:", error.response?.data || error.message);
+        if (error.response?.status === 404) {
+          return [];
+        }
+        throw new Error(
+          "در جستجوی اشعار مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
+        );
+      }
+      throw error;
+    }
   },
 
   async getRecitationVerses(recitationId: number): Promise<VerseSync[]> {

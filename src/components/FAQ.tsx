@@ -3,15 +3,17 @@
 import React, { useState } from 'react';
 import { HiChevronDown } from 'react-icons/hi2';
 import '../styles/FAQ.css';
-import Menu, { MenuButton } from '@/components/Menu';
+import Menu, { MenuButton, SearchButton } from '@/components/Menu';
 import SettingsDialog from '@/components/SettingsDialog';
 import { motion } from 'framer-motion';
 import { useUpdateNotification } from '@/hooks/useUpdateNotification';
+import SearchDialog from '@/components/SearchDialog';
 
 const FAQ = () => {
     const [openIndices, setOpenIndices] = useState<number[]>([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
     const faqs = [
@@ -74,6 +76,10 @@ const FAQ = () => {
     return (
         <div className="faq-container">
             <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} hasNotification={hasNewUpdates} />
+            <SearchButton onClick={() => {
+                setIsMenuOpen(false);
+                setIsSearchOpen(true);
+            }} />
             <Menu
                 isOpen={isMenuOpen}
                 onClose={() => setIsMenuOpen(false)}
@@ -83,6 +89,11 @@ const FAQ = () => {
                     setIsSettingsOpen(true);
                     setIsMenuOpen(false);
                 }}
+            />
+            <SearchDialog
+                isOpen={isSearchOpen}
+                onClose={() => setIsSearchOpen(false)}
+                onResultSelect={() => setIsSearchOpen(false)}
             />
             <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 

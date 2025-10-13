@@ -2,15 +2,17 @@
 
 import React, { useEffect, useState } from "react";
 import "../styles/Updates.css";
-import Menu, { MenuButton } from "@/components/Menu";
+import Menu, { MenuButton, SearchButton } from "@/components/Menu";
 import SettingsDialog from "@/components/SettingsDialog";
 import { motion } from "framer-motion";
 import { updates } from "@/data/updates";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
+import SearchDialog from "@/components/SearchDialog";
 
 const Updates = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
   useEffect(() => {
@@ -23,6 +25,12 @@ const Updates = () => {
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         hasNotification={hasNewUpdates}
       />
+      <SearchButton
+        onClick={() => {
+          setIsMenuOpen(false);
+          setIsSearchOpen(true);
+        }}
+      />
       <Menu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
@@ -32,6 +40,11 @@ const Updates = () => {
           setIsSettingsOpen(true);
           setIsMenuOpen(false);
         }}
+      />
+      <SearchDialog
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onResultSelect={() => setIsSearchOpen(false)}
       />
       <SettingsDialog
         isOpen={isSettingsOpen}

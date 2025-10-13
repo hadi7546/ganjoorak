@@ -40,6 +40,16 @@ export interface Poem {
   isCustom?: boolean;
 }
 
+export interface PoemSearchResult {
+  id: number;
+  title: string;
+  fullTitle: string;
+  fullUrl: string;
+  poetName: string;
+  poetSlug: string;
+  excerpt: string;
+}
+
 export interface VerseSync {
   verseOrder: number;
   verseText: string;

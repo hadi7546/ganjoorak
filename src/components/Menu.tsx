@@ -9,6 +9,7 @@ import {
   FaBell,
   FaUsers,
   FaSlidersH,
+  FaSearch,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -140,6 +141,27 @@ export function MenuButton({
       {hasNotification && (
         <span className="menu-button-indicator" aria-hidden="true" />
       )}
+    </button>
+  );
+}
+
+export function SearchButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        "menu-button search-button fixed w-10 h-10",
+        "flex items-center justify-center rounded-full",
+        "text-foreground transition-all",
+      ].join(" ")}
+      aria-label="جستجوی شعر"
+      style={{
+        top: "calc(4.25rem + env(safe-area-inset-top, 0px))",
+        right: "calc(1rem + env(safe-area-inset-right, 0px))",
+      }}
+    >
+      <FaSearch size={16} />
     </button>
   );
 }

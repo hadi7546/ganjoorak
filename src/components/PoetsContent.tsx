@@ -6,9 +6,10 @@ import { Century, Poet } from '@/types/poet';
 import PoetImage from '@/components/PoetImage';
 import LoadingScreen from '@/components/LoadingScreen';
 import { motion } from 'framer-motion';
-import Menu, { MenuButton } from '@/components/Menu';
+import Menu, { MenuButton, SearchButton } from '@/components/Menu';
 import SettingsDialog from '@/components/SettingsDialog';
 import { useUpdateNotification } from '@/hooks/useUpdateNotification';
+import SearchDialog from '@/components/SearchDialog';
 
 function CenturySection({ century, title }: { century: Century; title?: string }) {
     const [isOpen, setIsOpen] = useState(century.id === 0);
@@ -223,6 +224,7 @@ export default function PoetsContent({ centuries, customPoets = [] }: { centurie
     const [isLoading, setIsLoading] = useState(true);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
     // Extract featured century (century 0) and other centuries
@@ -248,6 +250,10 @@ export default function PoetsContent({ centuries, customPoets = [] }: { centurie
     return (
         <>
             <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} hasNotification={hasNewUpdates} />
+            <SearchButton onClick={() => {
+                setIsMenuOpen(false);
+                setIsSearchOpen(true);
+            }} />
             <Menu
                 isOpen={isMenuOpen}
                 onClose={() => setIsMenuOpen(false)}
@@ -257,6 +263,11 @@ export default function PoetsContent({ centuries, customPoets = [] }: { centurie
                     setIsSettingsOpen(true);
                     setIsMenuOpen(false);
                 }}
+            />
+            <SearchDialog
+                isOpen={isSearchOpen}
+                onClose={() => setIsSearchOpen(false)}
+                onResultSelect={() => setIsSearchOpen(false)}
             />
             <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 

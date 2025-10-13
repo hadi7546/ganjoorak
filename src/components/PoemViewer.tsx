@@ -26,7 +26,8 @@ import ganjoorApi from "@/api/GanjoorApi";
 import Link from "next/link";
 import { PoetSlug, poetNames } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
-import Menu, { MenuButton } from "@/components/Menu";
+import Menu, { MenuButton, SearchButton } from "@/components/Menu";
+import SearchDialog from "@/components/SearchDialog";
 import SettingsDialog from "@/components/SettingsDialog";
 import { useSettings } from "@/context/SettingsContext";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
@@ -71,6 +72,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const [isMouseOverPoemText, setIsMouseOverPoemText] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [verseSync, setVerseSync] = useState<VerseSync[]>([]);
   const [currentHighlightedVerse, setCurrentHighlightedVerse] =
     useState<number>(-1);
@@ -856,6 +858,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         hasNotification={hasNewUpdates}
       />
+      <SearchButton
+        onClick={() => {
+          setIsMenuOpen(false);
+          setIsSearchOpen(true);
+        }}
+      />
       <Menu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
@@ -865,6 +873,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           setIsSettingsOpen(true);
           setIsMenuOpen(false);
         }}
+      />
+      <SearchDialog
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onResultSelect={() => setIsSearchOpen(false)}
       />
       <SettingsDialog
         isOpen={isSettingsOpen}
