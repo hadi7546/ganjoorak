@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/utils/logger';
 
 export const dynamic = 'force-dynamic'; // Mark this route as dynamic
 
@@ -24,13 +25,13 @@ export async function GET(request: NextRequest) {
 
         // Security check: Verify the URL is from an allowed domain
         if (!isAllowedDomain(url)) {
-            console.warn(`Rejected unauthorized audio URL: ${url}`);
+            logger.warn(`Rejected unauthorized audio URL: ${url}`);
             return NextResponse.json({
                 error: 'Invalid URL domain. Only specific domains are allowed.'
             }, { status: 403 });
         }
 
-        console.log(`Fetching authorized audio URL: ${url}`);
+        logger.log(`Fetching authorized audio URL: ${url}`);
 
         // Fetch the audio file
         const response = await fetch(url, {
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
         });
 
         if (!response.ok) {
-            console.error(`Error fetching audio: ${response.status} ${response.statusText}`);
+            logger.error(`Error fetching audio: ${response.status} ${response.statusText}`);
             return NextResponse.json({ error: 'Failed to fetch audio' }, { status: response.status });
         }
 
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest) {
             },
         });
     } catch (error) {
-        console.error('Error proxying audio:', error);
+        logger.error('Error proxying audio:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

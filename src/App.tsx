@@ -7,6 +7,7 @@ import ganjoorApi from './api/GanjoorApi';
 import type { Poem } from './types/poem';
 import './App.css';
 import FAQ from './components/FAQ';
+import { logger } from './utils/logger';
 
 function PoemPage() {
     const { id } = useParams();
@@ -27,7 +28,7 @@ function PoemPage() {
                 setPoem(loadedPoem);
                 setError(null);
             } catch (err) {
-                console.error('Error loading poem:', err);
+                logger.error('Error loading poem:', err);
                 setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر');
             }
         };
@@ -40,7 +41,7 @@ function PoemPage() {
             const newPoem = await ganjoorApi.getRandomPoem();
             navigate(`/${newPoem.id}`);
         } catch (err) {
-            console.error('Error loading next poem:', err);
+            logger.error('Error loading next poem:', err);
             setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر بعدی');
         }
     };

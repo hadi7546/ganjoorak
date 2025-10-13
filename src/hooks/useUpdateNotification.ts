@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { latestUpdateVersion } from "@/data/updates";
+import { logger } from "@/utils/logger";
 
 const STORAGE_KEY = "ganjoorak:lastSeenUpdate";
 
@@ -17,7 +18,7 @@ export const useUpdateNotification = () => {
         setHasNewUpdates(true);
       }
     } catch (error) {
-      console.error("Failed to read updates status", error);
+      logger.error("Failed to read updates status", error);
     }
   }, []);
 
@@ -30,7 +31,7 @@ export const useUpdateNotification = () => {
       }
       setHasNewUpdates(false);
     } catch (error) {
-      console.error("Failed to mark updates as read", error);
+      logger.error("Failed to mark updates as read", error);
     }
   }, []);
 

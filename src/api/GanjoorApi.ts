@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
 import type { Poet, Century } from "@/types/poet";
+import { logger } from "@/utils/logger";
 
 const API_BASE_URL = "https://api.ganjoor.net";
 
@@ -36,7 +37,7 @@ const ganjoorApi = {
 
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
-      console.error("Error fetching random poem:", error);
+      logger.error("Error fetching random poem:", error);
       throw new Error(
         "متأسفانه در دریافت شعر تصادفی مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
       );
@@ -51,7 +52,7 @@ const ganjoorApi = {
       }
 
       // No cache check - always fetch fresh data
-      console.log("Fetching poem:", id);
+      logger.log("Fetching poem:", id);
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/${id}`,
         {
@@ -63,12 +64,12 @@ const ganjoorApi = {
         },
       );
 
-      console.log("API Response:", response.data);
+      logger.log("API Response:", response.data);
       // Don't cache the response
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error("API Error:", error.response?.data);
+        logger.error("API Error:", error.response?.data);
         if (error.response?.status === 404) {
           throw new Error("متأسفانه شعر مورد نظر پیدا نشد");
         }
@@ -153,7 +154,7 @@ const ganjoorApi = {
       // Don't check or store in cache
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
-      console.error("Error fetching random poem:", error);
+      logger.error("Error fetching random poem:", error);
       throw new Error(
         "متأسفانه در دریافت شعر مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
       );
@@ -264,7 +265,7 @@ const ganjoorApi = {
         audioStartMilliseconds: verse.audioStartMilliseconds,
       }));
     } catch (error) {
-      console.error("Error fetching recitation verses:", error);
+      logger.error("Error fetching recitation verses:", error);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 404) {
           throw new Error("متأسفانه اطلاعات همزمان‌سازی این خوانش یافت نشد");

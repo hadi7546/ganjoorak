@@ -1,7 +1,7 @@
 import { Metadata } from "next";
-import customApi from "@/api/CustomApi";
 import ganjoorApi from "@/api/GanjoorApi";
-import { PoetSlug, isValidPoetSlug, poetNames } from "@/types/poet";
+import { isValidPoetSlug, poetNames } from "@/types/poet";
+import { logger } from "@/utils/logger";
 
 type Props = {
   params: { poet: string };
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       poetName = poetData.nickname || poetData.name;
     }
   } catch (error) {
-    console.error('Error fetching poet info:', error);
+    logger.error('Error fetching poet info:', error);
   }
 
   return {

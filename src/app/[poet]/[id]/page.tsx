@@ -8,6 +8,7 @@ import ErrorScreen from '@/components/ErrorScreen';
 import customApi from '@/api/CustomApi';
 import type { Poem } from '@/types/poem';
 import { PoetSlug, isValidPoetSlug, poetNames } from '@/types/poet';
+import { logger } from '@/utils/logger';
 
 export default function PoemPage() {
     const params = useParams();
@@ -57,7 +58,7 @@ export default function PoemPage() {
                     return;
                 }
             } catch (err) {
-                console.error('Error loading poem:', err);
+                logger.error('Error loading poem:', err);
                 setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر');
             } finally {
                 setLoading(false);
@@ -79,7 +80,7 @@ export default function PoemPage() {
             const newPoem = await customApi.getRandomPoem(poet);
             router.push(`/${poetSlug}/${newPoem.id}`);
         } catch (err) {
-            console.error('Error loading next poem:', err);
+            logger.error('Error loading next poem:', err);
             setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر بعدی');
             setLoading(false);
         }

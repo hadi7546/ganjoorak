@@ -30,6 +30,7 @@ import Menu, { MenuButton } from "@/components/Menu";
 import SettingsDialog from "@/components/SettingsDialog";
 import { useSettings } from "@/context/SettingsContext";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
+import { logger } from "@/utils/logger";
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -135,7 +136,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           setCurrentHighlightedVerse(-1);
         }
       } catch (error) {
-        console.error("Error fetching verse sync data:", error);
+        logger.error("Error fetching verse sync data:", error);
         setVerseSync([]);
         setCurrentHighlightedVerse(-1);
       }
@@ -411,7 +412,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           url: poemUrl,
         });
       } catch (error) {
-        console.error("Error sharing:", error);
+        logger.error("Error sharing:", error);
       }
     } else {
       copyToClipboard(poemUrl);
@@ -427,7 +428,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         setTimeout(() => setShowToast(false), 2000);
       })
       .catch((err) => {
-        console.error("Failed to copy:", err);
+        logger.error("Failed to copy:", err);
         setToastMessage("خطا در کپی کردن لینک");
         setShowToast(true);
         setTimeout(() => setShowToast(false), 2000);
@@ -450,7 +451,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           setError(null);
         })
         .catch((err) => {
-          console.error("Error playing audio:", err);
+          logger.error("Error playing audio:", err);
           setError("خطا در پخش صدا");
           setIsPlaying(false);
         })
@@ -484,7 +485,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               setError(null);
             })
             .catch((err) => {
-              console.error("Error playing audio:", err);
+              logger.error("Error playing audio:", err);
               setError("خطا در پخش صدا");
               setIsPlaying(false);
             });
@@ -518,7 +519,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               setError(null);
             })
             .catch((err) => {
-              console.error("Error playing audio:", err);
+              logger.error("Error playing audio:", err);
               setError("خطا در پخش صدا");
               setIsPlaying(false);
             });
@@ -576,7 +577,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       audioRef.current.currentTime = newTime;
       setCurrentTime(newTime);
     } catch (error) {
-      console.error("Error seeking audio:", error);
+      logger.error("Error seeking audio:", error);
       if (audioRef.current) {
         setCurrentTime(audioRef.current.currentTime);
       }
@@ -600,7 +601,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               setIsPlaying(true);
             })
             .catch((error) => {
-              console.error("Error playing next audio:", error);
+              logger.error("Error playing next audio:", error);
               setIsPlaying(false);
             });
         }
@@ -611,7 +612,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const handleAudioError = (
     e: React.SyntheticEvent<HTMLAudioElement, Event>,
   ) => {
-    console.error("Audio error:", e);
+    logger.error("Audio error:", e);
     setError("خطا در بارگذاری صدا");
     setIsPlaying(false);
   };
@@ -652,7 +653,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           setError(null);
         })
         .catch((error) => {
-          console.error("Error auto-playing audio:", error);
+          logger.error("Error auto-playing audio:", error);
           setError("خطا در پخش خودکار صدا");
           setIsPlaying(false);
         })
