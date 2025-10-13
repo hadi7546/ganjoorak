@@ -32,23 +32,40 @@
     transition: all 0.3s ease;
 }
 
-.update-header {
+.update-question {
+    gap: 0.75rem;
+}
+
+.update-question > span {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    justify-content: space-between;
+    width: 100%;
+    gap: 1rem;
 }
 
 .update-version {
     color: rgb(var(--foreground) / 0.95);
     font-size: 1.25rem;
     font-weight: 500;
-    margin: 0;
 }
 
 .update-date {
     color: rgb(var(--foreground) / 0.7);
     font-size: 0.9rem;
+}
+
+.update-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    font-size: 1rem;
+}
+
+.update-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .update-changes {
@@ -96,6 +113,11 @@
 
     .update-item {
         padding: 1.25rem;
+    }
+
+    .update-question > span {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .update-version {
