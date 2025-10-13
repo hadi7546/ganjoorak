@@ -175,7 +175,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({
               transition={{ type: "spring", stiffness: 260, damping: 18 }}
             >
               <div className="search-header">
-                <h2 id="search-dialog-title">جست‌وجوی شعر</h2>
+                <h2 id="search-dialog-title">جست‌وجو</h2>
                 <button
                   type="button"
                   className="search-close-button"
