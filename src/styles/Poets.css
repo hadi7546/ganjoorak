@@ -56,12 +56,21 @@
 }
 
 .category-content .century-section {
-    background: rgb(var(--background) / 0.06);
+    background: rgb(var(--card) / 0.85);
+    border: 1px solid rgb(var(--foreground) / 0.05);
+    border-radius: 0.85rem;
     padding: 1rem 1.25rem;
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-content .century-section:nth-child(even) {
+    background: rgb(var(--card));
 }
 
 .category-content .century-section:hover {
-    background: rgb(var(--background) / 0.09);
+    background: rgb(var(--card));
+    border-color: rgb(var(--foreground) / 0.08);
+    box-shadow: 0 10px 24px rgb(var(--foreground) / 0.06);
 }
 
 .category-content .century-section .poets-question h3 {
