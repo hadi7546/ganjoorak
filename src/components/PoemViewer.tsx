@@ -1006,7 +1006,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
               >
-                <span className="poet-name">{poem.poet}، 
+                <span className="poet-name">{poem.poet} + 
+                "، " 
+                  +
                 {showTitleBreadcrumbs &&
                   fullTitleIntermediateParts.length > 0 && (
                     <span>
