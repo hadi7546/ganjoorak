@@ -88,7 +88,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({
       setError(
         err instanceof Error
           ? err.message
-          : "در جستجوی اشعار مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
+          : "در جست‌وجوی اشعار مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
       );
     } finally {
       setIsSearching(false);
@@ -138,8 +138,8 @@ const SearchDialog: React.FC<SearchDialogProps> = ({
 
   const helperText = useMemo(() => {
     if (error) return error;
-    if (!query.trim()) return "برای جستجو، عبارت یا نام شاعر را بنویسید.";
-    if (isSearching) return "در حال جستجو...";
+    if (!query.trim()) return "برای جست‌وجو، عبارت یا نام شاعر را بنویسید.";
+    if (isSearching) return "در حال جست‌وجو...";
     if (lastExecutedQuery && results.length === 0) {
       return `موردی برای «${lastExecutedQuery}» یافت نشد.`;
     }
@@ -175,12 +175,12 @@ const SearchDialog: React.FC<SearchDialogProps> = ({
               transition={{ type: "spring", stiffness: 260, damping: 18 }}
             >
               <div className="search-header">
-                <h2 id="search-dialog-title">جستجوی شعر</h2>
+                <h2 id="search-dialog-title">جست‌وجوی شعر</h2>
                 <button
                   type="button"
                   className="search-close-button"
                   onClick={handleClose}
-                  aria-label="بستن جستجو"
+                  aria-label="بستن جست‌وجو"
                 >
                   <FaTimes />
                 </button>
@@ -194,14 +194,14 @@ const SearchDialog: React.FC<SearchDialogProps> = ({
                     onChange={(event) => setQuery(event.target.value)}
                     className="search-input"
                     placeholder="عبارت مورد نظر را وارد کنید"
-                    aria-label="عبارت جستجو"
+                    aria-label="عبارت جست‌وجو"
                   />
                   {query && (
                     <button
                       type="button"
                       className="search-clear-button"
                       onClick={() => setQuery("")}
-                      aria-label="پاک کردن عبارت جستجو"
+                      aria-label="پاک کردن عبارت جست‌وجو"
                     >
                       <FaTimes />
                     </button>
