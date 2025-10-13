@@ -52,7 +52,7 @@ interface PoemViewerProps {
 const PoemViewer: React.FC<PoemViewerProps> = ({
   poem,
   onNext,
-  onPrevious = () => { },
+  onPrevious = () => {},
   isFirst = true,
   isLast = true,
   isModern = true,
@@ -84,7 +84,13 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const { settings } = useSettings();
   const poemViewerVisibility = settings.poemViewerVisibility;
   const showTitleSection = poemViewerVisibility.titleSection;
+  const showTitleBreadcrumbs = poemViewerVisibility.titleBreadcrumbs;
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
+  const fullTitleParts = poem.fullTitle
+    ? poem.fullTitle.split(" » ").filter((part) => part.trim())
+    : [];
+  const fullTitleIntermediateParts =
+    fullTitleParts.length > 2 ? fullTitleParts.slice(1, -1) : [];
 
   // Define loading animation variants
   const loadingVariants = {
@@ -229,8 +235,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const threshold = 20;
     return (
       poemTextRef.current.scrollHeight -
-      poemTextRef.current.scrollTop -
-      poemTextRef.current.clientHeight <
+        poemTextRef.current.scrollTop -
+        poemTextRef.current.clientHeight <
       threshold
     );
   };
@@ -995,12 +1001,18 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             </motion.h2>
             {!isPoetPage && (
               <motion.div
-                className="poet-name"
+                className="poet-line"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
               >
-                {poem.poet}
+                <span className="poet-name">{poem.poet}</span>
+                {showTitleBreadcrumbs &&
+                  fullTitleIntermediateParts.length > 0 && (
+                    <span className="poem-title-breadcrumb">
+                      {fullTitleIntermediateParts.join("، ")}
+                    </span>
+                  )}
               </motion.div>
             )}
           </div>
@@ -1031,8 +1043,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             ).map((pair, index) => (
               <motion.div
                 key={index}
-                className={`verse-pair ${settings.showLineNumbers ? "verse-pair-numbered" : ""
-                  }`}
+                className={`verse-pair ${
+                  settings.showLineNumbers ? "verse-pair-numbered" : ""
+                }`}
                 data-couplet-number={
                   settings.showLineNumbers
                     ? formatPersianNumber(index + 1)
@@ -1106,8 +1119,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       {/* Navigation controls */}
       {poemViewerVisibility.navigationControls && (
         <div
-          className={`navigation-controls${showNavigationControls ? "" : " is-hidden"
-            }`}
+          className={`navigation-controls${
+            showNavigationControls ? "" : " is-hidden"
+          }`}
         >
           {!isFirst && (
             <button className="nav-button up" onClick={onPrevious}>

@@ -46,6 +46,7 @@ const POEM_VIEWER_COMPONENT_OPTIONS: Array<{
   key: Exclude<PoemViewerComponentKey, "titleSection">;
   label: string;
 }> = [
+  { key: "titleBreadcrumbs", label: "نمایش اثر" },
   { key: "audioPlayer", label: "پخش‌کننده صوت" },
   { key: "actionButtons", label: "دکمه‌های اشتراک و شاعر" },
   { key: "navigationControls", label: "دکمه‌های جابه‌جایی" },

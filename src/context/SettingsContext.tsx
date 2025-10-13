@@ -24,6 +24,7 @@ type FontFamilyOption =
 
 type PoemViewerComponentVisibility = {
   titleSection: boolean;
+  titleBreadcrumbs: boolean;
   audioPlayer: boolean;
   actionButtons: boolean;
   navigationControls: boolean;
@@ -68,6 +69,7 @@ const FONT_OPTIONS = Object.keys(FONT_STACKS) as FontFamilyOption[];
 
 const DEFAULT_POEM_VIEWER_VISIBILITY: PoemViewerComponentVisibility = {
   titleSection: true,
+  titleBreadcrumbs: true,
   audioPlayer: true,
   actionButtons: true,
   navigationControls: true,
@@ -77,6 +79,7 @@ const VALID_THEMES: ThemeOption[] = ["dark", "light", "paper"];
 
 const POEM_VIEWER_COMPONENT_KEYS: PoemViewerComponentKey[] = [
   "titleSection",
+  "titleBreadcrumbs",
   "audioPlayer",
   "actionButtons",
   "navigationControls",
