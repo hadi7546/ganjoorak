@@ -10,6 +10,7 @@ import ganjoorApi from "@/api/GanjoorApi";
 import { Poem } from "@/types/poem";
 import AppNotFound from "@/app/not-found";
 import { PoetSlug, isValidPoetSlug, poetNames } from "@/types/poet";
+import { logger } from "@/utils/logger";
 
 const INITIAL_POEMS_COUNT = 3;
 const PREFETCH_THRESHOLD = 2;
@@ -66,7 +67,7 @@ export default function PoetPage() {
         // If we get here and no valid poet was found, set not found
         setNotFound(true);
       } catch (err) {
-        console.error("Error in checkPoetSource:", err);
+        logger.error("Error in checkPoetSource:", err);
         setNotFound(true);
       }
     };
@@ -98,7 +99,7 @@ export default function PoetPage() {
                   const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
                   return fullPoem;
                 } catch (err) {
-                  console.error("Error fetching poem:", err);
+                  logger.error("Error fetching poem:", err);
                   return null;
                 }
               })()
@@ -110,7 +111,7 @@ export default function PoetPage() {
                   const randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
                   return randomPoem;
                 } catch (err) {
-                  console.error("Error fetching poem:", err);
+                  logger.error("Error fetching poem:", err);
                   return null;
                 }
               })()
@@ -131,7 +132,7 @@ export default function PoetPage() {
           throw new Error("Could not fetch any poems");
         }
       } catch (err) {
-        console.error("Failed to fetch initial poems:", err);
+        logger.error("Failed to fetch initial poems:", err);
         setError("متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.");
         setLoading(false);
       }
@@ -163,7 +164,7 @@ export default function PoetPage() {
                     const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
                     return fullPoem;
                   } catch (err) {
-                    console.error("Error fetching additional poem:", err);
+                    logger.error("Error fetching additional poem:", err);
                     return null;
                   }
                 })()
@@ -175,7 +176,7 @@ export default function PoetPage() {
                     const randomPoem = await customApi.getRandomPoem(poetSlug as PoetSlug);
                     return randomPoem;
                   } catch (err) {
-                    console.error("Error fetching additional poem:", err);
+                    logger.error("Error fetching additional poem:", err);
                     return null;
                   }
                 })()
@@ -190,7 +191,7 @@ export default function PoetPage() {
             setPoems(prevPoems => [...prevPoems, ...validNewPoems]);
           }
         } catch (err) {
-          console.error("Failed to fetch more poems:", err);
+          logger.error("Failed to fetch more poems:", err);
         } finally {
           setIsFetchingMore(false);
         }

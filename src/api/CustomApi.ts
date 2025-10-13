@@ -1,6 +1,7 @@
 import type { Poem, PoemRecitation } from "@/types/poem";
 import { PoetSlug, poetNames, createPoet, Poet } from "@/types/poet";
 import { list } from "@vercel/blob";
+import { logger } from "@/utils/logger";
 
 // Cache for poets' poems
 let poetPoemsCache: Record<string, any> = {};
@@ -19,11 +20,11 @@ const customApi = {
     try {
       // Return from cache if available
       if (poetPoemsCache[poetSlug]) {
-        console.log(`Using cached data for poet: ${poetSlug}`);
+        logger.log(`Using cached data for poet: ${poetSlug}`);
         return poetPoemsCache[poetSlug];
       }
 
-      console.log(`Fetching poet data for: ${poetSlug}`);
+      logger.log(`Fetching poet data for: ${poetSlug}`);
       // Try to fetch from our proxy API route
       try {
         // Use absolute URL with origin for server components
@@ -34,22 +35,22 @@ const customApi = {
             : 'http://localhost:3000';
 
         const apiUrl = `${origin}/api/poet/${poetSlug}`;
-        console.log(`Making request to: ${apiUrl}`);
+        logger.log(`Making request to: ${apiUrl}`);
 
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`API error (${response.status}): ${errorText}`);
+          logger.error(`API error (${response.status}): ${errorText}`);
           throw new Error(`Failed to fetch poet data: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
-        console.log(`Successfully fetched data for poet: ${poetSlug}`);
+        logger.log(`Successfully fetched data for poet: ${poetSlug}`);
 
         // Validate the data has the expected structure
         if (!data || !data.poems || !Array.isArray(data.poems)) {
-          console.error('Invalid data structure received:', data);
+          logger.error("Invalid data structure received:", data);
           throw new Error('Invalid data structure received from API');
         }
 
@@ -57,18 +58,18 @@ const customApi = {
         poetPoemsCache[poetSlug] = data;
         return data;
       } catch (apiError: any) {
-        console.error("Error fetching from API:", apiError);
+        logger.error("Error fetching from API:", apiError);
 
         // Try fallback to local JSON files
         try {
-          console.log(`Trying fallback to local file for poet: ${poetSlug}`);
+          logger.log(`Trying fallback to local file for poet: ${poetSlug}`);
           const fallbackPath = poetFallbackPaths[poetSlug];
 
           if (!fallbackPath) {
             throw new Error(`No fallback path defined for poet: ${poetSlug}`);
           }
 
-          console.log(`Fetching from fallback path: ${fallbackPath}`);
+          logger.log(`Fetching from fallback path: ${fallbackPath}`);
           const fallbackResponse = await fetch(fallbackPath);
 
           if (!fallbackResponse.ok) {
@@ -76,7 +77,7 @@ const customApi = {
           }
 
           const fallbackData = await fallbackResponse.json();
-          console.log(`Successfully fetched fallback data for poet: ${poetSlug}`);
+          logger.log(`Successfully fetched fallback data for poet: ${poetSlug}`);
 
           if (!fallbackData || !fallbackData.poems || !Array.isArray(fallbackData.poems)) {
             throw new Error('Invalid data structure in fallback data');
@@ -86,12 +87,12 @@ const customApi = {
           poetPoemsCache[poetSlug] = fallbackData;
           return fallbackData;
         } catch (fallbackError) {
-          console.error("Error fetching from fallback:", fallbackError);
+          logger.error("Error fetching from fallback:", fallbackError);
           throw new Error(`Failed to fetch poet data: ${apiError?.message || String(apiError)}`);
         }
       }
     } catch (error) {
-      console.error(`Error getting poet data for ${poetSlug}:`, error);
+      logger.error(`Error getting poet data for ${poetSlug}:`, error);
       throw new Error("متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد");
     }
   },
@@ -116,7 +117,7 @@ const customApi = {
 
       return await customApi.mapLocalPoemToPoem(randomPoem, poetSlug);
     } catch (error) {
-      console.error("Error fetching random poem from local source:", error);
+      logger.error("Error fetching random poem from local source:", error);
       throw new Error("متأسفانه در دریافت شعر تصادفی مشکلی پیش آمد. لطفاً دوباره تلاش کنید");
     }
   },
@@ -134,7 +135,7 @@ const customApi = {
       // Get poet's poems from blob or local file
       const poetData = await customApi._getPoetData(poetSlug);
 
-      console.log("Fetching local poem with ID:", id);
+      logger.log("Fetching local poem with ID:", id);
       const poem = poetData.poems.find((poem: any) => poem.id === id);
 
       if (!poem) {
@@ -143,7 +144,7 @@ const customApi = {
 
       return await customApi.mapLocalPoemToPoem(poem, poetSlug);
     } catch (error) {
-      console.error("Error fetching poem by ID from local source:", error);
+      logger.error("Error fetching poem by ID from local source:", error);
       throw error;
     }
   },
@@ -181,7 +182,7 @@ const customApi = {
 
       });
     } catch (error) {
-      console.error("Error fetching poet info:", error);
+      logger.error("Error fetching poet info:", error);
       throw new Error("متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد");
     }
   },
@@ -193,20 +194,20 @@ const customApi = {
     try {
       // Get all poet slugs from the PoetSlug enum
       const poetSlugs = Object.values(PoetSlug);
-      console.log(`Attempting to fetch ${poetSlugs.length} custom poets`, poetSlugs);
+      logger.log(`Attempting to fetch ${poetSlugs.length} custom poets`, poetSlugs);
 
       // Create an array of promises to fetch poet info for each slug
       const poetPromises = poetSlugs.map(async (slug) => {
         try {
           const poetInfo = await customApi.getPoetInfo(slug);
-          console.log(`Successfully fetched poet info for ${slug}`);
+          logger.log(`Successfully fetched poet info for ${slug}`);
           return poetInfo;
         } catch (error) {
-          console.error(`Error fetching poet info for ${slug}:`, error);
+          logger.error(`Error fetching poet info for ${slug}:`, error);
 
           // Create fallback poet info if fetch fails
           try {
-            console.log(`Creating fallback poet info for ${slug}`);
+            logger.log(`Creating fallback poet info for ${slug}`);
             const fallbackPoet = createPoet({
               id: 0,
               name: poetNames[slug],
@@ -229,10 +230,10 @@ const customApi = {
               deathPlaceLatitude: null,
               deathPlaceLongitude: null
             });
-            console.log(`Created fallback poet for ${slug}:`, fallbackPoet);
+            logger.log(`Created fallback poet for ${slug}:`, fallbackPoet);
             return fallbackPoet;
           } catch (fallbackError) {
-            console.error(`Failed to create fallback poet for ${slug}:`, fallbackError);
+            logger.error(`Failed to create fallback poet for ${slug}:`, fallbackError);
             return null;
           }
         }
@@ -240,12 +241,12 @@ const customApi = {
 
       // Wait for all promises to resolve
       const poets = await Promise.all(poetPromises);
-      console.log(`Fetched ${poets.filter(p => p !== null).length} poets out of ${poetSlugs.length}`);
+      logger.log(`Fetched ${poets.filter(p => p !== null).length} poets out of ${poetSlugs.length}`);
 
       // Filter out any null values (failed fetches)
       return poets.filter((poet): poet is Poet => poet !== null);
     } catch (error) {
-      console.error("Error fetching all custom poets:", error);
+      logger.error("Error fetching all custom poets:", error);
       return [];
     }
   },
@@ -272,7 +273,7 @@ const customApi = {
       if (isAllowed) {
         recitationUrl = `/api/audio?url=${encodeURIComponent(localPoem.recitation)}`;
       } else {
-        console.warn(`Skipping unauthorized recitation URL: ${localPoem.recitation}`);
+        logger.warn(`Skipping unauthorized recitation URL: ${localPoem.recitation}`);
       }
     }
 

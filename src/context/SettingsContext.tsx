@@ -8,6 +8,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { logger } from "@/utils/logger";
 
 type ThemeOption = "dark" | "light" | "paper";
 type FontFamilyOption =
@@ -172,7 +173,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
     } catch (error) {
-      console.error("Failed to load settings", error);
+      logger.error("Failed to load settings", error);
       document.documentElement.setAttribute(
         "data-theme",
         DEFAULT_SETTINGS.theme,
