@@ -386,6 +386,7 @@ body {
     scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: rgb(var(--foreground) / 0.3) transparent;
+    direction: ltr;
     padding-right: 0.75rem;
     padding-left: 0.25rem;
 }
@@ -415,6 +416,7 @@ body {
 
 .settings-form {
     flex: 1.25;
+    direction: rtl;
 }
 
 .settings-title {
