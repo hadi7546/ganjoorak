@@ -23,6 +23,11 @@
     -webkit-backdrop-filter: blur(10px);
     border-radius: 1rem;
     padding: 1.25rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.poets-container .faq-item:hover {
+    background: rgb(var(--card) / 0.9);
 }
 
 .poets-question {
@@ -55,10 +60,17 @@
     border: 1px solid rgb(var(--foreground) / 0.05);
     border-radius: 0.85rem;
     padding: 1rem 1.25rem;
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .category-content .century-section:nth-child(even) {
     background: rgb(var(--card));
+}
+
+.category-content .century-section:hover {
+    background: rgb(var(--card));
+    border-color: rgb(var(--foreground) / 0.08);
+    box-shadow: 0 10px 24px rgb(var(--foreground) / 0.06);
 }
 
 .category-content .century-section .poets-question h3 {
@@ -76,6 +88,14 @@
     gap: 1rem;
     margin-top: 0.5rem;
     padding-bottom: 0.75rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.faq-item.open .poets-grid {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .poet-card {
@@ -84,10 +104,17 @@
     -webkit-backdrop-filter: blur(10px);
     border-radius: 0.75rem;
     padding: 0.75rem;
+    transition: all 0.3s ease;
     text-decoration: none;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.poet-card:hover {
+    background: rgb(var(--foreground) / 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgb(var(--foreground) / 0.08);
 }
 
 .poet-image-container {

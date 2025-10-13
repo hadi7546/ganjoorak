@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo, useId, type ReactNode } from 'react';
 import { HiChevronDown } from 'react-icons/hi2';
+import { motion } from 'framer-motion';
 import '@/styles/FAQ.css';
 
 interface AccordionItemProps {
@@ -71,7 +72,10 @@ const AccordionItem = ({
     }, [isOpen, children]);
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
             className={[
                 'faq-item',
                 containerClassName,
@@ -111,7 +115,7 @@ const AccordionItem = ({
                     {children}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
