@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import "../styles/Updates.css";
 import Menu, { MenuButton } from "@/components/Menu";
 import SettingsDialog from "@/components/SettingsDialog";
-import { motion } from "framer-motion";
+import UpdateAccordionItem from "@/components/UpdateAccordionItem";
 import { updates } from "@/data/updates";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
 
@@ -43,40 +43,11 @@ const Updates = () => {
       <h1 className="updates-title">بروزرسانی‌ها</h1>
       <div className="updates-list">
         {updates.map((update, index) => (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            key={index}
-            className="update-item"
-          >
-            <div className="update-header">
-              <h3 className="update-version">نسخه {update.version}</h3>
-              <span className="update-date">{update.date}</span>
-            </div>
-            <ul className="update-changes">
-              {update.changes.map((change, changeIndex) => (
-                <li key={changeIndex}>{change}</li>
-              ))}
-            </ul>
-            {update.video && (
-              <div className="update-media">
-                <video className="update-video" controls preload="metadata">
-                  <source src={update.video} type="video/mp4" />
-                  مرورگر شما از ویدیو پشتیبانی نمی‌کند.
-                </video>
-              </div>
-            )}
-            {update.image && (
-              <div className="update-media">
-                <img
-                  className="update-image"
-                  src={update.image}
-                  alt={`عکس نسخه ${update.version}`}
-                />
-              </div>
-            )}
-          </motion.div>
+          <UpdateAccordionItem
+            key={update.version}
+            update={update}
+            defaultOpen={index === 0}
+          />
         ))}
       </div>
     </div>
