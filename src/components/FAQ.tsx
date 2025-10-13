@@ -5,7 +5,7 @@ import '../styles/FAQ.css';
 import Menu, { MenuButton } from '@/components/Menu';
 import SettingsDialog from '@/components/SettingsDialog';
 import { useUpdateNotification } from '@/hooks/useUpdateNotification';
-import FaqQuestion from '@/components/FaqQuestion';
+import AccordionItem from '@/components/AccordionItem';
 
 const FAQ = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -79,9 +79,9 @@ const FAQ = () => {
             <h1 className="faq-title">پرسش‌های متداول</h1>
             <div className="faq-list">
                 {faqs.map((faq, index) => (
-                    <FaqQuestion key={index} title={faq.question}>
+                    <AccordionItem key={index} title={faq.question}>
                         {faq.answer}
-                    </FaqQuestion>
+                    </AccordionItem>
                 ))}
             </div>
         </div>

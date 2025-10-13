@@ -5,7 +5,7 @@ import { HiChevronDown } from 'react-icons/hi2';
 import { motion } from 'framer-motion';
 import '@/styles/FAQ.css';
 
-interface FaqQuestionProps {
+interface AccordionItemProps {
     title: ReactNode;
     children: ReactNode;
     defaultOpen?: boolean;
@@ -16,7 +16,7 @@ interface FaqQuestionProps {
     onToggle?: (isOpen: boolean) => void;
 }
 
-const FaqQuestion = ({
+const AccordionItem = ({
     title,
     children,
     defaultOpen = false,
@@ -25,7 +25,7 @@ const FaqQuestion = ({
     answerClassName,
     titleTag = 'h3',
     onToggle
-}: FaqQuestionProps) => {
+}: AccordionItemProps) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     const contentRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState<number | undefined>(defaultOpen ? undefined : 0);
@@ -119,4 +119,4 @@ const FaqQuestion = ({
     );
 };
 
-export default FaqQuestion;
+export default AccordionItem;

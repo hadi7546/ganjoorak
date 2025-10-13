@@ -8,7 +8,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import Menu, { MenuButton } from '@/components/Menu';
 import SettingsDialog from '@/components/SettingsDialog';
 import { useUpdateNotification } from '@/hooks/useUpdateNotification';
-import FaqQuestion from '@/components/FaqQuestion';
+import AccordionItem from '@/components/AccordionItem';
 import '@/styles/Poets.css';
 
 function PoetsList({ poets }: { poets: Poet[] }) {
@@ -51,7 +51,7 @@ function CenturySection({ century, title, defaultOpen = false }: { century: Cent
     }
 
     return (
-        <FaqQuestion
+        <AccordionItem
             title={title || century.name}
             defaultOpen={defaultOpen}
             containerClassName="century-section"
@@ -60,13 +60,13 @@ function CenturySection({ century, title, defaultOpen = false }: { century: Cent
             titleTag="h3"
         >
             <PoetsList poets={century.poets} />
-        </FaqQuestion>
+        </AccordionItem>
     );
 }
 
 function CategorySection({ title, defaultOpen = false, children }: { title: string; defaultOpen?: boolean; children: ReactNode; }) {
     return (
-        <FaqQuestion
+        <AccordionItem
             title={title}
             defaultOpen={defaultOpen}
             containerClassName="category-section"
@@ -77,7 +77,7 @@ function CategorySection({ title, defaultOpen = false, children }: { title: stri
             <div className="category-content">
                 {children}
             </div>
-        </FaqQuestion>
+        </AccordionItem>
     );
 }
 
