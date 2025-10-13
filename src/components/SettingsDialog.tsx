@@ -22,34 +22,34 @@ const THEME_OPTIONS: Array<{
   label: string;
   icon: React.ReactNode;
 }> = [
-    { value: "dark", label: "تاریک", icon: <FaMoon /> },
-    { value: "light", label: "روشن", icon: <FaSun /> },
-    { value: "paper", label: "کاغذی", icon: <FaRegNewspaper /> },
-  ];
+  { value: "dark", label: "تاریک", icon: <FaMoon /> },
+  { value: "light", label: "روشن", icon: <FaSun /> },
+  { value: "paper", label: "کاغذی", icon: <FaRegNewspaper /> },
+];
 
 const FONT_CHOICES: Array<{
   value: FontFamilyOption;
   label: string;
   note?: string;
 }> = [
-    { value: "vazirmatn", label: "وزیرمتن" },
-    { value: "samim", label: "صمیم" },
-    { value: "tanha", label: "تنها" },
-    { value: "shabnam", label: "شبنم" },
-    { value: "gandom", label: "گندم" },
-    { value: "parastoo", label: "پرستو" },
-    { value: "sahel", label: "ساحل" },
-    { value: "nahid", label: "سناهید" },
-  ];
+  { value: "vazirmatn", label: "وزیرمتن" },
+  { value: "samim", label: "صمیم" },
+  { value: "tanha", label: "تنها" },
+  { value: "shabnam", label: "شبنم" },
+  { value: "gandom", label: "گندم" },
+  { value: "parastoo", label: "پرستو" },
+  { value: "sahel", label: "ساحل" },
+  { value: "nahid", label: "ناهید" },
+];
 
 const POEM_VIEWER_COMPONENT_OPTIONS: Array<{
   key: Exclude<PoemViewerComponentKey, "titleSection">;
   label: string;
 }> = [
-    { key: "audioPlayer", label: "پخش‌کننده صوت" },
-    { key: "actionButtons", label: "دکمه‌های اشتراک و شاعر" },
-    { key: "navigationControls", label: "دکمه‌های جابه‌جایی" },
-  ];
+  { key: "audioPlayer", label: "پخش‌کننده صوت" },
+  { key: "actionButtons", label: "دکمه‌های اشتراک و شاعر" },
+  { key: "navigationControls", label: "دکمه‌های جابه‌جایی" },
+];
 
 const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const {
@@ -228,8 +228,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                         <button
                           key={option.value}
                           type="button"
-                          className={`settings-theme-button ${pendingTheme === option.value ? "active" : ""
-                            }`}
+                          className={`settings-theme-button ${
+                            pendingTheme === option.value ? "active" : ""
+                          }`}
                           onClick={() => setPendingTheme(option.value)}
                           aria-pressed={pendingTheme === option.value}
                         >
@@ -251,8 +252,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                       </span>
                       <button
                         type="button"
-                        className={`settings-toggle-button ${pendingShowLineNumbers ? "active" : ""
-                          }`}
+                        className={`settings-toggle-button ${
+                          pendingShowLineNumbers ? "active" : ""
+                        }`}
                         onClick={() =>
                           setPendingShowLineNumbers((prev) => !prev)
                         }
@@ -273,8 +275,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                         <button
                           key={font.value}
                           type="button"
-                          className={`settings-font-button ${pendingFontFamily === font.value ? "active" : ""
-                            }`}
+                          className={`settings-font-button ${
+                            pendingFontFamily === font.value ? "active" : ""
+                          }`}
                           style={{ fontFamily: FONT_STACKS[font.value] }}
                           onClick={() => setPendingFontFamily(font.value)}
                           aria-pressed={pendingFontFamily === font.value}
@@ -301,8 +304,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                           </span>
                           <button
                             type="button"
-                            className={`settings-toggle-button ${pendingVisibility[component.key] ? "active" : ""
-                              }`}
+                            className={`settings-toggle-button ${
+                              pendingVisibility[component.key] ? "active" : ""
+                            }`}
                             onClick={() =>
                               handleVisibilityToggle(component.key)
                             }
