@@ -17,10 +17,11 @@
     font-weight: 500;
 }
 
+
 .updates-list {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 .update-item {
@@ -28,7 +29,6 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 1rem;
-    padding: 1.5rem;
     transition: all 0.3s ease;
 }
 
@@ -127,6 +127,14 @@
     .update-date {
         font-size: 0.8rem;
     }
+
+    .update-question {
+        padding: 1.25rem;
+    }
+
+    .update-answer {
+        padding: 0 1.25rem 1.25rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -140,16 +148,20 @@
         margin-bottom: 1.25rem;
     }
 
-    .update-item {
-        padding: 1rem;
-    }
-
     .update-version {
         font-size: 1rem;
     }
 
     .update-changes li {
         font-size: 0.9rem;
+    }
+
+    .update-question {
+        padding: 1rem;
+    }
+
+    .update-answer {
+        padding: 0 1rem 1rem;
     }
 }
 
