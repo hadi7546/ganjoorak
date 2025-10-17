@@ -26,6 +26,7 @@ export interface PoemRecitation {
 
 export interface Poem {
   id: number;
+  poetId: number | null;
   title: string;
   fullTitle: string;
   poet: string;

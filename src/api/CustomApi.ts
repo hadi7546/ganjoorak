@@ -310,6 +310,7 @@ const customApi = {
 
     return {
       id: localPoem.id,
+      poetId: null,
       title: localPoem.title,
       fullTitle: localPoem.title,
       urlSlug: "",

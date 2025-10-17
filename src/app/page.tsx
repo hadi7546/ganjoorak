@@ -31,10 +31,8 @@ export default function Home() {
             for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
                 try {
                     // Get random poem first
-                    const randomPoem = await ganjoorApi.getRandomPoem();
-                    // Then fetch the complete poem data with recitations
-                    const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
-                    fetchedPoems.push(fullPoem);
+                    const poem = await ganjoorApi.getRandomPoem();
+                    fetchedPoems.push(poem);
                 } catch (err) {
                     logger.error('Error fetching poem:', err);
                 }
@@ -75,10 +73,8 @@ export default function Home() {
                     for (let i = 0; i < BATCH_SIZE; i++) {
                         try {
                             // Get random poem first
-                            const randomPoem = await ganjoorApi.getRandomPoem();
-                            // Then fetch the complete poem data with recitations
-                            const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
-                            newPoems.push(fullPoem);
+                            const poem = await ganjoorApi.getRandomPoem();
+                            newPoems.push(poem);
                         } catch (err) {
                             logger.error('Error fetching additional poem:', err);
                         }

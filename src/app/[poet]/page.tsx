@@ -93,11 +93,8 @@ export default function PoetPage() {
             initialFetchPromises.push(
               (async () => {
                 try {
-                  // First get random poem ID
-                  const randomPoemInitial = await ganjoorApi.getRandomPoemByPoet(poetSlug);
-                  // Then fetch complete poem data with recitations
-                  const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
-                  return fullPoem;
+                  const poem = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+                  return poem;
                 } catch (err) {
                   logger.error("Error fetching poem:", err);
                   return null;
@@ -160,9 +157,8 @@ export default function PoetPage() {
               newPoemsPromises.push(
                 (async () => {
                   try {
-                    const randomPoemInitial = await ganjoorApi.getRandomPoemByPoet(poetSlug);
-                    const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
-                    return fullPoem;
+                    const poem = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+                    return poem;
                   } catch (err) {
                     logger.error("Error fetching additional poem:", err);
                     return null;

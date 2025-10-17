@@ -1,9 +1,20 @@
 import axios from "axios";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
 import type { Poet, Century } from "@/types/poet";
+import poemIdData from "@/data/poem-ids.json";
 import { logger } from "@/utils/logger";
 
 const API_BASE_URL = "https://api.ganjoor.net";
+
+const ALL_POEM_IDS: number[] = (poemIdData as number[]).filter((id) =>
+  typeof id === "number" && Number.isFinite(id) && id > 0,
+);
+
+const poemIdToPoetId = new Map<number, number>();
+const poetIdToPoemIds = new Map<number, Set<number>>();
+const poetScanIndex = new Map<number, number>();
+
+const MAX_GENERAL_RANDOM_ATTEMPTS = Math.min(ALL_POEM_IDS.length, 120);
 
 // Cache for poet data
 const poetCache: Record<string, Poet> = {};
@@ -21,8 +32,82 @@ const helpers = {
   },
 };
 
+const getRandomPoemIdFromPool = (exclude: Set<number>): number | null => {
+  if (exclude.size >= ALL_POEM_IDS.length || ALL_POEM_IDS.length === 0) {
+    return null;
+  }
+
+  let candidate: number | null = null;
+  while (candidate === null) {
+    const index = Math.floor(Math.random() * ALL_POEM_IDS.length);
+    const poemId = ALL_POEM_IDS[index];
+    if (!exclude.has(poemId)) {
+      candidate = poemId;
+    }
+  }
+
+  return candidate;
+};
+
+const getRandomPoemIdFromSet = (poemIds: Set<number>): number | null => {
+  if (poemIds.size === 0) {
+    return null;
+  }
+
+  const ids = Array.from(poemIds);
+  const index = Math.floor(Math.random() * ids.length);
+  return ids[index] ?? null;
+};
+
+const recordPoemAssociation = (poem: Poem) => {
+  if (poem.poetId === null || poem.poetId === undefined) {
+    return;
+  }
+
+  poemIdToPoetId.set(poem.id, poem.poetId);
+
+  let cached = poetIdToPoemIds.get(poem.poetId);
+  if (!cached) {
+    cached = new Set<number>();
+    poetIdToPoemIds.set(poem.poetId, cached);
+  }
+
+  cached.add(poem.id);
+};
+
+const getSequentialIndex = (poetId: number): number => {
+  if (ALL_POEM_IDS.length === 0) {
+    return 0;
+  }
+
+  const current = poetScanIndex.get(poetId) ?? 0;
+  poetScanIndex.set(poetId, (current + 1) % ALL_POEM_IDS.length);
+  return current;
+};
+
 const ganjoorApi = {
   async getRandomPoem(): Promise<Poem> {
+    const attemptedPoemIds = new Set<number>();
+
+    for (let attempt = 0; attempt < MAX_GENERAL_RANDOM_ATTEMPTS; attempt++) {
+      const poemId = getRandomPoemIdFromPool(attemptedPoemIds);
+      if (poemId === null) {
+        break;
+      }
+
+      attemptedPoemIds.add(poemId);
+
+      try {
+        const poem = await ganjoorApi.getPoemById(poemId);
+        return poem;
+      } catch (error) {
+        logger.warn("Skipping poem during random selection:", {
+          poemId,
+          error,
+        });
+      }
+    }
+
     try {
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/random`,
@@ -35,9 +120,11 @@ const ganjoorApi = {
         },
       );
 
-      return ganjoorApi.mapPoemResponse(response.data);
-    } catch (error) {
-      logger.error("Error fetching random poem:", error);
+      const poem = ganjoorApi.mapPoemResponse(response.data);
+      recordPoemAssociation(poem);
+      return poem;
+    } catch (fallbackError) {
+      logger.error("Error fetching random poem (fallback):", fallbackError);
       throw new Error(
         "متأسفانه در دریافت شعر تصادفی مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
       );
@@ -66,7 +153,9 @@ const ganjoorApi = {
 
       logger.log("API Response:", response.data);
       // Don't cache the response
-      return ganjoorApi.mapPoemResponse(response.data);
+      const poem = ganjoorApi.mapPoemResponse(response.data);
+      recordPoemAssociation(poem);
+      return poem;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         logger.error("API Error:", error.response?.data);
@@ -138,8 +227,72 @@ const ganjoorApi = {
 
   async getRandomPoemByPoet(slug: string): Promise<Poem> {
     const poet = await ganjoorApi.getPoetBySlug(slug);
+    const cachedPoems = poetIdToPoemIds.get(poet.id);
+    if (cachedPoems && cachedPoems.size > 0) {
+      const cachedPoemId = getRandomPoemIdFromSet(cachedPoems);
+      if (cachedPoemId !== null) {
+        return ganjoorApi.getPoemById(cachedPoemId);
+      }
+    }
+
+    const attemptedPoemIds = new Set<number>();
+    const randomAttempts = Math.min(MAX_GENERAL_RANDOM_ATTEMPTS, ALL_POEM_IDS.length);
+
+    for (let attempt = 0; attempt < randomAttempts; attempt++) {
+      const poemId = getRandomPoemIdFromPool(attemptedPoemIds);
+      if (poemId === null) {
+        break;
+      }
+
+      attemptedPoemIds.add(poemId);
+
+      const knownPoetId = poemIdToPoetId.get(poemId);
+      if (knownPoetId !== undefined && knownPoetId !== poet.id) {
+        continue;
+      }
+
+      try {
+        const poem = await ganjoorApi.getPoemById(poemId);
+        if (poem.poetId === poet.id) {
+          return poem;
+        }
+      } catch (error) {
+        logger.warn("Skipping poem during poet-specific random selection:", {
+          poemId,
+          poetId: poet.id,
+          error,
+        });
+      }
+    }
+
+    for (let scanCount = 0; scanCount < ALL_POEM_IDS.length; scanCount++) {
+      const index = getSequentialIndex(poet.id);
+      const poemId = ALL_POEM_IDS[index];
+
+      if (attemptedPoemIds.has(poemId)) {
+        continue;
+      }
+
+      const knownPoetId = poemIdToPoetId.get(poemId);
+      if (knownPoetId !== undefined && knownPoetId !== poet.id) {
+        continue;
+      }
+
+      try {
+        const poem = await ganjoorApi.getPoemById(poemId);
+        if (poem.poetId === poet.id) {
+          return poem;
+        }
+      } catch (error) {
+        logger.warn("Skipping poem during sequential poet scan:", {
+          poemId,
+          poetId: poet.id,
+          error,
+        });
+      }
+    }
+
     try {
-      // Don't use session storage cache - always get fresh data
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/random?poetId=${poet.id}`,
         {
@@ -151,10 +304,14 @@ const ganjoorApi = {
         },
       );
 
-      // Don't check or store in cache
-      return ganjoorApi.mapPoemResponse(response.data);
-    } catch (error) {
-      logger.error("Error fetching random poem:", error);
+      const poem = ganjoorApi.mapPoemResponse(response.data);
+      recordPoemAssociation(poem);
+      return poem;
+    } catch (fallbackError) {
+      logger.error("Error fetching random poem for poet (fallback):", {
+        poetId: poet.id,
+        error: fallbackError,
+      });
       throw new Error(
         "متأسفانه در دریافت شعر مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
       );
@@ -234,7 +391,9 @@ const ganjoorApi = {
         },
       },
     );
-    return ganjoorApi.mapPoemResponse(response.data);
+    const poem = ganjoorApi.mapPoemResponse(response.data);
+    recordPoemAssociation(poem);
+    return poem;
   },
 
   async getPoemIdByUrl(url: string): Promise<number> {
@@ -318,10 +477,12 @@ const ganjoorApi = {
         .replace(/<\/p>/g, "\n")
         .trim() || "";
 
+    const poetId = data?.category?.poet?.id ?? data?.poetId ?? null;
     const imgUrl = `${API_BASE_URL}/api/ganjoor/poet/image/${helpers.getPoetSlug(data.fullUrl)}.gif`;
 
     return {
       id: data.id,
+      poetId,
       title: data.title || "Unknown Title",
       fullTitle: data.fullTitle || "",
       urlSlug: data.urlSlug || "",
