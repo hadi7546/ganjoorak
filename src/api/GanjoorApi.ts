@@ -7,6 +7,175 @@ const API_BASE_URL = "https://api.ganjoor.net";
 
 // Cache for poet data
 const poetCache: Record<string, Poet> = {};
+const poetPoemIdsCache: Record<number, number[]> = {};
+const poetPoemIdsPromiseCache: Record<number, Promise<number[]>> = {};
+
+const CATEGORY_CHILD_KEYS = [
+  "subCats",
+  "children",
+  "childCats",
+  "sections",
+  "mainSections",
+  "subSections",
+  "parts",
+  "chapters",
+];
+
+const parseNumericId = (value: unknown): number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  return null;
+};
+
+const collectPoemIdsFromCategory = (
+  categoryData: any,
+  poemIds: Set<number>,
+  pendingCategoryIds: Set<number>,
+) => {
+  if (!categoryData || typeof categoryData !== "object") {
+    return;
+  }
+
+  if (Array.isArray(categoryData.poems)) {
+    for (const poem of categoryData.poems) {
+      const poemId = parseNumericId(poem?.id);
+      if (poemId !== null) {
+        poemIds.add(poemId);
+      }
+    }
+  }
+
+  for (const key of CATEGORY_CHILD_KEYS) {
+    const value = categoryData[key];
+
+    if (Array.isArray(value)) {
+      for (const child of value) {
+        if (!child || typeof child !== "object") {
+          continue;
+        }
+
+        collectPoemIdsFromCategory(child, poemIds, pendingCategoryIds);
+
+        const childId = parseNumericId(child.id);
+        if (childId !== null) {
+          pendingCategoryIds.add(childId);
+        }
+      }
+    } else if (value && typeof value === "object") {
+      collectPoemIdsFromCategory(value, poemIds, pendingCategoryIds);
+    }
+  }
+};
+
+const fetchPoemIdsForCategory = async (
+  categoryId: number,
+  visitedCategories: Set<number>,
+): Promise<Set<number>> => {
+  if (visitedCategories.has(categoryId)) {
+    return new Set<number>();
+  }
+
+  visitedCategories.add(categoryId);
+
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/ganjoor/cat/${categoryId}?poems=true&mainSections=false`,
+      {
+        timeout: 10000,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    const categoryData = response.data?.cat;
+    const poemIds = new Set<number>();
+
+    if (!categoryData) {
+      return poemIds;
+    }
+
+    const pendingCategoryIds = new Set<number>();
+    collectPoemIdsFromCategory(categoryData, poemIds, pendingCategoryIds);
+
+    for (const childCategoryId of pendingCategoryIds) {
+      if (
+        childCategoryId !== categoryId &&
+        !visitedCategories.has(childCategoryId)
+      ) {
+        const childPoemIds = await fetchPoemIdsForCategory(
+          childCategoryId,
+          visitedCategories,
+        );
+        childPoemIds.forEach((id) => poemIds.add(id));
+      }
+    }
+
+    return poemIds;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      logger.error(
+        `Error fetching poems for category ${categoryId}:`,
+        error.response?.data || error.message,
+      );
+    } else {
+      logger.error(`Error fetching poems for category ${categoryId}:`, error);
+    }
+
+    throw new Error(
+      "متأسفانه در جمع‌آوری اشعار شاعر مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
+    );
+  }
+};
+
+const getPoemIdsForPoet = async (poet: Poet): Promise<number[]> => {
+  if (poetPoemIdsCache[poet.id]) {
+    return poetPoemIdsCache[poet.id];
+  }
+
+  if (poetPoemIdsPromiseCache[poet.id]) {
+    return poetPoemIdsPromiseCache[poet.id];
+  }
+
+  const categoryId = poet.rootCatId || poet.id;
+
+  if (!categoryId) {
+    throw new Error("شناسه دسته‌بندی شاعر معتبر نیست");
+  }
+
+  const promise = (async () => {
+    const poemIdsSet = await fetchPoemIdsForCategory(
+      categoryId,
+      new Set<number>(),
+    );
+    const poemIds = Array.from(poemIdsSet);
+
+    if (poemIds.length === 0) {
+      throw new Error("هیچ شعری برای این شاعر یافت نشد");
+    }
+
+    poetPoemIdsCache[poet.id] = poemIds;
+    return poemIds;
+  })();
+
+  poetPoemIdsPromiseCache[poet.id] = promise;
+
+  try {
+    return await promise;
+  } finally {
+    delete poetPoemIdsPromiseCache[poet.id];
+  }
+};
 
 const helpers = {
   getPoetName: (fullTitle: string): string => {
@@ -154,11 +323,41 @@ const ganjoorApi = {
       // Don't check or store in cache
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
-      logger.error("Error fetching random poem:", error);
-      throw new Error(
-        "متأسفانه در دریافت شعر مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
+      logger.warn(
+        `Random poem API failed for poet ${poet.name} (${poet.id}). Falling back to manual selection.`,
+        error,
       );
+
+      try {
+        return await ganjoorApi.getRandomPoemFromPoetCollection(poet);
+      } catch (fallbackError) {
+        logger.error(
+          "Fallback random poem selection failed:",
+          fallbackError,
+        );
+
+        if (fallbackError instanceof Error) {
+          throw fallbackError;
+        }
+
+        throw new Error(
+          "متأسفانه در دریافت شعر تصادفی مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
+        );
+      }
     }
+  },
+
+  async getRandomPoemFromPoetCollection(poet: Poet): Promise<Poem> {
+    const poemIds = await getPoemIdsForPoet(poet);
+
+    if (!poemIds.length) {
+      throw new Error("هیچ شعری برای این شاعر یافت نشد");
+    }
+
+    const randomIndex = Math.floor(Math.random() * poemIds.length);
+    const randomPoemId = poemIds[randomIndex];
+
+    return ganjoorApi.getPoemById(randomPoemId);
   },
 
   async getPoetImage(poetSlug: string): Promise<string> {
