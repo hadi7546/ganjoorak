@@ -6,9 +6,9 @@ import { logger } from "@/utils/logger";
 const API_BASE_URL = "https://api.ganjoor.net";
 
 // Cache for poet data
-const poetCache: Record<string, Poet> = {};
-const poetPoemIdsCache: Record<number, number[]> = {};
-const poetPoemIdsPromiseCache: Record<number, Promise<number[]>> = {};
+const poetCache: Partial<Record<string, Poet>> = {};
+const poetPoemIdsCache: Partial<Record<number, number[]>> = {};
+const poetPoemIdsPromiseCache: Partial<Record<number, Promise<number[]>>> = {};
 
 const CATEGORY_CHILD_KEYS = [
   "subCats",
@@ -108,7 +108,9 @@ const fetchPoemIdsForCategory = async (
     const pendingCategoryIds = new Set<number>();
     collectPoemIdsFromCategory(categoryData, poemIds, pendingCategoryIds);
 
-    for (const childCategoryId of pendingCategoryIds) {
+    const childCategoryIds = Array.from(pendingCategoryIds);
+    for (let index = 0; index < childCategoryIds.length; index += 1) {
+      const childCategoryId = childCategoryIds[index];
       if (
         childCategoryId !== categoryId &&
         !visitedCategories.has(childCategoryId)
@@ -139,12 +141,14 @@ const fetchPoemIdsForCategory = async (
 };
 
 const getPoemIdsForPoet = async (poet: Poet): Promise<number[]> => {
-  if (poetPoemIdsCache[poet.id]) {
-    return poetPoemIdsCache[poet.id];
+  const cachedPoemIds = poetPoemIdsCache[poet.id];
+  if (cachedPoemIds) {
+    return cachedPoemIds;
   }
 
-  if (poetPoemIdsPromiseCache[poet.id]) {
-    return poetPoemIdsPromiseCache[poet.id];
+  const pendingPromise = poetPoemIdsPromiseCache[poet.id];
+  if (pendingPromise) {
+    return pendingPromise;
   }
 
   const categoryId = poet.rootCatId || poet.id;
