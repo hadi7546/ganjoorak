@@ -9,7 +9,7 @@ import customApi from "@/api/CustomApi";
 import ganjoorApi from "@/api/GanjoorApi";
 import { Poem } from "@/types/poem";
 import AppNotFound from "@/app/not-found";
-import { PoetSlug, isValidPoetSlug, poetNames } from "@/types/poet";
+import { PoetSlug, isValidPoetSlug } from "@/types/poet";
 import { logger } from "@/utils/logger";
 
 const INITIAL_POEMS_COUNT = 3;
@@ -27,6 +27,14 @@ export default function PoetPage() {
   const [notFound, setNotFound] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
+  useEffect(() => {
+    setPoems([]);
+    setError(null);
+    setCurrentPoemIndex(0);
+    setNotFound(false);
+    setIsGanjoor(null);
+  }, [poetSlug]);
+
   // Check if the poet exists in Ganjoor or is a custom poet
   useEffect(() => {
     const checkPoetSource = async () => {
@@ -39,19 +47,14 @@ export default function PoetPage() {
 
         // If not a custom poet, try Ganjoor
         try {
-          // Check if the poet slug is a reasonable string before making API call
-          if (!poetSlug || poetSlug.length < 2 || /[^a-zA-Z0-9-]/.test(poetSlug)) {
+          if (!poetSlug || poetSlug.length < 2) {
             setNotFound(true);
             return;
           }
 
-          const ganjoorPoetId = await ganjoorApi.getRandomPoemByPoet(poetSlug);
-
-          if (ganjoorPoetId) {
-            setIsGanjoor(true);
-            return;
-          }
-          setNotFound(true);
+          await ganjoorApi.getPoetBySlug(poetSlug);
+          setIsGanjoor(true);
+          return;
         } catch (err: any) {
           // If it's a 404 error or any other error indicating poet not found
           if (err.response?.status === 404 || err.message?.includes('not found')) {
@@ -84,8 +87,6 @@ export default function PoetPage() {
       try {
         setLoading(true);
         setError(null);
-        const fetchedPoems: Poem[] = [];
-
         // Fetch initial poems in parallel for better performance
         const initialFetchPromises = [];
         for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
@@ -93,11 +94,8 @@ export default function PoetPage() {
             initialFetchPromises.push(
               (async () => {
                 try {
-                  // First get random poem ID
-                  const randomPoemInitial = await ganjoorApi.getRandomPoemByPoet(poetSlug);
-                  // Then fetch complete poem data with recitations
-                  const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
-                  return fullPoem;
+                  const randomPoem = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+                  return randomPoem;
                 } catch (err) {
                   logger.error("Error fetching poem:", err);
                   return null;
@@ -160,9 +158,8 @@ export default function PoetPage() {
               newPoemsPromises.push(
                 (async () => {
                   try {
-                    const randomPoemInitial = await ganjoorApi.getRandomPoemByPoet(poetSlug);
-                    const fullPoem = await ganjoorApi.getPoemById(randomPoemInitial.id);
-                    return fullPoem;
+                    const randomPoem = await ganjoorApi.getRandomPoemByPoet(poetSlug);
+                    return randomPoem;
                   } catch (err) {
                     logger.error("Error fetching additional poem:", err);
                     return null;
