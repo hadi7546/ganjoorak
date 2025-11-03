@@ -751,6 +751,53 @@ body {
     box-shadow: 0 0 0 2px rgba(var(--background) / 0.9);
 }
 
+.modern-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.modern-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modern-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modern-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: 9999px;
+}
+
+.modern-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-toggle-button {
+    position: fixed;
+    right: calc(env(safe-area-inset-right) + 1rem);
+    top: calc(env(safe-area-inset-top) + 3.75rem);
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: rgb(var(--foreground));
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    z-index: 950;
+}
+
+.sidebar-toggle-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 .menu-drawer {
     z-index: 1001;
 }
@@ -762,6 +809,11 @@ body {
 @media (max-width: 640px) {
     .menu-button {
         top: calc(env(safe-area-inset-top) + 0.75rem);
+        right: calc(env(safe-area-inset-right) + 0.75rem);
+    }
+
+    .sidebar-toggle-button {
+        top: calc(env(safe-area-inset-top) + 3.75rem);
         right: calc(env(safe-area-inset-right) + 0.75rem);
     }
 }
@@ -777,6 +829,20 @@ body {
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
     }
+
+    .sidebar-toggle-button {
+        top: calc(env(safe-area-inset-top) + 3.75rem);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+}
+
+@media (min-width: 1024px) {
+    /* Keep info button aligned under the menu button even when sidebar is open */
+    .poet-page.sidebar-open.sidebar-w-96 .sidebar-toggle-button,
+    .poet-page.sidebar-open.sidebar-w-80 .sidebar-toggle-button {
+        right: calc(env(safe-area-inset-right) + 1rem);
+    }
 }
 
 /* Light theme: align menu button with navigation buttons */
@@ -786,6 +852,16 @@ body {
 }
 
 [data-theme="light"] .menu-button:hover {
+    background-color: rgb(var(--foreground) / 0.2);
+    box-shadow: 0 4px 12px rgb(var(--background) / 0.2);
+}
+
+[data-theme="light"] .sidebar-toggle-button {
+    background-color: rgb(var(--foreground) / 0.1);
+    box-shadow: none;
+}
+
+[data-theme="light"] .sidebar-toggle-button:hover {
     background-color: rgb(var(--foreground) / 0.2);
     box-shadow: 0 4px 12px rgb(var(--background) / 0.2);
 }
@@ -815,7 +891,16 @@ body {
     box-shadow: 0 8px 20px rgba(120, 90, 50, 0.15);
 }
 
+[data-theme="paper"] .sidebar-toggle-button {
+    background-color: rgba(255, 255, 255, 0.65);
+    box-shadow: 0 8px 20px rgba(120, 90, 50, 0.15);
+}
+
 [data-theme="paper"] .menu-button:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="paper"] .sidebar-toggle-button:hover {
     background-color: rgba(255, 255, 255, 0.8);
 }
 

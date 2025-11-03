@@ -1,0 +1,302 @@
+You just need to request to the fetch poet. for example hafez(you need use poet with id), the use this:
+
+for exmaple, hafez(poet with id 2):
+https://api.ganjoor.net/api/ganjoor/poet/2?catPoems=true
+
+{
+  "poet": {
+    "id": 2,
+    "name": "حافظ شیرازی",
+    "description": "خواجه شمس‌الدین محمد شیرازی متخلص به «حافظ» و مشهور به لسان‌الغیب، غزلسرای بزرگ و از بزرگان شعر و ادب پارسی است. از زندگانی وی همانند دیگر بزرگان و سخنوران کهن ایرانی به رغم شهرت فوق‌العادهٔ او اطلاعات دقیقی در دست نیست و حتی در مورد نام دقیق وی (محمد یا شمس‌الدین) و خاستگاه وی و سالهای عمر او اختلاف نظر وجود دارد. اما بنابر قول مشهور وی حدود سال ۷۲۶ هجری قمری در شیراز متولد شد. علوم و فنون را در محفل درس استادان زمان فراگرفت و در علوم ادبی عصر پایه‌ای رفیع یافت. خاصه در علوم فقهی و الهی تأمل بسیار کرد و قرآن را با چهارده روایت مختلف از بر داشت. گوته دانشمند بزرگ و شاعر و سخنور مشهور آلمانی دیوان شرقی خود را به نام او و با کسب الهام از افکار وی تدوین کرد. دیوان اشعار او شامل غزلیات، چند قصیده، چند مثنوی، قطعات و رباعیات است. وی به سال ۷۹۲ هجری قمری در شیراز درگذشت. آرامگاه او در حافظیهٔ شیراز زیارتگاه صاحب‌نظران و عاشقان شعر و ادب پارسی است.",
+    "fullUrl": "/hafez",
+    "rootCatId": 9,
+    "nickname": "حافظ",
+    "published": true,
+    "imageUrl": "/api/ganjoor/poet/image/hafez.gif",
+    "birthYearInLHijri": 726,
+    "validBirthDate": true,
+    "deathYearInLHijri": 792,
+    "validDeathDate": true,
+    "pinOrder": 1,
+    "birthPlace": "شیراز",
+    "birthPlaceLatitude": 29.5926,
+    "birthPlaceLongitude": 52.5836,
+    "deathPlace": "شیراز",
+    "deathPlaceLatitude": 29.5926,
+    "deathPlaceLongitude": 52.5836
+  },
+  "cat": {
+    "id": 9,
+    "title": "حافظ",
+    "urlSlug": "hafez",
+    "fullUrl": "/hafez",
+    "tableOfContentsStyle": 1,
+    "catType": 1,
+    "description": "خواجه شمس‌الدین محمد شیرازی متخلص به «حافظ» و مشهور به لسان‌الغیب، غزلسرای بزرگ و از بزرگان شعر و ادب پارسی است. از زندگانی وی همانند دیگر بزرگان و سخنوران کهن ایرانی به رغم شهرت فوق‌العادهٔ او اطلاعات دقیقی در دست نیست و حتی در مورد نام دقیق وی (محمد یا شمس‌الدین) و خاستگاه وی و سالهای عمر او اختلاف نظر وجود دارد. اما بنابر قول مشهور وی حدود سال ۷۲۶ هجری قمری در شیراز متولد شد. علوم و فنون را در محفل درس استادان زمان فراگرفت و در علوم ادبی عصر پایه‌ای رفیع یافت. خاصه در علوم فقهی و الهی تأمل بسیار کرد و قرآن را با چهارده روایت مختلف از بر داشت. گوته دانشمند بزرگ و شاعر و سخنور مشهور آلمانی دیوان شرقی خود را به نام او و با کسب الهام از افکار وی تدوین کرد. دیوان اشعار او شامل غزلیات، چند قصیده، چند مثنوی، قطعات و رباعیات است. وی به سال ۷۹۲ هجری قمری در شیراز درگذشت. آرامگاه او در حافظیهٔ شیراز زیارتگاه صاحب‌نظران و عاشقان شعر و ادب پارسی است.",
+    "descriptionHtml": "<p>خواجه شمس&zwnj;الدین محمد شیرازی متخلص به &laquo;حافظ&raquo; و مشهور به لسان&zwnj;الغیب، غزلسرای بزرگ و از بزرگان شعر و ادب پارسی است. از زندگانی وی همانند دیگر بزرگان و سخنوران کهن ایرانی به رغم شهرت فوق&zwnj;العادهٔ او اطلاعات دقیقی در دست نیست و حتی در مورد نام دقیق وی (محمد یا شمس&zwnj;الدین) و خاستگاه وی و سالهای عمر او اختلاف نظر وجود دارد. اما بنابر قول مشهور وی حدود سال ۷۲۶ هجری قمری در شیراز متولد شد. علوم و فنون را در محفل درس استادان زمان فراگرفت و در علوم ادبی عصر پایه&zwnj;ای رفیع یافت. خاصه در علوم فقهی و الهی تأمل بسیار کرد و قرآن را با چهارده روایت مختلف از بر داشت. گوته دانشمند بزرگ و شاعر و سخنور مشهور آلمانی دیوان شرقی خود را به نام او و با کسب الهام از افکار وی تدوین کرد. دیوان اشعار او شامل غزلیات، چند قصیده، چند مثنوی، قطعات و رباعیات است. وی به سال ۷۹۲ هجری قمری در شیراز درگذشت. آرامگاه او در حافظیهٔ شیراز زیارتگاه صاحب&zwnj;نظران و عاشقان شعر و ادب پارسی است.</p>",
+    "mixedModeOrder": 0,
+    "published": true,
+    "bookName": "دیوان حافظ",
+    "rImageId": "6f583c15-4702-4407-d7b1-08db494994d4",
+    "sumUpSubsGeoLocations": true,
+    "mapName": "مکان‌های نامبردهٔ حافظ",
+    "next": null,
+    "previous": null,
+    "ancestors": [],
+    "children": [
+      {
+        "id": 24,
+        "title": "غزلیات",
+        "urlSlug": "ghazal",
+        "fullUrl": "/hafez/ghazal",
+        "tableOfContentsStyle": 0,
+        "catType": 0,
+        "description": null,
+        "descriptionHtml": null,
+        "mixedModeOrder": 0,
+        "published": true,
+        "bookName": null,
+        "rImageId": null,
+        "sumUpSubsGeoLocations": false,
+        "mapName": null,
+        "next": null,
+        "previous": null,
+        "ancestors": null,
+        "children": null,
+        "poems": null,
+        "paperSources": null,
+        "newImage": null
+      },
+      {
+        "id": 25,
+        "title": "قطعات",
+        "urlSlug": "ghete",
+        "fullUrl": "/hafez/ghete",
+        "tableOfContentsStyle": 0,
+        "catType": 0,
+        "description": null,
+        "descriptionHtml": null,
+        "mixedModeOrder": 0,
+        "published": true,
+        "bookName": null,
+        "rImageId": null,
+        "sumUpSubsGeoLocations": false,
+        "mapName": null,
+        "next": null,
+        "previous": null,
+        "ancestors": null,
+        "children": null,
+        "poems": null,
+        "paperSources": null,
+        "newImage": null
+      },
+      {
+        "id": 26,
+        "title": "رباعیات",
+        "urlSlug": "robaee2",
+        "fullUrl": "/hafez/robaee2",
+        "tableOfContentsStyle": 0,
+        "catType": 0,
+        "description": null,
+        "descriptionHtml": null,
+        "mixedModeOrder": 0,
+        "published": true,
+        "bookName": null,
+        "rImageId": null,
+        "sumUpSubsGeoLocations": false,
+        "mapName": null,
+        "next": null,
+        "previous": null,
+        "ancestors": null,
+        "children": null,
+        "poems": null,
+        "paperSources": null,
+        "newImage": null
+      },
+      {
+        "id": 27,
+        "title": "قصاید",
+        "urlSlug": "ghaside",
+        "fullUrl": "/hafez/ghaside",
+        "tableOfContentsStyle": 0,
+        "catType": 0,
+        "description": null,
+        "descriptionHtml": null,
+        "mixedModeOrder": 0,
+        "published": true,
+        "bookName": null,
+        "rImageId": null,
+        "sumUpSubsGeoLocations": false,
+        "mapName": null,
+        "next": null,
+        "previous": null,
+        "ancestors": null,
+        "children": null,
+        "poems": null,
+        "paperSources": null,
+        "newImage": null
+      },
+      {
+        "id": 674,
+        "title": "اشعار منتسب",
+        "urlSlug": "montasab",
+        "fullUrl": "/hafez/montasab",
+        "tableOfContentsStyle": 0,
+        "catType": 0,
+        "description": null,
+        "descriptionHtml": null,
+        "mixedModeOrder": 0,
+        "published": true,
+        "bookName": null,
+        "rImageId": null,
+        "sumUpSubsGeoLocations": false,
+        "mapName": null,
+        "next": null,
+        "previous": null,
+        "ancestors": null,
+        "children": null,
+        "poems": null,
+        "paperSources": null,
+        "newImage": null
+      }
+    ],
+    "poems": [
+      {
+        "id": 10059,
+        "title": "مثنوی (الا ای آهوی وحشی)",
+        "urlSlug": "masnavi",
+        "excerpt": "اَلا اِی آهویِ وَحشی! کجایی؟",
+        "mainSections": null
+      },
+      {
+        "id": 10060,
+        "title": "ساقی نامه",
+        "urlSlug": "saghiname",
+        "excerpt": "بیا ساقی، آن مِی که حال آوَرَد،",
+        "mainSections": null
+      },
+      {
+        "id": 125448,
+        "title": "مقدّمهٔ جمع آورندهٔ دیوان حافظ",
+        "urlSlug": "dibache",
+        "excerpt": "حمد بی‌حدّ و ثنای بی‌عدّ و سپاس بی‌قیاس خداوندی را که جمع دیوان حافظان ارزاق به پروانهٔ سلطان ارادت و مشیّت اوست. بی‌مانندی که رفع بنیان سَبْع طِباق نشانهٔ عرفان حکمت بی‌علّت اوست. حکیمی که طوطی شکرخای ناطقهٔ انسانی را در محاذات آیینهٔ تأمّلِ عَرایِسِ معانی، به ادای دل‌گشای «اِنَّ مِنَ البَیٰانِ لَسِحْراً» گویا کرد. علیمی که بلبل دستان‌سرای خوش نوای زبان را در قفس تنگِ دهان، به قوّت اذهان در ترنّم و تَنَغُّمِ «إِنَّ مِنَ الشِّعرِ لَحِکْمَةً» آورد.",
+        "mainSections": null
+      }
+    ],
+    "paperSources":
+    "newImage": null
+  }
+}
+
+look, in cat-children we have the books and poems, when user select a poet in the poets page, you should show the poet's details and his poem books or ..., for exmaple here user select the ghazal(id 24)
+https://api.ganjoor.net/api/ganjoor/cat/24?poems=true&mainSections=false
+
+the output is:
+{
+  "poet": {
+    "id": 2,
+    "name": "حافظ شیرازی",
+    "description": "خواجه شمس‌الدین محمد شیرازی متخلص به «حافظ» و مشهور به لسان‌الغیب، غزلسرای بزرگ و از بزرگان شعر و ادب پارسی است. از زندگانی وی همانند دیگر بزرگان و سخنوران کهن ایرانی به رغم شهرت فوق‌العادهٔ او اطلاعات دقیقی در دست نیست و حتی در مورد نام دقیق وی (محمد یا شمس‌الدین) و خاستگاه وی و سالهای عمر او اختلاف نظر وجود دارد. اما بنابر قول مشهور وی حدود سال ۷۲۶ هجری قمری در شیراز متولد شد. علوم و فنون را در محفل درس استادان زمان فراگرفت و در علوم ادبی عصر پایه‌ای رفیع یافت. خاصه در علوم فقهی و الهی تأمل بسیار کرد و قرآن را با چهارده روایت مختلف از بر داشت. گوته دانشمند بزرگ و شاعر و سخنور مشهور آلمانی دیوان شرقی خود را به نام او و با کسب الهام از افکار وی تدوین کرد. دیوان اشعار او شامل غزلیات، چند قصیده، چند مثنوی، قطعات و رباعیات است. وی به سال ۷۹۲ هجری قمری در شیراز درگذشت. آرامگاه او در حافظیهٔ شیراز زیارتگاه صاحب‌نظران و عاشقان شعر و ادب پارسی است.",
+    "fullUrl": "/hafez",
+    "rootCatId": 9,
+    "nickname": "حافظ",
+    "published": true,
+    "imageUrl": "/api/ganjoor/poet/image/hafez.gif",
+    "birthYearInLHijri": 726,
+    "validBirthDate": true,
+    "deathYearInLHijri": 792,
+    "validDeathDate": true,
+    "pinOrder": 1,
+    "birthPlace": "شیراز",
+    "birthPlaceLatitude": 29.5926,
+    "birthPlaceLongitude": 52.5836,
+    "deathPlace": "شیراز",
+    "deathPlaceLatitude": 29.5926,
+    "deathPlaceLongitude": 52.5836
+  },
+  "cat": {
+    "id": 24,
+    "title": "غزلیات",
+    "urlSlug": "ghazal",
+    "fullUrl": "/hafez/ghazal",
+    "tableOfContentsStyle": 3,
+    "catType": 0,
+    "description": null,
+    "descriptionHtml": null,
+    "mixedModeOrder": 0,
+    "published": true,
+    "bookName": null,
+    "rImageId": null,
+    "sumUpSubsGeoLocations": false,
+    "mapName": null,
+    "next": {
+      "id": 25,
+      "title": "قطعات",
+      "urlSlug": "ghete",
+      "fullUrl": "/hafez/ghete",
+      "tableOfContentsStyle": 5,
+      "catType": 2,
+      "description": null,
+      "descriptionHtml": null,
+      "mixedModeOrder": 0,
+      "published": true,
+      "bookName": null,
+      "rImageId": null,
+      "sumUpSubsGeoLocations": false,
+      "mapName": null,
+      "next": null,
+      "previous": null,
+      "ancestors": null,
+      "children": null,
+      "poems": null,
+      "paperSources": null,
+      "newImage": null
+    },
+    "previous": null,
+    "ancestors": [
+      {
+        "id": 9,
+        "title": "حافظ",
+        "urlSlug": "hafez",
+        "fullUrl": "/hafez",
+        "tableOfContentsStyle": 1,
+        "catType": 1,
+        "description": "خواجه شمس‌الدین محمد شیرازی متخلص به «حافظ» و مشهور به لسان‌الغیب، غزلسرای بزرگ و از بزرگان شعر و ادب پارسی است. از زندگانی وی همانند دیگر بزرگان و سخنوران کهن ایرانی به رغم شهرت فوق‌العادهٔ او اطلاعات دقیقی در دست نیست و حتی در مورد نام دقیق وی (محمد یا شمس‌الدین) و خاستگاه وی و سالهای عمر او اختلاف نظر وجود دارد. اما بنابر قول مشهور وی حدود سال ۷۲۶ هجری قمری در شیراز متولد شد. علوم و فنون را در محفل درس استادان زمان فراگرفت و در علوم ادبی عصر پایه‌ای رفیع یافت. خاصه در علوم فقهی و الهی تأمل بسیار کرد و قرآن را با چهارده روایت مختلف از بر داشت. گوته دانشمند بزرگ و شاعر و سخنور مشهور آلمانی دیوان شرقی خود را به نام او و با کسب الهام از افکار وی تدوین کرد. دیوان اشعار او شامل غزلیات، چند قصیده، چند مثنوی، قطعات و رباعیات است. وی به سال ۷۹۲ هجری قمری در شیراز درگذشت. آرامگاه او در حافظیهٔ شیراز زیارتگاه صاحب‌نظران و عاشقان شعر و ادب پارسی است.",
+        "descriptionHtml": "<p>خواجه شمس&zwnj;الدین محمد شیرازی متخلص به &laquo;حافظ&raquo; و مشهور به لسان&zwnj;الغیب، غزلسرای بزرگ و از بزرگان شعر و ادب پارسی است. از زندگانی وی همانند دیگر بزرگان و سخنوران کهن ایرانی به رغم شهرت فوق&zwnj;العادهٔ او اطلاعات دقیقی در دست نیست و حتی در مورد نام دقیق وی (محمد یا شمس&zwnj;الدین) و خاستگاه وی و سالهای عمر او اختلاف نظر وجود دارد. اما بنابر قول مشهور وی حدود سال ۷۲۶ هجری قمری در شیراز متولد شد. علوم و فنون را در محفل درس استادان زمان فراگرفت و در علوم ادبی عصر پایه&zwnj;ای رفیع یافت. خاصه در علوم فقهی و الهی تأمل بسیار کرد و قرآن را با چهارده روایت مختلف از بر داشت. گوته دانشمند بزرگ و شاعر و سخنور مشهور آلمانی دیوان شرقی خود را به نام او و با کسب الهام از افکار وی تدوین کرد. دیوان اشعار او شامل غزلیات، چند قصیده، چند مثنوی، قطعات و رباعیات است. وی به سال ۷۹۲ هجری قمری در شیراز درگذشت. آرامگاه او در حافظیهٔ شیراز زیارتگاه صاحب&zwnj;نظران و عاشقان شعر و ادب پارسی است.</p>",
+        "mixedModeOrder": 0,
+        "published": true,
+        "bookName": "دیوان حافظ",
+        "rImageId": "6f583c15-4702-4407-d7b1-08db494994d4",
+        "sumUpSubsGeoLocations": true,
+        "mapName": "مکان‌های نامبردهٔ حافظ",
+        "next": null,
+        "previous": null,
+        "ancestors": null,
+        "children": null,
+        "poems": null,
+        "paperSources": null,
+        "newImage": null
+      }
+    ],
+    "children": [],
+    "poems": [
+      {
+        "id": 2130,
+        "title": "غزل شمارهٔ ۱",
+        "urlSlug": "sh1",
+        "excerpt": "اَلا یا اَیُّهَا السّاقی اَدِرْ کَأسَاً و ناوِلْها",
+        "mainSections": null
+      },
+      {
+        "id": 2131,
+        "title": "غزل شمارهٔ ۲",
+        "urlSlug": "sh2",
+        "excerpt": "صلاحِ کار کجا و منِ خراب کجا؟",
+        "mainSections": null
+      },
+
+with a proper randomization algorithm you fetch the poems and show them.
+
+step by step, also you have to add method by methon in ganjoor api, and make sure add a setting for randomness.
+
+good job!

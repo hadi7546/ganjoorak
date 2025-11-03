@@ -24,7 +24,6 @@ import "../styles/PoemViewer.css";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
 import ganjoorApi from "@/api/GanjoorApi";
 import Link from "next/link";
-import { PoetSlug, poetNames } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import Menu, { MenuButton } from "@/components/Menu";
 import SettingsDialog from "@/components/SettingsDialog";
@@ -44,7 +43,7 @@ interface PoemViewerProps {
   isFirst?: boolean;
   isLast?: boolean;
   isModern?: boolean;
-  poetSlug?: PoetSlug;
+  poetSlug?: string;
   showNext?: boolean;
   isPoetPage?: boolean;
 }
@@ -828,6 +827,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     isHighlightEnabled &&
     verseSync.length > 0 &&
     currentHighlightedVerse !== -1;
+  const viewerClassName = [
+    "poem-viewer",
+    isPoetPage ? "poem-viewer--embedded" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   const poemContentClassName = [
     "poem-content",
     !showTitleSection ? "poem-content--centered" : "",
@@ -851,7 +856,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
   return (
     <motion.div
-      className="poem-viewer"
+      className={viewerClassName}
       key={poem.id}
       ref={containerRef}
       initial={{ opacity: 0 }}
@@ -1006,15 +1011,15 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
               >
-                <span className="poet-name">{poem.poet}
-                {showTitleBreadcrumbs &&
-                  fullTitleIntermediateParts.length > 0 && (
-                    <span>
-                      {"، " + fullTitleIntermediateParts.join("، ")}
-                    </span>
-                  )}
+                <span className="poet-name">
+                  {poem.poet}
+                  {showTitleBreadcrumbs &&
+                    fullTitleIntermediateParts.length > 0 && (
+                      <span>
+                        {"، " + fullTitleIntermediateParts.join("، ")}
+                      </span>
+                    )}
                 </span>
-                
               </motion.div>
             )}
           </div>
