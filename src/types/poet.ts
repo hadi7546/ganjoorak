@@ -31,6 +31,25 @@ export interface Century {
     poets: Poet[];
 }
 
+export interface GanjoorPoemSummary {
+    id: number;
+    title: string;
+    urlSlug: string;
+    excerpt?: string | null;
+    fullUrl?: string;
+}
+
+export interface GanjoorCategory {
+    id: number;
+    title: string;
+    urlSlug: string;
+    fullUrl: string;
+    tableOfContentsStyle?: number;
+    catType?: number;
+    children: GanjoorCategory[];
+    poems: GanjoorPoemSummary[];
+}
+
 
 
 // Predefined poets enum

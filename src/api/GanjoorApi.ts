@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
-import type { Poet, Century } from "@/types/poet";
+import type { Poet, Century, GanjoorCategory, GanjoorPoemSummary } from "@/types/poet";
 import { logger } from "@/utils/logger";
 
 const API_BASE_URL = "https://api.ganjoor.net";
@@ -19,6 +19,23 @@ const helpers = {
     const parts = cleanUrl.split("/");
     return parts[0] || "";
   },
+  mapCategory: (cat: any): GanjoorCategory => ({
+    id: cat.id,
+    title: cat.title,
+    urlSlug: cat.urlSlug,
+    fullUrl: cat.fullUrl,
+    tableOfContentsStyle: cat.tableOfContentsStyle,
+    catType: cat.catType,
+    children: (cat.children || []).map((child: any) => helpers.mapCategory(child)),
+    poems: (cat.poems || []).map((poem: any) => helpers.mapPoemSummary(poem)),
+  }),
+  mapPoemSummary: (poem: any): GanjoorPoemSummary => ({
+    id: poem.id,
+    title: poem.title,
+    urlSlug: poem.urlSlug,
+    excerpt: poem.excerpt,
+    fullUrl: poem.fullUrl,
+  }),
 };
 
 const ganjoorApi = {
@@ -222,6 +239,42 @@ const ganjoorApi = {
     const poet = ganjoorApi.mapPoetResponse(response.data);
     poetCache[slug] = poet;
     return poet;
+  },
+
+  async slugToId(slug: string): Promise<number> {
+    const poet = await ganjoorApi.getPoetBySlug(slug);
+    return poet.id;
+  },
+
+  async getPoetCategories(poetId: number): Promise<{ poet: Poet; category: GanjoorCategory }> {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/ganjoor/poet/${poetId}?catPoems=false`,
+      {
+        timeout: 8000,
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    );
+
+    return {
+      poet: ganjoorApi.mapPoetResponse(response.data),
+      category: helpers.mapCategory(response.data.cat),
+    };
+  },
+
+  async getCategoryWithPoems(categoryId: number): Promise<GanjoorCategory> {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/ganjoor/cat/${categoryId}?poems=true&mainSections=false`,
+      {
+        timeout: 8000,
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    );
+
+    return helpers.mapCategory(response.data.cat);
   },
 
   async getPoemByUrl(url: string): Promise<Poem> {
