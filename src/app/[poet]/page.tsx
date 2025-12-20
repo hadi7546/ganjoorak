@@ -2,13 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import {
-  FaBars,
-  FaChevronDown,
-  FaChevronLeft,
-  FaChevronUp,
-  FaRandom,
-} from "react-icons/fa";
+import { FaBars, FaChevronLeft, FaRandom } from "react-icons/fa";
 
 import PoemViewer from "@/components/PoemViewer";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -44,7 +38,6 @@ export default function PoetPage() {
   const [categoryPoems, setCategoryPoems] = useState<
     Record<number, GanjoorPoemSummary[]>
   >({});
-  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [activeCategoryLoading, setActiveCategoryLoading] = useState<number | null>(
     null,
@@ -106,20 +99,6 @@ export default function PoetPage() {
     }
   };
 
-  const fetchPoemById = async (poemId: number) => {
-    try {
-      setIsFetchingPoem(true);
-      const poem = await ganjoorApi.getPoemById(poemId);
-      addPoemToHistory(poem);
-      setError(null);
-    } catch (err) {
-      logger.error("Error fetching poem by id", err);
-      setError("متأسفانه در دریافت شعر مشکلی پیش آمد. لطفاً دوباره تلاش کنید");
-    } finally {
-      setIsFetchingPoem(false);
-    }
-  };
-
   const loadCustomPoem = async () => {
     try {
       setIsFetchingPoem(true);
@@ -142,7 +121,6 @@ export default function PoetPage() {
         setNotFound(false);
         setPoems([]);
         setCategoryPoems({});
-        setExpandedCategories(new Set());
         setSelectedCategoryId(null);
         setSource(null);
 
@@ -170,7 +148,6 @@ export default function PoetPage() {
 
           setCategories(books);
           setSelectedCategoryId(books[0].id);
-          setExpandedCategories(new Set([books[0].id]));
           setPoetTitle(
             poetWithCategories.poet.name ||
               poetWithCategories.poet.nickname ||
@@ -216,22 +193,9 @@ export default function PoetPage() {
     }
   };
 
-  const toggleCategory = (categoryId: number) => {
-    setExpandedCategories((prev) => {
-      const updated = new Set(prev);
-      if (updated.has(categoryId)) {
-        updated.delete(categoryId);
-      } else {
-        updated.add(categoryId);
-        void ensureCategoryPoems(categoryId);
-      }
-      return updated;
-    });
-  };
-
-  const handlePoemSelect = (poemId: number, categoryId: number) => {
+  const handleCategorySelect = (categoryId: number) => {
     setSelectedCategoryId(categoryId);
-    void fetchPoemById(poemId);
+    void fetchRandomFromCategory(categoryId);
   };
 
   if (notFound) {
@@ -256,29 +220,27 @@ export default function PoetPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex min-h-screen bg-white">
       {source === "ganjoor" && (
         <div
           className={`border-l bg-gray-50 transition-all duration-300 ${
-            isSideCollapsed ? "w-14" : "w-80"
+            isSideCollapsed ? "w-16" : "w-72"
           }`}
         >
           <div className="flex items-center justify-between px-3 py-3 border-b">
-            <div className="flex items-center gap-2">
-              <button
-                className="rounded-md p-2 hover:bg-gray-200"
-                onClick={() => setIsSideCollapsed((prev) => !prev)}
-                aria-label="toggle menu"
-              >
-                <FaBars />
-              </button>
-              {!isSideCollapsed && (
-                <div>
-                  <div className="text-sm text-gray-600">مجموعه‌های شاعر</div>
-                  <div className="font-semibold">{poetTitle}</div>
-                </div>
-              )}
-            </div>
+            <button
+              className="rounded-md p-2 hover:bg-gray-200"
+              onClick={() => setIsSideCollapsed((prev) => !prev)}
+              aria-label="toggle menu"
+            >
+              <FaBars />
+            </button>
+            {!isSideCollapsed && (
+              <div className="flex flex-col items-start text-right">
+                <span className="text-sm text-gray-600">کتاب‌های شاعر</span>
+                <span className="font-semibold text-gray-900">{poetTitle}</span>
+              </div>
+            )}
             {!isSideCollapsed && selectedCategoryId && (
               <button
                 className="flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-700"
@@ -292,67 +254,25 @@ export default function PoetPage() {
           </div>
 
           {!isSideCollapsed && (
-            <div className="h-full overflow-y-auto px-3 py-4 space-y-3">
+            <div className="h-full overflow-y-auto px-3 py-4 space-y-2">
               {categories.map((category) => {
-                const isExpanded = expandedCategories.has(category.id);
-                const poemsList = categoryPoems[category.id] || [];
+                const isActive = category.id === selectedCategoryId;
                 const isLoadingCategory = activeCategoryLoading === category.id;
 
                 return (
-                  <div key={category.id} className="rounded-md border bg-white">
-                    <button
-                      className="flex w-full items-center justify-between px-3 py-2 text-right hover:bg-gray-100"
-                      onClick={() => toggleCategory(category.id)}
-                    >
-                      <span className="font-medium text-gray-800">
-                        {category.title}
-                      </span>
-                      {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-                    </button>
-
-                    {isExpanded && (
-                      <div className="border-t px-3 py-2 text-sm text-gray-700">
-                        <div className="mb-2 flex items-center justify-between">
-                          <span className="text-xs text-gray-500">فهرست اشعار</span>
-                          <button
-                            className="flex items-center gap-1 rounded-md bg-gray-800 px-2 py-1 text-white hover:bg-gray-700"
-                            onClick={() => fetchRandomFromCategory(category.id)}
-                            disabled={isFetchingPoem}
-                          >
-                            <FaRandom />
-                            تصادفی
-                          </button>
-                        </div>
-                        {isLoadingCategory && (
-                          <div className="py-2 text-xs text-gray-500">در حال بارگذاری...</div>
-                        )}
-                        {!isLoadingCategory && (
-                          <div className="space-y-1 max-h-64 overflow-y-auto">
-                            {poemsList.map((poem) => (
-                              <button
-                                key={poem.id}
-                                className={`flex w-full items-center justify-between rounded-md px-2 py-1 text-right hover:bg-gray-100 ${
-                                  selectedCategoryId === category.id &&
-                                  currentPoem?.id === poem.id
-                                    ? "bg-indigo-50 text-indigo-700"
-                                    : ""
-                                }`}
-                                onClick={() => handlePoemSelect(poem.id, category.id)}
-                              >
-                                <span className="truncate text-sm">{poem.title}</span>
-                                <FaChevronLeft className="text-gray-400" />
-                              </button>
-                            ))}
-                            {!poemsList.length && (
-                              <div className="py-2 text-xs text-gray-500">
-                                شعری برای این بخش پیدا نشد
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <button
+                    key={category.id}
+                    className={`flex w-full items-center justify-between rounded-md border px-3 py-2 text-right shadow-sm transition hover:bg-gray-100 ${
+                      isActive
+                        ? "border-indigo-200 bg-indigo-50 text-indigo-800"
+                        : "bg-white"
+                    }`}
+                    onClick={() => handleCategorySelect(category.id)}
+                    disabled={isLoadingCategory}
+                  >
+                    <span className="truncate text-sm font-medium">{category.title}</span>
+                    <FaChevronLeft className="text-gray-400" />
+                  </button>
                 );
               })}
             </div>
