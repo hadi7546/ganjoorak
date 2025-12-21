@@ -9,6 +9,7 @@ import {
   FaBell,
   FaUsers,
   FaSlidersH,
+  FaFeatherAlt,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -34,6 +35,7 @@ const Menu: React.FC<MenuProps> = ({
     () => [
       { href: "/", icon: <FaHome />, label: "صفحه اصلی" },
       { href: "/poets", icon: <FaUsers />, label: "شاعران" },
+      { href: "/hafez/fal", icon: <FaFeatherAlt />, label: "فال حافظ" },
       { href: "/faq", icon: <FaQuestionCircle />, label: "پرسش‌های متداول" },
       {
         href: "/updates",
