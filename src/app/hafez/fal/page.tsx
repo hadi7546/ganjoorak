@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaFeatherAlt, FaMagic, FaRegEye, FaSnowflake, FaSync } from "react-icons/fa";
+import {
+  FaFeatherAlt,
+  FaMagic,
+  FaRegEye,
+  FaShareAlt,
+  FaSnowflake,
+  FaSync,
+} from "react-icons/fa";
 import type { Poem } from "@/types/poem";
 import ganjoorApi from "@/api/GanjoorApi";
 import { logger } from "@/utils/logger";
@@ -78,6 +85,143 @@ export default function HafezFalPage() {
     fetchFal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const createShareImage = async (poem?: Poem, fal?: FalInterpretation) => {
+    if (!poem || !fal) return null;
+
+    const canvas = document.createElement("canvas");
+    const width = 1080;
+    const height = 1350;
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, "#120617");
+    gradient.addColorStop(0.5, "#1d0b24");
+    gradient.addColorStop(1, "#0b0514");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    ctx.fillRect(80, 90, width - 160, height - 220);
+
+    ctx.fillStyle = "#f9d3e7";
+    ctx.font = "bold 44px 'Vazirmatn', 'IRANSans', sans-serif";
+    ctx.textAlign = "right";
+    ctx.direction = "rtl" as CanvasDirection;
+    ctx.fillText("فال یلدایی حافظ", width - 120, 160);
+
+    ctx.fillStyle = "#ffe5f2";
+    ctx.font = "bold 34px 'Vazirmatn', 'IRANSans', sans-serif";
+    ctx.fillText(poem.title || "فال حافظ", width - 120, 230);
+
+    ctx.font = "700 28px 'Vazirmatn', 'IRANSans', sans-serif";
+    ctx.fillStyle = "#f8bbd0";
+    ctx.fillText(`شناسه شعر: ${poem.id}`, width - 120, 280);
+    ctx.fillText(`شناسه تعبیر: ${fal.id}`, width - 120, 325);
+
+    ctx.font = "600 30px 'Vazirmatn', 'IRANSans', sans-serif";
+    ctx.fillStyle = "#ffffff";
+    const verseLines = splitVerses(poem);
+    let currentY = 380;
+    const lineHeight = 48;
+    const maxWidth = width - 200;
+
+    verseLines.forEach((line) => {
+      const words = line.split(" ");
+      let composed = "";
+      words.forEach((word) => {
+        const test = composed ? `${composed} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth) {
+          ctx.fillText(composed, width - 100, currentY);
+          composed = word;
+          currentY += lineHeight;
+        } else {
+          composed = test;
+        }
+      });
+      if (composed) {
+        ctx.fillText(composed, width - 100, currentY);
+        currentY += lineHeight;
+      }
+      currentY += 10;
+    });
+
+    currentY += 40;
+    ctx.font = "bold 30px 'Vazirmatn', 'IRANSans', sans-serif";
+    ctx.fillStyle = "#fbcfe8";
+    ctx.fillText("تعبیر", width - 120, currentY);
+    currentY += 40;
+
+    ctx.font = "400 26px 'Vazirmatn', 'IRANSans', sans-serif";
+    ctx.fillStyle = "#ffe5f2";
+    const interpretationWords = (fal.interpreter || "").split(" ");
+    let segment = "";
+    const paragraphWidth = width - 200;
+    interpretationWords.forEach((word) => {
+      const test = segment ? `${segment} ${word}` : word;
+      if (ctx.measureText(test).width > paragraphWidth) {
+        ctx.fillText(segment, width - 100, currentY);
+        segment = word;
+        currentY += 40;
+      } else {
+        segment = test;
+      }
+    });
+    if (segment) {
+      ctx.fillText(segment, width - 100, currentY);
+    }
+
+    return canvas.toDataURL("image/png");
+  };
+
+  const handleShare = async () => {
+    if (!falData?.poem || !falData.fal) return;
+
+    try {
+      const shareLink = new URL(`/hafez/fal/${falData.poem.id}`, window.location.origin).toString();
+      const dataUrl = await createShareImage(falData.poem, falData.fal);
+
+      if (!dataUrl) {
+        setError("ساخت تصویر برای اشتراک‌گذاری ناموفق بود");
+        return;
+      }
+
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `fal-${falData.poem.id}.png`, { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ url: shareLink, files: [file] })) {
+        await navigator.share({
+          title: falData.poem.title || "فال حافظ",
+          text: falData.fal.title,
+          url: shareLink,
+          files: [file],
+        });
+        return;
+      }
+
+      if (navigator.share) {
+        await navigator.share({
+          title: falData.poem.title || "فال حافظ",
+          text: `${falData.fal.title}\n${shareLink}`,
+          url: shareLink,
+        });
+      } else {
+        const anchor = document.createElement("a");
+        anchor.href = dataUrl;
+        anchor.download = `fal-${falData.poem.id}.png`;
+        anchor.click();
+      }
+    } catch (err: any) {
+      logger.error("Error sharing fal", err);
+      setError("اشتراک‌گذاری انجام نشد. دوباره تلاش کنید.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0a0410] via-[#0f0a14] to-[#05020a] text-rose-50">
@@ -169,6 +313,15 @@ export default function HafezFalPage() {
                     >
                       <FaRegEye />
                       <span>دیدن تعبیر</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleShare}
+                      disabled={!falData?.poem || loading}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-rose-200/30 bg-rose-500/15 px-4 py-2.5 text-sm font-semibold text-rose-50 shadow-md shadow-rose-900/40 transition hover:-translate-y-0.5 hover:border-rose-200/60 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <FaShareAlt />
+                      <span>اشتراک</span>
                     </button>
                   </div>
                   {error && <p className="mt-2 text-amber-200 text-xs">{error}</p>}
