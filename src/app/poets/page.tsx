@@ -3,7 +3,6 @@ import { Century, Poet } from '@/types/poet';
 import ganjoorApi from '@/api/GanjoorApi';
 import customApi from '@/api/CustomApi';
 import PoetsContent from '@/components/PoetsContent';
-import LoadingScreen from '@/components/LoadingScreen';
 import '@/styles/Poets.css';
 
 const vazirmatn = Vazirmatn({ subsets: ['arabic'] });
@@ -20,9 +19,7 @@ async function getCenturies(): Promise<Century[]> {
 
 async function getCustomPoets(): Promise<Poet[]> {
     try {
-        console.log("Fetching custom poets...");
         const poets = await customApi.getPoets();
-        console.log(`Found ${poets.length} custom poets`);
         return poets;
     } catch (error) {
         console.error("Error fetching custom poets:", error);
@@ -36,9 +33,6 @@ export default async function PoetsPage() {
         getCenturies(),
         getCustomPoets()
     ]);
-
-    console.log(`Rendering poets page with ${centuries.length} centuries and ${customPoets.length} custom poets`);
-
     return (
         <div className={`poets-container ${vazirmatn.className}`}>
             <h1 className="poets-title">شاعران</h1>
