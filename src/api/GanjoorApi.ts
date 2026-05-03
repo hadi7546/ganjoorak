@@ -51,7 +51,6 @@ const ganjoorApi = {
       }
 
       // No cache check - always fetch fresh data
-      console.log("Fetching poem:", id);
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/${id}`,
         {
@@ -63,7 +62,6 @@ const ganjoorApi = {
         },
       );
 
-      console.log("API Response:", response.data);
       // Don't cache the response
       return ganjoorApi.mapPoemResponse(response.data);
     } catch (error) {
