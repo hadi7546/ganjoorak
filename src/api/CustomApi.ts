@@ -1,7 +1,17 @@
 import type { Poem, PoemRecitation } from "@/types/poem";
 import { PoetSlug, poetNames, createPoet, Poet } from "@/types/poet";
-import fs from "fs/promises";
-import path from "path";
+
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return 'http://localhost:3000';
+};
 
 // Cache for poets' poems
 let poetPoemsCache: Record<string, any> = {};
@@ -23,23 +33,21 @@ const customApi = {
         return poetPoemsCache[poetSlug];
       }
 
-      const isServer = typeof window === 'undefined';
-      if (isServer) {
-        const filePath = path.join(process.cwd(), 'public', 'poems', `${poetSlug}.json`);
-        const localData = JSON.parse(await fs.readFile(filePath, 'utf8'));
+      const baseUrl = getBaseUrl();
+
+      const localResponse = await fetch(`${baseUrl}/poems/${poetSlug}.json`, {
+        cache: 'force-cache'
+      });
+
+      if (localResponse.ok) {
+        const localData = await localResponse.json();
         poetPoemsCache[poetSlug] = localData;
         return localData;
       }
+
       // Try to fetch from our proxy API route
       try {
-        // Use absolute URL with origin for server components
-        const origin = typeof window !== 'undefined'
-          ? window.location.origin
-          : process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : 'http://localhost:3000';
-
-        const apiUrl = `${origin}/api/poet/${poetSlug}`;
+        const apiUrl = `${baseUrl}/api/poet/${poetSlug}`;
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
