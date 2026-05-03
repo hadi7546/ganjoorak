@@ -1,6 +1,17 @@
 import type { Poem, PoemRecitation } from "@/types/poem";
 import { PoetSlug, poetNames, createPoet, Poet } from "@/types/poet";
-import { list } from "@vercel/blob";
+
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return 'http://localhost:3000';
+};
 
 // Cache for poets' poems
 let poetPoemsCache: Record<string, any> = {};
@@ -19,23 +30,24 @@ const customApi = {
     try {
       // Return from cache if available
       if (poetPoemsCache[poetSlug]) {
-        console.log(`Using cached data for poet: ${poetSlug}`);
         return poetPoemsCache[poetSlug];
       }
 
-      console.log(`Fetching poet data for: ${poetSlug}`);
+      const baseUrl = getBaseUrl();
+
+      const localResponse = await fetch(`${baseUrl}/poems/${poetSlug}.json`, {
+        cache: 'force-cache'
+      });
+
+      if (localResponse.ok) {
+        const localData = await localResponse.json();
+        poetPoemsCache[poetSlug] = localData;
+        return localData;
+      }
+
       // Try to fetch from our proxy API route
       try {
-        // Use absolute URL with origin for server components
-        const origin = typeof window !== 'undefined'
-          ? window.location.origin
-          : process.env.VERCEL_URL
-            ? `https://${process.env.VERCEL_URL}`
-            : 'http://localhost:3000';
-
-        const apiUrl = `${origin}/api/poet/${poetSlug}`;
-        console.log(`Making request to: ${apiUrl}`);
-
+        const apiUrl = `${baseUrl}/api/poet/${poetSlug}`;
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -45,7 +57,6 @@ const customApi = {
         }
 
         const data = await response.json();
-        console.log(`Successfully fetched data for poet: ${poetSlug}`);
 
         // Validate the data has the expected structure
         if (!data || !data.poems || !Array.isArray(data.poems)) {
@@ -61,14 +72,12 @@ const customApi = {
 
         // Try fallback to local JSON files
         try {
-          console.log(`Trying fallback to local file for poet: ${poetSlug}`);
           const fallbackPath = poetFallbackPaths[poetSlug];
 
           if (!fallbackPath) {
             throw new Error(`No fallback path defined for poet: ${poetSlug}`);
           }
 
-          console.log(`Fetching from fallback path: ${fallbackPath}`);
           const fallbackResponse = await fetch(fallbackPath);
 
           if (!fallbackResponse.ok) {
@@ -76,7 +85,6 @@ const customApi = {
           }
 
           const fallbackData = await fallbackResponse.json();
-          console.log(`Successfully fetched fallback data for poet: ${poetSlug}`);
 
           if (!fallbackData || !fallbackData.poems || !Array.isArray(fallbackData.poems)) {
             throw new Error('Invalid data structure in fallback data');
@@ -134,7 +142,6 @@ const customApi = {
       // Get poet's poems from blob or local file
       const poetData = await customApi._getPoetData(poetSlug);
 
-      console.log("Fetching local poem with ID:", id);
       const poem = poetData.poems.find((poem: any) => poem.id === id);
 
       if (!poem) {
@@ -193,20 +200,17 @@ const customApi = {
     try {
       // Get all poet slugs from the PoetSlug enum
       const poetSlugs = Object.values(PoetSlug);
-      console.log(`Attempting to fetch ${poetSlugs.length} custom poets`, poetSlugs);
 
       // Create an array of promises to fetch poet info for each slug
       const poetPromises = poetSlugs.map(async (slug) => {
         try {
           const poetInfo = await customApi.getPoetInfo(slug);
-          console.log(`Successfully fetched poet info for ${slug}`);
           return poetInfo;
         } catch (error) {
           console.error(`Error fetching poet info for ${slug}:`, error);
 
           // Create fallback poet info if fetch fails
           try {
-            console.log(`Creating fallback poet info for ${slug}`);
             const fallbackPoet = createPoet({
               id: 0,
               name: poetNames[slug],
@@ -229,7 +233,6 @@ const customApi = {
               deathPlaceLatitude: null,
               deathPlaceLongitude: null
             });
-            console.log(`Created fallback poet for ${slug}:`, fallbackPoet);
             return fallbackPoet;
           } catch (fallbackError) {
             console.error(`Failed to create fallback poet for ${slug}:`, fallbackError);
@@ -240,7 +243,6 @@ const customApi = {
 
       // Wait for all promises to resolve
       const poets = await Promise.all(poetPromises);
-      console.log(`Fetched ${poets.filter(p => p !== null).length} poets out of ${poetSlugs.length}`);
 
       // Filter out any null values (failed fetches)
       return poets.filter((poet): poet is Poet => poet !== null);

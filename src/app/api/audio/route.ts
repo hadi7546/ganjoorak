@@ -30,7 +30,6 @@ export async function GET(request: NextRequest) {
             }, { status: 403 });
         }
 
-        console.log(`Fetching authorized audio URL: ${url}`);
 
         // Fetch the audio file
         const response = await fetch(url, {
