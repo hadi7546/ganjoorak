@@ -2,7 +2,7 @@ import axios from "axios";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
 import type { Poet, Century } from "@/types/poet";
 
-const API_BASE_URL = "https://api.ganjoor.net";
+const API_BASE_URL = "http://api.offline.ganjoor.net";
 
 // Cache for poet data
 const poetCache: Record<string, Poet> = {};
