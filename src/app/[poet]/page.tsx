@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { FaInfoCircle, FaTimes } from "react-icons/fa";
 import PoemViewer from "@/components/PoemViewer";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -160,7 +160,7 @@ function PoetDetails({ poet }: { poet: Poet }) {
   );
 }
 
-function GanjoorPoetPage({ slug }: { slug: string }) {
+function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
   const { settings } = useSettings();
   const randomizePoems = settings.randomizePoems;
 
@@ -208,7 +208,7 @@ function GanjoorPoetPage({ slug }: { slug: string }) {
       poemOrderRef.current = [];
 
       try {
-        const fetchedCatalog = await ganjoorApi.getPoetCatalog(slug);
+        const fetchedCatalog = await ganjoorApi.getPoetCatalog(slug, poetId);
         if (cancelled) return;
         setCatalog(fetchedCatalog);
         setCategoryCache(indexCategories(fetchedCatalog.category));
@@ -241,7 +241,7 @@ function GanjoorPoetPage({ slug }: { slug: string }) {
     return () => {
       cancelled = true;
     };
-  }, [slug, reloadKey]);
+  }, [slug, poetId, reloadKey]);
 
   const cachedCategory = selectedCategoryId
     ? categoryCache[selectedCategoryId]
@@ -416,6 +416,9 @@ function GanjoorPoetPage({ slug }: { slug: string }) {
   const topLevelCategories = useMemo(() => {
     if (!catalog) return [];
     const root = categoryCache[catalog.category.id] ?? catalog.category;
+    if ((root.poems?.length ?? 0) > 0) {
+      return [root];
+    }
     return root.children ?? [];
   }, [catalog, categoryCache]);
 
@@ -450,7 +453,11 @@ function GanjoorPoetPage({ slug }: { slug: string }) {
 
   return (
     <div className={containerClassName}>
-      <div className={isSidebarOpen ? "relative w-full lg:w-96" : "relative hidden lg:w-0"}>
+      <div
+        className={
+          isSidebarOpen ? "relative w-full lg:w-96" : "relative hidden lg:w-0"
+        }
+      >
         <AnimatePresence>
           {isSidebarOpen && (
             <motion.aside
@@ -460,69 +467,71 @@ function GanjoorPoetPage({ slug }: { slug: string }) {
               transition={{ type: "spring", stiffness: 260, damping: 26 }}
               className="sidebar-panel absolute inset-0 z-20 w-full border-b border-neutral-800/60 bg-neutral-900/40 px-6 pb-6 pt-6 backdrop-blur lg:border-b-0 lg:border-l lg:pt-6"
             >
-            <div className="relative flex items-center justify-center pb-4 pr-4 pl-0">
-              <h2 className="text-sm font-semibold text-neutral-200">اطلاعات شاعر</h2>
-              <button
-                type="button"
-                onClick={() => setIsSidebarOpen(false)}
-                className="settings-close absolute left-0"
-                aria-label="بستن"
-              >
-                <FaTimes />
-              </button>
-            </div>
-            <div className="space-y-6 pl-4">
-              <div>
-                <div className="mt-0">
-                  <PoetDetails poet={catalog.poet} />
-                </div>
+              <div className="relative flex items-center justify-center pb-4 pr-4 pl-0">
+                <h2 className="text-sm font-semibold text-neutral-200">
+                  اطلاعات شاعر
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="settings-close absolute left-0"
+                  aria-label="بستن"
+                >
+                  <FaTimes />
+                </button>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-6 pl-4">
                 <div>
-                  <h2 className="mb-3 text-sm font-semibold text-neutral-200">
-                    مجموعه‌ها
-                  </h2>
-                  {topLevelCategories.length > 0 ? (
-                    <CategoryList
-                      categories={topLevelCategories}
-                      selectedId={selectedCategoryId}
-                      onSelectCategory={handleSelectCategory}
-                      categoryCache={categoryCache}
-                    />
-                  ) : (
-                    <p className="text-sm text-neutral-400">
-                      مجموعه‌ای برای این شاعر ثبت نشده است.
-                    </p>
-                  )}
-                  {categoryLoading && (
-                    <p className="mt-3 text-xs text-neutral-500">
-                      در حال بارگذاری مجموعه...
-                    </p>
-                  )}
-                  {categoryError && (
-                    <div className="mt-3 rounded-md bg-red-900/30 px-3 py-2 text-xs text-red-200">
-                      <p>{categoryError}</p>
-                      <button
-                        type="button"
-                        className="mt-2 rounded bg-red-600/80 px-3 py-1 text-xs text-white hover:bg-red-600"
-                        onClick={handleRetryCategory}
-                      >
-                        تلاش مجدد
-                      </button>
-                    </div>
-                  )}
+                  <div className="mt-0">
+                    <PoetDetails poet={catalog.poet} />
+                  </div>
                 </div>
-                {selectedCategory &&
-                  !currentPoem &&
-                  selectedCategory.description && (
-                    <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/50 p-3 text-xs leading-6 text-neutral-400">
-                      {selectedCategory.description}
-                    </div>
-                  )}
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="mb-3 text-sm font-semibold text-neutral-200">
+                      مجموعه‌ها
+                    </h2>
+                    {topLevelCategories.length > 0 ? (
+                      <CategoryList
+                        categories={topLevelCategories}
+                        selectedId={selectedCategoryId}
+                        onSelectCategory={handleSelectCategory}
+                        categoryCache={categoryCache}
+                      />
+                    ) : (
+                      <p className="text-sm text-neutral-400">
+                        مجموعه‌ای برای این شاعر ثبت نشده است.
+                      </p>
+                    )}
+                    {categoryLoading && (
+                      <p className="mt-3 text-xs text-neutral-500">
+                        در حال بارگذاری مجموعه...
+                      </p>
+                    )}
+                    {categoryError && (
+                      <div className="mt-3 rounded-md bg-red-900/30 px-3 py-2 text-xs text-red-200">
+                        <p>{categoryError}</p>
+                        <button
+                          type="button"
+                          className="mt-2 rounded bg-red-600/80 px-3 py-1 text-xs text-white hover:bg-red-600"
+                          onClick={handleRetryCategory}
+                        >
+                          تلاش مجدد
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {selectedCategory &&
+                    !currentPoem &&
+                    selectedCategory.description && (
+                      <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/50 p-3 text-xs leading-6 text-neutral-400">
+                        {selectedCategory.description}
+                      </div>
+                    )}
+                </div>
               </div>
-            </div>
-          </motion.aside>
-        )}
+            </motion.aside>
+          )}
         </AnimatePresence>
       </div>
       <main className="relative flex flex-1 flex-col overflow-hidden">
@@ -801,7 +810,11 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
 
   return (
     <div className={containerClassName}>
-      <div className={isSidebarOpen ? "relative w-full lg:w-80" : "relative hidden lg:w-0"}>
+      <div
+        className={
+          isSidebarOpen ? "relative w-full lg:w-80" : "relative hidden lg:w-0"
+        }
+      >
         <AnimatePresence>
           {isSidebarOpen && (
             <motion.aside
@@ -811,37 +824,39 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
               transition={{ type: "spring", stiffness: 260, damping: 26 }}
               className="sidebar-panel absolute inset-0 z-20 w-full border-b border-neutral-800/60 bg-neutral-900/40 px-6 pb-6 pt-6 backdrop-blur lg:border-b-0 lg:border-l lg:pt-6"
             >
-            <div className="relative flex items-center justify-center pb-4 pr-4 pl-0">
-              <h2 className="text-sm font-semibold text-neutral-200">اطلاعات شاعر</h2>
-              <button
-                type="button"
-                onClick={() => setIsSidebarOpen(false)}
-                className="settings-close absolute left-0"
-                aria-label="بستن"
-              >
-                <FaTimes />
-              </button>
-            </div>
-            <div className="space-y-6 pl-4">
-              <div>
-                <div className="mt-0">
-                  <PoetDetails poet={poetInfo} />
-                </div>
+              <div className="relative flex items-center justify-center pb-4 pr-4 pl-0">
+                <h2 className="text-sm font-semibold text-neutral-200">
+                  اطلاعات شاعر
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="settings-close absolute left-0"
+                  aria-label="بستن"
+                >
+                  <FaTimes />
+                </button>
               </div>
-              <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/50 px-4 py-3 text-sm text-neutral-300">
-                <div className="flex items-center justify-between">
-                  <span>تعداد شعرها</span>
-                  <span>{formatPersianNumber(poemIds.length)}</span>
+              <div className="space-y-6 pl-4">
+                <div>
+                  <div className="mt-0">
+                    <PoetDetails poet={poetInfo} />
+                  </div>
                 </div>
+                <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/50 px-4 py-3 text-sm text-neutral-300">
+                  <div className="flex items-center justify-between">
+                    <span>تعداد شعرها</span>
+                    <span>{formatPersianNumber(poemIds.length)}</span>
+                  </div>
+                </div>
+                {poemError && (
+                  <div className="rounded-md bg-red-900/30 px-3 py-2 text-xs text-red-200">
+                    <p>{poemError}</p>
+                  </div>
+                )}
               </div>
-              {poemError && (
-                <div className="rounded-md bg-red-900/30 px-3 py-2 text-xs text-red-200">
-                  <p>{poemError}</p>
-                </div>
-              )}
-            </div>
-          </motion.aside>
-        )}
+            </motion.aside>
+          )}
         </AnimatePresence>
       </div>
       <main className="relative flex flex-1 flex-col overflow-hidden">
@@ -869,7 +884,6 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
           </div>
         </div>
         <div className="relative flex flex-1 flex-col overflow-hidden">
-          
           {showPoemLoadingOverlay && <LoadingScreen />}
 
           {!showPoemLoadingOverlay && poemError && (
@@ -913,7 +927,14 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
 
 export default function PoetPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const poetSlug = (params?.poet as string) || "";
+  const poetIdParam = searchParams.get("poetId");
+  const parsedPoetId = poetIdParam ? Number(poetIdParam) : NaN;
+  const poetId =
+    Number.isInteger(parsedPoetId) && parsedPoetId > 0
+      ? parsedPoetId
+      : undefined;
 
   if (!poetSlug || poetSlug.length < 2 || /[^a-z0-9-]/i.test(poetSlug)) {
     return <AppNotFound />;
@@ -923,5 +944,5 @@ export default function PoetPage() {
     return <CustomPoetPage poetSlug={poetSlug as PoetSlug} />;
   }
 
-  return <GanjoorPoetPage slug={poetSlug} />;
+  return <GanjoorPoetPage slug={poetSlug} poetId={poetId} />;
 }

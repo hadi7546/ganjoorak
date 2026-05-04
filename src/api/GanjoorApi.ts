@@ -9,7 +9,7 @@ import type {
 } from "@/types/ganjoor";
 import { logger } from "@/utils/logger";
 
-const API_BASE_URL = "https://api.ganjoor.net";
+const API_BASE_URL = "127.0.0.1:8080";
 
 // Cache for poet data
 const poetCache: Record<string, Poet> = {};
@@ -259,11 +259,14 @@ const ganjoorApi = {
     };
   },
 
-  async getPoetCatalog(slug: string): Promise<GanjoorPoetCatalog> {
+  async getPoetCatalogById(poetId: number): Promise<GanjoorPoetCatalog> {
     try {
-      const poet = await ganjoorApi.getPoetBySlug(slug);
+      if (!Number.isInteger(poetId) || poetId < 1) {
+        throw new Error("شناسه شاعر معتبر نیست");
+      }
+
       const response = await axios.get(
-        `${API_BASE_URL}/api/ganjoor/poet/${poet.id}`,
+        `${API_BASE_URL}/api/ganjoor/poet/${poetId}`,
         {
           timeout: 5000,
           params: {
@@ -276,21 +279,56 @@ const ganjoorApi = {
         },
       );
 
-      if (response.data?.poet) {
-        const mappedPoet = ganjoorApi.mapPoetResponse(response.data);
-        if (mappedPoet?.urlSlug) {
-          poetCache[mappedPoet.urlSlug] = mappedPoet;
-        }
-        return {
-          poet: mappedPoet,
-          category: helpers.mapCategory(response.data.cat),
-        };
+      if (!response.data?.poet || !response.data?.cat) {
+        throw new Error("Invalid poet catalog data");
+      }
+
+      const mappedPoet = ganjoorApi.mapPoetResponse(response.data);
+      if (mappedPoet.urlSlug) {
+        poetCache[mappedPoet.urlSlug] = mappedPoet;
       }
 
       return {
-        poet,
+        poet: mappedPoet,
         category: helpers.mapCategory(response.data.cat),
       };
+    } catch (error) {
+      logger.error("Error fetching poet catalog by id:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        throw new Error("شاعر مورد نظر یافت نشد");
+      }
+      throw new Error("متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد");
+    }
+  },
+
+  async getPoetCatalog(
+    slug: string,
+    poetId?: number,
+  ): Promise<GanjoorPoetCatalog> {
+    try {
+      const normalizedPoetId =
+        typeof poetId === "number" && Number.isInteger(poetId) && poetId > 0
+          ? poetId
+          : 0;
+
+      if (normalizedPoetId > 0) {
+        const catalog = await ganjoorApi.getPoetCatalogById(normalizedPoetId);
+        if (!catalog.poet.urlSlug || catalog.poet.urlSlug === slug) {
+          if (catalog.poet.urlSlug) {
+            poetCache[catalog.poet.urlSlug] = catalog.poet;
+          }
+          poetCache[slug] = catalog.poet;
+          return catalog;
+        }
+      }
+
+      const poet = await ganjoorApi.getPoetBySlug(slug);
+      const catalog = await ganjoorApi.getPoetCatalogById(poet.id);
+      if (catalog.poet.urlSlug) {
+        poetCache[catalog.poet.urlSlug] = catalog.poet;
+      }
+      poetCache[slug] = catalog.poet;
+      return catalog;
     } catch (error) {
       logger.error("Error fetching poet catalog:", error);
       if (axios.isAxiosError(error) && error.response?.status === 404) {
