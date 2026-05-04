@@ -9,7 +9,20 @@ import type {
 } from "@/types/ganjoor";
 import { logger } from "@/utils/logger";
 
-const API_BASE_URL = "127.0.0.1:8080";
+const SERVER_API_BASE_URL =
+  process.env.GANJOOR_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL ||
+  "http://api.offline.ganjoor.net";
+
+const BROWSER_API_BASE_URL =
+  process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL || "";
+
+const normalizeBaseUrl = (url: string) => url.replace(/\/+$/, "");
+
+const API_BASE_URL =
+  typeof window === "undefined"
+    ? normalizeBaseUrl(SERVER_API_BASE_URL)
+    : normalizeBaseUrl(BROWSER_API_BASE_URL);
 
 // Cache for poet data
 const poetCache: Record<string, Poet> = {};

@@ -1,3 +1,10 @@
+const GANJOOR_API_BASE_URL =
+    process.env.GANJOOR_API_BASE_URL ||
+    process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL ||
+    'http://api.offline.ganjoor.net';
+
+const ganjoorApiUrl = new URL(GANJOOR_API_BASE_URL);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 
@@ -6,6 +13,12 @@ const nextConfig = {
 
     images: {
         remotePatterns: [
+            {
+                protocol: ganjoorApiUrl.protocol.replace(':', ''),
+                hostname: ganjoorApiUrl.hostname,
+                port: ganjoorApiUrl.port,
+                pathname: '/**',
+            },
             {
                 protocol: 'https',
                 hostname: 'api.ganjoor.net',

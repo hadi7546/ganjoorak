@@ -1,4 +1,3 @@
-import { Vazirmatn } from 'next/font/google';
 import { Century, Poet } from '@/types/poet';
 import ganjoorApi from '@/api/GanjoorApi';
 import customApi from '@/api/CustomApi';
@@ -6,7 +5,7 @@ import PoetsContent from '@/components/PoetsContent';
 import '@/styles/Poets.css';
 import { logger } from '@/utils/logger';
 
-const vazirmatn = Vazirmatn({ subsets: ['arabic'] });
+export const dynamic = 'force-dynamic';
 
 async function getCenturies(): Promise<Century[]> {
     try {
@@ -40,7 +39,7 @@ export default async function PoetsPage() {
     logger.log(`Rendering poets page with ${centuries.length} centuries and ${customPoets.length} custom poets`);
 
     return (
-        <div className={`poets-container ${vazirmatn.className}`}>
+        <div className="poets-container">
             <h1 className="poets-title">شاعران</h1>
             <PoetsContent centuries={centuries} customPoets={customPoets} />
         </div>

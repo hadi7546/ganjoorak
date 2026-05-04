@@ -3,8 +3,6 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { SettingsProvider } from "@/context/SettingsContext";
-import "@fontsource/vazirmatn/400.css";
-import "@fontsource/vazirmatn/700.css";
 import "samim-font/dist/font-face.css";
 import "tanha-font/dist/font-face.css";
 import "shabnam-font/dist/font-face.css";
