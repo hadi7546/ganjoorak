@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 const UPSTREAM_URL = "http://api.offline.ganjoor.net";
+const GANJOOR_PROXY_TIMEOUT_MS = 15000;
 
 export async function GET(
   request: NextRequest,
@@ -18,6 +19,7 @@ export async function GET(
         Accept: request.headers.get("accept") || "application/json",
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(GANJOOR_PROXY_TIMEOUT_MS),
     });
 
     const headers = new Headers(response.headers);

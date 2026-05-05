@@ -8,6 +8,7 @@ const ALLOWED_DOMAINS = [
     'https://api.ganjoor.net/',
     'https://ganjgah.ir/'
 ];
+const AUDIO_PROXY_TIMEOUT_MS = 30000;
 
 // Function to check if a URL is from an allowed domain
 function isAllowedDomain(url: string): boolean {
@@ -36,7 +37,8 @@ export async function GET(request: NextRequest) {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             },
-            cache: 'no-store' // Prevent caching at fetch level
+            cache: 'no-store', // Prevent caching at fetch level
+            signal: AbortSignal.timeout(AUDIO_PROXY_TIMEOUT_MS),
         });
 
         if (!response.ok) {

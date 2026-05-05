@@ -5,6 +5,7 @@ import type { Poet, Century } from "@/types/poet";
 const GANJOOR_UPSTREAM_URL = "http://api.offline.ganjoor.net";
 const API_BASE_URL =
   typeof window === "undefined" ? GANJOOR_UPSTREAM_URL : "";
+const GANJOOR_REQUEST_TIMEOUT_MS = 15000;
 
 // Cache for poet data
 const poetCache: Record<string, Poet> = {};
@@ -28,7 +29,7 @@ const ganjoorApi = {
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/random`,
         {
-          timeout: 5000,
+          timeout: GANJOOR_REQUEST_TIMEOUT_MS,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -56,7 +57,7 @@ const ganjoorApi = {
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/${id}`,
         {
-          timeout: 5000,
+          timeout: GANJOOR_REQUEST_TIMEOUT_MS,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -82,7 +83,7 @@ const ganjoorApi = {
 
   async getPoets(): Promise<Poet[]> {
     const response = await axios.get(`${API_BASE_URL}/api/ganjoor/poets`, {
-      timeout: 5000,
+      timeout: GANJOOR_REQUEST_TIMEOUT_MS,
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -115,7 +116,7 @@ const ganjoorApi = {
 
   async getCenturies(): Promise<Century[]> {
     const response = await axios.get(`${API_BASE_URL}/api/ganjoor/centuries`, {
-      timeout: 5000,
+      timeout: GANJOOR_REQUEST_TIMEOUT_MS,
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -142,7 +143,7 @@ const ganjoorApi = {
       const response = await axios.get(
         `${API_BASE_URL}/api/ganjoor/poem/random?poetId=${poet.id}`,
         {
-          timeout: 5000,
+          timeout: GANJOOR_REQUEST_TIMEOUT_MS,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -164,7 +165,7 @@ const ganjoorApi = {
     const response = await axios.get(
       `${API_BASE_URL}/api/ganjoor/poet/image/${poetSlug}.gif`,
       {
-        timeout: 5000,
+        timeout: GANJOOR_REQUEST_TIMEOUT_MS,
         headers: {
           Accept: "image/gif",
         },
@@ -212,7 +213,7 @@ const ganjoorApi = {
     const response = await axios.get(
       `${API_BASE_URL}/api/ganjoor/poet?url=/${slug}`,
       {
-        timeout: 5000,
+        timeout: GANJOOR_REQUEST_TIMEOUT_MS,
         headers: {
           Accept: "application/json",
         },
@@ -227,7 +228,7 @@ const ganjoorApi = {
     const response = await axios.get(
       `${API_BASE_URL}/api/ganjoor/poem?url=${url}`,
       {
-        timeout: 5000,
+        timeout: GANJOOR_REQUEST_TIMEOUT_MS,
         headers: {
           Accept: "application/json",
         },
@@ -250,7 +251,7 @@ const ganjoorApi = {
       const response = await axios.get(
         `${API_BASE_URL}/api/audio/verses/${recitationId}`,
         {
-          timeout: 10000,
+          timeout: GANJOOR_REQUEST_TIMEOUT_MS,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
