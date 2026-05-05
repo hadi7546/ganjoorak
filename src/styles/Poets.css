@@ -30,6 +30,62 @@
     background: rgb(var(--card) / 0.9);
 }
 
+.poets-search-button {
+    position: fixed;
+    top: 4rem;
+    right: 1rem;
+    z-index: 30;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 9999px;
+    background: rgb(var(--foreground) / 0.12);
+    color: rgb(var(--foreground));
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.poets-search-button:hover {
+    background: rgb(var(--foreground) / 0.2);
+    transform: translateY(-1px);
+}
+
+.poets-search-popover {
+    position: fixed;
+    top: 4rem;
+    right: 4rem;
+    z-index: 30;
+    width: min(22rem, calc(100vw - 5rem));
+    background: rgb(var(--card));
+    border-radius: 0.85rem;
+    padding: 0.75rem;
+    box-shadow: 0 16px 38px rgb(var(--background) / 0.32);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.poets-search-popover input {
+    width: 100%;
+    border: 1px solid rgb(var(--foreground) / 0.08);
+    border-radius: 0.65rem;
+    background: rgb(var(--background) / 0.35);
+    color: rgb(var(--foreground));
+    font-family: var(--app-font);
+    font-size: 1rem;
+    outline: none;
+    padding: 0.65rem 0.85rem;
+}
+
+.poets-search-popover input:focus {
+    border-color: rgb(var(--foreground) / 0.22);
+    box-shadow: 0 0 0 3px rgb(var(--foreground) / 0.06);
+}
+
 .poets-question {
     color: rgb(var(--foreground) / 0.95);
     font-weight: 500;
@@ -80,6 +136,11 @@
 .poets-answer,
 .poets-category-answer {
     padding-top: 0.5rem;
+    padding-bottom: 0.75rem;
+}
+
+.poets-container .faq-answer-wrapper.open {
+    overflow: visible;
 }
 
 .poets-grid {
@@ -87,7 +148,7 @@
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
     margin-top: 0.5rem;
-    padding-bottom: 0.75rem;
+    padding-bottom: 1.25rem;
     opacity: 0;
     transform: translateY(-10px);
     transition: all 0.3s ease;
@@ -212,6 +273,11 @@
     .poets-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 0.75rem;
+    }
+
+    .poets-search-popover {
+        right: 3.75rem;
+        width: min(18rem, calc(100vw - 4.75rem));
     }
 }
 

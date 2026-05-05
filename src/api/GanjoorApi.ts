@@ -9,6 +9,8 @@ import type {
 } from "@/types/ganjoor";
 import { logger } from "@/utils/logger";
 
+const API_TIMEOUT_MS = 15000;
+
 const SERVER_API_BASE_URL =
   process.env.GANJOOR_API_BASE_URL ||
   process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL ||
@@ -23,6 +25,10 @@ const API_BASE_URL =
   typeof window === "undefined"
     ? normalizeBaseUrl(SERVER_API_BASE_URL)
     : normalizeBaseUrl(BROWSER_API_BASE_URL);
+
+const ganjoorHttp = axios.create({
+  proxy: false,
+});
 
 // Cache for poet data
 const poetCache: Record<string, Poet> = {};
@@ -91,10 +97,10 @@ const helpers = {
 const ganjoorApi = {
   async getRandomPoem(): Promise<Poem> {
     try {
-      const response = await axios.get(
+      const response = await ganjoorHttp.get(
         `${API_BASE_URL}/api/ganjoor/poem/random`,
         {
-          timeout: 5000,
+          timeout: API_TIMEOUT_MS,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -120,10 +126,10 @@ const ganjoorApi = {
 
       // No cache check - always fetch fresh data
       logger.log("Fetching poem:", id);
-      const response = await axios.get(
+      const response = await ganjoorHttp.get(
         `${API_BASE_URL}/api/ganjoor/poem/${id}`,
         {
-          timeout: 5000,
+          timeout: API_TIMEOUT_MS,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -149,8 +155,8 @@ const ganjoorApi = {
   },
 
   async getPoets(): Promise<Poet[]> {
-    const response = await axios.get(`${API_BASE_URL}/api/ganjoor/poets`, {
-      timeout: 5000,
+    const response = await ganjoorHttp.get(`${API_BASE_URL}/api/ganjoor/poets`, {
+      timeout: API_TIMEOUT_MS,
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -182,8 +188,8 @@ const ganjoorApi = {
   },
 
   async getCenturies(): Promise<Century[]> {
-    const response = await axios.get(`${API_BASE_URL}/api/ganjoor/centuries`, {
-      timeout: 5000,
+    const response = await ganjoorHttp.get(`${API_BASE_URL}/api/ganjoor/centuries`, {
+      timeout: API_TIMEOUT_MS,
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -207,10 +213,10 @@ const ganjoorApi = {
     const poet = await ganjoorApi.getPoetBySlug(slug);
     try {
       // Don't use session storage cache - always get fresh data
-      const response = await axios.get(
+      const response = await ganjoorHttp.get(
         `${API_BASE_URL}/api/ganjoor/poem/random?poetId=${poet.id}`,
         {
-          timeout: 5000,
+          timeout: API_TIMEOUT_MS,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -229,10 +235,10 @@ const ganjoorApi = {
   },
 
   async getPoetImage(poetSlug: string): Promise<string> {
-    const response = await axios.get(
+    const response = await ganjoorHttp.get(
       `${API_BASE_URL}/api/ganjoor/poet/image/${poetSlug}.gif`,
       {
-        timeout: 5000,
+        timeout: API_TIMEOUT_MS,
         headers: {
           Accept: "image/gif",
         },
@@ -278,10 +284,10 @@ const ganjoorApi = {
         throw new Error("شناسه شاعر معتبر نیست");
       }
 
-      const response = await axios.get(
+      const response = await ganjoorHttp.get(
         `${API_BASE_URL}/api/ganjoor/poet/${poetId}`,
         {
-          timeout: 5000,
+          timeout: API_TIMEOUT_MS,
           params: {
             catPoems: true,
           },
@@ -356,10 +362,10 @@ const ganjoorApi = {
       return poetCache[slug];
     }
 
-    const response = await axios.get(
+    const response = await ganjoorHttp.get(
       `${API_BASE_URL}/api/ganjoor/poet?url=/${slug}`,
       {
-        timeout: 5000,
+        timeout: API_TIMEOUT_MS,
         headers: {
           Accept: "application/json",
         },
@@ -375,10 +381,10 @@ const ganjoorApi = {
     { includeMainSections = false }: { includeMainSections?: boolean } = {},
   ): Promise<GanjoorCategory> {
     try {
-      const response = await axios.get(
+      const response = await ganjoorHttp.get(
         `${API_BASE_URL}/api/ganjoor/cat/${categoryId}`,
         {
-          timeout: 5000,
+          timeout: API_TIMEOUT_MS,
           params: {
             poems: true,
             mainSections: includeMainSections,
@@ -400,10 +406,10 @@ const ganjoorApi = {
   },
 
   async getPoemByUrl(url: string): Promise<Poem> {
-    const response = await axios.get(
+    const response = await ganjoorHttp.get(
       `${API_BASE_URL}/api/ganjoor/poem?url=${url}`,
       {
-        timeout: 5000,
+        timeout: API_TIMEOUT_MS,
         headers: {
           Accept: "application/json",
         },
@@ -423,7 +429,7 @@ const ganjoorApi = {
         throw new Error("شناسه خوانش معتبر نیست");
       }
 
-      const response = await axios.get(
+      const response = await ganjoorHttp.get(
         `${API_BASE_URL}/api/audio/verses/${recitationId}`,
         {
           timeout: 10000,

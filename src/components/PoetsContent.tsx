@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, type ReactNode } from "react";
+import { FaSearch, FaTimes } from "react-icons/fa";
 import { Century, Poet } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -24,6 +25,7 @@ function PoetsList({ poets }: { poets: Poet[] }) {
         const poetPath = poet.fullUrl.startsWith("/")
           ? poet.fullUrl
           : `/${poet.fullUrl}`;
+        const poetKey = `${poet.urlSlug || poet.fullUrl || poet.name}-${poet.id}`;
         const href =
           poet.id > 0
             ? {
@@ -33,7 +35,7 @@ function PoetsList({ poets }: { poets: Poet[] }) {
             : poetPath;
 
         return (
-          <Link href={href} key={poet.id} className="poet-card">
+          <Link href={href} key={poetKey} className="poet-card">
             <div className="poet-image-container">
               <PoetImage
                 imgUrl={poet.imageUrl}
@@ -102,6 +104,31 @@ function CategorySection({
   );
 }
 
+const normalizeSearchText = (value: string) =>
+  value
+    .trim()
+    .replace(/[ي]/g, "ی")
+    .replace(/[ك]/g, "ک")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+
+const poetMatchesQuery = (poet: Poet, query: string) => {
+  const haystack = normalizeSearchText(
+    [
+      poet.name,
+      poet.nickname,
+      poet.fullUrl,
+      poet.urlSlug,
+      poet.birthPlace,
+      poet.deathPlace,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+
+  return haystack.includes(query);
+};
+
 export default function PoetsContent({
   centuries,
   customPoets = [],
@@ -112,11 +139,39 @@ export default function PoetsContent({
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
-  const featuredCentury = centuries.find((c) => c.id === 0);
+  const apiFeaturedCentury = centuries.find((c) => c.id === 0);
   const otherCenturies = centuries.filter((c) => c.id !== 0);
+  const pinnedPoets = otherCenturies
+    .flatMap((century) => century.poets)
+    .filter((poet) => poet.published && poet.pinOrder > 0)
+    .sort((a, b) => a.pinOrder - b.pinOrder);
+  const featuredCentury =
+    apiFeaturedCentury ||
+    (pinnedPoets.length > 0
+      ? {
+          id: 0,
+          name: "شاعران محبوب",
+          halfCenturyOrder: 0,
+          startYear: 0,
+          endYear: 0,
+          showInTimeLine: false,
+          poets: pinnedPoets,
+        }
+      : null);
   const hasCustomPoets = customPoets.some((poet) => poet.published);
+  const hasClassicPoets = otherCenturies.some((century) =>
+    century.poets.some((poet) => poet.published),
+  );
+  const allPoets = [...otherCenturies.flatMap((century) => century.poets), ...customPoets];
+  const normalizedSearchQuery = normalizeSearchText(searchQuery);
+  const isSearching = normalizedSearchQuery.length > 0;
+  const matchingPoets = isSearching
+    ? allPoets.filter((poet) => poet.published && poetMatchesQuery(poet, normalizedSearchQuery))
+    : [];
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -151,7 +206,37 @@ export default function PoetsContent({
         onClose={() => setIsSettingsOpen(false)}
       />
 
-      {featuredCentury && (
+      <button
+        type="button"
+        className="poets-search-button"
+        onClick={() => setIsSearchOpen((value) => !value)}
+        aria-label={isSearchOpen ? "بستن جستجو" : "جستجوی شاعر"}
+      >
+        {isSearchOpen ? <FaTimes size={15} /> : <FaSearch size={15} />}
+      </button>
+
+      {isSearchOpen && <div className="poets-search-popover">
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder="جستجوی شاعر..."
+          aria-label="جستجوی شاعر"
+          autoFocus
+        />
+      </div>}
+
+      {isSearching && (
+        <CategorySection title="نتایج جستجوی شاعران" defaultOpen>
+          {matchingPoets.length > 0 ? (
+            <PoetsList poets={matchingPoets} />
+          ) : (
+            <p className="poets-empty">شاعری پیدا نشد.</p>
+          )}
+        </CategorySection>
+      )}
+
+      {!isSearching && featuredCentury && (
         <CenturySection
           century={featuredCentury}
           title="شاعران محبوب"
@@ -159,23 +244,25 @@ export default function PoetsContent({
         />
       )}
 
-      <CategorySection title="شاعران معاصر">
+      {!isSearching && <CategorySection title="شاعران معاصر">
         {hasCustomPoets ? (
           <PoetsList poets={customPoets} />
         ) : (
           <p className="poets-empty">به زودی...</p>
         )}
-      </CategorySection>
+      </CategorySection>}
 
-      <CategorySection title="شاعران کهن">
-        {otherCenturies.length > 0 ? (
+      {!isSearching && <CategorySection title="شاعران کهن">
+        {hasClassicPoets ? (
           otherCenturies.map((century) => (
             <CenturySection key={century.id} century={century} />
           ))
         ) : (
-          <p className="poets-empty">در حال بارگیری...</p>
+          <p className="poets-empty">
+            فهرست شاعران کهن از API دریافت نشد. سرور گنجور را بررسی کنید.
+          </p>
         )}
-      </CategorySection>
+      </CategorySection>}
     </>
   );
 }

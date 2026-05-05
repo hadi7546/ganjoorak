@@ -11,6 +11,21 @@ const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
 
+    async rewrites() {
+        const ganjoorApiBaseUrl = GANJOOR_API_BASE_URL.replace(/\/+$/, '');
+
+        return [
+            {
+                source: '/api/ganjoor/:path*',
+                destination: `${ganjoorApiBaseUrl}/api/ganjoor/:path*`,
+            },
+            {
+                source: '/api/audio/verses/:path*',
+                destination: `${ganjoorApiBaseUrl}/api/audio/verses/:path*`,
+            },
+        ];
+    },
+
     images: {
         remotePatterns: [
             {
@@ -24,12 +39,6 @@ const nextConfig = {
                 hostname: 'api.ganjoor.net',
                 port: '',
                 pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: '7elmsr3m4bc7q4th.public.blob.vercel-storage.com',
-                port: '',
-                pathname: '/poets/**',
             },
         ],
         minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days

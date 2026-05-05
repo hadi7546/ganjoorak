@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { list } from '@vercel/blob';
 import fs from 'fs';
 import path from 'path';
 import { logger } from '@/utils/logger';
@@ -25,66 +24,23 @@ export async function GET(
 ) {
     try {
         const poetSlug = params.slug;
-        logger.log(`Fetching poet data for slug: ${poetSlug} on Vercel deployment: ${!!process.env.VERCEL}`);
+        logger.log(`Fetching local poet data for slug: ${poetSlug}`);
 
-        // Try to fetch from blob storage
         try {
-            logger.log("Listing blobs from storage...");
-            logger.log("Environment:", process.env.NODE_ENV);
+            const filePath = path.join(process.cwd(), 'public', 'poems', `${poetSlug}.json`);
 
-            const { blobs } = await list({
-                prefix: `poems/${poetSlug}`, // Only look in the poems directory with the specific poet slug
-            });
-
-            logger.log(`Found ${blobs.length} matching blobs`);
-
-            if (blobs.length === 0) {
-                logger.log(`No blob found for poet slug: ${poetSlug}`);
-
-                // Try to read from local file in public directory as fallback
-                try {
-                    logger.log(`Attempting to read from local public file for poet: ${poetSlug}`);
-
-                    // Refer to the fallback path - this won't work in the API route but helps with debugging
-                    const fallbackPath = `/poems/${poetSlug}.json`;
-                    logger.log(`Fallback path would be: ${fallbackPath}`);
-
-                    return NextResponse.json(
-                        { error: `Poet data not found for ${poetSlug}. Please check the client-side fallback.` },
-                        { status: 404, headers: corsHeaders }
-                    );
-                } catch (localError) {
-                    logger.error("Error with local file fallback:", localError);
-                    return NextResponse.json(
-                        { error: `Poet data not found for ${poetSlug} in blob storage or local fallback` },
-                        { status: 404, headers: corsHeaders }
-                    );
-                }
-            }
-
-            // Get the first matching blob (should only be one)
-            const poetBlob = blobs[0];
-            logger.log(`Found poet blob: ${poetBlob.pathname}, URL: ${poetBlob.url}`);
-
-            // Get the blob content
-            const response = await fetch(poetBlob.url, {
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
-            });
-
-            if (!response.ok) {
-                logger.error(`Error fetching blob content: ${response.status} ${response.statusText}`);
+            if (!fs.existsSync(filePath)) {
+                logger.log(`Local poet data not found: ${filePath}`);
                 return NextResponse.json(
-                    { error: `Error fetching blob content: ${response.statusText}` },
-                    { status: response.status, headers: corsHeaders }
+                    { error: `Poet data not found for ${poetSlug}` },
+                    { status: 404, headers: corsHeaders }
                 );
             }
 
-            const data = await response.json();
-            logger.log("Successfully fetched and parsed poet data from blob");
+            const rawData = fs.readFileSync(filePath, 'utf8');
+            const data = JSON.parse(rawData);
+            data.imageUrl = `/images/poets/${poetSlug}.jpeg`;
+            logger.log("Successfully fetched and parsed local poet data");
 
             // Add cache control headers to prevent caching
             const headers = {
@@ -96,10 +52,10 @@ export async function GET(
 
             // Return the data with headers
             return NextResponse.json(data, { headers });
-        } catch (blobError: any) {
-            logger.error("Error fetching from blob storage:", blobError);
+        } catch (localError: any) {
+            logger.error("Error fetching local poet data:", localError);
             return NextResponse.json(
-                { error: "Error fetching from blob storage", details: blobError?.message || String(blobError) },
+                { error: "Error fetching local poet data", details: localError?.message || String(localError) },
                 { status: 500, headers: corsHeaders }
             );
         }

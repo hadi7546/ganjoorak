@@ -1,10 +1,12 @@
 import type { Poem, PoemRecitation } from "@/types/poem";
 import { PoetSlug, poetNames, createPoet, Poet } from "@/types/poet";
-import { list } from "@vercel/blob";
 import { logger } from "@/utils/logger";
 
 // Cache for poets' poems
 let poetPoemsCache: Record<string, any> = {};
+
+const getLocalPoetImageUrl = (poetSlug: PoetSlug) =>
+  `/images/poets/${poetSlug}.jpeg`;
 
 // Define fallback paths for local JSON files
 const poetFallbackPaths: Record<string, string> = {
@@ -14,7 +16,7 @@ const poetFallbackPaths: Record<string, string> = {
 
 const customApi = {
   /**
-   * Get poet data from blob storage or local cache
+   * Get poet data from local JSON or cache.
    */
   async _getPoetData(poetSlug: PoetSlug): Promise<any> {
     try {
@@ -55,8 +57,13 @@ const customApi = {
         }
 
         // Cache the data
-        poetPoemsCache[poetSlug] = data;
-        return data;
+        const normalizedData = {
+          ...data,
+          imageUrl: getLocalPoetImageUrl(poetSlug),
+        };
+
+        poetPoemsCache[poetSlug] = normalizedData;
+        return normalizedData;
       } catch (apiError: any) {
         logger.error("Error fetching from API:", apiError);
 
@@ -84,8 +91,13 @@ const customApi = {
           }
 
           // Cache the fallback data
-          poetPoemsCache[poetSlug] = fallbackData;
-          return fallbackData;
+          const normalizedFallbackData = {
+            ...fallbackData,
+            imageUrl: getLocalPoetImageUrl(poetSlug),
+          };
+
+          poetPoemsCache[poetSlug] = normalizedFallbackData;
+          return normalizedFallbackData;
         } catch (fallbackError) {
           logger.error("Error fetching from fallback:", fallbackError);
           throw new Error(`Failed to fetch poet data: ${apiError?.message || String(apiError)}`);
@@ -150,7 +162,7 @@ const customApi = {
   },
 
   /**
-   * Get poet information including image from blob storage
+   * Get poet information including local image.
    */
   async getPoetInfo(poetSlug: PoetSlug): Promise<Poet> {
     try {
@@ -214,7 +226,7 @@ const customApi = {
               nickname: "",
               fullUrl: slug,
               urlSlug: slug,
-              imageUrl: `https://7elmsr3m4bc7q4th.public.blob.vercel-storage.com/poets/${slug}.jpeg`, // Fallback to local image
+              imageUrl: getLocalPoetImageUrl(slug),
               published: true,
               description: null,
               rootCatId: 0,
