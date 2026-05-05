@@ -42,7 +42,7 @@ interface PoemViewerProps {
 const PoemViewer: React.FC<PoemViewerProps> = ({
   poem,
   onNext,
-  onPrevious = () => { },
+  onPrevious = () => {},
   isFirst = true,
   isLast = true,
   isModern = true,
@@ -145,7 +145,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     // Find the appropriate verse to highlight
     let highlightedVerseIndex = -1;
 
-
     // At the very beginning (0-2000ms), always start with verse order 1
     if (currentTimeMs <= 2000) {
       highlightedVerseIndex = 1; // Force first verse
@@ -195,8 +194,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const threshold = 50; // Increased threshold for better detection
     return (
       poemTextRef.current.scrollHeight -
-      poemTextRef.current.scrollTop -
-      poemTextRef.current.clientHeight <
+        poemTextRef.current.scrollTop -
+        poemTextRef.current.clientHeight <
       threshold
     );
   };
@@ -227,8 +226,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const threshold = 20;
     return (
       poemTextRef.current.scrollHeight -
-      poemTextRef.current.scrollTop -
-      poemTextRef.current.clientHeight <
+        poemTextRef.current.scrollTop -
+        poemTextRef.current.clientHeight <
       threshold
     );
   };
@@ -341,12 +340,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       return poem.fullUrl;
     } else {
       // For ganjoor poems, always prepend the ganjoor.net domain
-      return `https://ganjoor.net${poem.fullUrl}`;
+      return `https://offline.ganjoor.net${poem.fullUrl}`;
     }
   };
   // Handle share action
   const sharePoem = async () => {
-    const baseUrl = "https://ganjoorak.ir";
+    const baseUrl = "https://gnjk.ir";
     let poemUrl = "";
 
     if (poem.isCustom) {
@@ -791,7 +790,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             <button
               className={`audio-control-button ${isHighlightEnabled ? "active" : ""}`}
               onClick={() => setIsHighlightEnabled((v) => !v)}
-              title={isHighlightEnabled ? "خاموش کردن برجسته‌سازی" : "روشن کردن برجسته‌سازی"}
+              title={
+                isHighlightEnabled
+                  ? "خاموش کردن برجسته‌سازی"
+                  : "روشن کردن برجسته‌سازی"
+              }
             >
               {isHighlightEnabled ? <FaEye /> : <FaEyeSlash />}
             </button>
@@ -865,10 +868,13 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           )}
         </div>
         <div
-          className={`poem-text ${isHighlightEnabled && verseSync.length > 0 && currentHighlightedVerse !== -1
-            ? "highlight-on"
-            : ""
-            }`}
+          className={`poem-text ${
+            isHighlightEnabled &&
+            verseSync.length > 0 &&
+            currentHighlightedVerse !== -1
+              ? "highlight-on"
+              : ""
+          }`}
           ref={poemTextRef}
         >
           {isModern ? (
