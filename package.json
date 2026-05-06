@@ -4,6 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
+        "prebuild": "node scripts/build-poet-source-index.mjs",
         "build": "next build",
         "start": "next start",
         "lint": "next lint"
@@ -11,19 +12,26 @@
     "dependencies": {
         "@prisma/client": "^6.5.0",
         "@types/cheerio": "^0.22.35",
-        "@vercel/blob": "^0.27.3",
         "@vercel/speed-insights": "^1.2.0",
         "axios": "^1.8.2",
         "cheerio": "^1.0.0",
         "framer-motion": "^10.16.5",
+        "gandom-font": "^0.8.0",
         "mongodb": "^6.14.2",
+        "nahid-font": "^0.3.0",
         "next": "^14.2.24",
+        "parastoo-font": "^2.0.1",
         "prisma": "^6.5.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-icons": "^4.12.0",
         "react-router-dom": "^7.3.0",
-        "styled-components": "^6.1.1"
+        "sahel-font": "^3.4.0",
+        "samim-font": "^4.0.5",
+        "shabnam-font": "^5.0.0",
+        "styled-components": "^6.1.1",
+        "tanha-font": "^0.10.0",
+        "vazir-code-font": "^1.1.2"
     },
     "devDependencies": {
         "@types/node": "^20.17.24",

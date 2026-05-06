@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { list } from '@vercel/blob';
+import fs from 'fs';
+import path from 'path';
+import { logger } from '@/utils/logger';
 
 export const dynamic = 'force-dynamic'; // Mark this route as dynamic
 export const revalidate = 0; // Disable caching for this route
@@ -22,53 +24,23 @@ export async function GET(
 ) {
     try {
         const poetSlug = params.slug;
+        logger.log(`Fetching local poet data for slug: ${poetSlug}`);
 
-        // Try to fetch from blob storage
         try {
+            const filePath = path.join(process.cwd(), 'public', 'poems', `${poetSlug}.json`);
 
-            const { blobs } = await list({
-                prefix: `poems/${poetSlug}`, // Only look in the poems directory with the specific poet slug
-            });
-
-
-            if (blobs.length === 0) {
-
-                // Try to read from local file in public directory as fallback
-                try {
-                    return NextResponse.json(
-                        { error: `Poet data not found for ${poetSlug}. Please check the client-side fallback.` },
-                        { status: 404, headers: corsHeaders }
-                    );
-                } catch (localError) {
-                    console.error("Error with local file fallback:", localError);
-                    return NextResponse.json(
-                        { error: `Poet data not found for ${poetSlug} in blob storage or local fallback` },
-                        { status: 404, headers: corsHeaders }
-                    );
-                }
-            }
-
-            // Get the first matching blob (should only be one)
-            const poetBlob = blobs[0];
-
-            // Get the blob content
-            const response = await fetch(poetBlob.url, {
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
-            });
-
-            if (!response.ok) {
-                console.error(`Error fetching blob content: ${response.status} ${response.statusText}`);
+            if (!fs.existsSync(filePath)) {
+                logger.log(`Local poet data not found: ${filePath}`);
                 return NextResponse.json(
-                    { error: `Error fetching blob content: ${response.statusText}` },
-                    { status: response.status, headers: corsHeaders }
+                    { error: `Poet data not found for ${poetSlug}` },
+                    { status: 404, headers: corsHeaders }
                 );
             }
 
-            const data = await response.json();
+            const rawData = fs.readFileSync(filePath, 'utf8');
+            const data = JSON.parse(rawData);
+            data.imageUrl = `/images/poets/${poetSlug}.jpeg`;
+            logger.log("Successfully fetched and parsed local poet data");
 
             // Add cache control headers to prevent caching
             const headers = {
@@ -80,15 +52,15 @@ export async function GET(
 
             // Return the data with headers
             return NextResponse.json(data, { headers });
-        } catch (blobError: any) {
-            console.error("Error fetching from blob storage:", blobError);
+        } catch (localError: any) {
+            logger.error("Error fetching local poet data:", localError);
             return NextResponse.json(
-                { error: "Error fetching from blob storage", details: blobError?.message || String(blobError) },
+                { error: "Error fetching local poet data", details: localError?.message || String(localError) },
                 { status: 500, headers: corsHeaders }
             );
         }
     } catch (error: any) {
-        console.error(`Error getting poet data:`, error);
+        logger.error(`Error getting poet data:`, error);
         return NextResponse.json(
             { error: "Internal server error", details: error?.message || String(error) },
             { status: 500, headers: corsHeaders }

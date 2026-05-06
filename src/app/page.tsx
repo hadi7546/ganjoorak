@@ -6,6 +6,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
 import ganjoorApi from '@/api/GanjoorApi';
 import { Poem } from '@/types/poem';
+import { logger } from '@/utils/logger';
 
 const INITIAL_POEMS_COUNT = 3;
 const PREFETCH_THRESHOLD = 2;
@@ -35,7 +36,7 @@ export default function Home() {
                     const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
                     fetchedPoems.push(fullPoem);
                 } catch (err) {
-                    console.error('Error fetching poem:', err);
+                    logger.error('Error fetching poem:', err);
                 }
             }
 
@@ -46,7 +47,7 @@ export default function Home() {
                 throw new Error('Could not fetch any poems');
             }
         } catch (err) {
-            console.error('Failed to fetch initial poems:', err);
+            logger.error('Failed to fetch initial poems:', err);
             setError('متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.');
             setLoading(false);
         }
@@ -79,7 +80,7 @@ export default function Home() {
                             const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
                             newPoems.push(fullPoem);
                         } catch (err) {
-                            console.error('Error fetching additional poem:', err);
+                            logger.error('Error fetching additional poem:', err);
                         }
                     }
 
@@ -87,7 +88,7 @@ export default function Home() {
                         setPoems(prevPoems => [...prevPoems, ...newPoems]);
                     }
                 } catch (err) {
-                    console.error('Failed to fetch more poems:', err);
+                    logger.error('Failed to fetch more poems:', err);
                 } finally {
                     setIsFetchingMore(false);
                 }

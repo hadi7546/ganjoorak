@@ -17,10 +17,12 @@
     font-weight: 500;
 }
 
+
 .updates-list {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
+    min-width: 0;
 }
 
 .update-item {
@@ -28,22 +30,29 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 1rem;
-    padding: 1.5rem;
     transition: all 0.3s ease;
+    min-width: 0;
+    overflow: hidden;
 }
 
-.update-header {
+.update-question {
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.update-question > span {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    justify-content: space-between;
+    width: 100%;
+    gap: 1rem;
+    min-width: 0;
 }
 
 .update-version {
     color: rgb(var(--foreground) / 0.95);
     font-size: 1.25rem;
     font-weight: 500;
-    margin: 0;
 }
 
 .update-date {
@@ -51,11 +60,29 @@
     font-size: 0.9rem;
 }
 
+.update-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    font-size: 1rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.update-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+}
+
 .update-changes {
     list-style-type: none;
     padding: 0;
     margin: 0;
     color: rgb(var(--foreground) / 0.8);
+    min-width: 0;
 }
 
 .update-changes li {
@@ -63,6 +90,10 @@
     padding-right: 1.5rem;
     margin-bottom: 0.5rem;
     line-height: 1.6;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    white-space: normal;
 }
 
 .update-changes li::before {
@@ -98,12 +129,25 @@
         padding: 1.25rem;
     }
 
+    .update-question > span {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .update-version {
         font-size: 1.1rem;
     }
 
     .update-date {
         font-size: 0.8rem;
+    }
+
+    .update-question {
+        padding: 1.25rem;
+    }
+
+    .update-answer {
+        padding: 0 1.25rem 1.25rem;
     }
 }
 
@@ -118,16 +162,20 @@
         margin-bottom: 1.25rem;
     }
 
-    .update-item {
-        padding: 1rem;
-    }
-
     .update-version {
         font-size: 1rem;
     }
 
     .update-changes li {
         font-size: 0.9rem;
+    }
+
+    .update-question {
+        padding: 1rem;
+    }
+
+    .update-answer {
+        padding: 0 1rem 1rem;
     }
 }
 

@@ -6,8 +6,10 @@ import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
 import customApi from '@/api/CustomApi';
+import echolaliaApi from '@/api/EcholaliaApi';
 import type { Poem } from '@/types/poem';
-import { PoetSlug, isValidPoetSlug, poetNames } from '@/types/poet';
+import { PoetSlug, isValidPoetSlug } from '@/types/poet';
+import { logger } from '@/utils/logger';
 
 export default function PoemPage() {
     const params = useParams();
@@ -21,43 +23,50 @@ export default function PoemPage() {
             try {
                 setLoading(true);
 
-                // Get and validate poet from params
                 const poetSlug = params?.poet as string;
-                if (!isValidPoetSlug(poetSlug)) {
-                    router.push('/');
-                    return;
-                }
-                const poet = poetSlug as PoetSlug;
-
                 const id = params?.id;
+                const poet = isValidPoetSlug(poetSlug)
+                    ? (poetSlug as PoetSlug)
+                    : null;
+
                 if (!id) {
-                    // Redirect to random poem
-                    const randomPoem = await customApi.getRandomPoem(poet);
+                    const randomPoem = poet
+                        ? await customApi.getRandomPoem(poet)
+                        : await echolaliaApi.getRandomPoemByPoetSlug(poetSlug);
                     router.push(`/${poetSlug}/${randomPoem.id}`);
                     return;
                 }
 
                 const poemId = parseInt(id as string);
                 if (isNaN(poemId) || poemId < 1) {
-                    // Redirect to random poem if ID is invalid
-                    const randomPoem = await customApi.getRandomPoem(poet);
+                    const randomPoem = poet
+                        ? await customApi.getRandomPoem(poet)
+                        : await echolaliaApi.getRandomPoemByPoetSlug(poetSlug);
                     router.push(`/${poetSlug}/${randomPoem.id}`);
                     return;
                 }
 
                 try {
-                    // Fetch the specific poem
-                    const loadedPoem = await customApi.getPoemById(poemId, poet);
+                    const loadedPoem = poet
+                        ? await customApi.getPoemById(poemId, poet)
+                        : await echolaliaApi.getPoemById(poemId);
+
+                    if (!poet && loadedPoem.poetSlug !== poetSlug) {
+                        router.replace(`/${loadedPoem.poetSlug}/${loadedPoem.id}`);
+                        return;
+                    }
+
                     setPoem(loadedPoem);
                     setError(null);
                 } catch (err) {
-                    // If poem not found, redirect to a random poem
-                    const randomPoem = await customApi.getRandomPoem(poet);
+                    const randomPoem = poet
+                        ? await customApi.getRandomPoem(poet)
+                        : await echolaliaApi.getRandomPoemByPoetSlug(poetSlug);
                     router.push(`/${poetSlug}/${randomPoem.id}`);
                     return;
                 }
             } catch (err) {
-                console.error('Error loading poem:', err);
+                logger.error('Error loading poem:', err);
                 setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر');
             } finally {
                 setLoading(false);
@@ -71,15 +80,15 @@ export default function PoemPage() {
         try {
             setLoading(true);
             const poetSlug = params?.poet as string;
-            if (!isValidPoetSlug(poetSlug)) {
-                router.push('/');
-                return;
-            }
-            const poet = poetSlug as PoetSlug;
-            const newPoem = await customApi.getRandomPoem(poet);
+            const poet = isValidPoetSlug(poetSlug)
+                ? (poetSlug as PoetSlug)
+                : null;
+            const newPoem = poet
+                ? await customApi.getRandomPoem(poet)
+                : await echolaliaApi.getRandomPoemByPoetSlug(poetSlug);
             router.push(`/${poetSlug}/${newPoem.id}`);
         } catch (err) {
-            console.error('Error loading next poem:', err);
+            logger.error('Error loading next poem:', err);
             setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر بعدی');
             setLoading(false);
         }
@@ -101,7 +110,7 @@ export default function PoemPage() {
         <PoemViewer
             poem={poem}
             onNext={handleNext}
-            poetSlug={params?.poet as PoetSlug}
+            poetSlug={poem.poetSlug || (params?.poet as string)}
             showNext={true}
         />
     );

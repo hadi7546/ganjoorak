@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+"use client";
+
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaChevronUp,
@@ -12,7 +14,6 @@ import {
   FaExternalLinkAlt,
   FaBackward,
   FaForward,
-  FaInfoCircle,
   FaSpinner,
   FaArrowLeft,
   FaEye,
@@ -22,10 +23,19 @@ import "../styles/PoemViewer.css";
 import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
 import ganjoorApi from "@/api/GanjoorApi";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { PoetSlug, poetNames } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
-import Menu, { MenuButton } from "@/components/Menu";
+import Menu, { MenuButton, SearchButton } from "@/components/Menu";
+import SettingsDialog from "@/components/SettingsDialog";
+import GlobalSearchDialog from "@/components/GlobalSearchDialog";
+import SharePoemDialog from "@/components/SharePoemDialog";
+import { useSettings } from "@/context/SettingsContext";
+import { useUpdateNotification } from "@/hooks/useUpdateNotification";
+import { logger } from "@/utils/logger";
+
+const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
+
+const formatPersianNumber = (value: number) =>
+  persianNumberFormatter.format(value);
 
 interface PoemViewerProps {
   poem: Poem;
@@ -34,21 +44,23 @@ interface PoemViewerProps {
   isFirst?: boolean;
   isLast?: boolean;
   isModern?: boolean;
-  poetSlug?: PoetSlug;
+  poetSlug?: string;
   showNext?: boolean;
   isPoetPage?: boolean;
+  onTogglePoetInfo?: () => void;
 }
 
 const PoemViewer: React.FC<PoemViewerProps> = ({
   poem,
   onNext,
-  onPrevious = () => {},
+  onPrevious = () => { },
   isFirst = true,
   isLast = true,
   isModern = true,
   poetSlug,
   showNext = false,
   isPoetPage = false,
+  onTogglePoetInfo,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -57,18 +69,31 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
   const [isMouseOverPoemText, setIsMouseOverPoemText] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [navigationDirection, setNavigationDirection] = useState(0);
   const [verseSync, setVerseSync] = useState<VerseSync[]>([]);
   const [currentHighlightedVerse, setCurrentHighlightedVerse] =
     useState<number>(-1);
   const [isHighlightEnabled, setIsHighlightEnabled] = useState(true);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const [isAtBottom, setIsAtBottom] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const poemTextRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const { settings } = useSettings();
+  const poemViewerVisibility = settings.poemViewerVisibility;
+  const showTitleSection = poemViewerVisibility.titleSection;
+  const showTitleBreadcrumbs = poemViewerVisibility.titleBreadcrumbs;
+  const { hasNewUpdates, markAsRead } = useUpdateNotification();
+  const fullTitleParts = poem.fullTitle
+    ? poem.fullTitle.split(" » ").filter((part) => part.trim())
+    : [];
+  const fullTitleIntermediateParts =
+    fullTitleParts.length > 2 ? fullTitleParts.slice(1, -1) : [];
 
   // Define loading animation variants
   const loadingVariants = {
@@ -120,7 +145,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           setCurrentHighlightedVerse(-1);
         }
       } catch (error) {
-        console.error("Error fetching verse sync data:", error);
+        logger.error("Error fetching verse sync data:", error);
         setVerseSync([]);
         setCurrentHighlightedVerse(-1);
       }
@@ -187,21 +212,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     }
   }, [currentTime, verseSync, isPlaying, currentHighlightedVerse]);
 
-  // Check if scroll is at the bottom
-  const isScrolledToBottom = () => {
-    if (!poemTextRef.current) return true;
-
-    const threshold = 50; // Increased threshold for better detection
-    return (
-      poemTextRef.current.scrollHeight -
-        poemTextRef.current.scrollTop -
-        poemTextRef.current.clientHeight <
-      threshold
-    );
-  };
-
   // Wrapper to handle next action with loading indicator
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
+    setNavigationDirection(1);
     if (isPlaying && audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -212,7 +225,19 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     setCurrentRecitationIndex(0);
     // Don't set loading state when scrolling through poems
     onNext();
-  };
+  }, [isPlaying, onNext]);
+
+  const handlePrevious = useCallback(() => {
+    setNavigationDirection(-1);
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+    setCurrentTime(0);
+    setDuration(0);
+    setCurrentRecitationIndex(0);
+    onPrevious();
+  }, [isPlaying, onPrevious]);
 
   const chunk = (arr: string[], size: number) => {
     return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
@@ -221,18 +246,18 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   };
 
   // Helper functions for wheel handling
-  const isAtBottom = () => {
+  const isScrollNearBottom = () => {
     if (!poemTextRef.current) return false;
     const threshold = 20;
     return (
       poemTextRef.current.scrollHeight -
-        poemTextRef.current.scrollTop -
-        poemTextRef.current.clientHeight <
+      poemTextRef.current.scrollTop -
+      poemTextRef.current.clientHeight <
       threshold
     );
   };
 
-  const isAtTop = () => {
+  const isScrollNearTop = () => {
     if (!poemTextRef.current) return false;
     return poemTextRef.current.scrollTop <= 1;
   };
@@ -242,40 +267,72 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const poemTextElement = poemTextRef.current;
     if (!poemTextElement) return;
 
-    // Debounce mechanism to prevent rapid firing of wheel events
-    let wheelTimeout: NodeJS.Timeout | null = null;
+    // Debounce/accumulation helpers to require deliberate scroll gestures
+    let wheelResetTimer: NodeJS.Timeout | null = null;
     let lastWheelTime = 0;
-    const WHEEL_COOLDOWN = 150; // milliseconds - slightly faster response
+    let downwardAccumulatedDelta = 0;
+    let upwardAccumulatedDelta = 0;
+    const WHEEL_RESET_TIMEOUT = 400; // ms before clearing accumulated delta
+    const WHEEL_TRIGGER_DELTA = 220; // total delta required to trigger navigation
 
     // Direct wheel handler with improved logic
+    const SWIPE_TRIGGER_DISTANCE = 100; // px finger travel before navigating
+
     const wheelHandler = (e: WheelEvent) => {
       // Only check if we're at boundaries
-      const atBottom = isAtBottom();
-      const atTop = isAtTop();
+      const atBottom = isScrollNearBottom();
+      const atTop = isScrollNearTop();
 
-      // Make sure we don't trigger the event too frequently
-      const isSignificantScroll = Math.abs(e.deltaY) > 5; // Reduced threshold for better sensitivity
-
-      // Debounce implementation
       const now = Date.now();
-      if (now - lastWheelTime < WHEEL_COOLDOWN) {
-        return; // Still in cooldown period
-      }
+      const deltaY = e.deltaY;
 
-      // If we're at the bottom and scrolling down, go to next poem
-      if (atBottom && e.deltaY > 0 && !isLast && isSignificantScroll) {
-        e.preventDefault();
-        handleNext();
-        lastWheelTime = now;
+      if (Math.abs(deltaY) < 1) {
         return;
       }
 
-      // If we're at the top and scrolling up, go to previous poem
-      if (atTop && e.deltaY < 0 && !isFirst && isSignificantScroll) {
-        e.preventDefault();
-        onPrevious();
-        lastWheelTime = now;
-        return;
+      if (now - lastWheelTime > WHEEL_RESET_TIMEOUT) {
+        downwardAccumulatedDelta = 0;
+        upwardAccumulatedDelta = 0;
+      }
+      lastWheelTime = now;
+
+      if (wheelResetTimer) {
+        clearTimeout(wheelResetTimer);
+      }
+      wheelResetTimer = setTimeout(() => {
+        downwardAccumulatedDelta = 0;
+        upwardAccumulatedDelta = 0;
+        wheelResetTimer = null;
+      }, WHEEL_RESET_TIMEOUT);
+
+      if (deltaY > 0) {
+        upwardAccumulatedDelta = 0;
+        if (!atBottom) {
+          downwardAccumulatedDelta = 0;
+          return;
+        }
+
+        downwardAccumulatedDelta += deltaY;
+        if (downwardAccumulatedDelta >= WHEEL_TRIGGER_DELTA && !isLast) {
+          e.preventDefault();
+          handleNext();
+          downwardAccumulatedDelta = 0;
+          upwardAccumulatedDelta = 0;
+        }
+      } else {
+        downwardAccumulatedDelta = 0;
+        if (!atTop) {
+          upwardAccumulatedDelta = 0;
+          return;
+        }
+
+        upwardAccumulatedDelta += Math.abs(deltaY);
+        if (upwardAccumulatedDelta >= WHEEL_TRIGGER_DELTA && !isFirst) {
+          e.preventDefault();
+          handlePrevious();
+          downwardAccumulatedDelta = 0;
+          upwardAccumulatedDelta = 0;
+        }
       }
     };
 
@@ -296,16 +353,19 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
       // If poem is scrollable, let the user scroll
       if (poemTextElement.scrollHeight > poemTextElement.clientHeight) {
-        if ((diff > 0 && !isAtBottom()) || (diff < 0 && !isAtTop())) {
+        if (
+          (diff > 0 && !isScrollNearBottom()) ||
+          (diff < 0 && !isScrollNearTop())
+        ) {
           return;
         }
       }
 
-      if (Math.abs(diff) > 50) {
+      if (Math.abs(diff) > SWIPE_TRIGGER_DISTANCE) {
         if (diff > 0 && !isLast) {
           handleNext();
         } else if (diff < 0 && !isFirst) {
-          onPrevious();
+          handlePrevious();
         }
         isTouching = false;
       }
@@ -331,8 +391,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       poemTextElement.removeEventListener("touchmove", handleTouchMove);
       poemTextElement.removeEventListener("touchend", handleTouchEnd);
       poemTextElement.removeEventListener("wheel", wheelHandler);
+      if (wheelResetTimer) {
+        clearTimeout(wheelResetTimer);
+      }
     };
-  }, [isFirst, isLast, onPrevious, handleNext]);
+  }, [isFirst, isLast, handleNext, handlePrevious]);
 
   const openSource = () => {
     // For custom poems, use the fullUrl directly
@@ -342,56 +405,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       // For ganjoor poems, always prepend the ganjoor.net domain
       return `https://offline.ganjoor.net${poem.fullUrl}`;
     }
-  };
-  // Handle share action
-  const sharePoem = async () => {
-    const baseUrl = "https://gnjk.ir";
-    let poemUrl = "";
-
-    if (poem.isCustom) {
-      // For custom poems, share as /[poet]/id
-      if (poetSlug) {
-        poemUrl = `${baseUrl}/${poetSlug}/${poem.id}`;
-      } else if (poem.poetSlug) {
-        poemUrl = `${baseUrl}/${poem.poetSlug}/${poem.id}`;
-      } else {
-        // Fallback to /poem/:id if no poet slug is available
-        poemUrl = `${baseUrl}/poem/${poem.id}`;
-      }
-    } else {
-      // For ganjoor poems, share as /poem/:id
-      poemUrl = `${baseUrl}/poem/${poem.id}`;
-    }
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${poem.title} | گنجورک`,
-          text: `${poem.title} از ${poem.poet} | گنجورک`,
-          url: poemUrl,
-        });
-      } catch (error) {
-        console.error("Error sharing:", error);
-      }
-    } else {
-      copyToClipboard(poemUrl);
-    }
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        setToastMessage("لینک شعر کپی شد");
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 2000);
-      })
-      .catch((err) => {
-        console.error("Failed to copy:", err);
-        setToastMessage("خطا در کپی کردن لینک");
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 2000);
-      });
   };
 
   // Handle audio playback and navigation
@@ -410,7 +423,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           setError(null);
         })
         .catch((err) => {
-          console.error("Error playing audio:", err);
+          logger.error("Error playing audio:", err);
           setError("خطا در پخش صدا");
           setIsPlaying(false);
         })
@@ -444,7 +457,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               setError(null);
             })
             .catch((err) => {
-              console.error("Error playing audio:", err);
+              logger.error("Error playing audio:", err);
               setError("خطا در پخش صدا");
               setIsPlaying(false);
             });
@@ -478,7 +491,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               setError(null);
             })
             .catch((err) => {
-              console.error("Error playing audio:", err);
+              logger.error("Error playing audio:", err);
               setError("خطا در پخش صدا");
               setIsPlaying(false);
             });
@@ -502,6 +515,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const getVerseClass = (lineIndexZeroBased: number): string => {
     let className = "verse-line";
 
+    if (settings.showLineNumbers && isModern) {
+      className += " verse-line-numbered";
+    }
+
     // verseOrder from API is 1-based, rendered line indices are 0-based
     const lineOrderOneBased = lineIndexZeroBased + 1;
     const shouldHighlight =
@@ -512,6 +529,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     if (shouldHighlight) {
       className += " verse-highlighted";
     }
+
     return className;
   };
 
@@ -532,7 +550,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       audioRef.current.currentTime = newTime;
       setCurrentTime(newTime);
     } catch (error) {
-      console.error("Error seeking audio:", error);
+      logger.error("Error seeking audio:", error);
       if (audioRef.current) {
         setCurrentTime(audioRef.current.currentTime);
       }
@@ -556,7 +574,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               setIsPlaying(true);
             })
             .catch((error) => {
-              console.error("Error playing next audio:", error);
+              logger.error("Error playing next audio:", error);
               setIsPlaying(false);
             });
         }
@@ -567,7 +585,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const handleAudioError = (
     e: React.SyntheticEvent<HTMLAudioElement, Event>,
   ) => {
-    console.error("Audio error:", e);
+    logger.error("Audio error:", e);
     setError("خطا در بارگذاری صدا");
     setIsPlaying(false);
   };
@@ -608,7 +626,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           setError(null);
         })
         .catch((error) => {
-          console.error("Error auto-playing audio:", error);
+          logger.error("Error auto-playing audio:", error);
           setError("خطا در پخش خودکار صدا");
           setIsPlaying(false);
         })
@@ -622,6 +640,49 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   useEffect(() => {
     setError(null);
   }, [poem.recitations, currentRecitationIndex]);
+
+  useEffect(() => {
+    setIsAtTop(true);
+    setIsAtBottom(false);
+  }, [poem.id]);
+
+  useEffect(() => {
+    const poemElement = poemTextRef.current;
+    if (!poemElement) {
+      return;
+    }
+
+    const thresholdPx = 32;
+
+    const updateScrollEdges = () => {
+      const { scrollTop, scrollHeight, clientHeight } = poemElement;
+      const maxScrollable = scrollHeight - clientHeight;
+      const effectiveThreshold = Math.min(
+        Math.max(thresholdPx, clientHeight * 0.05),
+        64,
+      );
+
+      const atTop = scrollTop <= effectiveThreshold;
+      const atBottom =
+        maxScrollable <= effectiveThreshold ||
+        maxScrollable - scrollTop <= effectiveThreshold;
+
+      setIsAtTop(atTop);
+      setIsAtBottom(atBottom);
+    };
+
+    updateScrollEdges();
+
+    const handleScroll = () => {
+      updateScrollEdges();
+    };
+
+    poemElement.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      poemElement.removeEventListener("scroll", handleScroll);
+    };
+  }, [poem.id]);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -670,7 +731,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             handleNext();
           } else if (e.code === "ArrowUp" && !isFirst) {
             e.preventDefault();
-            onPrevious();
+            handlePrevious();
           }
           return;
         }
@@ -691,7 +752,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               poemText.scrollBy({ top: -scrollAmount, behavior: "smooth" });
             } else if (!isFirst) {
               e.preventDefault();
-              onPrevious();
+              handlePrevious();
             }
           }
         } else {
@@ -701,7 +762,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             handleNext();
           } else if (e.code === "ArrowUp" && !isFirst) {
             e.preventDefault();
-            onPrevious();
+            handlePrevious();
           }
         }
       }
@@ -715,28 +776,97 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     isPlaying,
     isFirst,
     isLast,
-    onPrevious,
+    handleNext,
+    handlePrevious,
     isMouseOverPoemText,
   ]);
 
   const hasNextRecitation =
     poem.recitations && currentRecitationIndex < poem.recitations.length - 1;
   const hasPreviousRecitation = poem.recitations && currentRecitationIndex > 0;
+  const hasRecitations = (poem.recitations?.length ?? 0) > 0;
+  const isAudioPlayerVisible =
+    poemViewerVisibility.audioPlayer && hasRecitations;
+  const isMinimalPoemView =
+    !showTitleSection &&
+    !poemViewerVisibility.actionButtons &&
+    !poemViewerVisibility.navigationControls &&
+    !isAudioPlayerVisible;
+  const highlightActive =
+    isHighlightEnabled &&
+    verseSync.length > 0 &&
+    currentHighlightedVerse !== -1;
+  const viewerClassName = [
+    "poem-viewer",
+    isPoetPage ? "poem-viewer--embedded" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const poemContentClassName = [
+    "poem-content",
+    !showTitleSection ? "poem-content--centered" : "",
+    isMinimalPoemView ? "poem-content--minimal" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const poemTextClassName = [
+    "poem-text",
+    highlightActive ? "highlight-on" : "",
+    !isAudioPlayerVisible ? "poem-text--no-audio" : "",
+    isMinimalPoemView ? "poem-text--minimal" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
+  const showNavigationControls =
+    (isAtTop && !isFirst) || (isAtBottom && !isLast);
+  const showActionButtons = isAtTop || isAtBottom;
   if (!poem) return null;
 
   return (
     <motion.div
-      className="poem-viewer"
-      key={poem.id}
+      className={viewerClassName}
       ref={containerRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
-      <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MenuButton
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        hasNotification={hasNewUpdates}
+        isHidden={!showActionButtons}
+      />
+      <SearchButton
+        onClick={() => setIsSearchOpen(true)}
+        isHidden={!showActionButtons}
+      />
+      <Menu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        hasNewUpdates={hasNewUpdates}
+        onUpdatesViewed={markAsRead}
+        onOpenSettings={() => {
+          setIsSettingsOpen(true);
+          setIsMenuOpen(false);
+        }}
+      />
+      <SettingsDialog
+        isOpen={isSettingsOpen}
+        onClose={() => {
+          setIsSettingsOpen(false);
+        }}
+      />
+      <GlobalSearchDialog
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
+      <SharePoemDialog
+        poem={poem}
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        poetSlug={poetSlug}
+      />
 
       {/* Loading overlay is now permanently hidden when scrolling through poems
             <AnimatePresence>
@@ -754,7 +884,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             </AnimatePresence> */}
 
       {/* Audio player - show only when a recitation is available */}
-      {poem.recitations && poem.recitations.length > 0 && (
+      {isAudioPlayerVisible && (
         <div className="audio-player">
           <div className="audio-controls">
             <button
@@ -846,138 +976,191 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       )}
 
       {/* Poem content */}
-      <div className="poem-content">
-        <div className="title-section">
-          <motion.h2
-            className="poem-title"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+      <div className={poemContentClassName}>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={poem.id}
+            className="poem-navigation-frame"
+            initial={{
+              opacity: 0,
+              y: navigationDirection >= 0 ? 28 : -28,
+              filter: "blur(3px)",
+            }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{
+              opacity: 0,
+              y: navigationDirection >= 0 ? -18 : 18,
+              filter: "blur(2px)",
+            }}
+            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
           >
-            {poem.title}
-          </motion.h2>
-          {!isPoetPage && (
-            <motion.div
-              className="poet-name"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-            >
-              {poem.poet}
-            </motion.div>
-          )}
-        </div>
-        <div
-          className={`poem-text ${
-            isHighlightEnabled &&
-            verseSync.length > 0 &&
-            currentHighlightedVerse !== -1
-              ? "highlight-on"
-              : ""
-          }`}
-          ref={poemTextRef}
-        >
-          {isModern ? (
-            <motion.div
-              className="modern-poem"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {poem.plainText.split("\n").map((line, index) => {
-                return (
-                  <div key={index} className={getVerseClass(index)}>
-                    <span className="verse-text">{line}</span>
-                  </div>
-                );
-              })}
-            </motion.div>
-          ) : (
-            chunk(
-              poem.plainText.split("\n").filter((line) => line.trim()),
-              2,
-            ).map((pair, index) => (
-              <motion.div
-                key={index}
-                className="verse-pair"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-              >
-                {pair.map((line, lineIndex) => {
-                  const globalLineIndex = index * 2 + lineIndex;
-                  return (
-                    <div
-                      key={lineIndex}
-                      className={getVerseClass(globalLineIndex)}
-                    >
-                      <span className="verse-text">{line}</span>
-                    </div>
-                  );
-                })}
-              </motion.div>
-            ))
-          )}
-        </div>
+            {showTitleSection && (
+              <div className="title-section">
+                <motion.h2
+                  className="poem-title"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {poem.title}
+                </motion.h2>
+                {!isPoetPage && (
+                  <motion.div
+                    className="poet-line"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                  >
+                    <span className="poet-name">
+                      {poem.poet}
+                      {showTitleBreadcrumbs &&
+                        fullTitleIntermediateParts.length > 0 && (
+                          <span>
+                            {"، " + fullTitleIntermediateParts.join("، ")}
+                          </span>
+                        )}
+                    </span>
+                  </motion.div>
+                )}
+              </div>
+            )}
+            <div className={poemTextClassName} ref={poemTextRef}>
+              {isModern ? (
+                <motion.div
+                  className="modern-poem"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {poem.plainText.split("\n").map((line, index) => {
+                    return (
+                      <div key={index} className={getVerseClass(index)}>
+                        {settings.showLineNumbers && (
+                          <span className="verse-number">{index + 1}</span>
+                        )}
+                        <span className="verse-text">{line}</span>
+                      </div>
+                    );
+                  })}
+                </motion.div>
+              ) : (
+                chunk(
+                  poem.plainText.split("\n").filter((line) => line.trim()),
+                  2,
+                ).map((pair, index) => (
+                  <motion.div
+                    key={index}
+                    className={`verse-pair ${settings.showLineNumbers ? "verse-pair-numbered" : ""
+                      }`}
+                    data-couplet-number={
+                      settings.showLineNumbers
+                        ? formatPersianNumber(index + 1)
+                        : undefined
+                    }
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    {pair.map((line, lineIndex) => {
+                      const globalLineIndex = index * 2 + lineIndex;
+                      return (
+                        <div
+                          key={lineIndex}
+                          className={getVerseClass(globalLineIndex)}
+                        >
+                          <span className="verse-text">{line}</span>
+                        </div>
+                      );
+                    })}
+                  </motion.div>
+                ))
+              )}
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Action buttons */}
-      <div className="action-buttons">
-        <button
-          className="action-button"
-          onClick={sharePoem}
-          title="اشتراک‌گذاری"
-        >
-          <FaShare />
-        </button>
-        <a
-          href={openSource()}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="action-button"
-          title="مشاهده منبع"
-          aria-label="مشاهده منبع"
-        >
-          <FaExternalLinkAlt />
-        </a>
+      {poemViewerVisibility.actionButtons && (
         <div
-          className="poet-profile"
-          onClick={() => {
-            if (poem.poet && poem.poetSlug) {
-              router.push(`/${poem.poetSlug}`);
-            }
-          }}
-          role="button"
-          aria-label={`مشاهده اشعار ${poem.poet}`}
-          title={`مشاهده اشعار ${poem.poet}`}
+          className={`action-buttons${showActionButtons ? "" : " is-hidden"}`}
         >
-          <div className="poet-image-container">
-            <PoetImage
-              imgUrl={poem.poetImageUrl}
-              alt={poem.poet}
-              width={60}
-              height={60}
-            />
-          </div>
-          <h3 className="poet-profile-name">{poem.poet}</h3>
+          <button
+            className="action-button"
+            onClick={() => setIsShareOpen(true)}
+            title="اشتراک‌گذاری"
+          >
+            <FaShare />
+          </button>
+          <a
+            href={openSource()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="action-button"
+            title="مشاهده منبع"
+            aria-label="مشاهده منبع"
+          >
+            <FaExternalLinkAlt />
+          </a>
+          {poem.poet && poem.poetSlug &&
+            (isPoetPage && onTogglePoetInfo ? (
+              <button
+                type="button"
+                onClick={onTogglePoetInfo}
+                className="poet-profile"
+                aria-label={`نمایش اطلاعات ${poem.poet}`}
+                title={`نمایش اطلاعات ${poem.poet}`}
+              >
+                <div className="poet-image-container">
+                  <PoetImage
+                    imgUrl={poem.poetImageUrl}
+                    alt={poem.poet}
+                    width={60}
+                    height={60}
+                  />
+                </div>
+                <h3 className="poet-profile-name">{poem.poet}</h3>
+              </button>
+            ) : (
+              <Link
+                href={`/${poem.poetSlug}`}
+                className="poet-profile"
+                prefetch
+                aria-label={`مشاهده اشعار ${poem.poet}`}
+                title={`مشاهده اشعار ${poem.poet}`}
+              >
+                <div className="poet-image-container">
+                  <PoetImage
+                    imgUrl={poem.poetImageUrl}
+                    alt={poem.poet}
+                    width={60}
+                    height={60}
+                  />
+                </div>
+                <h3 className="poet-profile-name">{poem.poet}</h3>
+              </Link>
+            ))}
         </div>
-      </div>
+      )}
 
       {/* Navigation controls */}
-      <div className="navigation-controls">
-        {!isFirst && (
-          <button className="nav-button up" onClick={onPrevious}>
-            <FaChevronUp />
-          </button>
-        )}
-        {!isLast && (
-          <button className="nav-button down" onClick={handleNext}>
-            <FaChevronDown />
-          </button>
-        )}
-      </div>
-
-      {showToast && <div className="toast-message">{toastMessage}</div>}
+      {poemViewerVisibility.navigationControls && (
+        <div
+          className={`navigation-controls${showNavigationControls ? "" : " is-hidden"
+            }`}
+        >
+          {!isFirst && (
+            <button className="nav-button up" onClick={handlePrevious}>
+              <FaChevronUp />
+            </button>
+          )}
+          {!isLast && (
+            <button className="nav-button down" onClick={handleNext}>
+              <FaChevronDown />
+            </button>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 };

@@ -38,6 +38,7 @@ export interface Poem {
   htmlText: string;
   recitations: PoemRecitation[];
   isCustom?: boolean;
+  source?: "ganjoor" | "custom" | "echolalia";
 }
 
 export interface VerseSync {

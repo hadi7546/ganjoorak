@@ -1,27 +1,29 @@
 import { Metadata } from "next";
-import customApi from "@/api/CustomApi";
-import ganjoorApi from "@/api/GanjoorApi";
-import { PoetSlug, isValidPoetSlug, poetNames } from "@/types/poet";
+import { isValidPoetSlug, poetNames } from "@/types/poet";
+import poetSourceIndex from "@/data/poet-source-index.json";
 
 type Props = {
   params: { poet: string };
   children: React.ReactNode;
 };
 
+type PoetSourceIndexEntry = {
+  source: "ganjoor" | "echolalia";
+  id?: number | null;
+  name?: string;
+  sourceGroupName?: string | null;
+};
+
+const indexedPoetSources = poetSourceIndex.sourcesBySlug as Record<
+  string,
+  PoetSourceIndexEntry | undefined
+>;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const poetSlug = params.poet;
-  let poetName = 'شاعر ناشناخته';
-
-  try {
-    if (isValidPoetSlug(poetSlug)) {
-      poetName = poetNames[poetSlug];
-    } else {
-      const poetData = await ganjoorApi.getPoetBySlug(poetSlug);
-      poetName = poetData.nickname || poetData.name;
-    }
-  } catch (error) {
-    console.error('Error fetching poet info:', error);
-  }
+  const poetName = isValidPoetSlug(poetSlug)
+    ? poetNames[poetSlug]
+    : indexedPoetSources[poetSlug]?.name || "شاعر ناشناخته";
 
   return {
     title: `${poetName} | گنجورک`,

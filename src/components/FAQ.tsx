@@ -1,14 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
-import { HiChevronDown } from 'react-icons/hi2';
+import { useState } from 'react';
 import '../styles/FAQ.css';
-import Menu, { MenuButton } from '@/components/Menu';
-import { motion } from 'framer-motion';
+import Menu, { MenuButton, SearchButton } from '@/components/Menu';
+import SettingsDialog from '@/components/SettingsDialog';
+import GlobalSearchDialog from '@/components/GlobalSearchDialog';
+import { useUpdateNotification } from '@/hooks/useUpdateNotification';
+import AccordionItem from '@/components/AccordionItem';
 
 const FAQ = () => {
-    const [openIndices, setOpenIndices] = useState<number[]>([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
     const faqs = [
         {
@@ -59,43 +63,33 @@ const FAQ = () => {
         }
     ];
 
-    const toggleQuestion = (index: number) => {
-        setOpenIndices(prevIndices =>
-            prevIndices.includes(index)
-                ? prevIndices.filter(i => i !== index)
-                : [...prevIndices, index]
-        );
-    };
-
     return (
         <div className="faq-container">
-            <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} />
-            <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+            <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} hasNotification={hasNewUpdates} />
+            <SearchButton onClick={() => setIsSearchOpen(true)} />
+            <Menu
+                isOpen={isMenuOpen}
+                onClose={() => setIsMenuOpen(false)}
+                hasNewUpdates={hasNewUpdates}
+                onUpdatesViewed={markAsRead}
+                onOpenSettings={() => {
+                    setIsSettingsOpen(true);
+                    setIsMenuOpen(false);
+                }}
+            />
+            <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+            <GlobalSearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
 
             <h1 className="faq-title">پرسش‌های متداول</h1>
             <div className="faq-list">
                 {faqs.map((faq, index) => (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-
-                        key={index}
-                        className={`faq-item ${openIndices.includes(index) ? 'open' : ''}`}
-                        onClick={() => toggleQuestion(index)}
-                    >
-                        <div className="faq-question">
-                            <h3>{faq.question}</h3>
-                            <HiChevronDown className="faq-arrow" />
-                        </div>
-                        <div className="faq-answer">
-                            {faq.answer}
-                        </div>
-                    </motion.div>
+                    <AccordionItem key={index} title={faq.question}>
+                        {faq.answer}
+                    </AccordionItem>
                 ))}
             </div>
         </div>
     );
 };
 
-export default FAQ; 
+export default FAQ;

@@ -18,7 +18,7 @@ export default function PoetImage({ imgUrl, alt, poetSlug, width = 60, height = 
     const handleError = () => {
         setError(true);
         // Fallback to a default image if loading fails
-        setImgSrc('/default-poet.png');
+        setImgSrc('/images/default-poet.png');
     };
 
     return (
@@ -35,4 +35,4 @@ export default function PoetImage({ imgUrl, alt, poetSlug, width = 60, height = 
             quality={75} // Reduce quality slightly to save bandwidth
         />
     );
-} 
+}

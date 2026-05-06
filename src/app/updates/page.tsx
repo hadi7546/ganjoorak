@@ -1,7 +1,9 @@
-import Updates from '../../components/Updates';
+import Updates from "../../components/Updates";
 
 export default function UpdatesPage() {
-    return (
-        <Updates />
-    );
-} 
+  return (
+    <div>
+      <Updates />
+    </div>
+  );
+}

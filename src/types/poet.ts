@@ -19,6 +19,8 @@ export interface Poet {
     deathPlace: string | null;
     deathPlaceLatitude: number | null;
     deathPlaceLongitude: number | null;
+    source?: 'ganjoor' | 'custom' | 'echolalia';
+    sourceGroupName?: string;
 }
 
 export interface Century {
@@ -80,5 +82,7 @@ export function createPoet(data: Partial<Poet>): Poet {
         deathPlace: data.deathPlace ?? null,
         deathPlaceLatitude: data.deathPlaceLatitude ?? null,
         deathPlaceLongitude: data.deathPlaceLongitude ?? null,
+        source: data.source,
+        sourceGroupName: data.sourceGroupName,
     };
-} 
+}

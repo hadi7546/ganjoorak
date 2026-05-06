@@ -1,0 +1,2477 @@
+{
+  "generatedAt": "2026-05-06T16:06:02.437Z",
+  "sourcesBySlug": {
+    "abbadi": {
+      "source": "ganjoor",
+      "id": 95,
+      "name": "عبادی مروزی"
+    },
+    "abbas-kiarostami": {
+      "source": "echolalia",
+      "id": 1360,
+      "name": "عباس کیارستمی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "abbas-maroufi": {
+      "source": "echolalia",
+      "id": 499,
+      "name": "عباس معروفی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "abd-al-wahhab-bayati": {
+      "source": "echolalia",
+      "id": 3062,
+      "name": "عبدالوهاب بیاتی",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "abdul-qadir-bedil": {
+      "source": "echolalia",
+      "id": 1049,
+      "name": "بیدل دهلوی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "abdullah": {
+      "source": "ganjoor",
+      "id": 72,
+      "name": "خواجه عبدالله انصاری"
+    },
+    "abolala": {
+      "source": "ganjoor",
+      "id": 211,
+      "name": "ابوالعلاء شوشتری"
+    },
+    "abolhasan": {
+      "source": "ganjoor",
+      "id": 114,
+      "name": "ابوالحسن فراهانی"
+    },
+    "abolhoseyn": {
+      "source": "ganjoor",
+      "id": 209,
+      "name": "ابوالحسین خارجی"
+    },
+    "abolmoayyed": {
+      "source": "ganjoor",
+      "id": 215,
+      "name": "ابوالمؤید بلخی"
+    },
+    "abueshagh": {
+      "source": "ganjoor",
+      "id": 208,
+      "name": "ابواسحاق جویباری"
+    },
+    "abusaeed": {
+      "source": "ganjoor",
+      "id": 26,
+      "name": "ابوسعید ابوالخیر"
+    },
+    "adib": {
+      "source": "ganjoor",
+      "id": 147,
+      "name": "ادیب الممالک فراهانی"
+    },
+    "adunis": {
+      "source": "echolalia",
+      "id": 3343,
+      "name": "آدونیس",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "afanasy-fet": {
+      "source": "echolalia",
+      "id": 2937,
+      "name": "آفاناسی فیت",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "afsar": {
+      "source": "ganjoor",
+      "id": 92,
+      "name": "افسرالملوک عاملی"
+    },
+    "aghakhan": {
+      "source": "ganjoor",
+      "id": 139,
+      "name": "میرزا آقاخان کرمانی"
+    },
+    "ahli": {
+      "source": "ganjoor",
+      "id": 122,
+      "name": "اهلی شیرازی"
+    },
+    "ahmad-shamlou": {
+      "source": "echolalia",
+      "id": 405,
+      "name": "احمد شاملو",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "ahmadreza-ahmadi": {
+      "source": "echolalia",
+      "id": 456,
+      "name": "احمدرضا احمدی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "ahmet-erhan": {
+      "source": "echolalia",
+      "id": 3276,
+      "name": "احمد ارهان",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "akhsikati": {
+      "source": "ganjoor",
+      "id": 143,
+      "name": "اثیر اخسیکتی"
+    },
+    "alain-borne": {
+      "source": "echolalia",
+      "id": 2084,
+      "name": "الن برن",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "alda-merini": {
+      "source": "echolalia",
+      "id": 3073,
+      "name": "آلدا مرینی",
+      "sourceGroupName": "شاعران ایتالیا"
+    },
+    "aleksandr-blok": {
+      "source": "echolalia",
+      "id": 3165,
+      "name": "الکساندر بلوک",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "alexander-pushkin": {
+      "source": "echolalia",
+      "id": 2642,
+      "name": "الکساندر پوشکین",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "alfred-de-musset": {
+      "source": "echolalia",
+      "id": 2071,
+      "name": "آلفرد دو موسه",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "amagh": {
+      "source": "ganjoor",
+      "id": 136,
+      "name": "عمعق بخاری"
+    },
+    "amir": {
+      "source": "ganjoor",
+      "id": 64,
+      "name": "امیر معزی نیشابوری"
+    },
+    "amy-lowell": {
+      "source": "echolalia",
+      "id": 3292,
+      "name": "امی لارنس لاول",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "andrew-volter": {
+      "source": "echolalia",
+      "id": 265,
+      "name": "آندره ولتر",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "anna-akhmatova": {
+      "source": "echolalia",
+      "id": 392,
+      "name": "آنا آخماتووا",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "anna-gavalda": {
+      "source": "echolalia",
+      "id": 2372,
+      "name": "آنا گاوالدا",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "anna-swirszczynska": {
+      "source": "echolalia",
+      "id": 2658,
+      "name": "آنا اشویر",
+      "sourceGroupName": "شاعران لهستان"
+    },
+    "anne-sexton": {
+      "source": "echolalia",
+      "id": 215,
+      "name": "ان سکستون",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "anvari": {
+      "source": "ganjoor",
+      "id": 18,
+      "name": "انوری ابیوردی"
+    },
+    "anwar-salman": {
+      "source": "echolalia",
+      "id": 2602,
+      "name": "انور سلمان",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "aref": {
+      "source": "ganjoor",
+      "id": 68,
+      "name": "عارف قزوینی"
+    },
+    "aris-alexandrou": {
+      "source": "echolalia",
+      "id": 3311,
+      "name": "آریس آلکساندرو",
+      "sourceGroupName": "شاعران یونان"
+    },
+    "aroozi": {
+      "source": "ganjoor",
+      "id": 84,
+      "name": "نظامی عروضی"
+    },
+    "arsalan-chalabi": {
+      "source": "echolalia",
+      "id": 2690,
+      "name": "ارسلان چلبی",
+      "sourceGroupName": "شاعران کوردی"
+    },
+    "asad": {
+      "source": "ganjoor",
+      "id": 38,
+      "name": "فخرالدین اسعد گرگانی"
+    },
+    "asadi": {
+      "source": "ganjoor",
+      "id": 52,
+      "name": "اسدی توسی"
+    },
+    "ashofte": {
+      "source": "ganjoor",
+      "id": 119,
+      "name": "آشفتهٔ شیرازی"
+    },
+    "asiri": {
+      "source": "ganjoor",
+      "id": 97,
+      "name": "اسیری لاهیجی"
+    },
+    "asjadi": {
+      "source": "ganjoor",
+      "id": 125,
+      "name": "عسجدی مروزی"
+    },
+    "asrar": {
+      "source": "ganjoor",
+      "id": 80,
+      "name": "حکیم سبزواری"
+    },
+    "attar": {
+      "source": "ganjoor",
+      "id": 9,
+      "name": "عطار نیشابوری"
+    },
+    "attar-of-nishapur": {
+      "source": "echolalia",
+      "id": 1844,
+      "name": "عطار نیشابوری",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "attila-ilhan": {
+      "source": "echolalia",
+      "id": 3234,
+      "name": "آتیلا ایلهان",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "ayatib": {
+      "source": "ganjoor",
+      "id": 229,
+      "name": "آیتی بیرجندی"
+    },
+    "ayten-mutlu": {
+      "source": "echolalia",
+      "id": 3026,
+      "name": "آیتن موتلو",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "ayyooghi": {
+      "source": "ganjoor",
+      "id": 124,
+      "name": "عیوقی"
+    },
+    "azar": {
+      "source": "ganjoor",
+      "id": 148,
+      "name": "آذر بیگدلی"
+    },
+    "aziz-nesin": {
+      "source": "echolalia",
+      "id": 2513,
+      "name": "عزیز نسین",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "azraghi": {
+      "source": "ganjoor",
+      "id": 63,
+      "name": "ازرقی هروی"
+    },
+    "babaafzal": {
+      "source": "ganjoor",
+      "id": 56,
+      "name": "باباافضل کاشانی"
+    },
+    "babak-zamani": {
+      "source": "echolalia",
+      "id": 174,
+      "name": "بابک زمانی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "babataher": {
+      "source": "ganjoor",
+      "id": 28,
+      "name": "باباطاهر"
+    },
+    "baha": {
+      "source": "ganjoor",
+      "id": 193,
+      "name": "بهاء ولد"
+    },
+    "bahaee": {
+      "source": "ganjoor",
+      "id": 30,
+      "name": "شیخ بهایی"
+    },
+    "bahar": {
+      "source": "ganjoor",
+      "id": 27,
+      "name": "ملک‌الشعرا بهار"
+    },
+    "bahoo": {
+      "source": "ganjoor",
+      "id": 105,
+      "name": "سلطان باهو"
+    },
+    "balami": {
+      "source": "ganjoor",
+      "id": 217,
+      "name": "بلعمی"
+    },
+    "barmaki": {
+      "source": "ganjoor",
+      "id": 216,
+      "name": "احمد برمکی"
+    },
+    "bassam": {
+      "source": "ganjoor",
+      "id": 204,
+      "name": "بسام کرد"
+    },
+    "bella-akhmadulina": {
+      "source": "echolalia",
+      "id": 3284,
+      "name": "بلا آخمادولینا",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "bertolt-brecht": {
+      "source": "echolalia",
+      "id": 64,
+      "name": "برتولت برشت",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "beyhaghi": {
+      "source": "ganjoor",
+      "id": 194,
+      "name": "ابوالفضل بیهقی"
+    },
+    "beylaghani": {
+      "source": "ganjoor",
+      "id": 140,
+      "name": "مجیرالدین بیلقانی"
+    },
+    "bidel": {
+      "source": "ganjoor",
+      "id": 43,
+      "name": "بیدل دهلوی"
+    },
+    "bijan-elahi": {
+      "source": "echolalia",
+      "id": 2947,
+      "name": "بیژن الهی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "bijan-jalali": {
+      "source": "echolalia",
+      "id": 2948,
+      "name": "بیژن جلالی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "bijan-najdi": {
+      "source": "echolalia",
+      "id": 1290,
+      "name": "بیژن نجدی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "blaga-dimitrova": {
+      "source": "echolalia",
+      "id": 2684,
+      "name": "بلاگا دیمیتروا",
+      "sourceGroupName": "شاعران بلغاری"
+    },
+    "bob-dylan": {
+      "source": "echolalia",
+      "id": 1743,
+      "name": "باب دیلن",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "bolandeghbal": {
+      "source": "ganjoor",
+      "id": 173,
+      "name": "بلند اقبال"
+    },
+    "bolmasal": {
+      "source": "ganjoor",
+      "id": 214,
+      "name": "ابوالمثل بخارایی"
+    },
+    "can-yucel": {
+      "source": "echolalia",
+      "id": 2987,
+      "name": "جان یوجل",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "carl-sandburg": {
+      "source": "echolalia",
+      "id": 2352,
+      "name": "کارل سندبرگ",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "carlos-drummond-de-andrade": {
+      "source": "echolalia",
+      "id": 1824,
+      "name": "کارلوس دروموند د آندراده",
+      "sourceGroupName": "شاعران برزیل"
+    },
+    "cemal-sureya": {
+      "source": "echolalia",
+      "id": 1437,
+      "name": "جمال ثریا",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "cesare-pavese": {
+      "source": "echolalia",
+      "id": 3290,
+      "name": "چزاره پاوزه",
+      "sourceGroupName": "شاعران ایتالیا"
+    },
+    "charles-baudelaire": {
+      "source": "echolalia",
+      "id": 602,
+      "name": "شارل بودلر",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "charles-bukowski": {
+      "source": "echolalia",
+      "id": 446,
+      "name": "چارلز بوکوفسکی",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "charles-van-lerberghe": {
+      "source": "echolalia",
+      "id": 3288,
+      "name": "شارل وان لربرگ",
+      "sourceGroupName": "شاعران بلژیک"
+    },
+    "christina-rossetti": {
+      "source": "echolalia",
+      "id": 2261,
+      "name": "کریستینا روزتی",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "christopher-marlowe": {
+      "source": "echolalia",
+      "id": 2225,
+      "name": "کریستوفر مارلو",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "christopher-poindexter": {
+      "source": "echolalia",
+      "id": 2450,
+      "name": "کریستوفر پویندکستر",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "constantine-cavafy": {
+      "source": "echolalia",
+      "id": 383,
+      "name": "کنستانتین کاوافی",
+      "sourceGroupName": "شاعران یونان"
+    },
+    "daghighi": {
+      "source": "ganjoor",
+      "id": 112,
+      "name": "دقیقی طوسی"
+    },
+    "daye": {
+      "source": "ganjoor",
+      "id": 102,
+      "name": "نجم‌الدین رازی"
+    },
+    "dennis-brutus": {
+      "source": "echolalia",
+      "id": 2537,
+      "name": "دنیس بروتوس",
+      "sourceGroupName": "شاعران آفریقای‌جنوبی"
+    },
+    "drita-como": {
+      "source": "echolalia",
+      "id": 1702,
+      "name": "دریتا کومو",
+      "sourceGroupName": "شاعران آلبانی"
+    },
+    "ebneemad": {
+      "source": "ganjoor",
+      "id": 196,
+      "name": "محمد بن عمادالدین خراسانی"
+    },
+    "ebnehesam": {
+      "source": "ganjoor",
+      "id": 57,
+      "name": "ابن حسام خوسفی"
+    },
+    "ebneyamin": {
+      "source": "ganjoor",
+      "id": 106,
+      "name": "ابن یمین فریومدی"
+    },
+    "edgar-allan-poe": {
+      "source": "echolalia",
+      "id": 2364,
+      "name": "ادگار آلن پو",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "edmund-spenser": {
+      "source": "echolalia",
+      "id": 2166,
+      "name": "ادموند اسپنسر",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "edwin-arlington-robinson": {
+      "source": "echolalia",
+      "id": 2736,
+      "name": "ادوین آرلینگتون رابینسون",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "elhami": {
+      "source": "ganjoor",
+      "id": 155,
+      "name": "الهامی کرمانشاهی"
+    },
+    "elizabeth-barrett-browning": {
+      "source": "echolalia",
+      "id": 2172,
+      "name": "الیزابت برت براونینگ",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "ella-wheeler-wilcox": {
+      "source": "echolalia",
+      "id": 2387,
+      "name": "الا ویلر ویلکاکس",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "emami": {
+      "source": "ganjoor",
+      "id": 116,
+      "name": "امامی هروی"
+    },
+    "emily-dickinson": {
+      "source": "echolalia",
+      "id": 1802,
+      "name": "امیلی دیکنسون",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "endre-ady": {
+      "source": "echolalia",
+      "id": 3295,
+      "name": "اندره آدی",
+      "sourceGroupName": "شاعران مجارستان"
+    },
+    "enes-kisevic": {
+      "source": "echolalia",
+      "id": 3313,
+      "name": "اِنِس کیشِویچ",
+      "sourceGroupName": "شاعران کرواسی"
+    },
+    "eraghi": {
+      "source": "ganjoor",
+      "id": 21,
+      "name": "عراقی"
+    },
+    "erich-fried": {
+      "source": "echolalia",
+      "id": 1225,
+      "name": "اریش فرید",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "ernesto-sabato": {
+      "source": "echolalia",
+      "id": 2254,
+      "name": "ارنستو ساباتو",
+      "sourceGroupName": "شاعران آرژانتین"
+    },
+    "eshghi": {
+      "source": "ganjoor",
+      "id": 153,
+      "name": "میرزاده عشقی"
+    },
+    "eshraghb": {
+      "source": "ganjoor",
+      "id": 227,
+      "name": "عبدالکریم اشراق بیرجندی"
+    },
+    "esmail-khoi": {
+      "source": "echolalia",
+      "id": 2961,
+      "name": "اسماعیل خویی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "eynolghozat": {
+      "source": "ganjoor",
+      "id": 94,
+      "name": "عین‌القضات همدانی"
+    },
+    "faghani": {
+      "source": "ganjoor",
+      "id": 115,
+      "name": "بابافغانی شیرازی"
+    },
+    "fakhr-al-din-iraqi": {
+      "source": "echolalia",
+      "id": 341,
+      "name": "فخرالدین عراقی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "falaki": {
+      "source": "ganjoor",
+      "id": 141,
+      "name": "فلکی شروانی"
+    },
+    "fani": {
+      "source": "ganjoor",
+      "id": 151,
+      "name": "امیرعلیشیر نوایی"
+    },
+    "fanoodi": {
+      "source": "ganjoor",
+      "id": 228,
+      "name": "فنودی"
+    },
+    "faralavi": {
+      "source": "ganjoor",
+      "id": 226,
+      "name": "فرالاوی"
+    },
+    "farrokhi": {
+      "source": "ganjoor",
+      "id": 15,
+      "name": "فرخی سیستانی"
+    },
+    "fasihi": {
+      "source": "ganjoor",
+      "id": 185,
+      "name": "فصیحی هروی"
+    },
+    "fatemeh-ekhtesari": {
+      "source": "echolalia",
+      "id": 672,
+      "name": "فاطمه اختصاری",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "fayez": {
+      "source": "ganjoor",
+      "id": 61,
+      "name": "فایز"
+    },
+    "fayyaz": {
+      "source": "ganjoor",
+      "id": 172,
+      "name": "فیاض لاهیجی"
+    },
+    "fazel-nazari": {
+      "source": "echolalia",
+      "id": 175,
+      "name": "فاضل نظری",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "federico-garcia-lorca": {
+      "source": "echolalia",
+      "id": 38,
+      "name": "فدریکو گارسیا لورکا",
+      "sourceGroupName": "شاعران اسپانیا"
+    },
+    "ferdousi": {
+      "source": "ganjoor",
+      "id": 4,
+      "name": "ابوالقاسم فردوسی"
+    },
+    "fereydoon-moshiri": {
+      "source": "echolalia",
+      "id": 246,
+      "name": "فریدون مشیری",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "fernando-pessoa": {
+      "source": "echolalia",
+      "id": 2210,
+      "name": "فرناندو پسوآ",
+      "sourceGroupName": "شاعران پرتغال"
+    },
+    "feyz": {
+      "source": "ganjoor",
+      "id": 39,
+      "name": "فیض کاشانی"
+    },
+    "firooz": {
+      "source": "ganjoor",
+      "id": 202,
+      "name": "فیروز مشرقی"
+    },
+    "forooghi": {
+      "source": "ganjoor",
+      "id": 32,
+      "name": "فروغی بسطامی"
+    },
+    "forough-farrokhzad": {
+      "source": "echolalia",
+      "id": 199,
+      "name": "فروغ فرخزاد",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "fozooli": {
+      "source": "ganjoor",
+      "id": 145,
+      "name": "فضولی بغدادی"
+    },
+    "friedrich-holderlin": {
+      "source": "echolalia",
+      "id": 3032,
+      "name": "فریدریش هولدرلین",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "friedrich-nietzsche": {
+      "source": "echolalia",
+      "id": 3131,
+      "name": "فریدریش نیچه",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "georg-trakl": {
+      "source": "echolalia",
+      "id": 3344,
+      "name": "گئورگ تراکل",
+      "sourceGroupName": "شاعران اتریشی"
+    },
+    "gevorg-emin": {
+      "source": "echolalia",
+      "id": 1159,
+      "name": "گئورک امین",
+      "sourceGroupName": "شاعران ارمنی"
+    },
+    "ghaani": {
+      "source": "ganjoor",
+      "id": 44,
+      "name": "قاآنی"
+    },
+    "ghada-al-samman": {
+      "source": "echolalia",
+      "id": 115,
+      "name": "غاده السمان",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "ghaemmagham": {
+      "source": "ganjoor",
+      "id": 98,
+      "name": "قائم مقام فراهانی"
+    },
+    "ghaleb": {
+      "source": "ganjoor",
+      "id": 123,
+      "name": "غالب دهلوی"
+    },
+    "ghani": {
+      "source": "ganjoor",
+      "id": 199,
+      "name": "غنی کشمیری"
+    },
+    "ghari": {
+      "source": "ganjoor",
+      "id": 169,
+      "name": "نظام قاری"
+    },
+    "ghasem": {
+      "source": "ganjoor",
+      "id": 129,
+      "name": "قاسم انوار"
+    },
+    "ghassab": {
+      "source": "ganjoor",
+      "id": 86,
+      "name": "قصاب کاشانی"
+    },
+    "ghatran": {
+      "source": "ganjoor",
+      "id": 142,
+      "name": "قطران تبریزی"
+    },
+    "ghavami": {
+      "source": "ganjoor",
+      "id": 179,
+      "name": "قوامی رازی"
+    },
+    "ghazzali": {
+      "source": "ganjoor",
+      "id": 160,
+      "name": "امام محمد غزالی"
+    },
+    "ghobad-jolizadeh": {
+      "source": "echolalia",
+      "id": 2594,
+      "name": "قباد جلیزاده",
+      "sourceGroupName": "شاعران کوردی"
+    },
+    "ghobar": {
+      "source": "ganjoor",
+      "id": 77,
+      "name": "غبار همدانی"
+    },
+    "ghodsi": {
+      "source": "ganjoor",
+      "id": 71,
+      "name": "قدسی مشهدی"
+    },
+    "ghomri": {
+      "source": "ganjoor",
+      "id": 166,
+      "name": "سراج قمری"
+    },
+    "gilani": {
+      "source": "ganjoor",
+      "id": 70,
+      "name": "عبدالقادر گیلانی"
+    },
+    "gorgani": {
+      "source": "ganjoor",
+      "id": 203,
+      "name": "ابوسلیک گرگانی"
+    },
+    "gross-abdul-malikian": {
+      "source": "echolalia",
+      "id": 678,
+      "name": "گروس عبدالملکیان",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "guillaume-apollinaire": {
+      "source": "echolalia",
+      "id": 3285,
+      "name": "گیوم آپولینر",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "gunnar-ekelof": {
+      "source": "echolalia",
+      "id": 316,
+      "name": "گونار اکلوف",
+      "sourceGroupName": "شاعران سوئد"
+    },
+    "habib": {
+      "source": "ganjoor",
+      "id": 170,
+      "name": "میرزا حبیب خراسانی"
+    },
+    "hafez": {
+      "source": "ganjoor",
+      "id": 2,
+      "name": "حافظ شیرازی"
+    },
+    "hajeb": {
+      "source": "ganjoor",
+      "id": 190,
+      "name": "حاجب شیرازی"
+    },
+    "halina-poswiatowska": {
+      "source": "echolalia",
+      "id": 375,
+      "name": "هالینا پوشویاتوسکا",
+      "sourceGroupName": "شاعران لهستان"
+    },
+    "hamedani": {
+      "source": "ganjoor",
+      "id": 174,
+      "name": "صابر همدانی"
+    },
+    "hamgar": {
+      "source": "ganjoor",
+      "id": 152,
+      "name": "مجد همگر"
+    },
+    "hamid": {
+      "source": "ganjoor",
+      "id": 162,
+      "name": "حمیدالدین بلخی"
+    },
+    "hamid-mossadegh": {
+      "source": "echolalia",
+      "id": 1856,
+      "name": "حمید مصدق",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "hanzale": {
+      "source": "ganjoor",
+      "id": 200,
+      "name": "حنظلهٔ بادغیسی"
+    },
+    "hasan": {
+      "source": "ganjoor",
+      "id": 144,
+      "name": "سید حسن غزنوی"
+    },
+    "hatef": {
+      "source": "ganjoor",
+      "id": 25,
+      "name": "هاتف اصفهانی"
+    },
+    "haydar-ergulen": {
+      "source": "echolalia",
+      "id": 2699,
+      "name": "حیدر ارگولن",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "hazin": {
+      "source": "ganjoor",
+      "id": 76,
+      "name": "حزین لاهیجی"
+    },
+    "heinrich-boll": {
+      "source": "echolalia",
+      "id": 299,
+      "name": "هاینریش بل",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "heinrich-heine": {
+      "source": "echolalia",
+      "id": 696,
+      "name": "هاینریش هاینه",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "helali": {
+      "source": "ganjoor",
+      "id": 50,
+      "name": "هلالی جغتایی"
+    },
+    "hermann-hesse": {
+      "source": "echolalia",
+      "id": 1466,
+      "name": "هرمان هسه",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "herta-muller": {
+      "source": "echolalia",
+      "id": 1226,
+      "name": "هرتا مولر",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "heydar": {
+      "source": "ganjoor",
+      "id": 131,
+      "name": "حیدر شیرازی"
+    },
+    "hojviri": {
+      "source": "ganjoor",
+      "id": 53,
+      "name": "علی بن عثمان هجویری"
+    },
+    "homam": {
+      "source": "ganjoor",
+      "id": 75,
+      "name": "همام تبریزی"
+    },
+    "hoseyn": {
+      "source": "ganjoor",
+      "id": 89,
+      "name": "حسین خوارزمی"
+    },
+    "hoseyni": {
+      "source": "ganjoor",
+      "id": 99,
+      "name": "امیر حسینی هروی"
+    },
+    "hossein-monzavi": {
+      "source": "echolalia",
+      "id": 171,
+      "name": "حسین منزوی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "hossein-panahi": {
+      "source": "echolalia",
+      "id": 434,
+      "name": "حسین پناهی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "hushang-ebtehaj": {
+      "source": "echolalia",
+      "id": 902,
+      "name": "هوشنگ ابتهاج",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "ilhan-berk": {
+      "source": "echolalia",
+      "id": 1584,
+      "name": "ایلهان برک",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "ilva-macky": {
+      "source": "echolalia",
+      "id": 2900,
+      "name": "ایلوا ماکی",
+      "sourceGroupName": "شاعران آفریقای‌جنوبی"
+    },
+    "imran-salahi": {
+      "source": "echolalia",
+      "id": 1850,
+      "name": "عمران صلاحی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "ingeborg-bachmann": {
+      "source": "echolalia",
+      "id": 2750,
+      "name": "اینگه بورگ باخمن",
+      "sourceGroupName": "شاعران اتریشی"
+    },
+    "iqbal": {
+      "source": "ganjoor",
+      "id": 42,
+      "name": "اقبال لاهوری"
+    },
+    "iraj": {
+      "source": "ganjoor",
+      "id": 88,
+      "name": "ایرج میرزا"
+    },
+    "iranshan": {
+      "source": "ganjoor",
+      "id": 127,
+      "name": "ایرانشان ابن ابی الخیر "
+    },
+    "jabali": {
+      "source": "ganjoor",
+      "id": 37,
+      "name": "عبدالواسع جبلی"
+    },
+    "jacques-prevert": {
+      "source": "echolalia",
+      "id": 755,
+      "name": "ژاک پره‌ ور",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "jahan": {
+      "source": "ganjoor",
+      "id": 137,
+      "name": "جهان ملک خاتون"
+    },
+    "jalal": {
+      "source": "ganjoor",
+      "id": 85,
+      "name": "جلال عضد"
+    },
+    "jamal": {
+      "source": "ganjoor",
+      "id": 107,
+      "name": "جمال‌الدین عبدالرزاق اصفهانی"
+    },
+    "jami": {
+      "source": "ganjoor",
+      "id": 24,
+      "name": "جامی"
+    },
+    "jane-hirshfield": {
+      "source": "echolalia",
+      "id": 1401,
+      "name": "جین هیرشفیلد",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "jarooni": {
+      "source": "ganjoor",
+      "id": 133,
+      "name": "سلیمی جرونی"
+    },
+    "jeyhoon": {
+      "source": "ganjoor",
+      "id": 178,
+      "name": "جیحون یزدی"
+    },
+    "joan-baez": {
+      "source": "echolalia",
+      "id": 2217,
+      "name": "جون بایز",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "jollab": {
+      "source": "ganjoor",
+      "id": 219,
+      "name": "جلاب بخارایی"
+    },
+    "jooya": {
+      "source": "ganjoor",
+      "id": 121,
+      "name": "جویای تبریزی"
+    },
+    "jorge-luis-borges": {
+      "source": "echolalia",
+      "id": 1207,
+      "name": "خورخه لوئیس بورخس",
+      "sourceGroupName": "شاعران آرژانتین"
+    },
+    "jose-angel-valente": {
+      "source": "echolalia",
+      "id": 238,
+      "name": "خوزه آنخل بالنته",
+      "sourceGroupName": "شاعران اسپانیا"
+    },
+    "jose-marti": {
+      "source": "echolalia",
+      "id": 2042,
+      "name": "خوزه مارتی",
+      "sourceGroupName": "شاعران کوبا"
+    },
+    "joseph-brodsky": {
+      "source": "echolalia",
+      "id": 3291,
+      "name": "جوزف برودسکی",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "kahlil-gibran": {
+      "source": "echolalia",
+      "id": 1519,
+      "name": "جبران خلیل جبران",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "kalim": {
+      "source": "ganjoor",
+      "id": 100,
+      "name": "کلیم"
+    },
+    "kamal": {
+      "source": "ganjoor",
+      "id": 67,
+      "name": "کمال‌الدین اسماعیل"
+    },
+    "kashi": {
+      "source": "ganjoor",
+      "id": 218,
+      "name": "ترکی کشی"
+    },
+    "keikavus": {
+      "source": "ganjoor",
+      "id": 82,
+      "name": "عنصرالمعالی کیکاووس"
+    },
+    "kermani": {
+      "source": "ganjoor",
+      "id": 164,
+      "name": "افسر کرمانی"
+    },
+    "kesayee": {
+      "source": "ganjoor",
+      "id": 45,
+      "name": "کسایی مروزی"
+    },
+    "khaghani": {
+      "source": "ganjoor",
+      "id": 16,
+      "name": "خاقانی شروانی"
+    },
+    "khajenasir": {
+      "source": "ganjoor",
+      "id": 161,
+      "name": "خواجه نصیرالدین طوسی"
+    },
+    "khajoo": {
+      "source": "ganjoor",
+      "id": 20,
+      "name": "خواجوی کرمانی"
+    },
+    "khaled": {
+      "source": "ganjoor",
+      "id": 104,
+      "name": "خالد نقشبندی"
+    },
+    "khalili": {
+      "source": "ganjoor",
+      "id": 48,
+      "name": "خلیل‌الله خلیلی"
+    },
+    "khayyam": {
+      "source": "ganjoor",
+      "id": 3,
+      "name": "خیام نیشابوری"
+    },
+    "khiali": {
+      "source": "ganjoor",
+      "id": 118,
+      "name": "خیالی بخارایی"
+    },
+    "khojandi": {
+      "source": "ganjoor",
+      "id": 73,
+      "name": "کمال خجندی"
+    },
+    "khosro": {
+      "source": "ganjoor",
+      "id": 34,
+      "name": "امیرخسرو دهلوی"
+    },
+    "khosrow-golsorkhi": {
+      "source": "echolalia",
+      "id": 169,
+      "name": "خسرو گلسرخی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "koohi": {
+      "source": "ganjoor",
+      "id": 171,
+      "name": "کوهی"
+    },
+    "koosaj": {
+      "source": "ganjoor",
+      "id": 159,
+      "name": "محمد کوسج"
+    },
+    "kucuk-iskender": {
+      "source": "echolalia",
+      "id": 133,
+      "name": "کوچوک اسکندر",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "labibi": {
+      "source": "ganjoor",
+      "id": 180,
+      "name": "لبیبی"
+    },
+    "langston-hughes": {
+      "source": "echolalia",
+      "id": 1510,
+      "name": "لنگستون هیوز",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "leo-ferre": {
+      "source": "echolalia",
+      "id": 1972,
+      "name": "لئو فره",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "linda-pastan": {
+      "source": "echolalia",
+      "id": 336,
+      "name": "لیندا پاستان",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "louis-aragon": {
+      "source": "echolalia",
+      "id": 1452,
+      "name": "لویی آراگون",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "luis-omar-lara-mendoza": {
+      "source": "echolalia",
+      "id": 271,
+      "name": "لوییس عمر لارا مندوزا",
+      "sourceGroupName": "شاعران شیلی"
+    },
+    "magda-herzberger": {
+      "source": "echolalia",
+      "id": 2092,
+      "name": "ماگدا هرزبرگر",
+      "sourceGroupName": "شاعران رومانی"
+    },
+    "maghrebi": {
+      "source": "ganjoor",
+      "id": 78,
+      "name": "شمس مغربی"
+    },
+    "mahabadi": {
+      "source": "ganjoor",
+      "id": 175,
+      "name": "وفایی مهابادی"
+    },
+    "mahmoud-darwish": {
+      "source": "echolalia",
+      "id": 467,
+      "name": "محمود درویش",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "mahsati": {
+      "source": "ganjoor",
+      "id": 54,
+      "name": "مهستی گنجوی"
+    },
+    "mamdouh-adwan": {
+      "source": "echolalia",
+      "id": 545,
+      "name": "ممدوح عدوان",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "manoochehri": {
+      "source": "ganjoor",
+      "id": 14,
+      "name": "منوچهری دامغانی"
+    },
+    "maram-al-masri": {
+      "source": "echolalia",
+      "id": 1644,
+      "name": "مرام المصری",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "margaret-atwood": {
+      "source": "echolalia",
+      "id": 2147,
+      "name": "مارگارت اتوود",
+      "sourceGroupName": "شاعران کانادا"
+    },
+    "margot-bickel": {
+      "source": "echolalia",
+      "id": 317,
+      "name": "مارگوت بیکل",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "marianne-cohen": {
+      "source": "echolalia",
+      "id": 2180,
+      "name": "ماریان کوهن",
+      "sourceGroupName": "شاعران نروژ"
+    },
+    "marina-tsvetaeva": {
+      "source": "echolalia",
+      "id": 2158,
+      "name": "مارینا تسوتایوا",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "marine-petrossian": {
+      "source": "echolalia",
+      "id": 3002,
+      "name": "مارینه پطروسیان",
+      "sourceGroupName": "شاعران ارمنی"
+    },
+    "marta-rivera-de-la-cruz": {
+      "source": "echolalia",
+      "id": 1654,
+      "name": "مارتا ریورا دلا کروز",
+      "sourceGroupName": "شاعران اسپانیا"
+    },
+    "martinus-nijhoff": {
+      "source": "echolalia",
+      "id": 3281,
+      "name": "مارتینوس نایهوف",
+      "sourceGroupName": "شاعران هلند"
+    },
+    "masih": {
+      "source": "ganjoor",
+      "id": 90,
+      "name": "ملا مسیح پانی‌پتی"
+    },
+    "masood": {
+      "source": "ganjoor",
+      "id": 17,
+      "name": "مسعود سعد سلمان"
+    },
+    "masoudi": {
+      "source": "ganjoor",
+      "id": 210,
+      "name": "مسعودی مروزی"
+    },
+    "massimo-bontempelli": {
+      "source": "echolalia",
+      "id": 2825,
+      "name": "ماسیمو بونتمپلی",
+      "sourceGroupName": "شاعران ایتالیا"
+    },
+    "mehdi-akhavan-sales": {
+      "source": "echolalia",
+      "id": 291,
+      "name": "مهدی اخوان ثالث",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "mehdi-mousavi": {
+      "source": "echolalia",
+      "id": 666,
+      "name": "سید مهدی موسوی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "meybodi": {
+      "source": "ganjoor",
+      "id": 60,
+      "name": "رشیدالدین میبدی"
+    },
+    "meyli": {
+      "source": "ganjoor",
+      "id": 183,
+      "name": "میلی"
+    },
+    "miguel-de-unamuno": {
+      "source": "echolalia",
+      "id": 3055,
+      "name": "میگل د اونامونو",
+      "sourceGroupName": "شاعران اسپانیا"
+    },
+    "miguel-hernandez": {
+      "source": "echolalia",
+      "id": 2110,
+      "name": "میگوئل هرناندز",
+      "sourceGroupName": "شاعران اسپانیا"
+    },
+    "mikhail-lermontov": {
+      "source": "echolalia",
+      "id": 2811,
+      "name": "میخائیل لرمانتاف",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "mir": {
+      "source": "ganjoor",
+      "id": 186,
+      "name": "میرداماد"
+    },
+    "miroslav-holub": {
+      "source": "echolalia",
+      "id": 3315,
+      "name": "میروسلاو هولوب",
+      "sourceGroupName": "شاعران چک"
+    },
+    "mmon": {
+      "source": "ganjoor",
+      "id": 96,
+      "name": "محمد بن منور"
+    },
+    "moftagher": {
+      "source": "ganjoor",
+      "id": 87,
+      "name": "محمدحسین غروی اصفهانی"
+    },
+    "mohammad-ali-bahmani": {
+      "source": "echolalia",
+      "id": 728,
+      "name": "محمدعلی بهمنی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "mohammad-mokhtari": {
+      "source": "echolalia",
+      "id": 3293,
+      "name": "محمد مختاری",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "mohammad-reza-shafiei-kadkani": {
+      "source": "echolalia",
+      "id": 279,
+      "name": "شفیعی کدکنی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "mohit": {
+      "source": "ganjoor",
+      "id": 113,
+      "name": "محیط قمی"
+    },
+    "mohtasham": {
+      "source": "ganjoor",
+      "id": 29,
+      "name": "محتشم کاشانی"
+    },
+    "mokhallad": {
+      "source": "ganjoor",
+      "id": 206,
+      "name": "محمد بن مخلد سگزی"
+    },
+    "mokhtari": {
+      "source": "ganjoor",
+      "id": 109,
+      "name": "عثمان مختاری"
+    },
+    "monshi": {
+      "source": "ganjoor",
+      "id": 49,
+      "name": "نصرالله منشی"
+    },
+    "moradi": {
+      "source": "ganjoor",
+      "id": 225,
+      "name": "مرادی"
+    },
+    "mosabi": {
+      "source": "ganjoor",
+      "id": 213,
+      "name": "ابوطیب مصعبی"
+    },
+    "moshtagh": {
+      "source": "ganjoor",
+      "id": 154,
+      "name": "مشتاق اصفهانی"
+    },
+    "moulavi": {
+      "source": "ganjoor",
+      "id": 5,
+      "name": "جلال الدین محمد مولوی"
+    },
+    "muzaffar-al-nawab": {
+      "source": "echolalia",
+      "id": 2377,
+      "name": "مظفر النواب",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "nader-ebrahimi": {
+      "source": "echolalia",
+      "id": 2895,
+      "name": "نادر ابراهیمی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "nader-naderpour": {
+      "source": "echolalia",
+      "id": 2933,
+      "name": "نادر نادرپور",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "naraghi": {
+      "source": "ganjoor",
+      "id": 132,
+      "name": "ملا احمد نراقی"
+    },
+    "nasafi": {
+      "source": "ganjoor",
+      "id": 181,
+      "name": "سیدای نسفی"
+    },
+    "naser": {
+      "source": "ganjoor",
+      "id": 198,
+      "name": "ناصر بخارایی"
+    },
+    "naserkhosro": {
+      "source": "ganjoor",
+      "id": 13,
+      "name": "ناصرخسرو قبادیانی"
+    },
+    "nashenas": {
+      "source": "ganjoor",
+      "id": 126,
+      "name": "سرایندهٔ فرامرزنامه"
+    },
+    "nasimi": {
+      "source": "ganjoor",
+      "id": 146,
+      "name": "عمادالدین نسیمی"
+    },
+    "nayyer": {
+      "source": "ganjoor",
+      "id": 79,
+      "name": "نیر تبریزی"
+    },
+    "nazim-hikmet-ran": {
+      "source": "echolalia",
+      "id": 144,
+      "name": "ناظم حکمت",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "naziri": {
+      "source": "ganjoor",
+      "id": 157,
+      "name": "نظیری نیشابوری"
+    },
+    "nedi-ansi-al-hajj": {
+      "source": "echolalia",
+      "id": 468,
+      "name": "ندي اُنسي الحاج",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "neshat": {
+      "source": "ganjoor",
+      "id": 149,
+      "name": "نشاط اصفهانی"
+    },
+    "nezami": {
+      "source": "ganjoor",
+      "id": 6,
+      "name": "نظامی گنجوی"
+    },
+    "nezari": {
+      "source": "ganjoor",
+      "id": 65,
+      "name": "حکیم نزاری قهستانی"
+    },
+    "nicanor-parra": {
+      "source": "echolalia",
+      "id": 3342,
+      "name": "نیکانور پارا",
+      "sourceGroupName": "شاعران شیلی"
+    },
+    "nima-yooshij": {
+      "source": "echolalia",
+      "id": 929,
+      "name": "نیما یوشیج",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "nizami-ganjavi": {
+      "source": "echolalia",
+      "id": 1394,
+      "name": "نظامی گنجوی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "nizar-qabbani": {
+      "source": "echolalia",
+      "id": 221,
+      "name": "نزار قبانی",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "noorali": {
+      "source": "ganjoor",
+      "id": 191,
+      "name": "نورعلیشاه"
+    },
+    "nosrat-rahmani": {
+      "source": "echolalia",
+      "id": 186,
+      "name": "نصرت رحمانی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "nouee": {
+      "source": "ganjoor",
+      "id": 111,
+      "name": "نوعی خبوشانی"
+    },
+    "nuna-bugvsyan": {
+      "source": "echolalia",
+      "id": 3003,
+      "name": "نونا بغوسیان",
+      "sourceGroupName": "شاعران ارمنی"
+    },
+    "obeyd": {
+      "source": "ganjoor",
+      "id": 33,
+      "name": "عبید زاکانی"
+    },
+    "octavio-paz": {
+      "source": "echolalia",
+      "id": 1459,
+      "name": "اکتاویو پاز",
+      "sourceGroupName": "شاعران مکزیکی"
+    },
+    "oktay-rifat": {
+      "source": "echolalia",
+      "id": 1147,
+      "name": "اوکتای رفعت",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "olga-broumas": {
+      "source": "echolalia",
+      "id": 284,
+      "name": "اولگا بروماس",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "omman": {
+      "source": "ganjoor",
+      "id": 59,
+      "name": "عمان سامانی"
+    },
+    "onsori": {
+      "source": "ganjoor",
+      "id": 62,
+      "name": "عنصری بلخی"
+    },
+    "orfi": {
+      "source": "ganjoor",
+      "id": 46,
+      "name": "عرفی شیرازی"
+    },
+    "orhan-veli-kanik": {
+      "source": "echolalia",
+      "id": 473,
+      "name": "اورهان ولی",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "osmani": {
+      "source": "ganjoor",
+      "id": 101,
+      "name": "ابوعلی حسن بن احمد عثمانی"
+    },
+    "oswald-mtshali": {
+      "source": "echolalia",
+      "id": 2898,
+      "name": "اسوالد متشالی",
+      "sourceGroupName": "شاعران آفریقای‌جنوبی"
+    },
+    "other": {
+      "source": "echolalia",
+      "id": 1261,
+      "name": "شاعران دیگر",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "ouhad": {
+      "source": "ganjoor",
+      "id": 117,
+      "name": "اوحدالدین کرمانی"
+    },
+    "ouhadi": {
+      "source": "ganjoor",
+      "id": 19,
+      "name": "اوحدی مراغه‌ای"
+    },
+    "ozdemir-asaf": {
+      "source": "echolalia",
+      "id": 411,
+      "name": "اوزدمیر آصف",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "pablo-neruda": {
+      "source": "echolalia",
+      "id": 256,
+      "name": "پابلو نرودا",
+      "sourceGroupName": "شاعران شیلی"
+    },
+    "parvin": {
+      "source": "ganjoor",
+      "id": 8,
+      "name": "پروین اعتصامی"
+    },
+    "paul-celan": {
+      "source": "echolalia",
+      "id": 3277,
+      "name": "پل سلان",
+      "sourceGroupName": "شاعران رومانی"
+    },
+    "paul-eluard": {
+      "source": "echolalia",
+      "id": 607,
+      "name": "پل الوار",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "paul-verlaine": {
+      "source": "echolalia",
+      "id": 3286,
+      "name": "پل ورلن",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "pazevari": {
+      "source": "ganjoor",
+      "id": 195,
+      "name": "امیر پازواری"
+    },
+    "pier-paolo-pasolini": {
+      "source": "echolalia",
+      "id": 3307,
+      "name": "پیر پائولو پازولینی",
+      "sourceGroupName": "شاعران ایتالیا"
+    },
+    "qeysar-aminpour": {
+      "source": "echolalia",
+      "id": 713,
+      "name": "قیصر امین پور",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "rafael-alberti": {
+      "source": "echolalia",
+      "id": 1239,
+      "name": "رافائل آلبرتی",
+      "sourceGroupName": "شاعران اسپانیا"
+    },
+    "rafigh": {
+      "source": "ganjoor",
+      "id": 167,
+      "name": "رفیق اصفهانی"
+    },
+    "rahi": {
+      "source": "ganjoor",
+      "id": 41,
+      "name": "رهی معیری"
+    },
+    "rainer-malkowski": {
+      "source": "echolalia",
+      "id": 2832,
+      "name": "راینر مالکوفسکی",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "rashhe": {
+      "source": "ganjoor",
+      "id": 36,
+      "name": "رشحه"
+    },
+    "rasoul-yunan": {
+      "source": "echolalia",
+      "id": 509,
+      "name": "رسول یونان",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "raymond-carver": {
+      "source": "echolalia",
+      "id": 869,
+      "name": "ریموند کارور",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "razi": {
+      "source": "ganjoor",
+      "id": 47,
+      "name": "رضی‌الدین آرتیمانی"
+    },
+    "rebbeca-ndjoze": {
+      "source": "echolalia",
+      "id": 2899,
+      "name": "ربکا ندیوزی",
+      "sourceGroupName": "شاعران آفریقای‌جنوبی"
+    },
+    "remco-campert": {
+      "source": "echolalia",
+      "id": 2394,
+      "name": "رمکو کامپرت",
+      "sourceGroupName": "شاعران هلند"
+    },
+    "rene-char": {
+      "source": "echolalia",
+      "id": 2313,
+      "name": "رنه شار",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "reza-baraheni": {
+      "source": "echolalia",
+      "id": 1274,
+      "name": "رضا براهنی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "rhedayat": {
+      "source": "ganjoor",
+      "id": 93,
+      "name": "رضاقلی خان هدایت"
+    },
+    "richard-brautigan": {
+      "source": "echolalia",
+      "id": 420,
+      "name": "ریچارد براتیگان",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "robert-desnos": {
+      "source": "echolalia",
+      "id": 1431,
+      "name": "روبر دسنوس",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "robert-frost": {
+      "source": "echolalia",
+      "id": 3308,
+      "name": "رابرت فراست",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "roberto-juarroz": {
+      "source": "echolalia",
+      "id": 3333,
+      "name": "روبرتو خواروز",
+      "sourceGroupName": "شاعران آرژانتین"
+    },
+    "romain-rolland": {
+      "source": "echolalia",
+      "id": 309,
+      "name": "رومن رولان",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "ron-willis": {
+      "source": "echolalia",
+      "id": 3020,
+      "name": "ران ویلیس",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "roodaki": {
+      "source": "ganjoor",
+      "id": 12,
+      "name": "رودکی سمرقندی"
+    },
+    "rooni": {
+      "source": "ganjoor",
+      "id": 110,
+      "name": "ابوالفرج رونی"
+    },
+    "rose-auslander": {
+      "source": "echolalia",
+      "id": 2297,
+      "name": "رزه آوسلندر",
+      "sourceGroupName": "شاعران اوکراین"
+    },
+    "rownaghi": {
+      "source": "ganjoor",
+      "id": 221,
+      "name": "رونقی بخارایی"
+    },
+    "rumi": {
+      "source": "echolalia",
+      "id": 736,
+      "name": "مولانا",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "saadi": {
+      "source": "ganjoor",
+      "id": 7,
+      "name": "سعدی شیرازی"
+    },
+    "saadi-shirazi": {
+      "source": "echolalia",
+      "id": 1096,
+      "name": "سعدی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "saber": {
+      "source": "ganjoor",
+      "id": 156,
+      "name": "ادیب صابر"
+    },
+    "saeb": {
+      "source": "ganjoor",
+      "id": 22,
+      "name": "صائب"
+    },
+    "saeeda": {
+      "source": "ganjoor",
+      "id": 128,
+      "name": "سعیدا"
+    },
+    "safa": {
+      "source": "ganjoor",
+      "id": 108,
+      "name": "صفای اصفهانی"
+    },
+    "safayee": {
+      "source": "ganjoor",
+      "id": 168,
+      "name": "صفایی جندقی"
+    },
+    "safi": {
+      "source": "ganjoor",
+      "id": 187,
+      "name": "صفی علیشاه"
+    },
+    "saghir": {
+      "source": "ganjoor",
+      "id": 182,
+      "name": "صغیر اصفهانی"
+    },
+    "sahab": {
+      "source": "ganjoor",
+      "id": 135,
+      "name": "سحاب اصفهانی"
+    },
+    "saham-alshasha": {
+      "source": "echolalia",
+      "id": 2305,
+      "name": "سهام الشعشاع",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "saib-tabrizi": {
+      "source": "echolalia",
+      "id": 1089,
+      "name": "صائب تبریزی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "salim": {
+      "source": "ganjoor",
+      "id": 120,
+      "name": "سلیم تهرانی"
+    },
+    "salman": {
+      "source": "ganjoor",
+      "id": 40,
+      "name": "سلمان ساوجی"
+    },
+    "sam": {
+      "source": "ganjoor",
+      "id": 197,
+      "name": "سام میرزا صفوی"
+    },
+    "samet": {
+      "source": "ganjoor",
+      "id": 74,
+      "name": "صامت بروجردی"
+    },
+    "samuel-beckett": {
+      "source": "echolalia",
+      "id": 3305,
+      "name": "ساموئل بکت",
+      "sourceGroupName": "شاعران ایرلندی"
+    },
+    "sanaee": {
+      "source": "ganjoor",
+      "id": 10,
+      "name": "سنایی غزنوی"
+    },
+    "sane": {
+      "source": "ganjoor",
+      "id": 223,
+      "name": "صانع بلخی"
+    },
+    "sara-teasdale": {
+      "source": "echolalia",
+      "id": 2116,
+      "name": "سارا تیس دیل",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "sepehri": {
+      "source": "ganjoor",
+      "id": 222,
+      "name": "سپهری بخارایی"
+    },
+    "seyed-ali-salehi": {
+      "source": "echolalia",
+      "id": 510,
+      "name": "سید علی صالحی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "seyf": {
+      "source": "ganjoor",
+      "id": 31,
+      "name": "سیف فرغانی"
+    },
+    "shabestari": {
+      "source": "ganjoor",
+      "id": 23,
+      "name": "شیخ محمود شبستری"
+    },
+    "shahedi": {
+      "source": "ganjoor",
+      "id": 83,
+      "name": "ابراهیم شاهدی دده"
+    },
+    "shahi": {
+      "source": "ganjoor",
+      "id": 103,
+      "name": "امیر شاهی سبزواری"
+    },
+    "shahid": {
+      "source": "ganjoor",
+      "id": 207,
+      "name": "شهید بلخی"
+    },
+    "shahnematollah": {
+      "source": "ganjoor",
+      "id": 51,
+      "name": "شاه نعمت‌الله ولی"
+    },
+    "shahram-sheydayi": {
+      "source": "echolalia",
+      "id": 3296,
+      "name": "شهرام شیدایی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "shahrestani": {
+      "source": "ganjoor",
+      "id": 130,
+      "name": "اسیر شهرستانی"
+    },
+    "shahriar": {
+      "source": "ganjoor",
+      "id": 35,
+      "name": "شهریار"
+    },
+    "shahriyar": {
+      "source": "echolalia",
+      "id": 162,
+      "name": "شهریار",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "shaker": {
+      "source": "ganjoor",
+      "id": 220,
+      "name": "شاکر بخارایی"
+    },
+    "shams-langroudi": {
+      "source": "echolalia",
+      "id": 880,
+      "name": "شمس لنگرودی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "shater": {
+      "source": "ganjoor",
+      "id": 55,
+      "name": "شاطر عباس صبوحی"
+    },
+    "shel-silverstein": {
+      "source": "echolalia",
+      "id": 787,
+      "name": "شل سیلور استاین",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "sherko-bekas": {
+      "source": "echolalia",
+      "id": 2580,
+      "name": "شیرکو بیکس",
+      "sourceGroupName": "شاعران کوردی"
+    },
+    "shooshtari": {
+      "source": "ganjoor",
+      "id": 176,
+      "name": "وفایی شوشتری"
+    },
+    "siavash-kasraei": {
+      "source": "echolalia",
+      "id": 1869,
+      "name": "سیاوش کسرایی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "siegfried-sassoon": {
+      "source": "echolalia",
+      "id": 3346,
+      "name": "زیگفرید ساسون",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "simin-behbahani": {
+      "source": "echolalia",
+      "id": 1577,
+      "name": "سیمین بهبهانی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "soghdi": {
+      "source": "ganjoor",
+      "id": 212,
+      "name": "ابوحفص سغدی"
+    },
+    "sohrab-sepehri": {
+      "source": "echolalia",
+      "id": 779,
+      "name": "سهراب سپهری",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "soofi": {
+      "source": "ganjoor",
+      "id": 188,
+      "name": "صوفی محمد هروی"
+    },
+    "soozani": {
+      "source": "ganjoor",
+      "id": 177,
+      "name": "سوزنی سمرقندی"
+    },
+    "sophia-de-mello-breyner-andresen": {
+      "source": "echolalia",
+      "id": 2724,
+      "name": "سوفیا اندرسون",
+      "sourceGroupName": "شاعران پرتغال"
+    },
+    "sophia-parnok": {
+      "source": "echolalia",
+      "id": 2326,
+      "name": "سوفیا پارنوک",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "souad-al-sabah": {
+      "source": "echolalia",
+      "id": 1217,
+      "name": "سعاد الصباح",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "susan-polis-schutz": {
+      "source": "echolalia",
+      "id": 1952,
+      "name": "سوزان پولیس شوتز",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "suzanne-alaywan": {
+      "source": "echolalia",
+      "id": 2464,
+      "name": "سوزان علیوان",
+      "sourceGroupName": "شاعران عرب"
+    },
+    "sylvia-plath": {
+      "source": "echolalia",
+      "id": 40,
+      "name": "سیلویا پلات",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "t-s-eliot": {
+      "source": "echolalia",
+      "id": 3283,
+      "name": "تی. اس. الیوت",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "tabib": {
+      "source": "ganjoor",
+      "id": 138,
+      "name": "طبیب اصفهانی"
+    },
+    "tadeusz-borowski": {
+      "source": "echolalia",
+      "id": 3183,
+      "name": "تادئوش بوروفسکی",
+      "sourceGroupName": "شاعران لهستان"
+    },
+    "tadeusz-rozewicz": {
+      "source": "echolalia",
+      "id": 2667,
+      "name": "تادئوش روژه‌ویچ",
+      "sourceGroupName": "شاعران لهستان"
+    },
+    "ted-hughes": {
+      "source": "echolalia",
+      "id": 1475,
+      "name": "تد هیوز",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "teijo-nakamura": {
+      "source": "echolalia",
+      "id": 1260,
+      "name": "تی جو ناکامورا",
+      "sourceGroupName": "شاعران ژاپنی"
+    },
+    "tess-gallagher": {
+      "source": "echolalia",
+      "id": 3306,
+      "name": "تس گالاگر",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "theophile-gautier": {
+      "source": "echolalia",
+      "id": 2248,
+      "name": "تئوفیل گوتیه",
+      "sourceGroupName": "شاعران فرانسه"
+    },
+    "thomas-hardy": {
+      "source": "echolalia",
+      "id": 2743,
+      "name": "توماس هاردی",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "toghra": {
+      "source": "ganjoor",
+      "id": 184,
+      "name": "طغرای مشهدی"
+    },
+    "toghrol": {
+      "source": "ganjoor",
+      "id": 150,
+      "name": "طغرل احراری"
+    },
+    "tokhari": {
+      "source": "ganjoor",
+      "id": 224,
+      "name": "طخاری"
+    },
+    "tomas-transtromer": {
+      "source": "echolalia",
+      "id": 2415,
+      "name": "توماس ترانسترومر",
+      "sourceGroupName": "شاعران سوئد"
+    },
+    "torki": {
+      "source": "ganjoor",
+      "id": 189,
+      "name": "ترکی شیرازی"
+    },
+    "tristan-tzara": {
+      "source": "echolalia",
+      "id": 2426,
+      "name": "تریستان تزارا",
+      "sourceGroupName": "شاعران رومانی"
+    },
+    "turgut-uyar": {
+      "source": "echolalia",
+      "id": 1245,
+      "name": "تورگوت اویار",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "ulla-hahn": {
+      "source": "echolalia",
+      "id": 3309,
+      "name": "اولا هان",
+      "sourceGroupName": "شاعران آلمان"
+    },
+    "umit-yasar-oguzcan": {
+      "source": "echolalia",
+      "id": 2368,
+      "name": "امید یاشار اوغوزجان",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "vaez": {
+      "source": "ganjoor",
+      "id": 158,
+      "name": "واعظ قزوینی"
+    },
+    "vahdat": {
+      "source": "ganjoor",
+      "id": 81,
+      "name": "وحدت کرمانشاهی"
+    },
+    "vahe-armen": {
+      "source": "echolalia",
+      "id": 1178,
+      "name": "واهه آرمن",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "vahid": {
+      "source": "ganjoor",
+      "id": 165,
+      "name": "وحیدالزمان قزوینی"
+    },
+    "vahshi": {
+      "source": "ganjoor",
+      "id": 11,
+      "name": "وحشی بافقی"
+    },
+    "valad": {
+      "source": "ganjoor",
+      "id": 91,
+      "name": "سلطان ولد"
+    },
+    "varavini": {
+      "source": "ganjoor",
+      "id": 66,
+      "name": "سعدالدین وراوینی"
+    },
+    "varragh": {
+      "source": "ganjoor",
+      "id": 205,
+      "name": "محمود وراق هروی"
+    },
+    "vasif": {
+      "source": "ganjoor",
+      "id": 201,
+      "name": "محمد وصیف سگزی"
+    },
+    "vatvat": {
+      "source": "ganjoor",
+      "id": 58,
+      "name": "رشیدالدین وطواط"
+    },
+    "vera-brittain": {
+      "source": "echolalia",
+      "id": 3116,
+      "name": "ورا بریتین",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "victor-jara": {
+      "source": "echolalia",
+      "id": 2345,
+      "name": "ویکتور خارا",
+      "sourceGroupName": "شاعران شیلی"
+    },
+    "vinicius-de-moraes": {
+      "source": "echolalia",
+      "id": 3304,
+      "name": "ونسیوس د مورائس",
+      "sourceGroupName": "شاعران برزیل"
+    },
+    "vittorio-alfieri": {
+      "source": "echolalia",
+      "id": 2334,
+      "name": "ویتوریو آلفیری",
+      "sourceGroupName": "شاعران ایتالیا"
+    },
+    "vladimir-mayakovsky": {
+      "source": "echolalia",
+      "id": 2202,
+      "name": "ولادیمیر مایاکوفسکی",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "walt-whitman": {
+      "source": "echolalia",
+      "id": 3347,
+      "name": "والت ویتمن",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "warsan-shire": {
+      "source": "echolalia",
+      "id": 2472,
+      "name": "وارسان شایر",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "william-blake": {
+      "source": "echolalia",
+      "id": 2191,
+      "name": "ویلیام بلیک",
+      "sourceGroupName": "شاعران انگلیس"
+    },
+    "william-butler-yeats": {
+      "source": "echolalia",
+      "id": 2278,
+      "name": "ویلیام باتلر ییتس",
+      "sourceGroupName": "شاعران ایرلندی"
+    },
+    "william-stafford": {
+      "source": "echolalia",
+      "id": 3015,
+      "name": "ویلیام استفورد",
+      "sourceGroupName": "شاعران آمریکا"
+    },
+    "wislawa-szymborska": {
+      "source": "echolalia",
+      "id": 799,
+      "name": "ویسلاوا شیمبورسکا",
+      "sourceGroupName": "شاعران لهستان"
+    },
+    "yadollah-royaee": {
+      "source": "echolalia",
+      "id": 3230,
+      "name": "یدالله رویایی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "yaghma": {
+      "source": "ganjoor",
+      "id": 163,
+      "name": "یغمای جندقی"
+    },
+    "yaghma-golrouee": {
+      "source": "echolalia",
+      "id": 565,
+      "name": "یغما گلرویی",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "yasar-kemal": {
+      "source": "echolalia",
+      "id": 2319,
+      "name": "یاشار کمال",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "yavuz-bulent-bakiler": {
+      "source": "echolalia",
+      "id": 947,
+      "name": "یاووز بولنت باکیلر",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "yazdi": {
+      "source": "ganjoor",
+      "id": 134,
+      "name": "فرخی یزدی"
+    },
+    "yevgeny-yevtushenko": {
+      "source": "echolalia",
+      "id": 3082,
+      "name": "یوگنی یوفتوشنکو",
+      "sourceGroupName": "شاعران روسیه"
+    },
+    "yiannis-ritsos": {
+      "source": "echolalia",
+      "id": 1492,
+      "name": "یانیس ریتسوس",
+      "sourceGroupName": "شاعران یونان"
+    },
+    "yilmaz-guney": {
+      "source": "echolalia",
+      "id": 3332,
+      "name": "ییلماز گونی",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "yusuf-hayaloglu": {
+      "source": "echolalia",
+      "id": 522,
+      "name": "یوسف هایال اوغلو",
+      "sourceGroupName": "شاعران ترکیه"
+    },
+    "zahir": {
+      "source": "ganjoor",
+      "id": 69,
+      "name": "ظهیر فاریابی"
+    },
+    "zahiri": {
+      "source": "ganjoor",
+      "id": 192,
+      "name": "ظهیری سمرقندی"
+    },
+    "zanyar-burur": {
+      "source": "echolalia",
+      "id": 170,
+      "name": "زانیار برور",
+      "sourceGroupName": "شاعران ایرانی"
+    },
+    "کلوناريس": {
+      "source": "echolalia",
+      "id": 2395,
+      "name": "آ.کلوناريس",
+      "sourceGroupName": "شاعران یونان"
+    }
+  }
+}

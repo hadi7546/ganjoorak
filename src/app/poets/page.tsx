@@ -1,10 +1,12 @@
-import Link from 'next/link';
-import { Poet } from '@/types/poet';
+import { Century, Poet } from '@/types/poet';
 import ganjoorApi from '@/api/GanjoorApi';
 import customApi from '@/api/CustomApi';
+import echolaliaApi from '@/api/EcholaliaApi';
+import PoetsContent from '@/components/PoetsContent';
 import '@/styles/Poets.css';
+import { logger } from '@/utils/logger';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 async function getGanjoorPoets(): Promise<Poet[]> {
     try {
@@ -13,17 +15,31 @@ async function getGanjoorPoets(): Promise<Poet[]> {
             .filter((poet) => poet.published)
             .sort((a, b) => a.pinOrder - b.pinOrder || a.name.localeCompare(b.name, 'fa'));
     } catch (error) {
-        console.error("Error fetching Ganjoor poets:", error);
+        logger.error("Error fetching centuries:", error);
         return [];
     }
 }
 
 async function getCustomPoets(): Promise<Poet[]> {
     try {
+        logger.log("Fetching custom poets...");
         const poets = await customApi.getPoets();
+        logger.log(`Found ${poets.length} custom poets`);
         return poets;
     } catch (error) {
-        console.error("Error fetching custom poets:", error);
+        logger.error("Error fetching custom poets:", error);
+        return [];
+    }
+}
+
+async function getModernPoets(): Promise<Poet[]> {
+    try {
+        logger.log("Fetching Echolalia poets...");
+        const poets = await echolaliaApi.getPoets();
+        logger.log(`Found ${poets.length} Echolalia poets`);
+        return poets;
+    } catch (error) {
+        logger.error("Error fetching Echolalia poets:", error);
         return [];
     }
 }
@@ -34,29 +50,19 @@ function getPoetHref(poet: Poet): string {
 }
 
 export default async function PoetsPage() {
-    const [ganjoorPoets, customPoets] = await Promise.all([
-        getGanjoorPoets(),
-        getCustomPoets()
+    // Fetch data in parallel for better performance
+    const [centuries, customPoets, modernPoets] = await Promise.all([
+        getCenturies(),
+        getCustomPoets(),
+        getModernPoets()
     ]);
-    const poets = [...customPoets, ...ganjoorPoets];
+
+    logger.log(`Rendering poets page with ${centuries.length} centuries, ${customPoets.length} custom poets and ${modernPoets.length} modern poets`);
 
     return (
         <div className="poets-container">
             <h1 className="poets-title">شاعران</h1>
-            <div className="poets-grid-container open" style={{ height: 'auto' }}>
-                <div className="poets-grid">
-                    {poets.map((poet, index) => (
-                        <Link
-                            href={getPoetHref(poet)}
-                            key={`${poet.fullUrl || poet.urlSlug || poet.name}-${poet.id}-${index}`}
-                            className="poet-card"
-                        >
-                            <h2 className="poet-name">{poet.nickname || poet.name}</h2>
-                            {poet.nickname && <p className="poet-nickname">{poet.name}</p>}
-                        </Link>
-                    ))}
-                </div>
-            </div>
+            <PoetsContent centuries={centuries} customPoets={customPoets} modernPoets={modernPoets} />
         </div>
     );
 } 

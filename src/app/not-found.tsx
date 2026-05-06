@@ -7,6 +7,7 @@ import ganjoorApi from '@/api/GanjoorApi';
 import type { Poem } from '@/types/poem';
 import LoadingScreen from '@/components/LoadingScreen';
 import { useRouter } from 'next/navigation';
+import { logger } from '@/utils/logger';
 
 export default function NotFound() {
     const [loading, setLoading] = useState(false);
@@ -18,7 +19,7 @@ export default function NotFound() {
             const randomPoem = await ganjoorApi.getRandomPoem();
             window.location.href = `/poem/${randomPoem.id}`;
         } catch (error) {
-            console.error('Error loading random poem:', error);
+            logger.error('Error loading random poem:', error);
             setLoading(false);
         }
     };

@@ -7,6 +7,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
 import ganjoorApi from '@/api/GanjoorApi';
 import type { Poem } from '@/types/poem';
+import { logger } from '@/utils/logger';
 
 export default function PoemPage() {
     const params = useParams();
@@ -45,7 +46,7 @@ export default function PoemPage() {
                     return;
                 }
             } catch (err) {
-                console.error('Error loading poem:', err);
+                logger.error('Error loading poem:', err);
                 setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر');
             } finally {
                 setLoading(false);
@@ -61,7 +62,7 @@ export default function PoemPage() {
             const newPoem = await ganjoorApi.getRandomPoem();
             router.push(`/poem/${newPoem.id}`);
         } catch (err) {
-            console.error('Error loading next poem:', err);
+            logger.error('Error loading next poem:', err);
             setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر بعدی');
             setLoading(false);
         }
