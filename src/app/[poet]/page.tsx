@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useSearchParams } from "next/navigation";
-import { FaInfoCircle, FaTimes } from "react-icons/fa";
 import PoemViewer from "@/components/PoemViewer";
 import LoadingScreen from "@/components/LoadingScreen";
 import ErrorScreen from "@/components/ErrorScreen";
 import AppNotFound from "@/app/not-found";
+import PoetInfoDialog from "@/components/PoetInfoDialog";
 import ganjoorApi from "@/api/GanjoorApi";
 import customApi from "@/api/CustomApi";
+import echolaliaApi, { type EcholaliaPoemSummary } from "@/api/EcholaliaApi";
 import type { Poem } from "@/types/poem";
 import type { Poet } from "@/types/poet";
 import type { GanjoorCategory, GanjoorPoetCatalog } from "@/types/ganjoor";
@@ -17,7 +18,21 @@ import { PoetSlug, isValidPoetSlug } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import { useSettings } from "@/context/SettingsContext";
 import { logger } from "@/utils/logger";
-// Sidebar collapse icons removed (no longer used)
+import poetSourceIndex from "@/data/poet-source-index.json";
+
+type RemotePoetSource = "ganjoor" | "echolalia";
+
+interface PoetSourceIndexEntry {
+  source: RemotePoetSource;
+  id?: number | null;
+  name?: string;
+  sourceGroupName?: string | null;
+}
+
+const indexedPoetSources = poetSourceIndex.sourcesBySlug as Record<
+  string,
+  PoetSourceIndexEntry | undefined
+>;
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -160,15 +175,94 @@ function PoetDetails({ poet }: { poet: Poet }) {
   );
 }
 
+function RandomizePoemsPrompt({
+  poetName,
+  onChoose,
+}: {
+  poetName: string;
+  onChoose: (randomize: boolean, rememberChoice: boolean) => void;
+}) {
+  const [rememberChoice, setRememberChoice] = useState(false);
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="settings-backdrop"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      />
+      <motion.div
+        className="settings-dialog"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <motion.div
+          className="settings-panel max-w-md text-right"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="randomize-poems-title"
+          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 20 }}
+          transition={{ type: "spring", duration: 0.4, bounce: 0.25 }}
+        >
+          <div className="settings-form">
+            <h2 id="randomize-poems-title" className="settings-title">
+              شعرهای {poetName} چطور نمایش داده شوند؟
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-neutral-400">
+              می‌توانید شعرها را به صورت تصادفی بخوانید یا از ابتدای مجموعه
+              پیاپی جلو بروید.
+            </p>
+            <label className="mt-5 flex cursor-pointer items-center justify-start gap-3 rounded-xl bg-neutral-800/60 px-4 py-3 text-sm text-neutral-200">
+              <input
+                type="checkbox"
+                checked={rememberChoice}
+                onChange={(event) => setRememberChoice(event.target.checked)}
+                className="h-4 w-4 accent-neutral-100"
+              />
+              <span>برای همهٔ شاعران همین را استفاده کن و دوباره نپرس</span>
+            </label>
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                className="settings-action-button primary justify-center"
+                onClick={() => onChoose(true, rememberChoice)}
+              >
+                تصادفی
+              </button>
+              <button
+                type="button"
+                className="settings-action-button secondary justify-center"
+                onClick={() => onChoose(false, rememberChoice)}
+              >
+                پیاپی
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
-  const { settings } = useSettings();
-  const randomizePoems = settings.randomizePoems;
+  const { settings, setRandomizePoems, setAskRandomizePoemsOnPoetPages } =
+    useSettings();
+  const [randomizeChoice, setRandomizeChoice] = useState<boolean | null>(null);
+  const shouldAskRandomizeChoice = settings.askRandomizePoemsOnPoetPages;
+  const randomizePoems = randomizeChoice ?? settings.randomizePoems;
 
   const [catalog, setCatalog] = useState<GanjoorPoetCatalog | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isInfoOpen, setIsInfoOpen] = useState(true);
   const [categoryCache, setCategoryCache] = useState<
     Record<number, GanjoorCategory>
   >({});
+  const [loadedCategoryIds, setLoadedCategoryIds] = useState<Set<number>>(
+    () => new Set(),
+  );
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null,
   );
@@ -188,16 +282,20 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
 
   const poemCacheRef = useRef<Record<number, Poem>>({});
   const poemOrderRef = useRef<number[]>([]);
+  const shouldAutoCloseInfoRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
 
     const loadCatalog = async () => {
+      setRandomizeChoice(null);
       setLoadingCatalog(true);
       setCatalogError(null);
       setNotFound(false);
       setCatalog(null);
+      setIsInfoOpen(true);
       setCategoryCache({});
+      setLoadedCategoryIds(new Set());
       setSelectedCategoryId(null);
       setCategoryError(null);
       setPoemOrder([]);
@@ -212,9 +310,6 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
         if (cancelled) return;
         setCatalog(fetchedCatalog);
         setCategoryCache(indexCategories(fetchedCatalog.category));
-        const defaultCategoryId =
-          fetchedCatalog.category.children[0]?.id ?? fetchedCatalog.category.id;
-        setSelectedCategoryId(defaultCategoryId);
       } catch (error: any) {
         if (cancelled) return;
         logger.error("Error loading poet catalog:", error);
@@ -246,6 +341,9 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
   const cachedCategory = selectedCategoryId
     ? categoryCache[selectedCategoryId]
     : undefined;
+  const selectedCategoryIsLoaded = selectedCategoryId
+    ? loadedCategoryIds.has(selectedCategoryId)
+    : false;
 
   const fetchPoemById = useCallback(async (poemId: number) => {
     if (poemCacheRef.current[poemId]) {
@@ -286,32 +384,55 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
     if (!selectedCategoryId) return;
     let cancelled = false;
 
+    const clearPoems = () => {
+      poemOrderRef.current = [];
+      setPoemOrder([]);
+      setCurrentPoem(null);
+      setCurrentPoemIndex(0);
+      setPoemError(null);
+    };
+
     const applyCategory = async (categoryData: GanjoorCategory) => {
+      if ((categoryData.children?.length ?? 0) > 0) {
+        clearPoems();
+        return;
+      }
+
       const poemIds = (categoryData.poems ?? []).map((poem) => poem.id);
-      const order = createPoemOrder(poemIds, randomizePoems);
-      if (cancelled) return;
 
-      poemOrderRef.current = order;
-      setPoemOrder(order);
-
-      if (order.length === 0) {
+      if (poemIds.length === 0) {
+        poemOrderRef.current = [];
+        setPoemOrder([]);
         setCurrentPoem(null);
         setCurrentPoemIndex(0);
         setPoemError("در این مجموعه شعری ثبت نشده است.");
         return;
       }
 
+      if (shouldAskRandomizeChoice && randomizeChoice === null) {
+        clearPoems();
+        return;
+      }
+
+      const order = createPoemOrder(poemIds, randomizePoems);
+      if (cancelled) return;
+
+      poemOrderRef.current = order;
+      setPoemOrder(order);
+
       await loadPoemAtIndex(0, order);
     };
 
-    const hasPoems =
-      cachedCategory && cachedCategory.poems && cachedCategory.poems.length > 0;
+    const hasCachedChildren = (cachedCategory?.children?.length ?? 0) > 0;
+    const hasCachedPoems = (cachedCategory?.poems?.length ?? 0) > 0;
+    const canUseCachedCategory =
+      cachedCategory &&
+      (hasCachedChildren || hasCachedPoems || selectedCategoryIsLoaded);
 
-    if (hasPoems) {
+    if (canUseCachedCategory) {
       setCategoryLoading(false);
       setCategoryError(null);
-      setPoemError(null);
-      applyCategory(cachedCategory!);
+      applyCategory(cachedCategory);
       return;
     }
 
@@ -324,10 +445,17 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
         const fetched =
           await ganjoorApi.getCategoryWithPoems(selectedCategoryId);
         if (cancelled) return;
+        const fetchedCategories = indexCategories(fetched);
         setCategoryCache((prev) => ({
+          ...fetchedCategories,
           ...prev,
           [selectedCategoryId]: fetched,
         }));
+        setLoadedCategoryIds((prev) => {
+          const next = new Set(prev);
+          next.add(selectedCategoryId);
+          return next;
+        });
         await applyCategory(fetched);
       } catch (error) {
         if (cancelled) return;
@@ -351,22 +479,42 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
     return () => {
       cancelled = true;
     };
-  }, [selectedCategoryId, cachedCategory, randomizePoems, loadPoemAtIndex]);
+  }, [
+    selectedCategoryId,
+    cachedCategory,
+    selectedCategoryIsLoaded,
+    randomizeChoice,
+    randomizePoems,
+    shouldAskRandomizeChoice,
+    loadPoemAtIndex,
+  ]);
 
   const handleSelectCategory = useCallback(
     (categoryId: number) => {
       if (categoryId === selectedCategoryId) {
         return;
       }
+
+      const nextCategory = categoryCache[categoryId];
+      const needsCategoryLoad =
+        !nextCategory ||
+        (((nextCategory.children?.length ?? 0) === 0 ||
+          !nextCategory.children) &&
+          ((nextCategory.poems?.length ?? 0) === 0 || !nextCategory.poems) &&
+          !loadedCategoryIds.has(categoryId));
+
+      setRandomizeChoice(null);
+      setCategoryLoading(needsCategoryLoad);
       setCategoryError(null);
       setPoemError(null);
       setPoemOrder([]);
       poemOrderRef.current = [];
       setCurrentPoem(null);
       setCurrentPoemIndex(0);
+      shouldAutoCloseInfoRef.current = true;
       setSelectedCategoryId(categoryId);
     },
-    [selectedCategoryId],
+    [categoryCache, loadedCategoryIds, selectedCategoryId],
   );
 
   const handleRetryCatalog = () => setReloadKey((prev) => prev + 1);
@@ -378,12 +526,48 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
       delete next[selectedCategoryId];
       return next;
     });
+    setLoadedCategoryIds((prev) => {
+      const next = new Set(prev);
+      next.delete(selectedCategoryId);
+      return next;
+    });
     setCategoryError(null);
   }, [selectedCategoryId]);
 
   const handleRetryPoem = useCallback(() => {
     loadPoemAtIndex(currentPoemIndex);
   }, [currentPoemIndex, loadPoemAtIndex]);
+
+  const handleRandomizeChoice = useCallback(
+    (shouldRandomize: boolean, rememberChoice: boolean) => {
+      setRandomizePoems(shouldRandomize);
+      if (rememberChoice) {
+        setAskRandomizePoemsOnPoetPages(false);
+      }
+      setRandomizeChoice(shouldRandomize);
+      setPoemError(null);
+    },
+    [setAskRandomizePoemsOnPoetPages, setRandomizePoems],
+  );
+
+  const selectedCategory = cachedCategory ?? null;
+  const selectedCategoryHasChildren =
+    (selectedCategory?.children?.length ?? 0) > 0;
+
+  useEffect(() => {
+    if (!isInfoOpen) return;
+    if (!selectedCategoryId) return;
+    if (categoryLoading) return;
+    if (selectedCategoryHasChildren) return;
+    if (!shouldAutoCloseInfoRef.current) return;
+    shouldAutoCloseInfoRef.current = false;
+    setIsInfoOpen(false);
+  }, [
+    isInfoOpen,
+    selectedCategoryId,
+    categoryLoading,
+    selectedCategoryHasChildren,
+  ]);
 
   const handleNext = useCallback(() => {
     const order = poemOrderRef.current;
@@ -422,7 +606,6 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
     return root.children ?? [];
   }, [catalog, categoryCache]);
 
-  const selectedCategory = cachedCategory ?? null;
   const isFirstPoem = currentPoemIndex <= 0;
   const isLastPoem =
     !randomizePoems &&
@@ -430,9 +613,7 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
   const showPoemLoadingOverlay = poemLoading && !currentPoem;
   const containerClassName = [
     "poet-page",
-    "sidebar-open",
-    // Sidebar width marker for correct toggle positioning (wide sidebar variant)
-    "relative flex h-screen flex-col bg-neutral-950 text-neutral-100 lg:flex-row sidebar-w-96",
+    "relative flex h-screen flex-col bg-neutral-950 text-neutral-100",
   ].join(" ");
 
   if (loadingCatalog) {
@@ -451,123 +632,67 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
     return null;
   }
 
+  const showRandomizePrompt =
+    !!selectedCategoryId &&
+    !isInfoOpen &&
+    shouldAskRandomizeChoice &&
+    randomizeChoice === null;
+
   return (
     <div className={containerClassName}>
-      <div
-        className={
-          isSidebarOpen ? "relative w-full lg:w-96" : "relative hidden lg:w-0"
-        }
+      {showRandomizePrompt && (
+        <RandomizePoemsPrompt
+          poetName={catalog.poet.nickname || catalog.poet.name}
+          onChoose={handleRandomizeChoice}
+        />
+      )}
+      <PoetInfoDialog
+        isOpen={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
+        title="اطلاعات شاعر"
       >
-        <AnimatePresence>
-          {isSidebarOpen && (
-            <motion.aside
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ type: "spring", stiffness: 260, damping: 26 }}
-              className="sidebar-panel absolute inset-0 z-20 w-full border-b border-neutral-800/60 bg-neutral-900/40 px-6 pb-6 pt-6 backdrop-blur lg:border-b-0 lg:border-l lg:pt-6"
-            >
-              <div className="relative flex items-center justify-center pb-4 pr-4 pl-0">
-                <h2 className="text-sm font-semibold text-neutral-200">
-                  اطلاعات شاعر
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="settings-close absolute left-0"
-                  aria-label="بستن"
-                >
-                  <FaTimes />
-                </button>
-              </div>
-              <div className="space-y-6 pl-4">
-                <div>
-                  <div className="mt-0">
-                    <PoetDetails poet={catalog.poet} />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <h2 className="mb-3 text-sm font-semibold text-neutral-200">
-                      مجموعه‌ها
-                    </h2>
-                    {topLevelCategories.length > 0 ? (
-                      <CategoryList
-                        categories={topLevelCategories}
-                        selectedId={selectedCategoryId}
-                        onSelectCategory={handleSelectCategory}
-                        categoryCache={categoryCache}
-                      />
-                    ) : (
-                      <p className="text-sm text-neutral-400">
-                        مجموعه‌ای برای این شاعر ثبت نشده است.
-                      </p>
-                    )}
-                    {categoryLoading && (
-                      <p className="mt-3 text-xs text-neutral-500">
-                        در حال بارگذاری مجموعه...
-                      </p>
-                    )}
-                    {categoryError && (
-                      <div className="mt-3 rounded-md bg-red-900/30 px-3 py-2 text-xs text-red-200">
-                        <p>{categoryError}</p>
-                        <button
-                          type="button"
-                          className="mt-2 rounded bg-red-600/80 px-3 py-1 text-xs text-white hover:bg-red-600"
-                          onClick={handleRetryCategory}
-                        >
-                          تلاش مجدد
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  {selectedCategory &&
-                    !currentPoem &&
-                    selectedCategory.description && (
-                      <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/50 p-3 text-xs leading-6 text-neutral-400">
-                        {selectedCategory.description}
-                      </div>
-                    )}
-                </div>
-              </div>
-            </motion.aside>
+        <section className="poet-info-section">
+          <PoetDetails poet={catalog.poet} />
+        </section>
+        <section className="poet-info-section">
+          <h3 className="poet-info-section-title">مجموعه‌ها</h3>
+          {topLevelCategories.length > 0 && selectedCategoryId === null && (
+            <p className="mb-3 text-xs leading-6 text-neutral-500">
+              برای شروع خواندن، یک مجموعه را انتخاب کنید.
+            </p>
           )}
-        </AnimatePresence>
-      </div>
-      <main className="relative flex flex-1 flex-col overflow-hidden">
-        {!isSidebarOpen && (
-          <button
-            type="button"
-            onClick={() => setIsSidebarOpen(true)}
-            className="sidebar-toggle-button"
-            aria-label="نمایش اطلاعات شاعر"
-          >
-            <FaInfoCircle size={16} />
-          </button>
-        )}
-        {selectedCategory && !currentPoem && (
-          <div className="border-b border-neutral-800/60 bg-neutral-900/40 px-5 py-3 text-sm text-neutral-300">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex flex-col gap-1 text-right">
-                <span className="text-base font-semibold text-neutral-100">
-                  {selectedCategory.title}
-                </span>
-                {selectedCategory.bookName && (
-                  <span className="text-xs text-neutral-500">
-                    {selectedCategory.bookName}
-                  </span>
-                )}
-              </div>
-              {poemOrder.length > 0 && (
-                <span className="text-xs text-neutral-500">
-                  {formatPersianNumber(currentPoemIndex + 1)} از{" "}
-                  {formatPersianNumber(poemOrder.length)}
-                </span>
-              )}
+          {topLevelCategories.length > 0 ? (
+            <CategoryList
+              categories={topLevelCategories}
+              selectedId={selectedCategoryId}
+              onSelectCategory={handleSelectCategory}
+              categoryCache={categoryCache}
+            />
+          ) : (
+            <p className="text-sm text-neutral-400">
+              مجموعه‌ای برای این شاعر ثبت نشده است.
+            </p>
+          )}
+          {categoryLoading && (
+            <p className="mt-3 text-xs text-neutral-500">
+              در حال بارگذاری مجموعه...
+            </p>
+          )}
+          {categoryError && (
+            <div className="mt-3 rounded-md bg-red-900/30 px-3 py-2 text-xs text-red-200">
+              <p>{categoryError}</p>
+              <button
+                type="button"
+                className="mt-2 rounded bg-red-600/80 px-3 py-1 text-xs text-white hover:bg-red-600"
+                onClick={handleRetryCategory}
+              >
+                تلاش مجدد
+              </button>
             </div>
-          </div>
-        )}
-
+          )}
+        </section>
+      </PoetInfoDialog>
+      <main className="relative flex flex-1 flex-col overflow-hidden">
         <div className="relative flex flex-1 flex-col overflow-hidden">
           {showPoemLoadingOverlay && <LoadingScreen />}
 
@@ -596,12 +721,18 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
               isModern={false}
               poetSlug={catalog.poet.urlSlug}
               isPoetPage={true}
+              onTogglePoetInfo={() => {
+                shouldAutoCloseInfoRef.current = false;
+                setIsInfoOpen(true);
+              }}
             />
           )}
 
           {!showPoemLoadingOverlay && !poemError && !currentPoem && (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-neutral-400">
-              <p className="text-sm">هیچ شعری برای نمایش وجود ندارد.</p>
+              <p className="text-sm">
+                برای شروع، یک مجموعه از اطلاعات شاعر انتخاب کنید.
+              </p>
             </div>
           )}
         </div>
@@ -610,12 +741,392 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
   );
 }
 
+function EcholaliaPoetPage({ poetSlug }: { poetSlug: string }) {
+  const { settings, setRandomizePoems, setAskRandomizePoemsOnPoetPages } =
+    useSettings();
+  const [randomizeChoice, setRandomizeChoice] = useState<boolean | null>(null);
+  const shouldAskRandomizeChoice = settings.askRandomizePoemsOnPoetPages;
+  const randomizePoems = randomizeChoice ?? settings.randomizePoems;
+
+  const [poet, setPoet] = useState<Poet | null>(null);
+  const [summaries, setSummaries] = useState<EcholaliaPoemSummary[]>([]);
+  const [poemOrder, setPoemOrder] = useState<number[]>([]);
+  const [currentPoemIndex, setCurrentPoemIndex] = useState(0);
+  const [currentPoem, setCurrentPoem] = useState<Poem | null>(null);
+  const [isInfoOpen, setIsInfoOpen] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [poemError, setPoemError] = useState<string | null>(null);
+  const [poemLoading, setPoemLoading] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const poemCacheRef = useRef<Record<number, Poem>>({});
+  const poemOrderRef = useRef<number[]>([]);
+  const skipNextPoemOrderEffectRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPoet = async () => {
+      setRandomizeChoice(null);
+      setLoading(true);
+      setError(null);
+      setPoemError(null);
+      setIsInfoOpen(true);
+      setPoet(null);
+      setSummaries([]);
+      setPoemOrder([]);
+      setCurrentPoem(null);
+      setCurrentPoemIndex(0);
+      poemCacheRef.current = {};
+      poemOrderRef.current = [];
+
+      try {
+        const [poetInfo, poemSummaries] = await Promise.all([
+          echolaliaApi.getPoetBySlug(poetSlug),
+          echolaliaApi.getPoemsByPoetSlug(poetSlug),
+        ]);
+        if (cancelled) return;
+        setPoet(poetInfo);
+        setSummaries(poemSummaries);
+      } catch (err) {
+        if (cancelled) return;
+        logger.error("Error loading Echolalia poet:", err);
+        setError("متأسفانه در دریافت اطلاعات شاعر از اکولالیا مشکلی پیش آمد.");
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadPoet();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [poetSlug, reloadKey]);
+
+  const loadPoemById = useCallback(async (poemId: number) => {
+    if (poemCacheRef.current[poemId]) {
+      return poemCacheRef.current[poemId];
+    }
+    const poem = await echolaliaApi.getPoemById(poemId);
+    poemCacheRef.current[poemId] = poem;
+    return poem;
+  }, []);
+
+  const loadPoemAtIndex = useCallback(
+    async (index: number, orderOverride?: number[]) => {
+      const order = orderOverride ?? poemOrderRef.current;
+      if (!order.length || index < 0 || index >= order.length) {
+        return;
+      }
+
+      setPoemLoading(true);
+      setPoemError(null);
+      try {
+        const poem = await loadPoemById(order[index]);
+        setCurrentPoem(poem);
+        setCurrentPoemIndex(index);
+      } catch (err) {
+        logger.error("Error loading Echolalia poem:", err);
+        setPoemError("متأسفانه در دریافت شعر از اکولالیا مشکلی پیش آمد.");
+      } finally {
+        setPoemLoading(false);
+      }
+    },
+    [loadPoemById],
+  );
+
+  useEffect(() => {
+    if (shouldAskRandomizeChoice && randomizeChoice === null) {
+      return;
+    }
+    if (skipNextPoemOrderEffectRef.current) {
+      skipNextPoemOrderEffectRef.current = false;
+      return;
+    }
+    const order = createPoemOrder(
+      summaries.map((poem) => poem.id),
+      randomizePoems,
+    );
+    poemOrderRef.current = order;
+    setPoemOrder(order);
+
+    if (order.length === 0) {
+      setCurrentPoem(null);
+      setPoemError("شعری برای این شاعر ثبت نشده است.");
+      return;
+    }
+
+    loadPoemAtIndex(0, order);
+  }, [
+    loadPoemAtIndex,
+    randomizeChoice,
+    randomizePoems,
+    shouldAskRandomizeChoice,
+    summaries,
+  ]);
+
+  const handleNext = useCallback(() => {
+    const order = poemOrderRef.current;
+    const nextIndex = currentPoemIndex + 1;
+
+    if (nextIndex < order.length) {
+      loadPoemAtIndex(nextIndex);
+      return;
+    }
+
+    if (randomizePoems && order.length > 0) {
+      const reshuffled = createPoemOrder(order, true);
+      poemOrderRef.current = reshuffled;
+      setPoemOrder(reshuffled);
+      loadPoemAtIndex(0, reshuffled);
+    }
+  }, [currentPoemIndex, loadPoemAtIndex, randomizePoems]);
+
+  const handlePrevious = useCallback(() => {
+    const previousIndex = currentPoemIndex - 1;
+    if (previousIndex >= 0) {
+      loadPoemAtIndex(previousIndex);
+    }
+  }, [currentPoemIndex, loadPoemAtIndex]);
+
+  const handleRandomizeChoice = useCallback(
+    (shouldRandomize: boolean, rememberChoice: boolean) => {
+      setRandomizePoems(shouldRandomize);
+      if (rememberChoice) {
+        setAskRandomizePoemsOnPoetPages(false);
+      }
+      setRandomizeChoice(shouldRandomize);
+      setPoemError(null);
+    },
+    [setAskRandomizePoemsOnPoetPages, setRandomizePoems],
+  );
+
+  const handleSelectSummary = useCallback(
+    (poemId: number) => {
+      const order = summaries.map((summary) => summary.id);
+      const index = order.indexOf(poemId);
+      if (index < 0) return;
+
+      skipNextPoemOrderEffectRef.current = true;
+      setRandomizeChoice(false);
+      poemOrderRef.current = order;
+      setPoemOrder(order);
+      setPoemError(null);
+      setIsInfoOpen(false);
+      loadPoemAtIndex(index, order);
+    },
+    [loadPoemAtIndex, summaries],
+  );
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  if (error) {
+    return (
+      <ErrorScreen message={error} onRetry={() => setReloadKey((v) => v + 1)} />
+    );
+  }
+
+  if (!poet) {
+    return <AppNotFound />;
+  }
+
+  const isFirstPoem = currentPoemIndex <= 0;
+  const isLastPoem =
+    !randomizePoems &&
+    (poemOrder.length === 0 || currentPoemIndex >= poemOrder.length - 1);
+  const showRandomizePrompt =
+    !isInfoOpen && shouldAskRandomizeChoice && randomizeChoice === null;
+
+  return (
+    <div className="poet-page relative flex h-screen flex-col bg-neutral-950 text-neutral-100">
+      {showRandomizePrompt && (
+        <RandomizePoemsPrompt
+          poetName={poet.nickname || poet.name}
+          onChoose={handleRandomizeChoice}
+        />
+      )}
+      <PoetInfoDialog
+        isOpen={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
+        title="اطلاعات شاعر"
+      >
+        <section className="poet-info-section">
+          <PoetDetails poet={poet} />
+        </section>
+        <section className="poet-info-section">
+          <h3 className="poet-info-section-title">شعرها</h3>
+          {summaries.length > 0 ? (
+            <div className="space-y-2">
+              <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/50 px-4 py-3 text-sm text-neutral-300">
+                <div className="flex items-center justify-between">
+                  <span>تعداد شعرها</span>
+                  <span>{formatPersianNumber(summaries.length)}</span>
+                </div>
+              </div>
+              <ul className="space-y-2">
+                {summaries.map((summary) => (
+                  <li key={summary.id}>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSummary(summary.id)}
+                      className="w-full rounded-lg border border-transparent px-3 py-2 text-right text-sm text-neutral-200 transition hover:bg-neutral-800/40"
+                    >
+                      {summary.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="text-sm text-neutral-400">
+              شعری برای این شاعر ثبت نشده است.
+            </p>
+          )}
+        </section>
+      </PoetInfoDialog>
+      <main className="relative flex flex-1 flex-col overflow-hidden">
+        <div className="relative flex flex-1 flex-col overflow-hidden">
+          {poemLoading && !currentPoem && <LoadingScreen />}
+          {poemError && (
+            <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+              <p className="text-sm text-neutral-300">{poemError}</p>
+              {poemOrder.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => loadPoemAtIndex(currentPoemIndex)}
+                  className="rounded bg-neutral-700 px-4 py-2 text-sm text-neutral-50 hover:bg-neutral-600"
+                >
+                  تلاش مجدد
+                </button>
+              )}
+            </div>
+          )}
+          {!poemError && currentPoem && (
+            <PoemViewer
+              poem={currentPoem}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              isFirst={isFirstPoem}
+              isLast={isLastPoem}
+              isModern={true}
+              poetSlug={currentPoem.poetSlug}
+              isPoetPage={true}
+              onTogglePoetInfo={() => setIsInfoOpen(true)}
+            />
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function ResolvedRemotePoetPage({
+  slug,
+  poetId,
+}: {
+  slug: string;
+  poetId?: number;
+}) {
+  const [source, setSource] = useState<"ganjoor" | "echolalia" | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const resolvePoet = async () => {
+      setLoading(true);
+      setNotFound(false);
+      setError(null);
+      setSource(null);
+
+      const [ganjoorResult, echolaliaResult] = await Promise.allSettled([
+        ganjoorApi.getPoetCatalog(slug, poetId),
+        echolaliaApi.getPoetBySlug(slug),
+      ]);
+
+      if (ganjoorResult.status === "fulfilled") {
+        if (!cancelled) {
+          setSource("ganjoor");
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (echolaliaResult.status === "fulfilled") {
+        if (!cancelled) {
+          setSource("echolalia");
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (cancelled) return;
+      const ganjoorError = ganjoorResult.reason;
+      const ganjoorWasNotFound =
+        ganjoorError instanceof Error &&
+        ganjoorError.message &&
+        /یافت نشد/.test(ganjoorError.message);
+
+      if (ganjoorError && !ganjoorWasNotFound) {
+        logger.error("Error resolving poet source:", ganjoorError);
+        setError(
+          "متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+        );
+      } else {
+        setNotFound(true);
+      }
+
+      if (!cancelled) {
+        setLoading(false);
+      }
+    };
+
+    resolvePoet();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, poetId, reloadKey]);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  if (error) {
+    return (
+      <ErrorScreen message={error} onRetry={() => setReloadKey((v) => v + 1)} />
+    );
+  }
+
+  if (notFound || !source) {
+    return <AppNotFound />;
+  }
+
+  if (source === "echolalia") {
+    return <EcholaliaPoetPage poetSlug={slug} />;
+  }
+
+  return <GanjoorPoetPage slug={slug} poetId={poetId} />;
+}
+
 function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
-  const { settings } = useSettings();
-  const randomizePoems = settings.randomizePoems;
+  const { settings, setRandomizePoems, setAskRandomizePoemsOnPoetPages } =
+    useSettings();
+  const [randomizeChoice, setRandomizeChoice] = useState<boolean | null>(null);
+  const shouldAskRandomizeChoice = settings.askRandomizePoemsOnPoetPages;
+  const randomizePoems = randomizeChoice ?? settings.randomizePoems;
 
   const [poetInfo, setPoetInfo] = useState<Poet | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isInfoOpen, setIsInfoOpen] = useState(true);
   const [poemIds, setPoemIds] = useState<number[]>([]);
   const [poemOrder, setPoemOrder] = useState<number[]>([]);
   const [currentPoemIndex, setCurrentPoemIndex] = useState(0);
@@ -634,9 +1145,11 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
     let cancelled = false;
 
     const loadPoet = async () => {
+      setRandomizeChoice(null);
       setLoading(true);
       setError(null);
       setPoemError(null);
+      setIsInfoOpen(true);
       setPoemIds([]);
       setPoemOrder([]);
       poemOrderRef.current = [];
@@ -730,6 +1243,9 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
   );
 
   useEffect(() => {
+    if (shouldAskRandomizeChoice && randomizeChoice === null) {
+      return;
+    }
     if (!poemIds.length) {
       setPoemOrder([]);
       poemOrderRef.current = [];
@@ -748,7 +1264,13 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
     }
 
     loadPoemAtIndex(0, order);
-  }, [poemIds, randomizePoems, loadPoemAtIndex]);
+  }, [
+    poemIds,
+    randomizeChoice,
+    randomizePoems,
+    shouldAskRandomizeChoice,
+    loadPoemAtIndex,
+  ]);
 
   const handleNext = useCallback(() => {
     const order = poemOrderRef.current;
@@ -784,6 +1306,18 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
 
   const handleRetryPoet = () => setReloadKey((prev) => prev + 1);
 
+  const handleRandomizeChoice = useCallback(
+    (shouldRandomize: boolean, rememberChoice: boolean) => {
+      setRandomizePoems(shouldRandomize);
+      if (rememberChoice) {
+        setAskRandomizePoemsOnPoetPages(false);
+      }
+      setRandomizeChoice(shouldRandomize);
+      setPoemError(null);
+    },
+    [setAskRandomizePoemsOnPoetPages, setRandomizePoems],
+  );
+
   const isFirstPoem = currentPoemIndex <= 0;
   const isLastPoem =
     !randomizePoems &&
@@ -791,9 +1325,7 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
   const showPoemLoadingOverlay = poemLoading && !currentPoem;
   const containerClassName = [
     "poet-page",
-    "sidebar-open",
-    // Sidebar width marker for correct toggle positioning (narrow sidebar variant)
-    "relative flex h-screen flex-col bg-neutral-950 text-neutral-100 lg:flex-row sidebar-w-80",
+    "relative flex h-screen flex-col bg-neutral-950 text-neutral-100",
   ].join(" ");
 
   if (loading) {
@@ -808,72 +1340,40 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
     return null;
   }
 
+  const showRandomizePrompt =
+    !isInfoOpen && shouldAskRandomizeChoice && randomizeChoice === null;
+
   return (
     <div className={containerClassName}>
-      <div
-        className={
-          isSidebarOpen ? "relative w-full lg:w-80" : "relative hidden lg:w-0"
-        }
+      {showRandomizePrompt && (
+        <RandomizePoemsPrompt
+          poetName={poetInfo.nickname || poetInfo.name}
+          onChoose={handleRandomizeChoice}
+        />
+      )}
+      <PoetInfoDialog
+        isOpen={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
+        title="اطلاعات شاعر"
       >
-        <AnimatePresence>
-          {isSidebarOpen && (
-            <motion.aside
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ type: "spring", stiffness: 260, damping: 26 }}
-              className="sidebar-panel absolute inset-0 z-20 w-full border-b border-neutral-800/60 bg-neutral-900/40 px-6 pb-6 pt-6 backdrop-blur lg:border-b-0 lg:border-l lg:pt-6"
-            >
-              <div className="relative flex items-center justify-center pb-4 pr-4 pl-0">
-                <h2 className="text-sm font-semibold text-neutral-200">
-                  اطلاعات شاعر
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="settings-close absolute left-0"
-                  aria-label="بستن"
-                >
-                  <FaTimes />
-                </button>
-              </div>
-              <div className="space-y-6 pl-4">
-                <div>
-                  <div className="mt-0">
-                    <PoetDetails poet={poetInfo} />
-                  </div>
-                </div>
-                <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/50 px-4 py-3 text-sm text-neutral-300">
-                  <div className="flex items-center justify-between">
-                    <span>تعداد شعرها</span>
-                    <span>{formatPersianNumber(poemIds.length)}</span>
-                  </div>
-                </div>
-                {poemError && (
-                  <div className="rounded-md bg-red-900/30 px-3 py-2 text-xs text-red-200">
-                    <p>{poemError}</p>
-                  </div>
-                )}
-              </div>
-            </motion.aside>
-          )}
-        </AnimatePresence>
-      </div>
+        <section className="poet-info-section">
+          <PoetDetails poet={poetInfo} />
+        </section>
+        <section className="poet-info-section">
+          <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/50 px-4 py-3 text-sm text-neutral-300">
+            <div className="flex items-center justify-between">
+              <span>تعداد شعرها</span>
+              <span>{formatPersianNumber(poemIds.length)}</span>
+            </div>
+          </div>
+        </section>
+      </PoetInfoDialog>
       <main className="relative flex flex-1 flex-col overflow-hidden">
-        {!isSidebarOpen && (
-          <button
-            type="button"
-            onClick={() => setIsSidebarOpen(true)}
-            className="sidebar-toggle-button"
-            aria-label="نمایش اطلاعات شاعر"
-          >
-            <FaInfoCircle size={16} />
-          </button>
-        )}
         <div className="border-b border-neutral-800/60 bg-neutral-900/40 px-5 py-3 text-sm text-neutral-300">
           <div className="flex items-center justify-between gap-2">
             <span className="text-base font-semibold text-neutral-100">
-              شعرهای تصادفی از {poetInfo.nickname || poetInfo.name}
+              {randomizePoems ? "شعرهای تصادفی" : "شعرهای پیاپی"} از{" "}
+              {poetInfo.nickname || poetInfo.name}
             </span>
             {poemOrder.length > 0 && (
               <span className="text-xs text-neutral-500">
@@ -911,6 +1411,7 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
               isModern={true}
               poetSlug={poetSlug}
               isPoetPage={true}
+              onTogglePoetInfo={() => setIsInfoOpen(true)}
             />
           )}
 
@@ -930,6 +1431,7 @@ export default function PoetPage() {
   const searchParams = useSearchParams();
   const poetSlug = (params?.poet as string) || "";
   const poetIdParam = searchParams.get("poetId");
+  const forcedSource = searchParams.get("source");
   const parsedPoetId = poetIdParam ? Number(poetIdParam) : NaN;
   const poetId =
     Number.isInteger(parsedPoetId) && parsedPoetId > 0
@@ -944,5 +1446,24 @@ export default function PoetPage() {
     return <CustomPoetPage poetSlug={poetSlug as PoetSlug} />;
   }
 
-  return <GanjoorPoetPage slug={poetSlug} poetId={poetId} />;
+  if (forcedSource === "echolalia") {
+    return <EcholaliaPoetPage poetSlug={poetSlug} />;
+  }
+
+  const indexedSource = indexedPoetSources[poetSlug];
+
+  if (indexedSource?.source === "echolalia") {
+    return <EcholaliaPoetPage poetSlug={poetSlug} />;
+  }
+
+  if (indexedSource?.source === "ganjoor") {
+    const indexedPoetId =
+      typeof indexedSource.id === "number" && indexedSource.id > 0
+        ? indexedSource.id
+        : poetId;
+
+    return <GanjoorPoetPage slug={poetSlug} poetId={indexedPoetId} />;
+  }
+
+  return <ResolvedRemotePoetPage slug={poetSlug} poetId={poetId} />;
 }

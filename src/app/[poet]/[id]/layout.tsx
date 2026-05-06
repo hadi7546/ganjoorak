@@ -1,36 +1,37 @@
-import { Metadata } from 'next'
-import customApi from '@/api/CustomApi'
-import { PoetSlug, poetNames } from '@/types/poet'
+import { Metadata } from "next";
+import { PoetSlug, isValidPoetSlug, poetNames } from "@/types/poet";
+import poetSourceIndex from "@/data/poet-source-index.json";
 
 type Props = {
-    params: { id: string, poet: string }
-    children: React.ReactNode
-}
+  params: { id: string; poet: string };
+  children: React.ReactNode;
+};
+
+type PoetSourceIndexEntry = {
+  source: "ganjoor" | "echolalia";
+  id?: number | null;
+  name?: string;
+  sourceGroupName?: string | null;
+};
+
+const indexedPoetSources = poetSourceIndex.sourcesBySlug as Record<
+  string,
+  PoetSourceIndexEntry | undefined
+>;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    try {
-        const poetSlug = params.poet as PoetSlug;
-        const poetName = poetNames[poetSlug] || 'شاعر ناشناخته';
-        const id = parseInt(params.id);
+  const poetSlug = params.poet;
+  const poetName =
+    (isValidPoetSlug(poetSlug)
+      ? poetNames[poetSlug as PoetSlug]
+      : indexedPoetSources[poetSlug]?.name) || "شاعر ناشناخته";
 
-        if (isNaN(id)) {
-            throw new Error('Invalid poem ID');
-        }
-
-        const poem = await customApi.getPoemById(id, poetSlug);
-
-        return {
-            title: `${poem.title} از ${poetName} | گنجورک`,
-            description: poem.plainText.substring(0, 160), // First 160 characters of the poem as description
-        }
-    } catch (error) {
-        return {
-            title: 'شعر | گنجورک',
-            description: 'یک تجربه بهتر از شنیدن و خواندن شعر فارسی در گنجورک',
-        }
-    }
+  return {
+    title: `شعر از ${poetName} | گنجورک`,
+    description: "یک تجربه بهتر از شنیدن و خواندن شعر فارسی در گنجورک",
+  };
 }
 
 export default function PoemLayout({ children }: Props) {
-    return children
+  return children;
 }

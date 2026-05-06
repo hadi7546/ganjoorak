@@ -30,60 +30,8 @@
     background: rgb(var(--card) / 0.9);
 }
 
-.poets-search-button {
-    position: fixed;
-    top: 4rem;
-    right: 1rem;
-    z-index: 30;
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    border-radius: 9999px;
-    background: rgb(var(--foreground) / 0.12);
-    color: rgb(var(--foreground));
-    cursor: pointer;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.poets-search-button:hover {
-    background: rgb(var(--foreground) / 0.2);
-    transform: translateY(-1px);
-}
-
-.poets-search-popover {
-    position: fixed;
-    top: 4rem;
-    right: 4rem;
-    z-index: 30;
-    width: min(22rem, calc(100vw - 5rem));
-    background: rgb(var(--card));
-    border-radius: 0.85rem;
-    padding: 0.75rem;
-    box-shadow: 0 16px 38px rgb(var(--background) / 0.32);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-}
-
-.poets-search-popover input {
-    width: 100%;
-    border: 1px solid rgb(var(--foreground) / 0.08);
-    border-radius: 0.65rem;
-    background: rgb(var(--background) / 0.35);
-    color: rgb(var(--foreground));
-    font-family: var(--app-font);
-    font-size: 1rem;
-    outline: none;
-    padding: 0.65rem 0.85rem;
-}
-
-.poets-search-popover input:focus {
-    border-color: rgb(var(--foreground) / 0.22);
-    box-shadow: 0 0 0 3px rgb(var(--foreground) / 0.06);
+.poets-container .category-section {
+    scroll-margin-top: 0.75rem;
 }
 
 .poets-question {
@@ -133,10 +81,67 @@
     font-size: 1.35rem;
 }
 
+.modern-poet-group .poets-question h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .poets-answer,
 .poets-category-answer {
     padding-top: 0.5rem;
     padding-bottom: 0.75rem;
+}
+
+.poets-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.poets-source-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    align-self: flex-start;
+    color: rgb(var(--foreground) / 0.62);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.poets-source-note strong {
+    color: rgb(var(--foreground) / 0.86);
+    font-weight: 600;
+}
+
+.poets-filter-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid rgb(var(--foreground) / 0.12);
+    border-radius: 999px;
+    background: rgb(var(--foreground) / 0.06);
+    color: rgb(var(--foreground) / 0.78);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 0.55rem 0.85rem;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.poets-filter-button:hover,
+.poets-filter-button.active {
+    background: rgb(var(--foreground) / 0.14);
+    border-color: rgb(var(--foreground) / 0.22);
+    color: rgb(var(--foreground) / 0.95);
+}
+
+.poets-filter-button small {
+    color: rgb(var(--foreground) / 0.55);
+    font-size: 0.75rem;
 }
 
 .poets-container .faq-answer-wrapper.open {
@@ -275,10 +280,11 @@
         gap: 0.75rem;
     }
 
-    .poets-search-popover {
-        right: 3.75rem;
-        width: min(18rem, calc(100vw - 4.75rem));
+    .poets-filter-button {
+        font-size: 0.82rem;
+        padding: 0.5rem 0.7rem;
     }
+
 }
 
 @media (max-width: 480px) {

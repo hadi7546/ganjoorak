@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import '../styles/FAQ.css';
-import Menu, { MenuButton } from '@/components/Menu';
+import Menu, { MenuButton, SearchButton } from '@/components/Menu';
 import SettingsDialog from '@/components/SettingsDialog';
+import GlobalSearchDialog from '@/components/GlobalSearchDialog';
 import { useUpdateNotification } from '@/hooks/useUpdateNotification';
 import AccordionItem from '@/components/AccordionItem';
 
 const FAQ = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
     const faqs = [
@@ -64,6 +66,7 @@ const FAQ = () => {
     return (
         <div className="faq-container">
             <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} hasNotification={hasNewUpdates} />
+            <SearchButton onClick={() => setIsSearchOpen(true)} />
             <Menu
                 isOpen={isMenuOpen}
                 onClose={() => setIsMenuOpen(false)}
@@ -75,6 +78,7 @@ const FAQ = () => {
                 }}
             />
             <SettingsDialog isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+            <GlobalSearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
 
             <h1 className="faq-title">پرسش‌های متداول</h1>
             <div className="faq-list">

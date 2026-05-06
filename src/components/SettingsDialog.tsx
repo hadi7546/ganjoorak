@@ -60,6 +60,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     setFontFamily,
     setPoemViewerVisibility,
     setRandomizePoems,
+    setAskRandomizePoemsOnPoetPages,
   } = useSettings();
   const [pendingTheme, setPendingTheme] = useState<ThemeOption>(settings.theme);
   const [pendingShowLineNumbers, setPendingShowLineNumbers] = useState<boolean>(
@@ -75,6 +76,10 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const [pendingRandomizePoems, setPendingRandomizePoems] = useState<boolean>(
     settings.randomizePoems,
   );
+  const [
+    pendingAskRandomizePoemsOnPoetPages,
+    setPendingAskRandomizePoemsOnPoetPages,
+  ] = useState<boolean>(settings.askRandomizePoemsOnPoetPages);
   const originalThemeRef = useRef<ThemeOption>(settings.theme);
   const originalFontRef = useRef<FontFamilyOption>(settings.fontFamily);
   const originalLineNumbersRef = useRef<boolean>(settings.showLineNumbers);
@@ -82,6 +87,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     ...settings.poemViewerVisibility,
   });
   const originalRandomizeRef = useRef<boolean>(settings.randomizePoems);
+  const originalAskRandomizeRef = useRef<boolean>(
+    settings.askRandomizePoemsOnPoetPages,
+  );
   const hasSavedRef = useRef(false);
   const latestOnCloseRef = useRef(onClose);
 
@@ -99,7 +107,13 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     setShowLineNumbers(originalLineNumbersRef.current);
     setPoemViewerVisibility(originalVisibilityRef.current);
     setRandomizePoems(originalRandomizeRef.current);
-  }, [setShowLineNumbers, setPoemViewerVisibility, setRandomizePoems]);
+    setAskRandomizePoemsOnPoetPages(originalAskRandomizeRef.current);
+  }, [
+    setShowLineNumbers,
+    setPoemViewerVisibility,
+    setRandomizePoems,
+    setAskRandomizePoemsOnPoetPages,
+  ]);
 
   const requestCloseWithoutSaving = useCallback(() => {
     hasSavedRef.current = false;
@@ -117,11 +131,15 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     originalLineNumbersRef.current = settings.showLineNumbers;
     originalVisibilityRef.current = { ...settings.poemViewerVisibility };
     originalRandomizeRef.current = settings.randomizePoems;
+    originalAskRandomizeRef.current = settings.askRandomizePoemsOnPoetPages;
     setPendingTheme(settings.theme);
     setPendingShowLineNumbers(settings.showLineNumbers);
     setPendingFontFamily(settings.fontFamily);
     setPendingVisibility({ ...settings.poemViewerVisibility });
     setPendingRandomizePoems(settings.randomizePoems);
+    setPendingAskRandomizePoemsOnPoetPages(
+      settings.askRandomizePoemsOnPoetPages,
+    );
     hasSavedRef.current = false;
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -165,6 +183,15 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     setRandomizePoems(pendingRandomizePoems);
   }, [isOpen, pendingRandomizePoems, setRandomizePoems]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    setAskRandomizePoemsOnPoetPages(pendingAskRandomizePoemsOnPoetPages);
+  }, [
+    isOpen,
+    pendingAskRandomizePoemsOnPoetPages,
+    setAskRandomizePoemsOnPoetPages,
+  ]);
+
   const handleSave = () => {
     hasSavedRef.current = true;
     setTheme(pendingTheme);
@@ -172,6 +199,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     setFontFamily(pendingFontFamily);
     setPoemViewerVisibility(pendingVisibility);
     setRandomizePoems(pendingRandomizePoems);
+    setAskRandomizePoemsOnPoetPages(pendingAskRandomizePoemsOnPoetPages);
     latestOnCloseRef.current();
   };
 
@@ -302,6 +330,27 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                         aria-pressed={pendingRandomizePoems}
                       >
                         {pendingRandomizePoems ? "تصادفی" : "پیاپی"}
+                      </button>
+                    </div>
+                    <div className="settings-toggle mt-3">
+                      <span className="settings-toggle-label">
+                        پرسش هنگام ورود به صفحه شاعر
+                      </span>
+                      <button
+                        type="button"
+                        className={`settings-toggle-button ${
+                          pendingAskRandomizePoemsOnPoetPages ? "active" : ""
+                        }`}
+                        onClick={() =>
+                          setPendingAskRandomizePoemsOnPoetPages(
+                            (prev) => !prev,
+                          )
+                        }
+                        aria-pressed={pendingAskRandomizePoemsOnPoetPages}
+                      >
+                        {pendingAskRandomizePoemsOnPoetPages
+                          ? "بپرس"
+                          : "نپرس"}
                       </button>
                     </div>
                   </section>

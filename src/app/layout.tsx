@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { SettingsProvider } from "@/context/SettingsContext";
+import RouteTransition from "@/components/RouteTransition";
 import "samim-font/dist/font-face.css";
 import "tanha-font/dist/font-face.css";
 import "shabnam-font/dist/font-face.css";
@@ -67,7 +68,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <SettingsProvider>{children}</SettingsProvider>
+        <SettingsProvider>
+          <RouteTransition>{children}</RouteTransition>
+        </SettingsProvider>
         <Analytics />
         <SpeedInsights />
       </body>

@@ -38,6 +38,7 @@ interface SettingsState {
   fontFamily: FontFamilyOption;
   poemViewerVisibility: PoemViewerComponentVisibility;
   randomizePoems: boolean;
+  askRandomizePoemsOnPoetPages: boolean;
 }
 
 interface SettingsContextValue {
@@ -50,6 +51,7 @@ interface SettingsContextValue {
     visibility: Partial<PoemViewerComponentVisibility>,
   ) => void;
   setRandomizePoems: (randomize: boolean) => void;
+  setAskRandomizePoemsOnPoetPages: (ask: boolean) => void;
 }
 
 const FONT_STACKS: Record<FontFamilyOption, string> = {
@@ -113,6 +115,7 @@ const DEFAULT_SETTINGS: SettingsState = {
   fontFamily: "vazirmatn",
   poemViewerVisibility: DEFAULT_POEM_VIEWER_VISIBILITY,
   randomizePoems: true,
+  askRandomizePoemsOnPoetPages: true,
 };
 
 const STORAGE_KEY = "ganjoorak:settings";
@@ -154,6 +157,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           typeof parsed.randomizePoems === "boolean"
             ? parsed.randomizePoems
             : DEFAULT_SETTINGS.randomizePoems;
+        const nextAskRandomizePoemsOnPoetPages =
+          typeof parsed.askRandomizePoemsOnPoetPages === "boolean"
+            ? parsed.askRandomizePoemsOnPoetPages
+            : DEFAULT_SETTINGS.askRandomizePoemsOnPoetPages;
 
         setSettings((prev) => ({
           ...prev,
@@ -162,6 +169,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           showLineNumbers: nextShowLineNumbers,
           poemViewerVisibility: nextVisibility,
           randomizePoems: nextRandomizePoems,
+          askRandomizePoemsOnPoetPages: nextAskRandomizePoemsOnPoetPages,
         }));
 
         document.documentElement.setAttribute("data-theme", nextTheme);
@@ -251,6 +259,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setSettings((prev) => ({ ...prev, randomizePoems: randomize }));
   }, []);
 
+  const setAskRandomizePoemsOnPoetPages = useCallback((ask: boolean) => {
+    setSettings((prev) => ({ ...prev, askRandomizePoemsOnPoetPages: ask }));
+  }, []);
+
   const value = useMemo(
     () => ({
       settings,
@@ -260,6 +272,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       setFontFamily,
       setPoemViewerVisibility,
       setRandomizePoems,
+      setAskRandomizePoemsOnPoetPages,
     }),
     [
       settings,
@@ -269,6 +282,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       setFontFamily,
       setPoemViewerVisibility,
       setRandomizePoems,
+      setAskRandomizePoemsOnPoetPages,
     ],
   );
 

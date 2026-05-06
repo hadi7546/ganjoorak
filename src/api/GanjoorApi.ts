@@ -6,6 +6,7 @@ import type {
   GanjoorCategory,
   GanjoorPoetCatalog,
   GanjoorCategoryReference,
+  GanjoorPoemSearchResult,
 } from "@/types/ganjoor";
 import { logger } from "@/utils/logger";
 
@@ -32,6 +33,23 @@ const ganjoorHttp = axios.create({
 
 // Cache for poet data
 const poetCache: Record<string, Poet> = {};
+const poetCatalogCache: Record<string, GanjoorPoetCatalog> = {};
+const poetCatalogPromiseCache: Record<string, Promise<GanjoorPoetCatalog>> = {};
+
+const cachePoetCatalog = (catalog: GanjoorPoetCatalog, aliases: string[] = []) => {
+  const keys = [
+    catalog.poet.urlSlug,
+    catalog.poet.id ? `id:${catalog.poet.id}` : "",
+    ...aliases,
+  ].filter(Boolean);
+
+  keys.forEach((key) => {
+    poetCatalogCache[key] = catalog;
+  });
+};
+
+const getCachedPoetCatalog = (keys: string[]) =>
+  keys.map((key) => poetCatalogCache[key]).find(Boolean);
 
 const helpers = {
   getPoetName: (fullTitle: string): string => {
@@ -90,6 +108,38 @@ const helpers = {
       sumUpSubsGeoLocations: category?.sumUpSubsGeoLocations ?? false,
       mapName: category?.mapName ?? null,
       rImageId: category?.rImageId ?? null,
+    };
+  },
+  mapPoemSearchResult: (poem: any): GanjoorPoemSearchResult => {
+    const fullTitle = poem?.fullTitle ?? "";
+    const fullUrl = poem?.fullUrl ?? "";
+    const fullTitleParts = fullTitle
+      .split(" » ")
+      .map((part: string) => part.trim())
+      .filter(Boolean);
+    const poetName = fullTitleParts[0] || helpers.getPoetName(fullTitle);
+    const bookTitle =
+      poem?.oldTag ||
+      (fullTitleParts.length > 2
+        ? fullTitleParts.slice(1, -1).join(" » ")
+        : null);
+    const bookUrl =
+      poem?.oldTagPageUrl ||
+      (fullUrl.split("/").filter(Boolean).length > 2
+        ? `/${fullUrl.split("/").filter(Boolean).slice(0, -1).join("/")}`
+        : null);
+
+    return {
+      id: poem?.id ?? 0,
+      title: poem?.title ?? "",
+      fullTitle,
+      fullUrl,
+      plainText: poem?.plainText ?? "",
+      poemSummary: poem?.poemSummary ?? null,
+      poetName,
+      poetSlug: helpers.getPoetSlug(fullUrl),
+      bookTitle,
+      bookUrl,
     };
   },
 };
@@ -184,7 +234,44 @@ const ganjoorApi = {
       deathPlace: poet.deathPlace,
       deathPlaceLatitude: poet.deathPlaceLatitude,
       deathPlaceLongitude: poet.deathPlaceLongitude,
+      source: "ganjoor",
+      sourceGroupName: "شاعران کهن",
     }));
+  },
+
+  async searchPoems(
+    term: string,
+    { pageSize = 12, pageNumber = 1 }: { pageSize?: number; pageNumber?: number } = {},
+  ): Promise<GanjoorPoemSearchResult[]> {
+    const normalizedTerm = term.trim();
+    if (normalizedTerm.length < 2) {
+      return [];
+    }
+
+    try {
+      const response = await ganjoorHttp.get(
+        `${API_BASE_URL}/api/ganjoor/poems/search`,
+        {
+          timeout: API_TIMEOUT_MS,
+          params: {
+            term: normalizedTerm,
+            PageNumber: pageNumber,
+            PageSize: pageSize,
+          },
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return Array.isArray(response.data)
+        ? response.data.map((poem: any) => helpers.mapPoemSearchResult(poem))
+        : [];
+    } catch (error) {
+      logger.error("Error searching poems:", error);
+      throw new Error("متأسفانه در جستجوی شعرها مشکلی پیش آمد");
+    }
   },
 
   async getCenturies(): Promise<Century[]> {
@@ -275,6 +362,8 @@ const ganjoorApi = {
       deathPlace: poet.deathPlace,
       deathPlaceLatitude: poet.deathPlaceLatitude,
       deathPlaceLongitude: poet.deathPlaceLongitude,
+      source: "ganjoor",
+      sourceGroupName: "شاعران کهن",
     };
   },
 
@@ -284,39 +373,57 @@ const ganjoorApi = {
         throw new Error("شناسه شاعر معتبر نیست");
       }
 
-      const response = await ganjoorHttp.get(
-        `${API_BASE_URL}/api/ganjoor/poet/${poetId}`,
-        {
-          timeout: API_TIMEOUT_MS,
-          params: {
-            catPoems: true,
-          },
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (!response.data?.poet || !response.data?.cat) {
-        throw new Error("Invalid poet catalog data");
+      const cacheKey = `id:${poetId}`;
+      if (poetCatalogCache[cacheKey]) {
+        return poetCatalogCache[cacheKey];
       }
 
-      const mappedPoet = ganjoorApi.mapPoetResponse(response.data);
-      if (mappedPoet.urlSlug) {
-        poetCache[mappedPoet.urlSlug] = mappedPoet;
+      if (poetCatalogPromiseCache[cacheKey]) {
+        return await poetCatalogPromiseCache[cacheKey];
       }
 
-      return {
-        poet: mappedPoet,
-        category: helpers.mapCategory(response.data.cat),
-      };
+      const request = (async () => {
+        const response = await ganjoorHttp.get(
+          `${API_BASE_URL}/api/ganjoor/poet/${poetId}`,
+          {
+            timeout: API_TIMEOUT_MS,
+            params: {
+              catPoems: true,
+            },
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!response.data?.poet || !response.data?.cat) {
+          throw new Error("Invalid poet catalog data");
+        }
+
+        const mappedPoet = ganjoorApi.mapPoetResponse(response.data);
+        if (mappedPoet.urlSlug) {
+          poetCache[mappedPoet.urlSlug] = mappedPoet;
+        }
+
+        const catalog = {
+          poet: mappedPoet,
+          category: helpers.mapCategory(response.data.cat),
+        };
+        cachePoetCatalog(catalog, [cacheKey]);
+        return catalog;
+      })();
+
+      poetCatalogPromiseCache[cacheKey] = request;
+      return await request;
     } catch (error) {
       logger.error("Error fetching poet catalog by id:", error);
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         throw new Error("شاعر مورد نظر یافت نشد");
       }
       throw new Error("متأسفانه در دریافت اطلاعات شاعر مشکلی پیش آمد");
+    } finally {
+      delete poetCatalogPromiseCache[`id:${poetId}`];
     }
   },
 
@@ -329,6 +436,14 @@ const ganjoorApi = {
         typeof poetId === "number" && Number.isInteger(poetId) && poetId > 0
           ? poetId
           : 0;
+      const cacheKeys = [
+        slug,
+        normalizedPoetId > 0 ? `id:${normalizedPoetId}` : "",
+      ].filter(Boolean);
+      const cachedCatalog = getCachedPoetCatalog(cacheKeys);
+      if (cachedCatalog) {
+        return cachedCatalog;
+      }
 
       if (normalizedPoetId > 0) {
         const catalog = await ganjoorApi.getPoetCatalogById(normalizedPoetId);
@@ -337,6 +452,7 @@ const ganjoorApi = {
             poetCache[catalog.poet.urlSlug] = catalog.poet;
           }
           poetCache[slug] = catalog.poet;
+          cachePoetCatalog(catalog, [slug]);
           return catalog;
         }
       }
@@ -347,6 +463,7 @@ const ganjoorApi = {
         poetCache[catalog.poet.urlSlug] = catalog.poet;
       }
       poetCache[slug] = catalog.poet;
+      cachePoetCatalog(catalog, [slug]);
       return catalog;
     } catch (error) {
       logger.error("Error fetching poet catalog:", error);
@@ -514,6 +631,7 @@ const ganjoorApi = {
       poetSlug: helpers.getPoetSlug(data.fullUrl),
       poetNickname: helpers.getPoetName(data.fullUrl),
       poetImageUrl: imgUrl,
+      source: "ganjoor",
     };
   },
 };

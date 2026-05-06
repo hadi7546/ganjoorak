@@ -9,6 +9,7 @@ import {
   FaBell,
   FaUsers,
   FaSlidersH,
+  FaSearch,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -121,9 +122,11 @@ const Menu: React.FC<MenuProps> = ({
 export function MenuButton({
   onClick,
   hasNotification = false,
+  isHidden = false,
 }: {
   onClick: () => void;
   hasNotification?: boolean;
+  isHidden?: boolean;
 }) {
   return (
     <button
@@ -133,13 +136,42 @@ export function MenuButton({
         "menu-button fixed top-4 right-4 w-10 h-10",
         "flex items-center justify-center rounded-full",
         "text-foreground transition-all",
-      ].join(" ")}
+        isHidden ? "is-hidden" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       aria-label="Open menu"
     >
       <FaBars size={16} />
       {hasNotification && (
         <span className="menu-button-indicator" aria-hidden="true" />
       )}
+    </button>
+  );
+}
+
+export function SearchButton({
+  onClick,
+  isHidden = false,
+}: {
+  onClick: () => void;
+  isHidden?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        "global-search-button fixed top-16 right-4 w-10 h-10",
+        "flex items-center justify-center rounded-full",
+        "text-foreground transition-all",
+        isHidden ? "is-hidden" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      aria-label="جستجو"
+    >
+      <FaSearch size={15} />
     </button>
   );
 }

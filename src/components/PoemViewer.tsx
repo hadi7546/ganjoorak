@@ -14,7 +14,6 @@ import {
   FaExternalLinkAlt,
   FaBackward,
   FaForward,
-  FaInfoCircle,
   FaSpinner,
   FaArrowLeft,
   FaEye,
@@ -25,8 +24,10 @@ import type { Poem, PoemRecitation, VerseSync } from "@/types/poem";
 import ganjoorApi from "@/api/GanjoorApi";
 import Link from "next/link";
 import PoetImage from "@/components/PoetImage";
-import Menu, { MenuButton } from "@/components/Menu";
+import Menu, { MenuButton, SearchButton } from "@/components/Menu";
 import SettingsDialog from "@/components/SettingsDialog";
+import GlobalSearchDialog from "@/components/GlobalSearchDialog";
+import SharePoemDialog from "@/components/SharePoemDialog";
 import { useSettings } from "@/context/SettingsContext";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
 import { logger } from "@/utils/logger";
@@ -46,6 +47,7 @@ interface PoemViewerProps {
   poetSlug?: string;
   showNext?: boolean;
   isPoetPage?: boolean;
+  onTogglePoetInfo?: () => void;
 }
 
 const PoemViewer: React.FC<PoemViewerProps> = ({
@@ -58,6 +60,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   poetSlug,
   showNext = false,
   isPoetPage = false,
+  onTogglePoetInfo,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -66,11 +69,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
   const [isMouseOverPoemText, setIsMouseOverPoemText] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [verseSync, setVerseSync] = useState<VerseSync[]>([]);
   const [currentHighlightedVerse, setCurrentHighlightedVerse] =
     useState<number>(-1);
@@ -388,56 +391,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       // For ganjoor poems, always prepend the ganjoor.net domain
       return `https://ganjoor.net${poem.fullUrl}`;
     }
-  };
-  // Handle share action
-  const sharePoem = async () => {
-    const baseUrl = "https://ganjoorak.ir";
-    let poemUrl = "";
-
-    if (poem.isCustom) {
-      // For custom poems, share as /[poet]/id
-      if (poetSlug) {
-        poemUrl = `${baseUrl}/${poetSlug}/${poem.id}`;
-      } else if (poem.poetSlug) {
-        poemUrl = `${baseUrl}/${poem.poetSlug}/${poem.id}`;
-      } else {
-        // Fallback to /poem/:id if no poet slug is available
-        poemUrl = `${baseUrl}/poem/${poem.id}`;
-      }
-    } else {
-      // For ganjoor poems, share as /poem/:id
-      poemUrl = `${baseUrl}/poem/${poem.id}`;
-    }
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${poem.title} | گنجورک`,
-          text: `${poem.title} از ${poem.poet} | گنجورک`,
-          url: poemUrl,
-        });
-      } catch (error) {
-        logger.error("Error sharing:", error);
-      }
-    } else {
-      copyToClipboard(poemUrl);
-    }
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        setToastMessage("لینک شعر کپی شد");
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 2000);
-      })
-      .catch((err) => {
-        logger.error("Failed to copy:", err);
-        setToastMessage("خطا در کپی کردن لینک");
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 2000);
-      });
   };
 
   // Handle audio playback and navigation
@@ -867,6 +820,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       <MenuButton
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         hasNotification={hasNewUpdates}
+        isHidden={!showActionButtons}
+      />
+      <SearchButton
+        onClick={() => setIsSearchOpen(true)}
+        isHidden={!showActionButtons}
       />
       <Menu
         isOpen={isMenuOpen}
@@ -883,6 +841,16 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         onClose={() => {
           setIsSettingsOpen(false);
         }}
+      />
+      <GlobalSearchDialog
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
+      <SharePoemDialog
+        poem={poem}
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        poetSlug={poetSlug}
       />
 
       {/* Loading overlay is now permanently hidden when scrolling through poems
@@ -1086,7 +1054,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         >
           <button
             className="action-button"
-            onClick={sharePoem}
+            onClick={() => setIsShareOpen(true)}
             title="اشتراک‌گذاری"
           >
             <FaShare />
@@ -1101,25 +1069,44 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           >
             <FaExternalLinkAlt />
           </a>
-          {poem.poet && poem.poetSlug && (
-            <Link
-              href={`/${poem.poetSlug}`}
-              className="poet-profile"
-              prefetch
-              aria-label={`مشاهده اشعار ${poem.poet}`}
-              title={`مشاهده اشعار ${poem.poet}`}
-            >
-              <div className="poet-image-container">
-                <PoetImage
-                  imgUrl={poem.poetImageUrl}
-                  alt={poem.poet}
-                  width={60}
-                  height={60}
-                />
-              </div>
-              <h3 className="poet-profile-name">{poem.poet}</h3>
-            </Link>
-          )}
+          {poem.poet && poem.poetSlug &&
+            (isPoetPage && onTogglePoetInfo ? (
+              <button
+                type="button"
+                onClick={onTogglePoetInfo}
+                className="poet-profile"
+                aria-label={`نمایش اطلاعات ${poem.poet}`}
+                title={`نمایش اطلاعات ${poem.poet}`}
+              >
+                <div className="poet-image-container">
+                  <PoetImage
+                    imgUrl={poem.poetImageUrl}
+                    alt={poem.poet}
+                    width={60}
+                    height={60}
+                  />
+                </div>
+                <h3 className="poet-profile-name">{poem.poet}</h3>
+              </button>
+            ) : (
+              <Link
+                href={`/${poem.poetSlug}`}
+                className="poet-profile"
+                prefetch
+                aria-label={`مشاهده اشعار ${poem.poet}`}
+                title={`مشاهده اشعار ${poem.poet}`}
+              >
+                <div className="poet-image-container">
+                  <PoetImage
+                    imgUrl={poem.poetImageUrl}
+                    alt={poem.poet}
+                    width={60}
+                    height={60}
+                  />
+                </div>
+                <h3 className="poet-profile-name">{poem.poet}</h3>
+              </Link>
+            ))}
         </div>
       )}
 
@@ -1142,8 +1129,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           )}
         </div>
       )}
-
-      {showToast && <div className="toast-message">{toastMessage}</div>}
     </motion.div>
   );
 };

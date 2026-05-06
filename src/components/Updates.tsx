@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import "../styles/Updates.css";
-import Menu, { MenuButton } from "@/components/Menu";
+import Menu, { MenuButton, SearchButton } from "@/components/Menu";
 import SettingsDialog from "@/components/SettingsDialog";
+import GlobalSearchDialog from "@/components/GlobalSearchDialog";
 import AccordionItem from "@/components/AccordionItem";
 import { motion } from "framer-motion";
 import { updates } from "@/data/updates";
@@ -12,6 +13,7 @@ import { useUpdateNotification } from "@/hooks/useUpdateNotification";
 const Updates = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
   useEffect(() => {
@@ -24,6 +26,7 @@ const Updates = () => {
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         hasNotification={hasNewUpdates}
       />
+      <SearchButton onClick={() => setIsSearchOpen(true)} />
       <Menu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
@@ -39,6 +42,10 @@ const Updates = () => {
         onClose={() => {
           setIsSettingsOpen(false);
         }}
+      />
+      <GlobalSearchDialog
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
       />
 
       <h1 className="updates-title">بروزرسانی‌ها</h1>

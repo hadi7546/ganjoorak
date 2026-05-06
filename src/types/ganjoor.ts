@@ -37,3 +37,16 @@ export interface GanjoorPoetCatalog {
   poet: Poet;
   category: GanjoorCategory;
 }
+
+export interface GanjoorPoemSearchResult {
+  id: number;
+  title: string;
+  fullTitle: string;
+  fullUrl: string;
+  plainText: string;
+  poemSummary: string | null;
+  poetName: string;
+  poetSlug: string;
+  bookTitle: string | null;
+  bookUrl: string | null;
+}

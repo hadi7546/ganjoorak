@@ -1,11 +1,12 @@
 import { Century, Poet } from '@/types/poet';
 import ganjoorApi from '@/api/GanjoorApi';
 import customApi from '@/api/CustomApi';
+import echolaliaApi from '@/api/EcholaliaApi';
 import PoetsContent from '@/components/PoetsContent';
 import '@/styles/Poets.css';
 import { logger } from '@/utils/logger';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 async function getCenturies(): Promise<Century[]> {
     try {
@@ -29,19 +30,32 @@ async function getCustomPoets(): Promise<Poet[]> {
     }
 }
 
+async function getModernPoets(): Promise<Poet[]> {
+    try {
+        logger.log("Fetching Echolalia poets...");
+        const poets = await echolaliaApi.getPoets();
+        logger.log(`Found ${poets.length} Echolalia poets`);
+        return poets;
+    } catch (error) {
+        logger.error("Error fetching Echolalia poets:", error);
+        return [];
+    }
+}
+
 export default async function PoetsPage() {
     // Fetch data in parallel for better performance
-    const [centuries, customPoets] = await Promise.all([
+    const [centuries, customPoets, modernPoets] = await Promise.all([
         getCenturies(),
-        getCustomPoets()
+        getCustomPoets(),
+        getModernPoets()
     ]);
 
-    logger.log(`Rendering poets page with ${centuries.length} centuries and ${customPoets.length} custom poets`);
+    logger.log(`Rendering poets page with ${centuries.length} centuries, ${customPoets.length} custom poets and ${modernPoets.length} modern poets`);
 
     return (
         <div className="poets-container">
             <h1 className="poets-title">شاعران</h1>
-            <PoetsContent centuries={centuries} customPoets={customPoets} />
+            <PoetsContent centuries={centuries} customPoets={customPoets} modernPoets={modernPoets} />
         </div>
     );
 } 

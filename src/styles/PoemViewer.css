@@ -1,4 +1,6 @@
 .poem-viewer {
+    --audio-player-height: 4rem;
+    --audio-player-clearance: 4.5rem;
     position: fixed;
     top: 0;
     left: 0;
@@ -190,7 +192,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2.5rem clamp(1.5rem, 6vw, 3.75rem) 6rem;
+    padding: 2.5rem clamp(1.5rem, 6vw, 3.75rem)
+        calc(var(--audio-player-height) + var(--audio-player-clearance));
     font-weight: 400;
     overflow-y: auto;
     scrollbar-width: thin;
@@ -884,7 +887,7 @@
     justify-content: center;
     gap: 1.5rem;
     z-index: 10;
-    height: 4rem;
+    height: var(--audio-player-height);
     direction: ltr;
 }
 
@@ -991,9 +994,13 @@
 /* .audio-right removed: toggle now sits next to Next button */
 
 @media (max-width: 768px) {
+    .poem-viewer {
+        --audio-player-height: 2.5rem;
+    }
+
     .audio-player {
         padding: 0.35rem 0.75rem;
-        height: 2.5rem;
+        height: var(--audio-player-height);
     }
 
     .audio-controls {
@@ -1160,12 +1167,37 @@
 
 .modern-poem {
     width: 100%;
-    max-width: 800px;
+    max-width: min(100%, 42rem);
     margin: 0 auto;
     direction: rtl;
     padding: 0 1rem;
     text-align: center;
     color: rgb(var(--foreground) / 0.9);
+}
+
+.modern-poem .verse-line {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+}
+
+.modern-poem .verse-line-numbered {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr) 3.5rem;
+    align-items: baseline;
+    justify-content: stretch;
+    gap: 0;
+}
+
+.modern-poem .verse-line-numbered .verse-number {
+    grid-column: 1;
+    justify-self: center;
+}
+
+.modern-poem .verse-line-numbered .verse-text {
+    grid-column: 2;
+    justify-self: center;
+    text-align: center;
 }
 
 .modern-poem p {
@@ -1239,10 +1271,14 @@
     align-items: center;
     justify-content: center;
     padding: 0.75rem;
+    border: none;
     border-radius: 12px;
     background: rgb(var(--foreground) / 0.15);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
     transition: all 0.2s ease;
     cursor: pointer;
     width: 80px;

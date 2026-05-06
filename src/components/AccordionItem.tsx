@@ -14,6 +14,7 @@ interface AccordionItemProps {
     answerClassName?: string;
     titleTag?: keyof JSX.IntrinsicElements;
     onToggle?: (isOpen: boolean) => void;
+    scrollOnOpen?: boolean;
 }
 
 const AccordionItem = ({
@@ -24,9 +25,11 @@ const AccordionItem = ({
     questionClassName,
     answerClassName,
     titleTag = 'h3',
-    onToggle
+    onToggle,
+    scrollOnOpen = false
 }: AccordionItemProps) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
+    const containerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState<number | undefined>(defaultOpen ? undefined : 0);
     const contentId = useId();
@@ -37,6 +40,14 @@ const AccordionItem = ({
         setIsOpen(prev => {
             const next = !prev;
             onToggle?.(next);
+            if (next && scrollOnOpen) {
+                window.requestAnimationFrame(() => {
+                    containerRef.current?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                    });
+                });
+            }
             return next;
         });
     };
@@ -73,7 +84,8 @@ const AccordionItem = ({
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            ref={containerRef}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             className={[

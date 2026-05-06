@@ -190,7 +190,9 @@ const customApi = {
         birthPlaceLongitude: null,
         deathPlace: null,
         deathPlaceLatitude: null,
-        deathPlaceLongitude: null
+        deathPlaceLongitude: null,
+        source: "custom",
+        sourceGroupName: "شاعران معاصر",
 
       });
     } catch (error) {
@@ -240,7 +242,9 @@ const customApi = {
               birthPlaceLongitude: null,
               deathPlace: null,
               deathPlaceLatitude: null,
-              deathPlaceLongitude: null
+              deathPlaceLongitude: null,
+              source: "custom",
+              sourceGroupName: "شاعران معاصر",
             });
             logger.log(`Created fallback poet for ${slug}:`, fallbackPoet);
             return fallbackPoet;
@@ -334,6 +338,7 @@ const customApi = {
       poetSlug: poetSlug,
       poetNickname: "",
       poetImageUrl: await customApi._getPoetImageUrl(poetSlug),
+      source: "custom",
     };
   },
 };
