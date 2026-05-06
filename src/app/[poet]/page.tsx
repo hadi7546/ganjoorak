@@ -256,7 +256,7 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
   const randomizePoems = randomizeChoice ?? settings.randomizePoems;
 
   const [catalog, setCatalog] = useState<GanjoorPoetCatalog | null>(null);
-  const [isInfoOpen, setIsInfoOpen] = useState(true);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [categoryCache, setCategoryCache] = useState<
     Record<number, GanjoorCategory>
   >({});
@@ -293,7 +293,7 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
       setCatalogError(null);
       setNotFound(false);
       setCatalog(null);
-      setIsInfoOpen(true);
+      setIsInfoOpen(false);
       setCategoryCache({});
       setLoadedCategoryIds(new Set());
       setSelectedCategoryId(null);
@@ -379,6 +379,20 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
     },
     [fetchPoemById],
   );
+
+  useEffect(() => {
+    if (!currentPoem) return;
+    const order = poemOrderRef.current;
+    if (!order.length) return;
+
+    [currentPoemIndex + 1, currentPoemIndex - 1].forEach((index) => {
+      const poemId = order[index];
+      if (!poemId || poemCacheRef.current[poemId]) return;
+      fetchPoemById(poemId).catch((error) => {
+        logger.error("Error preloading Ganjoor poem:", error);
+      });
+    });
+  }, [currentPoem, currentPoemIndex, fetchPoemById, poemOrder]);
 
   useEffect(() => {
     if (!selectedCategoryId) return;
@@ -729,10 +743,17 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
           )}
 
           {!showPoemLoadingOverlay && !poemError && !currentPoem && (
-            <div className="flex h-full flex-col items-center justify-center gap-3 text-neutral-400">
-              <p className="text-sm">
+            <div className="flex h-full flex-col items-center justify-center bg-black px-6 text-center text-neutral-400">
+              <button
+                type="button"
+                onClick={() => {
+                  shouldAutoCloseInfoRef.current = false;
+                  setIsInfoOpen(true);
+                }}
+                className="rounded-lg px-4 py-3 text-sm leading-7 text-neutral-300 transition hover:bg-neutral-900 hover:text-neutral-100"
+              >
                 برای شروع، یک مجموعه از اطلاعات شاعر انتخاب کنید.
-              </p>
+              </button>
             </div>
           )}
         </div>
@@ -838,6 +859,20 @@ function EcholaliaPoetPage({ poetSlug }: { poetSlug: string }) {
     },
     [loadPoemById],
   );
+
+  useEffect(() => {
+    if (!currentPoem) return;
+    const order = poemOrderRef.current;
+    if (!order.length) return;
+
+    [currentPoemIndex + 1, currentPoemIndex - 1].forEach((index) => {
+      const poemId = order[index];
+      if (!poemId || poemCacheRef.current[poemId]) return;
+      loadPoemById(poemId).catch((error) => {
+        logger.error("Error preloading Echolalia poem:", error);
+      });
+    });
+  }, [currentPoem, currentPoemIndex, loadPoemById, poemOrder]);
 
   useEffect(() => {
     if (shouldAskRandomizeChoice && randomizeChoice === null) {
@@ -1241,6 +1276,20 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
     },
     [loadCustomPoem],
   );
+
+  useEffect(() => {
+    if (!currentPoem) return;
+    const order = poemOrderRef.current;
+    if (!order.length) return;
+
+    [currentPoemIndex + 1, currentPoemIndex - 1].forEach((index) => {
+      const poemId = order[index];
+      if (!poemId || poemCacheRef.current[poemId]) return;
+      loadCustomPoem(poemId).catch((error) => {
+        logger.error("Error preloading custom poem:", error);
+      });
+    });
+  }, [currentPoem, currentPoemIndex, loadCustomPoem, poemOrder]);
 
   useEffect(() => {
     if (shouldAskRandomizeChoice && randomizeChoice === null) {

@@ -46,6 +46,7 @@ interface SearchState {
 interface GlobalSearchDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  initialFilter?: SearchFilter;
 }
 
 const SEARCH_FILTERS: Array<{ value: SearchFilter; label: string }> = [
@@ -309,9 +310,10 @@ const emptyState: SearchState = {
 const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
   isOpen,
   onClose,
+  initialFilter = "all",
 }) => {
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<SearchFilter>("all");
+  const [filter, setFilter] = useState<SearchFilter>(initialFilter);
   const [results, setResults] = useState<SearchState>(emptyState);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -325,8 +327,9 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
       return;
     }
 
+    setFilter(initialFilter);
     window.setTimeout(() => inputRef.current?.focus(), 80);
-  }, [isOpen]);
+  }, [initialFilter, isOpen]);
 
   useEffect(() => {
     if (!isOpen || allPoets.length > 0) {

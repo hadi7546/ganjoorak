@@ -13,6 +13,11 @@ import {
 } from "react-icons/fa";
 import type { Poem } from "@/types/poem";
 import { logger } from "@/utils/logger";
+import {
+  FONT_STACKS,
+  useSettings,
+  type FontFamilyOption,
+} from "@/context/SettingsContext";
 
 interface SharePoemDialogProps {
   poem: Poem;
@@ -21,9 +26,17 @@ interface SharePoemDialogProps {
   poetSlug?: string;
 }
 
-const MAX_SHARE_LINES = 8;
+const MAX_SHARE_LINES = 16;
 
 type ShareThemeId = "night" | "paper" | "ink";
+
+const SHARE_FONT_CHOICES: Array<{ value: FontFamilyOption; label: string }> = [
+  { value: "vazirmatn", label: "وزیرمتن" },
+  { value: "samim", label: "صمیم" },
+  { value: "gandom", label: "گندم" },
+  { value: "parastoo", label: "پرستو" },
+  { value: "sahel", label: "ساحل" },
+];
 
 const SHARE_THEMES: Array<{
   id: ShareThemeId;
@@ -73,10 +86,14 @@ const SHARE_THEMES: Array<{
 
 const buildPoemUrl = (poem: Poem, poetSlug?: string) => {
   const baseUrl =
-    typeof window !== "undefined" ? window.location.origin : "https://ganjoorak.ir";
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://ganjoorak.ir";
+
   if (poem.isCustom) {
     return `${baseUrl}/${poetSlug || poem.poetSlug}/${poem.id}`;
   }
+
   return `${baseUrl}/poem/${poem.id}`;
 };
 
@@ -96,6 +113,7 @@ const wrapCanvasText = (
 
   words.forEach((word) => {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
+
     if (context.measureText(testLine).width > maxWidth && currentLine) {
       lines.push(currentLine);
       currentLine = word;
@@ -111,14 +129,66 @@ const wrapCanvasText = (
   return lines;
 };
 
+const getCanvasFont = (weight: number, size: number, fontStack: string) =>
+  `${weight} ${size}px ${fontStack}`;
+
+const fitPoemLines = ({
+  context,
+  lines,
+  fontStack,
+  maxWidth,
+  maxHeight,
+}: {
+  context: CanvasRenderingContext2D;
+  lines: string[];
+  fontStack: string;
+  maxWidth: number;
+  maxHeight: number;
+}) => {
+  const minFontSize = 24;
+  const maxFontSize = 42;
+
+  for (let fontSize = maxFontSize; fontSize >= minFontSize; fontSize -= 2) {
+    context.font = getCanvasFont(500, fontSize, fontStack);
+
+    const renderedLines = lines.flatMap((line) =>
+      wrapCanvasText(context, line, maxWidth),
+    );
+
+    const lineHeight = Math.round(fontSize * 1.75);
+
+    if (renderedLines.length * lineHeight <= maxHeight) {
+      return { renderedLines, fontSize, lineHeight };
+    }
+  }
+
+  context.font = getCanvasFont(500, minFontSize, fontStack);
+
+  const lineHeight = Math.round(minFontSize * 1.75);
+  const maxLineCount = Math.max(1, Math.floor(maxHeight / lineHeight));
+
+  const renderedLines = lines
+    .flatMap((line) => wrapCanvasText(context, line, maxWidth))
+    .slice(0, maxLineCount);
+
+  if (renderedLines.length > 0) {
+    renderedLines[renderedLines.length - 1] =
+      renderedLines[renderedLines.length - 1].replace(/\s+$/, "") + "…";
+  }
+
+  return { renderedLines, fontSize: minFontSize, lineHeight };
+};
+
 const createShareImage = async ({
   poem,
   lines,
   theme,
+  fontStack,
 }: {
   poem: Poem;
   lines: string[];
   theme: (typeof SHARE_THEMES)[number];
+  fontStack: string;
 }) => {
   if (typeof document === "undefined") {
     return "";
@@ -130,8 +200,10 @@ const createShareImage = async ({
   const scale = 2;
   const width = 1080;
   const height = 1350;
+
   canvas.width = width * scale;
   canvas.height = height * scale;
+
   const context = canvas.getContext("2d");
 
   if (!context) {
@@ -139,6 +211,7 @@ const createShareImage = async ({
   }
 
   context.scale(scale, scale);
+
   context.fillStyle = theme.background;
   context.fillRect(0, 0, width, height);
 
@@ -146,6 +219,7 @@ const createShareImage = async ({
   gradient.addColorStop(0, theme.accent);
   gradient.addColorStop(0.45, "rgba(255,255,255,0.02)");
   gradient.addColorStop(1, theme.accent);
+
   context.fillStyle = gradient;
   context.fillRect(0, 0, width, height);
 
@@ -155,22 +229,40 @@ const createShareImage = async ({
 
   context.direction = "rtl";
   context.textAlign = "center";
+
   context.fillStyle = theme.title;
-  context.font = '700 52px "Vazirmatn", Tahoma, sans-serif';
-  context.fillText(poem.title, width / 2, 170);
+  context.font = getCanvasFont(700, 50, fontStack);
+
+  const titleLines = wrapCanvasText(context, poem.title, width - 210).slice(
+    0,
+    2,
+  );
+
+  titleLines.forEach((line, index) => {
+    context.fillText(line, width / 2, 160 + index * 62);
+  });
 
   context.fillStyle = theme.muted;
-  context.font = '400 32px "Vazirmatn", Tahoma, sans-serif';
-  context.fillText(poem.poet, width / 2, 225);
+  context.font = getCanvasFont(400, 31, fontStack);
+  context.fillText(poem.poet, width / 2, 215 + (titleLines.length - 1) * 62);
 
   context.fillStyle = theme.text;
-  context.font = '500 42px "Vazirmatn", Tahoma, sans-serif';
-  const renderedLines = lines.flatMap((line) =>
-    wrapCanvasText(context, line, width - 210),
-  );
-  const lineHeight = 74;
+
+  const textTop = 340;
+  const textBottom = height - 185;
+
+  const { renderedLines, fontSize, lineHeight } = fitPoemLines({
+    context,
+    lines,
+    fontStack,
+    maxWidth: width - 210,
+    maxHeight: textBottom - textTop,
+  });
+
+  context.font = getCanvasFont(500, fontSize, fontStack);
+
   const totalTextHeight = renderedLines.length * lineHeight;
-  let y = Math.max(360, height / 2 - totalTextHeight / 2);
+  let y = Math.max(textTop, height / 2 - totalTextHeight / 2);
 
   renderedLines.forEach((line) => {
     context.fillText(line, width / 2, y);
@@ -178,7 +270,7 @@ const createShareImage = async ({
   });
 
   context.fillStyle = theme.brand;
-  context.font = '400 26px "Vazirmatn", Tahoma, sans-serif';
+  context.font = getCanvasFont(400, 26, fontStack);
   context.fillText("ganjoorak.ir", width / 2, height - 120);
 
   return canvas.toDataURL("image/png");
@@ -190,12 +282,19 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
   onClose,
   poetSlug,
 }) => {
+  const { settings } = useSettings();
+
   const [selectedLines, setSelectedLines] = useState<number[]>([]);
   const [selectedThemeId, setSelectedThemeId] = useState<ShareThemeId>("night");
+  const [selectedFontFamily, setSelectedFontFamily] =
+    useState<FontFamilyOption>(settings.fontFamily);
   const [imageUrl, setImageUrl] = useState("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [mobileStep, setMobileStep] = useState<"select" | "preview">("select");
+
   const poemUrl = useMemo(() => buildPoemUrl(poem, poetSlug), [poem, poetSlug]);
+
   const lines = useMemo(
     () =>
       poem.plainText
@@ -204,7 +303,9 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
         .filter(Boolean),
     [poem.plainText],
   );
+
   const shareableLines = useMemo(() => lines.slice(0, 24), [lines]);
+
   const selectedTextLines = useMemo(
     () =>
       selectedLines
@@ -213,12 +314,14 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
         .slice(0, MAX_SHARE_LINES),
     [selectedLines, shareableLines],
   );
+
   const selectedTheme = useMemo(
     () =>
       SHARE_THEMES.find((theme) => theme.id === selectedThemeId) ??
       SHARE_THEMES[0],
     [selectedThemeId],
   );
+
   const shareText = useMemo(
     () =>
       [
@@ -236,9 +339,12 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
     if (!isOpen) {
       return;
     }
+
     setStatus(null);
+    setMobileStep("select");
+    setSelectedFontFamily(settings.fontFamily);
     setSelectedLines(shareableLines.slice(0, 4).map((_, index) => index));
-  }, [isOpen, poem.id, shareableLines]);
+  }, [isOpen, poem.id, settings.fontFamily, shareableLines]);
 
   useEffect(() => {
     if (!isOpen || selectedTextLines.length === 0) {
@@ -247,14 +353,18 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
     }
 
     let cancelled = false;
+
     const generate = async () => {
       setIsGeneratingImage(true);
+
       try {
         const nextImageUrl = await createShareImage({
           poem,
           lines: selectedTextLines,
           theme: selectedTheme,
+          fontStack: FONT_STACKS[selectedFontFamily],
         });
+
         if (!cancelled) {
           setImageUrl(nextImageUrl);
         }
@@ -272,17 +382,20 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, poem, selectedTextLines, selectedTheme]);
+  }, [isOpen, poem, selectedFontFamily, selectedTextLines, selectedTheme]);
 
   const toggleLine = (index: number) => {
     setStatus(null);
+
     setSelectedLines((prev) => {
       if (prev.includes(index)) {
         return prev.filter((item) => item !== index);
       }
+
       if (prev.length >= MAX_SHARE_LINES) {
         return prev;
       }
+
       return [...prev, index].sort((a, b) => a - b);
     });
   };
@@ -290,7 +403,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
   const copyText = async () => {
     try {
       await navigator.clipboard.writeText(shareText);
-      setStatus("متن کپی شد");
+      setStatus("شعر کپی شد");
     } catch (error) {
       logger.error("Failed to copy share text:", error);
       setStatus("کپی متن انجام نشد");
@@ -318,6 +431,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
     if (!imageUrl) {
       return;
     }
+
     const link = document.createElement("a");
     link.href = imageUrl;
     link.download = `ganjoorak-${poem.id}.png`;
@@ -331,6 +445,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
 
     try {
       const blob = await toBlob(imageUrl);
+
       const file = new File([blob], `ganjoorak-${poem.id}.png`, {
         type: "image/png",
       });
@@ -361,6 +476,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
+
           <motion.div
             className="lyrics-share-dialog"
             initial={{ opacity: 0 }}
@@ -368,7 +484,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="lyrics-share-panel"
+              className={`lyrics-share-panel lyrics-share-panel--${mobileStep}`}
               role="dialog"
               aria-modal="true"
               aria-labelledby="lyrics-share-title"
@@ -382,6 +498,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
                   <h2 id="lyrics-share-title">اشتراک شعر</h2>
                   <p>{poem.title}</p>
                 </div>
+
                 <button type="button" onClick={onClose} aria-label="بستن">
                   <FaTimes />
                 </button>
@@ -389,49 +506,116 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
 
               <div className="lyrics-share-body">
                 <section className="lyrics-share-controls">
-                  <div className="lyrics-share-theme-bar" aria-label="انتخاب قالب تصویر">
-                    <span>
-                      <FaPalette aria-hidden="true" />
-                      قالب
-                    </span>
-                    <div>
-                      {SHARE_THEMES.map((theme) => (
-                        <button
-                          key={theme.id}
-                          type="button"
-                          className={theme.id === selectedThemeId ? "active" : ""}
-                          onClick={() => setSelectedThemeId(theme.id)}
-                        >
-                          {theme.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="lyrics-share-lines" aria-label="انتخاب مصرع‌ها">
+                  <div
+                    className="lyrics-share-lines"
+                    aria-label="انتخاب مصرع‌ها"
+                  >
                     {shareableLines.map((line, index) => {
                       const isSelected = selectedLines.includes(index);
+
                       return (
-                      <button
-                        key={`${line}-${index}`}
-                        type="button"
-                        className={isSelected ? "selected" : ""}
-                        onClick={() => toggleLine(index)}
-                      >
-                        <span>{line}</span>
-                        {isSelected && <FaCheck aria-hidden="true" />}
-                      </button>
+                        <button
+                          key={`${line}-${index}`}
+                          type="button"
+                          className={isSelected ? "selected" : ""}
+                          onClick={() => toggleLine(index)}
+                        >
+                          <span>{line}</span>
+                          {isSelected && <FaCheck aria-hidden="true" />}
+                        </button>
                       );
                     })}
                   </div>
+
+                  <button
+                    type="button"
+                    className="lyrics-share-mobile-next"
+                    onClick={() => setMobileStep("preview")}
+                    disabled={selectedTextLines.length === 0}
+                  >
+                    پیشنمایش
+                  </button>
                 </section>
 
-                <section className="lyrics-share-preview" aria-label="پیش‌نمایش تصویر">
-                  {isGeneratingImage && <p>در حال ساخت تصویر...</p>}
-                  {!isGeneratingImage && imageUrl && (
-                    <img src={imageUrl} alt="پیش‌نمایش تصویر اشتراک شعر" />
-                  )}
+                <section
+                  className="lyrics-share-preview"
+                  aria-label="پیش‌نمایش تصویر"
+                >
+                  <div className="lyrics-share-preview-frame">
+                    {isGeneratingImage && <p>در حال ساخت تصویر...</p>}
+
+                    {!isGeneratingImage && imageUrl && (
+                      <img src={imageUrl} alt="پیش‌نمایش تصویر اشتراک شعر" />
+                    )}
+                  </div>
+
+                  <div className="lyrics-share-options">
+                    <div
+                      className="lyrics-share-theme-bar"
+                      aria-label="انتخاب قالب تصویر"
+                    >
+                      <span>
+                        <FaPalette aria-hidden="true" />
+                        قالب
+                      </span>
+
+                      <div>
+                        {SHARE_THEMES.map((theme) => (
+                          <button
+                            key={theme.id}
+                            type="button"
+                            className={
+                              theme.id === selectedThemeId ? "active" : ""
+                            }
+                            onClick={() => setSelectedThemeId(theme.id)}
+                          >
+                            <span>{theme.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div
+                      className="lyrics-share-theme-bar lyrics-share-font-bar"
+                      aria-label="انتخاب قلم تصویر"
+                    >
+                      <span>قلم</span>
+
+                      <div>
+                        {SHARE_FONT_CHOICES.map((font) => (
+                          <button
+                            key={font.value}
+                            type="button"
+                            className={
+                              font.value === selectedFontFamily ? "active" : ""
+                            }
+                            style={{ fontFamily: FONT_STACKS[font.value] }}
+                            onClick={() => setSelectedFontFamily(font.value)}
+                          >
+                            <span className="lyrics-share-font-label">
+                              {font.label}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="lyrics-share-mobile-back"
+                    onClick={() => setMobileStep("select")}
+                  >
+                    تغییر انتخاب
+                  </button>
                 </section>
+              </div>
+
+              <div className="lyrics-share-mobile-link-action">
+                <button type="button" onClick={shareLink}>
+                  <FaLink />
+                  <span>اشتراک لینک</span>
+                </button>
               </div>
 
               <footer className="lyrics-share-actions">
@@ -439,15 +623,22 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
                   <FaLink />
                   <span>اشتراک لینک</span>
                 </button>
+
                 <button type="button" onClick={copyText}>
                   <FaCopy />
                   <span>کپی متن</span>
                 </button>
+
                 <button type="button" onClick={shareImage} disabled={!imageUrl}>
                   <FaImage />
                   <span>اشتراک تصویر</span>
                 </button>
-                <button type="button" onClick={downloadImage} disabled={!imageUrl}>
+
+                <button
+                  type="button"
+                  onClick={downloadImage}
+                  disabled={!imageUrl}
+                >
                   <FaDownload />
                   <span>دانلود</span>
                 </button>

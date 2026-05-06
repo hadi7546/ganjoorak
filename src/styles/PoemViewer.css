@@ -374,6 +374,11 @@
     text-shadow: 0 0 8px rgb(var(--foreground) / 0.3);
 }
 
+.poem-navigation-frame {
+    min-height: 100%;
+    will-change: transform, opacity, filter;
+}
+
 /* Verse highlighting for synchronized audio */
 .verse-highlighted {
     font-weight: 700;

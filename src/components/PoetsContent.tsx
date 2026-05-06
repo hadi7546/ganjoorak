@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useMemo, type ReactNode } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  type ReactNode,
+  type WheelEvent,
+} from "react";
 import { Century, Poet } from "@/types/poet";
 import PoetImage from "@/components/PoetImage";
 import Menu, { MenuButton, SearchButton } from "@/components/Menu";
@@ -216,10 +222,24 @@ function FilterablePoetsList({
     })),
   ].filter((filter) => filter.count > 0);
 
+  const handleFilterWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
+      return;
+    }
+
+    event.preventDefault();
+    event.currentTarget.scrollLeft -= event.deltaY;
+  };
+
   return (
     <>
       {filterButtons.length > 2 && (
-        <div className="poets-filter-bar" role="group" aria-label="فیلتر شاعران">
+        <div
+          className="poets-filter-bar modern-scrollbar"
+          role="group"
+          aria-label="فیلتر شاعران"
+          onWheel={handleFilterWheel}
+        >
           {filterButtons.map((filter) => (
             <button
               key={filter.id}
@@ -333,6 +353,7 @@ export default function PoetsContent({
       <GlobalSearchDialog
         isOpen={isGlobalSearchOpen}
         onClose={() => setIsGlobalSearchOpen(false)}
+        initialFilter="poets"
       />
 
       {featuredCentury && (

@@ -1228,6 +1228,12 @@ body {
     min-width: 0;
 }
 
+.lyrics-share-mobile-next,
+.lyrics-share-mobile-back,
+.lyrics-share-mobile-link-action {
+    display: none;
+}
+
 .lyrics-share-theme-bar {
     display: flex;
     align-items: center;
@@ -1309,7 +1315,15 @@ body {
 
 .lyrics-share-preview {
     display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.lyrics-share-preview-frame {
+    display: flex;
     min-height: 24rem;
+    width: 100%;
     align-items: center;
     justify-content: center;
     border: 1px solid rgb(var(--border));
@@ -1334,15 +1348,22 @@ body {
     pointer-events: none;
 }
 
-.lyrics-share-preview img {
+.lyrics-share-preview-frame img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
 
-.lyrics-share-preview p {
+.lyrics-share-preview-frame p {
     color: rgb(var(--foreground) / 0.6);
+}
+
+.lyrics-share-options {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.55rem;
 }
 
 .lyrics-share-actions {
@@ -1433,7 +1454,7 @@ body {
 
     .lyrics-share-controls {
         min-height: 0;
-        max-height: 32svh;
+        max-height: none;
         gap: 0.5rem;
     }
 
@@ -1448,6 +1469,7 @@ body {
         width: auto;
         overflow-x: auto;
         padding-bottom: 0.15rem;
+        scrollbar-width: thin;
     }
 
     .lyrics-share-theme-bar button {
@@ -1460,6 +1482,7 @@ body {
         direction: ltr;
         gap: 0.35rem;
         padding-right: 0.2rem;
+        max-height: calc(94svh - 11.5rem);
     }
 
     .lyrics-share-lines button {
@@ -1472,17 +1495,85 @@ body {
 
     .lyrics-share-preview {
         min-height: 0;
-        height: min(36svh, 18rem);
-        max-height: 36svh;
+        gap: 0.55rem;
+    }
+
+    .lyrics-share-preview-frame {
+        min-height: 0;
+        height: min(54svh, 30rem);
+        max-height: 54svh;
         border-radius: 0.75rem;
         padding: 0.45rem;
     }
 
-    .lyrics-share-preview img {
+    .lyrics-share-preview-frame img {
         width: auto;
         max-width: 100%;
         max-height: 100%;
         border-radius: 0.35rem;
+    }
+
+    .lyrics-share-panel--select .lyrics-share-preview,
+    .lyrics-share-panel--select .lyrics-share-actions {
+        display: none;
+    }
+
+    .lyrics-share-panel--select .lyrics-share-mobile-link-action {
+        display: block;
+    }
+
+    .lyrics-share-panel--preview .lyrics-share-controls {
+        display: none;
+    }
+
+    .lyrics-share-panel--preview .lyrics-share-mobile-link-action {
+        display: none;
+    }
+
+    .lyrics-share-mobile-next,
+    .lyrics-share-mobile-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.5rem;
+        border: 1px solid rgb(var(--border));
+        border-radius: 9999px;
+        background-color: rgb(var(--primary) / 0.12);
+        color: rgb(var(--primary));
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.86rem;
+    }
+
+    .lyrics-share-mobile-next:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+    }
+
+    .lyrics-share-mobile-back {
+        width: 100%;
+        background-color: rgb(var(--secondary));
+        color: rgb(var(--secondary-foreground));
+    }
+
+    .lyrics-share-mobile-link-action {
+        padding: 0 0.65rem 0.65rem;
+    }
+
+    .lyrics-share-mobile-link-action button {
+        display: inline-flex;
+        width: 100%;
+        min-height: 2.4rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        border: 1px solid rgb(var(--border));
+        border-radius: 9999px;
+        background-color: rgb(var(--card));
+        color: rgb(var(--card-foreground));
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.84rem;
     }
 
     .lyrics-share-actions {
@@ -1520,12 +1611,16 @@ body {
     }
 
     .lyrics-share-controls {
-        max-height: 30svh;
+        max-height: none;
     }
 
-    .lyrics-share-preview {
-        height: min(34svh, 16rem);
-        max-height: 34svh;
+    .lyrics-share-lines {
+        max-height: calc(96svh - 11rem);
+    }
+
+    .lyrics-share-preview-frame {
+        height: min(52svh, 27rem);
+        max-height: 52svh;
     }
 
     .lyrics-share-actions {
