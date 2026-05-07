@@ -621,6 +621,16 @@ body {
     gap: 0.5rem;
 }
 
+.feed-poet-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    color: rgb(var(--foreground) / 0.68);
+    font-size: 0.9rem;
+}
+
 .feed-poet-toolbar {
     display: flex;
     align-items: center;
@@ -674,7 +684,7 @@ body {
 .feed-poet-tabs {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
     overflow-x: auto;
     padding-bottom: 0.25rem;
     scrollbar-width: thin;
@@ -696,6 +706,13 @@ body {
     background: rgb(var(--accent) / 0.72);
     border-color: rgb(var(--accent) / 0.9);
     color: rgb(var(--accent-foreground));
+}
+
+.feed-poet-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .feed-poet-option {
@@ -724,6 +741,12 @@ body {
     background: rgb(var(--accent) / 0.72);
     border-color: rgb(var(--accent) / 0.9);
     color: rgb(var(--accent-foreground));
+}
+
+.feed-poet-empty {
+    margin: 1rem 0 0;
+    color: rgb(var(--foreground) / 0.65);
+    text-align: center;
 }
 
 @media (max-width: 640px) {

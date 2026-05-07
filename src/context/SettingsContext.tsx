@@ -40,7 +40,6 @@ interface SettingsState {
   randomizePoems: boolean;
   askRandomizePoemsOnPoetPages: boolean;
   followedPoetKeys: string[];
-  hasSeenFeedPoetDialog: boolean;
 }
 
 interface SettingsContextValue {
@@ -55,9 +54,6 @@ interface SettingsContextValue {
   setRandomizePoems: (randomize: boolean) => void;
   setAskRandomizePoemsOnPoetPages: (ask: boolean) => void;
   setFollowedPoetKeys: (keys: string[]) => void;
-  followPoet: (key: string) => void;
-  unfollowPoet: (key: string) => void;
-  setHasSeenFeedPoetDialog: (seen: boolean) => void;
 }
 
 const FONT_STACKS: Record<FontFamilyOption, string> = {
@@ -123,7 +119,6 @@ const DEFAULT_SETTINGS: SettingsState = {
   randomizePoems: true,
   askRandomizePoemsOnPoetPages: true,
   followedPoetKeys: [],
-  hasSeenFeedPoetDialog: false,
 };
 
 const STORAGE_KEY = "ganjoorak:settings";
@@ -174,10 +169,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
               (key): key is string => typeof key === "string" && key.length > 0,
             )
           : DEFAULT_SETTINGS.followedPoetKeys;
-        const nextHasSeenFeedPoetDialog =
-          typeof parsed.hasSeenFeedPoetDialog === "boolean"
-            ? parsed.hasSeenFeedPoetDialog
-            : DEFAULT_SETTINGS.hasSeenFeedPoetDialog;
 
         setSettings((prev) => ({
           ...prev,
@@ -188,7 +179,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           randomizePoems: nextRandomizePoems,
           askRandomizePoemsOnPoetPages: nextAskRandomizePoemsOnPoetPages,
           followedPoetKeys: nextFollowedPoetKeys,
-          hasSeenFeedPoetDialog: nextHasSeenFeedPoetDialog,
         }));
 
         document.documentElement.setAttribute("data-theme", nextTheme);
@@ -289,29 +279,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setSettings((prev) => ({ ...prev, followedPoetKeys: uniqueKeys }));
   }, []);
 
-  const followPoet = useCallback((key: string) => {
-    if (!key) return;
-    setSettings((prev) => ({
-      ...prev,
-      followedPoetKeys: prev.followedPoetKeys.includes(key)
-        ? prev.followedPoetKeys
-        : [...prev.followedPoetKeys, key],
-    }));
-  }, []);
-
-  const unfollowPoet = useCallback((key: string) => {
-    setSettings((prev) => ({
-      ...prev,
-      followedPoetKeys: prev.followedPoetKeys.filter(
-        (followedKey) => followedKey !== key,
-      ),
-    }));
-  }, []);
-
-  const setHasSeenFeedPoetDialog = useCallback((seen: boolean) => {
-    setSettings((prev) => ({ ...prev, hasSeenFeedPoetDialog: seen }));
-  }, []);
-
   const value = useMemo(
     () => ({
       settings,
@@ -323,9 +290,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       setRandomizePoems,
       setAskRandomizePoemsOnPoetPages,
       setFollowedPoetKeys,
-      followPoet,
-      unfollowPoet,
-      setHasSeenFeedPoetDialog,
     }),
     [
       settings,
@@ -337,9 +301,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       setRandomizePoems,
       setAskRandomizePoemsOnPoetPages,
       setFollowedPoetKeys,
-      followPoet,
-      unfollowPoet,
-      setHasSeenFeedPoetDialog,
     ],
   );
 

@@ -110,8 +110,23 @@ const Menu: React.FC<MenuProps> = ({
                         <span className="menu-link-icon">
                           <FaBookOpen />
                         </span>
-                        <span className="menu-item-text">خوراک</span>
+                        <span className="menu-item-text">شاعرهای صفحه اصلی</span>
                       </button>
+                    </li>
+                  )}
+                  {!onOpenFeed && (
+                    <li>
+                      <Link
+                        href="/?feed=1"
+                        prefetch
+                        className="menu-link"
+                        onClick={onClose}
+                      >
+                        <span className="menu-link-icon">
+                          <FaBookOpen />
+                        </span>
+                        <span className="menu-item-text">شاعرهای صفحه اصلی</span>
+                      </Link>
                     </li>
                   )}
                   <li>

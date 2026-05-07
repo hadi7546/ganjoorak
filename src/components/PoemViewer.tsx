@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   FaChevronUp,
   FaChevronDown,
-  FaHeart,
   FaShare,
   FaPause,
   FaPlay,
@@ -48,8 +47,6 @@ interface PoemViewerProps {
   showNext?: boolean;
   isPoetPage?: boolean;
   onTogglePoetInfo?: () => void;
-  isPoetFollowed?: boolean;
-  onTogglePoetFollow?: () => void;
   onOpenFeed?: () => void;
 }
 
@@ -64,8 +61,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   showNext = false,
   isPoetPage = false,
   onTogglePoetInfo,
-  isPoetFollowed,
-  onTogglePoetFollow,
   onOpenFeed,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -827,6 +822,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const showNavigationControls =
     (isAtTop && !isFirst) || (isAtBottom && !isLast);
   const showActionButtons = isAtTop || isAtBottom;
+  const poetPageHref =
+    poem.source === "echolalia" ? `/echolalia/${poem.poetSlug}` : `/${poem.poetSlug}`;
   if (!poem) return null;
 
   return (
@@ -1099,26 +1096,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           >
             <FaShare />
           </button>
-          {onTogglePoetFollow && poem.poet && (
-            <button
-              type="button"
-              className={`action-button${isPoetFollowed ? " active" : ""}`}
-              onClick={onTogglePoetFollow}
-              title={
-                isPoetFollowed
-                  ? "حذف شاعر از خوراک"
-                  : "دنبال کردن شاعر در خوراک"
-              }
-              aria-pressed={isPoetFollowed}
-              aria-label={
-                isPoetFollowed
-                  ? `حذف ${poem.poet} از خوراک`
-                  : `دنبال کردن ${poem.poet} در خوراک`
-              }
-            >
-              <FaHeart />
-            </button>
-          )}
           <a
             href={openSource()}
             target="_blank"
@@ -1150,7 +1127,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               </button>
             ) : (
               <Link
-                href={`/${poem.poetSlug}`}
+                href={poetPageHref}
                 className="poet-profile"
                 prefetch
                 aria-label={`مشاهده اشعار ${poem.poet}`}

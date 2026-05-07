@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
@@ -24,12 +25,8 @@ const getPoetKey = (poet: Pick<Poet, 'source' | 'urlSlug' | 'fullUrl' | 'id'>) =
     return `${source}:${slug}`;
 };
 
-const getPoemPoetKey = (poem: Poem) => {
-    const source = poem.source || (poem.isCustom ? 'custom' : 'ganjoor');
-    return `${source}:${poem.poetSlug}`;
-};
-
 const getPoetDisplayName = (poet: Poet) => poet.nickname || poet.name;
+const DEFAULT_FEED_GROUP = 'گنجور';
 
 function FeedPoetDialog({
     poets,
@@ -43,7 +40,7 @@ function FeedPoetDialog({
     onClose: () => void;
 }) {
     const [pendingKeys, setPendingKeys] = useState<string[]>(selectedKeys);
-    const [activeGroupName, setActiveGroupName] = useState('همه');
+    const [activeGroupName, setActiveGroupName] = useState(DEFAULT_FEED_GROUP);
     const [searchInput, setSearchInput] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const pendingKeySet = useMemo(() => new Set(pendingKeys), [pendingKeys]);
@@ -65,10 +62,14 @@ function FeedPoetDialog({
             return groups;
         }, {});
     }, [poets]);
-    const groupNames = useMemo(
-        () => ['همه', ...Object.keys(groupedPoets)],
-        [groupedPoets],
-    );
+    const groupNames = useMemo(() => {
+        const orderedGroups = [DEFAULT_FEED_GROUP, 'اکولالیا', 'شاعران محلی'];
+        const availableGroupNames = Object.keys(groupedPoets);
+        return [
+            'همه',
+            ...orderedGroups.filter((groupName) => availableGroupNames.includes(groupName)),
+        ];
+    }, [groupedPoets]);
     const visiblePoets = useMemo(() => {
         const sourcePoets =
             activeGroupName === 'همه'
@@ -119,7 +120,7 @@ function FeedPoetDialog({
                 >
                     <header className="settings-header">
                         <h2 id="feed-poets-title" className="settings-title">
-                            شاعرهای خوراکت را انتخاب کن
+                            شاعرهای صفحه اصلی را انتخاب کن
                         </h2>
                         <button
                             type="button"
@@ -133,6 +134,10 @@ function FeedPoetDialog({
                     <div className="settings-body">
                         <div className="settings-form">
                             <section className="settings-section">
+                                <div className="feed-poet-summary">
+                                    <span>{pendingKeys.length} شاعر انتخاب شده</span>
+                                    <span>{visiblePoets.length} شاعر در این دسته</span>
+                                </div>
                                 <form
                                     className="feed-poet-toolbar"
                                     onSubmit={(event) => {
@@ -175,6 +180,28 @@ function FeedPoetDialog({
                                         </button>
                                     ))}
                                 </div>
+                                <div className="feed-poet-actions">
+                                    <button
+                                        type="button"
+                                        className="settings-action-button secondary"
+                                        onClick={() => setPendingKeys((currentKeys) => (
+                                            Array.from(new Set([...currentKeys, ...visiblePoets.map(getPoetKey)]))
+                                        ))}
+                                    >
+                                        انتخاب دسته
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="settings-action-button secondary"
+                                        onClick={() => setPendingKeys((currentKeys) =>
+                                            currentKeys.filter(
+                                                (key) => !visiblePoets.some((poet) => getPoetKey(poet) === key),
+                                            ),
+                                        )}
+                                    >
+                                        حذف دسته
+                                    </button>
+                                </div>
                                 <div className="feed-poet-grid">
                                     {visiblePoets.map((poet) => {
                                         const key = getPoetKey(poet);
@@ -192,6 +219,9 @@ function FeedPoetDialog({
                                         );
                                     })}
                                 </div>
+                                {visiblePoets.length === 0 && (
+                                    <p className="feed-poet-empty">شاعری با این جستجو پیدا نشد.</p>
+                                )}
                             </section>
                         </div>
                     </div>
@@ -229,19 +259,17 @@ export default function Home() {
     const {
         settings,
         setFollowedPoetKeys,
-        followPoet,
-        unfollowPoet,
-        setHasSeenFeedPoetDialog,
     } = useSettings();
+    const router = useRouter();
     const [poems, setPoems] = useState<Poem[]>([]);
     const [availablePoets, setAvailablePoets] = useState<Poet[]>([]);
     const [isLoadingPoets, setIsLoadingPoets] = useState(true);
-    const [isSettingsHydrated, setIsSettingsHydrated] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPoemIndex, setCurrentPoemIndex] = useState(0);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [isFeedDialogOpen, setIsFeedDialogOpen] = useState(false);
+    const [shouldClearFeedQuery, setShouldClearFeedQuery] = useState(false);
 
     const poetByKey = useMemo(() => {
         return new Map(availablePoets.map((poet) => [getPoetKey(poet), poet]));
@@ -252,7 +280,9 @@ export default function Home() {
             return settings.followedPoetKeys;
         }
 
-        return availablePoets.map(getPoetKey);
+        return availablePoets
+            .filter((poet) => (poet.source || 'ganjoor') === 'ganjoor')
+            .map(getPoetKey);
     }, [availablePoets, settings.followedPoetKeys]);
 
     const followedPoets = useMemo(() => {
@@ -263,12 +293,16 @@ export default function Home() {
 
     const followedKeySignature = effectiveFollowedPoetKeys.join('|');
     const currentPoem = poems[currentPoemIndex];
-    const currentPoetKey = currentPoem ? getPoemPoetKey(currentPoem) : '';
-    const isCurrentPoetFollowed =
-        Boolean(currentPoetKey) && effectiveFollowedPoetKeys.includes(currentPoetKey);
 
     useEffect(() => {
-        setIsSettingsHydrated(true);
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        if (new URLSearchParams(window.location.search).get('feed') === '1') {
+            setIsFeedDialogOpen(true);
+            setShouldClearFeedQuery(true);
+        }
     }, []);
 
     useEffect(() => {
@@ -284,8 +318,11 @@ export default function Home() {
                     .filter((poet) => poet.published)
                     .sort((a, b) => getPoetDisplayName(a).localeCompare(getPoetDisplayName(b), 'fa'));
                 setAvailablePoets(poets);
-                if (!settings.hasSeenFeedPoetDialog && settings.followedPoetKeys.length === 0) {
-                    setFollowedPoetKeys(poets.map(getPoetKey));
+                if (settings.followedPoetKeys.length === 0) {
+                    const defaultPoetKeys = poets
+                        .filter((poet) => (poet.source || 'ganjoor') === 'ganjoor')
+                        .map(getPoetKey);
+                    setFollowedPoetKeys(defaultPoetKeys.length > 0 ? defaultPoetKeys : poets.map(getPoetKey));
                 }
             } catch (err) {
                 logger.error('Failed to load feed poets:', err);
@@ -296,7 +333,7 @@ export default function Home() {
         };
 
         loadPoets();
-    }, [setFollowedPoetKeys, settings.followedPoetKeys.length, settings.hasSeenFeedPoetDialog]);
+    }, [setFollowedPoetKeys, settings.followedPoetKeys.length]);
 
     const fetchRandomPoemFromFollowedPoet = useCallback(async () => {
         if (followedPoets.length === 0) {
@@ -406,19 +443,11 @@ export default function Home() {
 
     const handleSaveFeedPoets = (keys: string[]) => {
         setFollowedPoetKeys(keys);
-        setHasSeenFeedPoetDialog(true);
         setIsFeedDialogOpen(false);
-    };
-
-    const handleToggleCurrentPoetFollow = () => {
-        if (!currentPoetKey) return;
-
-        if (effectiveFollowedPoetKeys.includes(currentPoetKey)) {
-            unfollowPoet(currentPoetKey);
-        } else {
-            followPoet(currentPoetKey);
+        if (shouldClearFeedQuery) {
+            router.replace('/');
+            setShouldClearFeedQuery(false);
         }
-        setHasSeenFeedPoetDialog(true);
     };
 
     const handleNext = () => {
@@ -448,7 +477,13 @@ export default function Home() {
                     poets={availablePoets}
                     selectedKeys={effectiveFollowedPoetKeys}
                     onSave={handleSaveFeedPoets}
-                    onClose={() => setIsFeedDialogOpen(false)}
+                    onClose={() => {
+                        setIsFeedDialogOpen(false);
+                        if (shouldClearFeedQuery) {
+                            router.replace('/');
+                            setShouldClearFeedQuery(false);
+                        }
+                    }}
                 />
             )}
             {currentPoem && (
@@ -459,8 +494,6 @@ export default function Home() {
                     isFirst={currentPoemIndex === 0}
                     isLast={currentPoemIndex === poems.length - 1}
                     isModern={currentPoem.source !== 'ganjoor'}
-                    isPoetFollowed={isCurrentPoetFollowed}
-                    onTogglePoetFollow={handleToggleCurrentPoetFollow}
                     onOpenFeed={() => setIsFeedDialogOpen(true)}
                 />
             )}
