@@ -4,6 +4,7 @@ import React, { useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   FaBars,
+  FaBookOpen,
   FaHome,
   FaQuestionCircle,
   FaBell,
@@ -20,6 +21,7 @@ interface MenuProps {
   hasNewUpdates?: boolean;
   onUpdatesViewed?: () => void;
   onOpenSettings: () => void;
+  onOpenFeed?: () => void;
 }
 
 const Menu: React.FC<MenuProps> = ({
@@ -28,6 +30,7 @@ const Menu: React.FC<MenuProps> = ({
   hasNewUpdates = false,
   onUpdatesViewed,
   onOpenSettings,
+  onOpenFeed,
 }) => {
   const router = useRouter();
 
@@ -94,6 +97,23 @@ const Menu: React.FC<MenuProps> = ({
                       </Link>
                     </li>
                   ))}
+                  {onOpenFeed && (
+                    <li>
+                      <button
+                        type="button"
+                        className="menu-link menu-link-button"
+                        onClick={() => {
+                          onOpenFeed();
+                          onClose();
+                        }}
+                      >
+                        <span className="menu-link-icon">
+                          <FaBookOpen />
+                        </span>
+                        <span className="menu-item-text">خوراک</span>
+                      </button>
+                    </li>
+                  )}
                   <li>
                     <button
                       type="button"

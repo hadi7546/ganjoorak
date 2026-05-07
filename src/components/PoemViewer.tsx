@@ -50,6 +50,7 @@ interface PoemViewerProps {
   onTogglePoetInfo?: () => void;
   isPoetFollowed?: boolean;
   onTogglePoetFollow?: () => void;
+  onOpenFeed?: () => void;
 }
 
 const PoemViewer: React.FC<PoemViewerProps> = ({
@@ -65,6 +66,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   onTogglePoetInfo,
   isPoetFollowed,
   onTogglePoetFollow,
+  onOpenFeed,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -850,6 +852,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         onClose={() => setIsMenuOpen(false)}
         hasNewUpdates={hasNewUpdates}
         onUpdatesViewed={markAsRead}
+        onOpenFeed={onOpenFeed}
         onOpenSettings={() => {
           setIsSettingsOpen(true);
           setIsMenuOpen(false);
