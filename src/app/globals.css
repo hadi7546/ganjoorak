@@ -621,6 +621,83 @@ body {
     gap: 0.5rem;
 }
 
+.feed-poet-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.feed-poet-search {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    border: 1px solid rgb(var(--foreground) / 0.14);
+    border-radius: 8px;
+    background: rgb(var(--foreground) / 0.06);
+    overflow: hidden;
+}
+
+.feed-poet-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: rgb(var(--foreground));
+    font: inherit;
+    outline: 0;
+    padding: 0.7rem 0.85rem;
+}
+
+.feed-poet-search button {
+    width: 2.75rem;
+    align-self: stretch;
+    border: 0;
+    border-inline-start: 1px solid rgb(var(--foreground) / 0.12);
+    background: rgb(var(--foreground) / 0.06);
+    color: rgb(var(--foreground) / 0.78);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feed-poet-random {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    white-space: nowrap;
+}
+
+.feed-poet-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scrollbar-width: thin;
+}
+
+.feed-poet-tab {
+    border: 1px solid rgb(var(--foreground) / 0.12);
+    border-radius: 9999px;
+    background: rgb(var(--foreground) / 0.06);
+    color: rgb(var(--foreground) / 0.76);
+    cursor: pointer;
+    flex: 0 0 auto;
+    font: inherit;
+    padding: 0.45rem 0.9rem;
+    white-space: nowrap;
+}
+
+.feed-poet-tab.active {
+    background: rgb(var(--accent) / 0.72);
+    border-color: rgb(var(--accent) / 0.9);
+    color: rgb(var(--accent-foreground));
+}
+
 .feed-poet-option {
     min-height: 2.75rem;
     border: 1px solid rgb(var(--foreground) / 0.12);
@@ -647,6 +724,13 @@ body {
     background: rgb(var(--accent) / 0.72);
     border-color: rgb(var(--accent) / 0.9);
     color: rgb(var(--accent-foreground));
+}
+
+@media (max-width: 640px) {
+    .feed-poet-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
 }
 
 .settings-actions {

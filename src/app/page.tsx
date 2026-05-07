@@ -11,10 +11,12 @@ import { Poem } from '@/types/poem';
 import { Poet, isValidPoetSlug } from '@/types/poet';
 import { useSettings } from '@/context/SettingsContext';
 import { logger } from '@/utils/logger';
+import { FaRandom, FaSearch } from 'react-icons/fa';
 
 const INITIAL_POEMS_COUNT = 3;
 const PREFETCH_THRESHOLD = 2;
 const BATCH_SIZE = 2;
+const RANDOM_POET_SELECTION_COUNT = 12;
 
 const getPoetKey = (poet: Pick<Poet, 'source' | 'urlSlug' | 'fullUrl' | 'id'>) => {
     const source = poet.source || 'ganjoor';
@@ -39,6 +41,9 @@ function FeedPoetDialog({
     onSave: (keys: string[]) => void;
 }) {
     const [pendingKeys, setPendingKeys] = useState<string[]>(selectedKeys);
+    const [activeGroupName, setActiveGroupName] = useState('همه');
+    const [searchInput, setSearchInput] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const pendingKeySet = useMemo(() => new Set(pendingKeys), [pendingKeys]);
 
     useEffect(() => {
@@ -59,6 +64,32 @@ function FeedPoetDialog({
             return groups;
         }, {});
     }, [poets]);
+    const groupNames = useMemo(
+        () => ['همه', ...Object.keys(groupedPoets)],
+        [groupedPoets],
+    );
+    const visiblePoets = useMemo(() => {
+        const sourcePoets =
+            activeGroupName === 'همه'
+                ? poets
+                : groupedPoets[activeGroupName] || [];
+        const normalizedSearchTerm = searchTerm.trim().toLocaleLowerCase('fa');
+
+        if (!normalizedSearchTerm) {
+            return sourcePoets;
+        }
+
+        return sourcePoets.filter((poet) => {
+            return [
+                poet.name,
+                poet.nickname || '',
+                poet.urlSlug,
+                poet.sourceGroupName || '',
+            ].some((value) =>
+                value.toLocaleLowerCase('fa').includes(normalizedSearchTerm),
+            );
+        });
+    }, [activeGroupName, groupedPoets, poets, searchTerm]);
 
     const togglePoet = (key: string) => {
         setPendingKeys((currentKeys) =>
@@ -66,6 +97,14 @@ function FeedPoetDialog({
                 ? currentKeys.filter((currentKey) => currentKey !== key)
                 : [...currentKeys, key],
         );
+    };
+
+    const selectRandomPoets = () => {
+        const candidates = visiblePoets.length > 0 ? visiblePoets : poets;
+        const shuffledKeys = candidates
+            .map(getPoetKey)
+            .sort(() => Math.random() - 0.5);
+        setPendingKeys(shuffledKeys.slice(0, RANDOM_POET_SELECTION_COUNT));
     };
 
     return (
@@ -84,28 +123,67 @@ function FeedPoetDialog({
                     </header>
                     <div className="settings-body">
                         <div className="settings-form">
-                            {Object.entries(groupedPoets).map(([groupName, groupPoets]) => (
-                                <section className="settings-section" key={groupName}>
-                                    <h3 className="settings-section-title">{groupName}</h3>
-                                    <div className="feed-poet-grid">
-                                        {groupPoets.map((poet) => {
-                                            const key = getPoetKey(poet);
-                                            const isSelected = pendingKeySet.has(key);
-                                            return (
-                                                <button
-                                                    type="button"
-                                                    key={key}
-                                                    className={`feed-poet-option${isSelected ? ' active' : ''}`}
-                                                    onClick={() => togglePoet(key)}
-                                                    aria-pressed={isSelected}
-                                                >
-                                                    {getPoetDisplayName(poet)}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </section>
-                            ))}
+                            <section className="settings-section">
+                                <form
+                                    className="feed-poet-toolbar"
+                                    onSubmit={(event) => {
+                                        event.preventDefault();
+                                        setSearchTerm(searchInput);
+                                    }}
+                                >
+                                    <label className="feed-poet-search">
+                                        <input
+                                            value={searchInput}
+                                            onChange={(event) =>
+                                                setSearchInput(event.target.value)
+                                            }
+                                            placeholder="جستجوی شاعر"
+                                        />
+                                        <button type="submit" aria-label="جستجو">
+                                            <FaSearch />
+                                        </button>
+                                    </label>
+                                    <button
+                                        type="button"
+                                        className="settings-action-button secondary feed-poet-random"
+                                        onClick={selectRandomPoets}
+                                    >
+                                        <FaRandom />
+                                        تصادفی
+                                    </button>
+                                </form>
+                                <div className="feed-poet-tabs" role="tablist">
+                                    {groupNames.map((groupName) => (
+                                        <button
+                                            type="button"
+                                            key={groupName}
+                                            className={`feed-poet-tab${activeGroupName === groupName ? ' active' : ''}`}
+                                            onClick={() => setActiveGroupName(groupName)}
+                                            role="tab"
+                                            aria-selected={activeGroupName === groupName}
+                                        >
+                                            {groupName}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="feed-poet-grid">
+                                    {visiblePoets.map((poet) => {
+                                        const key = getPoetKey(poet);
+                                        const isSelected = pendingKeySet.has(key);
+                                        return (
+                                            <button
+                                                type="button"
+                                                key={key}
+                                                className={`feed-poet-option${isSelected ? ' active' : ''}`}
+                                                onClick={() => togglePoet(key)}
+                                                aria-pressed={isSelected}
+                                            >
+                                                {getPoetDisplayName(poet)}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </section>
                         </div>
                     </div>
                     <footer className="settings-actions">
