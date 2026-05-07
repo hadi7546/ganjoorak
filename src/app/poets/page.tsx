@@ -8,12 +8,9 @@ import { logger } from '@/utils/logger';
 
 export const dynamic = 'force-static';
 
-async function getGanjoorPoets(): Promise<Poet[]> {
+async function getCenturies(): Promise<Century[]> {
     try {
-        const poets = await ganjoorApi.getPoets();
-        return poets
-            .filter((poet) => poet.published)
-            .sort((a, b) => a.pinOrder - b.pinOrder || a.name.localeCompare(b.name, 'fa'));
+        return await ganjoorApi.getCenturies();
     } catch (error) {
         logger.error("Error fetching centuries:", error);
         return [];
@@ -42,11 +39,6 @@ async function getModernPoets(): Promise<Poet[]> {
         logger.error("Error fetching Echolalia poets:", error);
         return [];
     }
-}
-
-function getPoetHref(poet: Poet): string {
-    const path = poet.fullUrl || poet.urlSlug;
-    return path.startsWith('/') ? path : `/${path}`;
 }
 
 export default async function PoetsPage() {

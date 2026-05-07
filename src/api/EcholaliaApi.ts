@@ -51,11 +51,13 @@ const echolaliaHttp = axios.create({
   },
 });
 
-const poetCache: Record<string, Poet> = {};
-const poetPromiseCache: Record<string, Promise<Poet>> = {};
-const poemSummaryCache: Record<string, EcholaliaPoemSummary[]> = {};
-const poemSummaryPromiseCache: Record<string, Promise<EcholaliaPoemSummary[]>> =
-  {};
+const poetCache: Record<string, Poet | undefined> = {};
+const poetPromiseCache: Record<string, Promise<Poet> | undefined> = {};
+const poemSummaryCache: Record<string, EcholaliaPoemSummary[] | undefined> = {};
+const poemSummaryPromiseCache: Record<
+  string,
+  Promise<EcholaliaPoemSummary[]> | undefined
+> = {};
 
 const decodeWordPressSlug = (slug: string) => {
   try {

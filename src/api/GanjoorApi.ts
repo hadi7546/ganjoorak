@@ -32,9 +32,12 @@ const ganjoorHttp = axios.create({
 });
 
 // Cache for poet data
-const poetCache: Record<string, Poet> = {};
-const poetCatalogCache: Record<string, GanjoorPoetCatalog> = {};
-const poetCatalogPromiseCache: Record<string, Promise<GanjoorPoetCatalog>> = {};
+const poetCache: Record<string, Poet | undefined> = {};
+const poetCatalogCache: Record<string, GanjoorPoetCatalog | undefined> = {};
+const poetCatalogPromiseCache: Record<
+  string,
+  Promise<GanjoorPoetCatalog> | undefined
+> = {};
 
 const cachePoetCatalog = (catalog: GanjoorPoetCatalog, aliases: string[] = []) => {
   const keys = [
@@ -549,7 +552,7 @@ const ganjoorApi = {
       const response = await ganjoorHttp.get(
         `${API_BASE_URL}/api/audio/verses/${recitationId}`,
         {
-          timeout: GANJOOR_REQUEST_TIMEOUT_MS,
+          timeout: API_TIMEOUT_MS,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
