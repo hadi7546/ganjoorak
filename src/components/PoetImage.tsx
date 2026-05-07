@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface PoetImageProps {
     imgUrl: string;
@@ -15,7 +15,16 @@ export default function PoetImage({ imgUrl, alt, poetSlug, width = 60, height = 
     const [imgSrc, setImgSrc] = useState<string>(imgUrl);
     const [error, setError] = useState(false);
 
+    useEffect(() => {
+        setImgSrc(imgUrl || '/images/default-poet.png');
+        setError(false);
+    }, [imgUrl]);
+
     const handleError = () => {
+        if (error) {
+            return;
+        }
+
         setError(true);
         // Fallback to a default image if loading fails
         setImgSrc('/images/default-poet.png');
@@ -29,6 +38,7 @@ export default function PoetImage({ imgUrl, alt, poetSlug, width = 60, height = 
             height={height}
             className="poet-image"
             style={{ objectFit: 'cover' }}
+            key={imgSrc}
             priority={false} // Set priority to false to reduce initial load impact
             onError={handleError}
             loading="lazy"
