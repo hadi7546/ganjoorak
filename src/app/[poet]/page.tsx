@@ -256,7 +256,7 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
   const randomizePoems = randomizeChoice ?? settings.randomizePoems;
 
   const [catalog, setCatalog] = useState<GanjoorPoetCatalog | null>(null);
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(true);
   const [categoryCache, setCategoryCache] = useState<
     Record<number, GanjoorCategory>
   >({});
@@ -293,7 +293,7 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
       setCatalogError(null);
       setNotFound(false);
       setCatalog(null);
-      setIsInfoOpen(false);
+      setIsInfoOpen(true);
       setCategoryCache({});
       setLoadedCategoryIds(new Set());
       setSelectedCategoryId(null);
