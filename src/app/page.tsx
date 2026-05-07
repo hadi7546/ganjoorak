@@ -1,91 +1,297 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
 import ganjoorApi from '@/api/GanjoorApi';
+import customApi from '@/api/CustomApi';
+import echolaliaApi from '@/api/EcholaliaApi';
 import { Poem } from '@/types/poem';
+import { Poet, isValidPoetSlug } from '@/types/poet';
+import { useSettings } from '@/context/SettingsContext';
 import { logger } from '@/utils/logger';
 
 const INITIAL_POEMS_COUNT = 3;
 const PREFETCH_THRESHOLD = 2;
 const BATCH_SIZE = 2;
 
+const getPoetKey = (poet: Pick<Poet, 'source' | 'urlSlug' | 'fullUrl' | 'id'>) => {
+    const source = poet.source || 'ganjoor';
+    const slug = poet.urlSlug || poet.fullUrl.replace(/^\/+/, '') || String(poet.id);
+    return `${source}:${slug}`;
+};
+
+const getPoemPoetKey = (poem: Poem) => {
+    const source = poem.source || (poem.isCustom ? 'custom' : 'ganjoor');
+    return `${source}:${poem.poetSlug}`;
+};
+
+const getPoetDisplayName = (poet: Poet) => poet.nickname || poet.name;
+
+function FeedPoetDialog({
+    poets,
+    selectedKeys,
+    onSave,
+}: {
+    poets: Poet[];
+    selectedKeys: string[];
+    onSave: (keys: string[]) => void;
+}) {
+    const [pendingKeys, setPendingKeys] = useState<string[]>(selectedKeys);
+    const pendingKeySet = useMemo(() => new Set(pendingKeys), [pendingKeys]);
+
+    useEffect(() => {
+        setPendingKeys(selectedKeys);
+    }, [selectedKeys]);
+
+    const groupedPoets = useMemo(() => {
+        return poets.reduce<Record<string, Poet[]>>((groups, poet) => {
+            const groupName = poet.sourceGroupName || (
+                poet.source === 'echolalia'
+                    ? 'شعر جهان'
+                    : poet.source === 'custom'
+                        ? 'شاعران معاصر'
+                        : 'شاعران کهن'
+            );
+            groups[groupName] = groups[groupName] || [];
+            groups[groupName].push(poet);
+            return groups;
+        }, {});
+    }, [poets]);
+
+    const togglePoet = (key: string) => {
+        setPendingKeys((currentKeys) =>
+            currentKeys.includes(key)
+                ? currentKeys.filter((currentKey) => currentKey !== key)
+                : [...currentKeys, key],
+        );
+    };
+
+    return (
+        <div className="settings-backdrop" dir="rtl">
+            <div className="settings-dialog">
+                <section
+                    className="settings-panel max-w-3xl text-right"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="feed-poets-title"
+                >
+                    <header className="settings-header">
+                        <h2 id="feed-poets-title" className="settings-title">
+                            شاعرهای خوراکت را انتخاب کن
+                        </h2>
+                    </header>
+                    <div className="settings-body">
+                        <div className="settings-form">
+                            {Object.entries(groupedPoets).map(([groupName, groupPoets]) => (
+                                <section className="settings-section" key={groupName}>
+                                    <h3 className="settings-section-title">{groupName}</h3>
+                                    <div className="feed-poet-grid">
+                                        {groupPoets.map((poet) => {
+                                            const key = getPoetKey(poet);
+                                            const isSelected = pendingKeySet.has(key);
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={key}
+                                                    className={`feed-poet-option${isSelected ? ' active' : ''}`}
+                                                    onClick={() => togglePoet(key)}
+                                                    aria-pressed={isSelected}
+                                                >
+                                                    {getPoetDisplayName(poet)}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            ))}
+                        </div>
+                    </div>
+                    <footer className="settings-actions">
+                        <button
+                            type="button"
+                            className="settings-action-button secondary"
+                            onClick={() => setPendingKeys(poets.map(getPoetKey))}
+                        >
+                            انتخاب همه
+                        </button>
+                        <button
+                            type="button"
+                            className="settings-action-button secondary"
+                            onClick={() => setPendingKeys([])}
+                        >
+                            پاک کردن
+                        </button>
+                        <button
+                            type="button"
+                            className="settings-action-button primary"
+                            disabled={pendingKeys.length === 0}
+                            onClick={() => onSave(pendingKeys)}
+                        >
+                            شروع
+                        </button>
+                    </footer>
+                </section>
+            </div>
+        </div>
+    );
+}
+
 export default function Home() {
+    const {
+        settings,
+        setFollowedPoetKeys,
+        followPoet,
+        unfollowPoet,
+        setHasSeenFeedPoetDialog,
+    } = useSettings();
     const [poems, setPoems] = useState<Poem[]>([]);
+    const [availablePoets, setAvailablePoets] = useState<Poet[]>([]);
+    const [isLoadingPoets, setIsLoadingPoets] = useState(true);
+    const [isSettingsHydrated, setIsSettingsHydrated] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPoemIndex, setCurrentPoemIndex] = useState(0);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-    // Fetch initial poems
-    const fetchInitialPoems = async () => {
+    const poetByKey = useMemo(() => {
+        return new Map(availablePoets.map((poet) => [getPoetKey(poet), poet]));
+    }, [availablePoets]);
+
+    const followedPoets = useMemo(() => {
+        return settings.followedPoetKeys
+            .map((key) => poetByKey.get(key))
+            .filter((poet): poet is Poet => Boolean(poet));
+    }, [poetByKey, settings.followedPoetKeys]);
+
+    const followedKeySignature = settings.followedPoetKeys.join('|');
+    const shouldShowPoetDialog =
+        isSettingsHydrated &&
+        !isLoadingPoets &&
+        availablePoets.length > 0 &&
+        (!settings.hasSeenFeedPoetDialog || settings.followedPoetKeys.length === 0);
+    const currentPoem = poems[currentPoemIndex];
+    const currentPoetKey = currentPoem ? getPoemPoetKey(currentPoem) : '';
+    const isCurrentPoetFollowed =
+        Boolean(currentPoetKey) && settings.followedPoetKeys.includes(currentPoetKey);
+
+    useEffect(() => {
+        setIsSettingsHydrated(true);
+    }, []);
+
+    useEffect(() => {
+        const loadPoets = async () => {
+            try {
+                setIsLoadingPoets(true);
+                const [ganjoorPoets, customPoets, modernPoets] = await Promise.all([
+                    ganjoorApi.getPoets(),
+                    customApi.getPoets(),
+                    echolaliaApi.getPoets(),
+                ]);
+                const poets = [...ganjoorPoets, ...customPoets, ...modernPoets]
+                    .filter((poet) => poet.published)
+                    .sort((a, b) => getPoetDisplayName(a).localeCompare(getPoetDisplayName(b), 'fa'));
+                setAvailablePoets(poets);
+            } catch (err) {
+                logger.error('Failed to load feed poets:', err);
+                setError('متأسفانه در بارگیری فهرست شاعرها مشکلی پیش آمد.');
+            } finally {
+                setIsLoadingPoets(false);
+            }
+        };
+
+        loadPoets();
+    }, []);
+
+    const fetchRandomPoemFromFollowedPoet = useCallback(async () => {
+        if (followedPoets.length === 0) {
+            throw new Error('No followed poets selected');
+        }
+
+        const poet = followedPoets[Math.floor(Math.random() * followedPoets.length)];
+        const source = poet.source || 'ganjoor';
+
+        if (source === 'custom') {
+            if (!isValidPoetSlug(poet.urlSlug)) {
+                throw new Error(`Unsupported custom poet: ${poet.urlSlug}`);
+            }
+            return customApi.getRandomPoem(poet.urlSlug);
+        }
+
+        if (source === 'echolalia') {
+            return echolaliaApi.getRandomPoemByPoetSlug(poet.urlSlug);
+        }
+
+        const randomPoem = await ganjoorApi.getRandomPoemByPoet(poet.urlSlug);
+        return ganjoorApi.getPoemById(randomPoem.id);
+    }, [followedPoets]);
+
+    const fetchPoemBatch = useCallback(async (count: number) => {
+        const fetchedPoems: Poem[] = [];
+
+        for (let i = 0; i < count; i++) {
+            try {
+                const poem = await fetchRandomPoemFromFollowedPoet();
+                fetchedPoems.push(poem);
+            } catch (err) {
+                logger.error('Error fetching feed poem:', err);
+            }
+        }
+
+        return fetchedPoems;
+    }, [fetchRandomPoemFromFollowedPoet]);
+
+    const fetchInitialPoems = useCallback(async () => {
+        if (followedPoets.length === 0) {
+            setPoems([]);
+            setCurrentPoemIndex(0);
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
             setError(null);
-
-            // Fetch poems one by one
-            const fetchedPoems: Poem[] = [];
-
-            for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
-                try {
-                    // Get random poem first
-                    const randomPoem = await ganjoorApi.getRandomPoem();
-                    // Then fetch the complete poem data with recitations
-                    const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
-                    fetchedPoems.push(fullPoem);
-                } catch (err) {
-                    logger.error('Error fetching poem:', err);
-                }
-            }
+            const fetchedPoems = await fetchPoemBatch(INITIAL_POEMS_COUNT);
 
             if (fetchedPoems.length > 0) {
                 setPoems(fetchedPoems);
-                setLoading(false);
+                setCurrentPoemIndex(0);
             } else {
                 throw new Error('Could not fetch any poems');
             }
         } catch (err) {
             logger.error('Failed to fetch initial poems:', err);
             setError('متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.');
+        } finally {
             setLoading(false);
         }
-    };
+    }, [fetchPoemBatch, followedPoets.length]);
 
-    // Fetch initial poems
     useEffect(() => {
-        fetchInitialPoems();
-    }, []);
+        if (isLoadingPoets || shouldShowPoetDialog) {
+            setLoading(false);
+            return;
+        }
 
-    // Fetch more poems when approaching the end
+        fetchInitialPoems();
+    }, [fetchInitialPoems, followedKeySignature, isLoadingPoets, shouldShowPoetDialog]);
+
     useEffect(() => {
         const shouldFetchMore = currentPoemIndex >= poems.length - PREFETCH_THRESHOLD &&
             poems.length > 0 &&
-            !isFetchingMore;
+            !isFetchingMore &&
+            followedPoets.length > 0;
 
         if (shouldFetchMore) {
             const fetchMorePoems = async () => {
                 try {
                     setIsFetchingMore(true);
-
-                    // Fetch poems one by one
-                    const newPoems: Poem[] = [];
-
-                    for (let i = 0; i < BATCH_SIZE; i++) {
-                        try {
-                            // Get random poem first
-                            const randomPoem = await ganjoorApi.getRandomPoem();
-                            // Then fetch the complete poem data with recitations
-                            const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
-                            newPoems.push(fullPoem);
-                        } catch (err) {
-                            logger.error('Error fetching additional poem:', err);
-                        }
-                    }
+                    const newPoems = await fetchPoemBatch(BATCH_SIZE);
 
                     if (newPoems.length > 0) {
-                        setPoems(prevPoems => [...prevPoems, ...newPoems]);
+                        setPoems((prevPoems) => [...prevPoems, ...newPoems]);
                     }
                 } catch (err) {
                     logger.error('Failed to fetch more poems:', err);
@@ -96,19 +302,43 @@ export default function Home() {
 
             fetchMorePoems();
         }
-    }, [currentPoemIndex, poems.length, isFetchingMore]);
+    }, [
+        currentPoemIndex,
+        poems.length,
+        isFetchingMore,
+        followedPoets.length,
+        fetchPoemBatch,
+    ]);
+
+    const handleSaveFeedPoets = (keys: string[]) => {
+        setFollowedPoetKeys(keys);
+        setHasSeenFeedPoetDialog(true);
+    };
+
+    const handleToggleCurrentPoetFollow = () => {
+        if (!currentPoetKey) return;
+
+        if (settings.followedPoetKeys.includes(currentPoetKey)) {
+            unfollowPoet(currentPoetKey);
+        } else {
+            followPoet(currentPoetKey);
+            setHasSeenFeedPoetDialog(true);
+        }
+    };
 
     const handleNext = () => {
-        setCurrentPoemIndex(prevIndex => prevIndex + 1);
+        setCurrentPoemIndex((prevIndex) =>
+            Math.min(prevIndex + 1, Math.max(poems.length - 1, 0)),
+        );
     };
 
     const handlePrevious = () => {
         if (currentPoemIndex > 0) {
-            setCurrentPoemIndex(prevIndex => prevIndex - 1);
+            setCurrentPoemIndex((prevIndex) => prevIndex - 1);
         }
     };
 
-    if (loading) {
+    if (isLoadingPoets || loading) {
         return <LoadingScreen />;
     }
 
@@ -118,14 +348,23 @@ export default function Home() {
 
     return (
         <main className="h-screen overflow-hidden">
-            {poems.length > 0 && (
+            {shouldShowPoetDialog && (
+                <FeedPoetDialog
+                    poets={availablePoets}
+                    selectedKeys={settings.followedPoetKeys}
+                    onSave={handleSaveFeedPoets}
+                />
+            )}
+            {currentPoem && (
                 <PoemViewer
-                    poem={poems[currentPoemIndex]}
+                    poem={currentPoem}
                     onNext={handleNext}
                     onPrevious={handlePrevious}
                     isFirst={currentPoemIndex === 0}
                     isLast={currentPoemIndex === poems.length - 1}
-                    isModern={false}
+                    isModern={currentPoem.source !== 'ganjoor'}
+                    isPoetFollowed={isCurrentPoetFollowed}
+                    onTogglePoetFollow={handleToggleCurrentPoetFollow}
                 />
             )}
         </main>

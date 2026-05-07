@@ -779,6 +779,11 @@
     box-shadow: 0 6px 16px rgb(var(--background) / 0.22);
 }
 
+.action-button.active {
+    background-color: rgb(var(--accent) / 0.7);
+    color: rgb(var(--accent-foreground));
+}
+
 .action-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;

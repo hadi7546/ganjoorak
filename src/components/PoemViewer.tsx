@@ -48,6 +48,8 @@ interface PoemViewerProps {
   showNext?: boolean;
   isPoetPage?: boolean;
   onTogglePoetInfo?: () => void;
+  isPoetFollowed?: boolean;
+  onTogglePoetFollow?: () => void;
 }
 
 const PoemViewer: React.FC<PoemViewerProps> = ({
@@ -61,6 +63,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   showNext = false,
   isPoetPage = false,
   onTogglePoetInfo,
+  isPoetFollowed,
+  onTogglePoetFollow,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -1092,6 +1096,26 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           >
             <FaShare />
           </button>
+          {onTogglePoetFollow && poem.poet && (
+            <button
+              type="button"
+              className={`action-button${isPoetFollowed ? " active" : ""}`}
+              onClick={onTogglePoetFollow}
+              title={
+                isPoetFollowed
+                  ? "حذف شاعر از خوراک"
+                  : "دنبال کردن شاعر در خوراک"
+              }
+              aria-pressed={isPoetFollowed}
+              aria-label={
+                isPoetFollowed
+                  ? `حذف ${poem.poet} از خوراک`
+                  : `دنبال کردن ${poem.poet} در خوراک`
+              }
+            >
+              <FaHeart />
+            </button>
+          )}
           <a
             href={openSource()}
             target="_blank"

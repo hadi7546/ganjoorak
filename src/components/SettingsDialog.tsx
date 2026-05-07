@@ -61,6 +61,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     setPoemViewerVisibility,
     setRandomizePoems,
     setAskRandomizePoemsOnPoetPages,
+    setHasSeenFeedPoetDialog,
   } = useSettings();
   const [pendingTheme, setPendingTheme] = useState<ThemeOption>(settings.theme);
   const [pendingShowLineNumbers, setPendingShowLineNumbers] = useState<boolean>(
@@ -351,6 +352,25 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                         {pendingAskRandomizePoemsOnPoetPages
                           ? "بپرس"
                           : "نپرس"}
+                      </button>
+                    </div>
+                  </section>
+
+                  <section className="settings-section" aria-label="خوراک شعر">
+                    <h3 className="settings-section-title">خوراک شعر</h3>
+                    <div className="settings-toggle">
+                      <span className="settings-toggle-label">
+                        شاعرهای دنبال‌شده
+                      </span>
+                      <button
+                        type="button"
+                        className="settings-toggle-button"
+                        onClick={() => {
+                          setHasSeenFeedPoetDialog(false);
+                          onClose();
+                        }}
+                      >
+                        ویرایش
                       </button>
                     </div>
                   </section>
