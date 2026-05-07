@@ -280,9 +280,9 @@
         font-weight 0.25s ease;
     font-weight: 400;
     font-size: 1.5rem;
-    white-space: normal;
+    white-space: nowrap;
     overflow: visible;
-    word-wrap: break-word;
+    word-wrap: normal;
     will-change: transform, opacity;
     transform: translateZ(0);
     color: rgb(var(--foreground) / 0.92);
@@ -416,6 +416,9 @@
         text-shadow 0.2s ease;
     font-weight: 400;
     font-size: 1.5rem;
+    white-space: nowrap;
+    overflow: visible;
+    word-wrap: normal;
     will-change: transform, opacity;
     transform: translateZ(0);
 }
@@ -430,6 +433,9 @@
         text-shadow 0.2s ease;
     font-weight: 400;
     font-size: 1.5rem;
+    white-space: nowrap;
+    overflow: visible;
+    word-wrap: normal;
     will-change: transform, opacity;
     transform: translateZ(0);
 }
