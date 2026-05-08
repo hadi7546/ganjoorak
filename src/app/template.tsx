@@ -28,6 +28,16 @@ const isMobileViewport = () => (
     typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
 );
 
+const navigateWithKeyboard = (direction: BoundaryDirection) => {
+    const code = direction === 'next' ? 'ArrowDown' : 'ArrowUp';
+    window.dispatchEvent(new KeyboardEvent('keydown', {
+        bubbles: true,
+        cancelable: true,
+        code,
+        key: code,
+    }));
+};
+
 export default function Template({ children }: { children: ReactNode }) {
     const [isZenLocked, setIsZenLocked] = useState(false);
     const [showZenControl, setShowZenControl] = useState(false);
@@ -147,21 +157,22 @@ export default function Template({ children }: { children: ReactNode }) {
             document.documentElement.classList.add('poem-mobile-boundary-armed');
         };
 
-        const consumeFirstMobileBoundarySwipe = (
+        const handleMobileBoundarySwipe = (
             event: TouchEvent,
             direction: BoundaryDirection,
         ) => {
             const now = Date.now();
             const isSecondSwipe = armedDirection === direction && now <= armedUntil;
 
+            stopBoundaryNavigation(event);
+
             if (isSecondSwipe) {
                 resetMobileBoundaryArm();
-                return false;
+                navigateWithKeyboard(direction);
+                return;
             }
 
             armMobileBoundary(direction);
-            stopBoundaryNavigation(event);
-            return true;
         };
 
         const handleTouchStart = (event: TouchEvent) => {
@@ -210,7 +221,7 @@ export default function Template({ children }: { children: ReactNode }) {
             }
 
             if (isMobileViewport()) {
-                consumeFirstMobileBoundarySwipe(event, direction);
+                handleMobileBoundarySwipe(event, direction);
             }
 
             touchPoemText = null;
@@ -317,6 +328,13 @@ export default function Template({ children }: { children: ReactNode }) {
                 }
 
                 @media (max-width: 768px) {
+                    .zen-lock-button {
+                        top: 7rem;
+                        right: 1rem;
+                        width: 2.5rem;
+                        height: 2.5rem;
+                    }
+
                     .poem-text {
                         padding-top: 10.5rem !important;
                     }
@@ -350,13 +368,6 @@ export default function Template({ children }: { children: ReactNode }) {
 
                     .poem-content.poem-content--centered .poem-text {
                         padding-top: 9.75rem !important;
-                    }
-
-                    .zen-lock-button {
-                        top: 6.75rem;
-                        right: 1rem;
-                        width: 2.5rem;
-                        height: 2.5rem;
                     }
 
                     .title-section {
