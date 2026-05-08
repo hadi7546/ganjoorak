@@ -349,6 +349,32 @@ export default function PoemFeedPager({
           background: rgb(var(--background));
         }
 
+        .poem-feed-viewer .poem-text {
+          scrollbar-width: thin;
+          scrollbar-color: rgb(var(--foreground) / 0.24) transparent;
+          scrollbar-gutter: stable;
+        }
+
+        .poem-feed-viewer .poem-text::-webkit-scrollbar {
+          width: 0.45rem;
+        }
+
+        .poem-feed-viewer .poem-text::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .poem-feed-viewer .poem-text::-webkit-scrollbar-thumb {
+          min-height: 3rem;
+          border: 2px solid transparent;
+          border-radius: 999px;
+          background-clip: padding-box;
+          background-color: rgb(var(--foreground) / 0.22);
+        }
+
+        .poem-feed-viewer .poem-text::-webkit-scrollbar-thumb:hover {
+          background-color: rgb(var(--foreground) / 0.34);
+        }
+
         .poem-feed-viewer--transition-next .poem-content,
         .poem-feed-viewer--transition-previous .poem-content {
           will-change: transform, opacity;
@@ -391,31 +417,33 @@ export default function PoemFeedPager({
           position: fixed;
           top: 7rem;
           right: 1rem;
-          z-index: 20;
+          z-index: 1000;
           width: 2.5rem;
           height: 2.5rem;
           border: none;
           border-radius: 999px;
-          background-color: rgb(var(--foreground) / 0.1);
+          background-color: rgba(255, 255, 255, 0.1);
           color: rgb(var(--foreground));
           -webkit-backdrop-filter: blur(8px);
           backdrop-filter: blur(8px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 0;
           cursor: pointer;
-          transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+          transition: all 0.2s ease;
         }
 
         .poem-feed-lock-button:hover {
-          background-color: rgb(var(--foreground) / 0.2);
-          transform: translateY(-1px) scale(1.02);
+          background-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .poem-feed-lock-button.is-active {
           background: rgb(var(--accent) / 0.86);
           color: rgb(var(--accent-foreground));
+          box-shadow: 0 0 0 1px rgb(var(--accent) / 0.35), 0 4px 12px rgba(0, 0, 0, 0.24);
         }
 
         .poem-feed-lock-button svg {
@@ -464,6 +492,22 @@ export default function PoemFeedPager({
           .poem-feed-pager .title-section {
             max-height: 9.75rem;
             overflow: hidden;
+          }
+
+          .poem-feed-viewer .poem-text {
+            scrollbar-width: thin;
+            scrollbar-color: rgb(var(--foreground) / 0.28) transparent;
+          }
+
+          .poem-feed-viewer .poem-text::-webkit-scrollbar {
+            width: 0.35rem;
+          }
+
+          .poem-feed-lock-button {
+            top: 7rem;
+            right: 1rem;
+            width: 2.5rem;
+            height: 2.5rem;
           }
         }
 
