@@ -14,8 +14,10 @@ const EDGE_THRESHOLD_PX = 8;
 const KEY_SCROLL_AMOUNT_PX = 110;
 const TITLE_HIDE_SCROLL_TOP = 12;
 const READING_CHROME_HIDE_MS = 850;
+const CONTENT_TRANSITION_MS = 260;
 
 type Direction = "next" | "previous";
+type ContentTransition = "next" | "previous" | null;
 
 interface PoemFeedPagerProps {
   poem: Poem;
@@ -43,6 +45,7 @@ const getActivePoemText = (root: HTMLElement | null) =>
 
 export default function PoemFeedPager({
   poem,
+  currentIndex,
   isFirst,
   onNext,
   onPrevious,
@@ -57,7 +60,28 @@ export default function PoemFeedPager({
   const armedUntilRef = useRef(0);
   const lastNavigationAtRef = useRef(0);
   const readingChromeTimeoutRef = useRef<number | null>(null);
+  const previousIndexRef = useRef(currentIndex);
+  const contentTransitionTimeoutRef = useRef<number | null>(null);
   const [isZenLocked, setIsZenLocked] = useState(false);
+  const [contentTransition, setContentTransition] = useState<ContentTransition>(null);
+
+  useEffect(() => {
+    const previousIndex = previousIndexRef.current;
+    previousIndexRef.current = currentIndex;
+
+    if (previousIndex === currentIndex) return;
+
+    setContentTransition(currentIndex > previousIndex ? "next" : "previous");
+
+    if (contentTransitionTimeoutRef.current !== null) {
+      window.clearTimeout(contentTransitionTimeoutRef.current);
+    }
+
+    contentTransitionTimeoutRef.current = window.setTimeout(() => {
+      setContentTransition(null);
+      contentTransitionTimeoutRef.current = null;
+    }, CONTENT_TRANSITION_MS);
+  }, [currentIndex]);
 
   useEffect(() => {
     setIsZenLocked(localStorage.getItem(ZEN_STORAGE_KEY) === "1");
@@ -293,8 +317,15 @@ export default function PoemFeedPager({
       if (readingChromeTimeoutRef.current !== null) {
         window.clearTimeout(readingChromeTimeoutRef.current);
       }
+      if (contentTransitionTimeoutRef.current !== null) {
+        window.clearTimeout(contentTransitionTimeoutRef.current);
+      }
     };
   }, []);
+
+  const transitionClassName = contentTransition
+    ? ` poem-feed-viewer--transition-${contentTransition}`
+    : "";
 
   return (
     <div ref={rootRef} className="poem-feed-pager">
@@ -316,6 +347,44 @@ export default function PoemFeedPager({
 
         .poem-feed-viewer .poem-viewer {
           background: rgb(var(--background));
+        }
+
+        .poem-feed-viewer--transition-next .poem-content,
+        .poem-feed-viewer--transition-previous .poem-content {
+          will-change: transform, opacity;
+          animation-duration: ${CONTENT_TRANSITION_MS}ms;
+          animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+          animation-fill-mode: both;
+        }
+
+        .poem-feed-viewer--transition-next .poem-content {
+          animation-name: poem-feed-content-in-next;
+        }
+
+        .poem-feed-viewer--transition-previous .poem-content {
+          animation-name: poem-feed-content-in-previous;
+        }
+
+        @keyframes poem-feed-content-in-next {
+          from {
+            opacity: 0.92;
+            transform: translate3d(0, 1.1rem, 0);
+          }
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+          }
+        }
+
+        @keyframes poem-feed-content-in-previous {
+          from {
+            opacity: 0.92;
+            transform: translate3d(0, -1.1rem, 0);
+          }
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+          }
         }
 
         .poem-feed-lock-button {
@@ -367,6 +436,13 @@ export default function PoemFeedPager({
           opacity: 0.72 !important;
         }
 
+        @media (prefers-reduced-motion: reduce) {
+          .poem-feed-viewer--transition-next .poem-content,
+          .poem-feed-viewer--transition-previous .poem-content {
+            animation: none;
+          }
+        }
+
         @media (max-width: 768px) {
           .poem-feed-pager .navigation-controls,
           .poem-feed-pager .action-buttons {
@@ -374,9 +450,8 @@ export default function PoemFeedPager({
           }
         }
       `}</style>
-      <div className="poem-feed-viewer">
+      <div className={`poem-feed-viewer${transitionClassName}`}>
         <PoemViewer
-          key={poem.id}
           poem={poem}
           onNext={() => requestBoundaryNavigation("next", false)}
           onPrevious={() => requestBoundaryNavigation("previous", false)}
