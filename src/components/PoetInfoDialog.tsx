@@ -9,6 +9,8 @@ interface PoetInfoDialogProps {
   onClose: () => void;
   title: string;
   isDismissible?: boolean;
+  showBackdrop?: boolean;
+  variant?: "modal" | "side-panel";
   children: React.ReactNode;
 }
 
@@ -17,32 +19,48 @@ const PoetInfoDialog: React.FC<PoetInfoDialogProps> = ({
   onClose,
   title,
   isDismissible = true,
+  showBackdrop = true,
+  variant = "modal",
   children,
 }) => (
   <AnimatePresence>
     {isOpen && (
       <>
+        {showBackdrop && (
+          <motion.div
+            className="settings-backdrop global-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={isDismissible ? onClose : undefined}
+          />
+        )}
         <motion.div
-          className="settings-backdrop global-modal-backdrop"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={isDismissible ? onClose : undefined}
-        />
-        <motion.div
-          className="poet-info-dialog"
+          className={`poet-info-dialog${variant === "side-panel" ? " poet-info-dialog--side" : ""}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="poet-info-panel"
+            className={`poet-info-panel${variant === "side-panel" ? " poet-info-panel--side" : ""}`}
             role="dialog"
-            aria-modal="true"
+            aria-modal={showBackdrop ? "true" : "false"}
             aria-labelledby="poet-info-title"
-            initial={{ scale: 0.96, opacity: 0, y: 18 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.96, opacity: 0, y: 18 }}
+            initial={
+              variant === "side-panel"
+                ? { x: 28, opacity: 0 }
+                : { scale: 0.96, opacity: 0, y: 18 }
+            }
+            animate={
+              variant === "side-panel"
+                ? { x: 0, opacity: 1 }
+                : { scale: 1, opacity: 1, y: 0 }
+            }
+            exit={
+              variant === "side-panel"
+                ? { x: 28, opacity: 0 }
+                : { scale: 0.96, opacity: 0, y: 18 }
+            }
             transition={{ type: "spring", duration: 0.35, bounce: 0.18 }}
           >
             <header className="poet-info-header">

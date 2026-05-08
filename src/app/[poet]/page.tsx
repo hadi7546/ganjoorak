@@ -664,6 +664,8 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
         isOpen={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
         title="اطلاعات شاعر"
+        showBackdrop={false}
+        variant="side-panel"
       >
         <section className="poet-info-section">
           <PoetDetails poet={catalog.poet} />
@@ -687,11 +689,6 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
               مجموعه‌ای برای این شاعر ثبت نشده است.
             </p>
           )}
-          {categoryLoading && (
-            <p className="mt-3 text-xs text-neutral-500">
-              در حال بارگذاری مجموعه...
-            </p>
-          )}
           {categoryError && (
             <div className="mt-3 rounded-md bg-red-900/30 px-3 py-2 text-xs text-red-200">
               <p>{categoryError}</p>
@@ -706,7 +703,14 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
           )}
         </section>
       </PoetInfoDialog>
-      <main className="relative flex flex-1 flex-col overflow-hidden">
+      <main
+        className={[
+          "relative flex flex-1 flex-col overflow-hidden transition-[padding] duration-300",
+          isInfoOpen ? "lg:pr-[26rem]" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <div className="relative flex flex-1 flex-col overflow-hidden">
           {showPoemLoadingOverlay && <LoadingScreen />}
 
@@ -743,18 +747,27 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
           )}
 
           {!showPoemLoadingOverlay && !poemError && !currentPoem && (
-            <div className="flex h-full flex-col items-center justify-center bg-black px-6 text-center text-neutral-400">
-              <button
-                type="button"
-                onClick={() => {
-                  shouldAutoCloseInfoRef.current = false;
-                  setIsInfoOpen(true);
-                }}
-                className="rounded-lg px-4 py-3 text-sm leading-7 text-neutral-300 transition hover:bg-neutral-900 hover:text-neutral-100"
-              >
-                برای شروع، یک مجموعه از اطلاعات شاعر انتخاب کنید.
-              </button>
-            </div>
+            categoryLoading ? (
+              <div className="flex h-full flex-col items-center justify-center gap-3 bg-black px-6 text-center text-neutral-400">
+                <p className="text-sm text-neutral-300">در حال بارگذاری مجموعه...</p>
+                <p className="text-xs text-neutral-500">
+                  شعرهای این بخش تا چند لحظه دیگر نمایش داده می‌شوند.
+                </p>
+              </div>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center bg-black px-6 text-center text-neutral-400">
+                <button
+                  type="button"
+                  onClick={() => {
+                    shouldAutoCloseInfoRef.current = false;
+                    setIsInfoOpen(true);
+                  }}
+                  className="rounded-lg px-4 py-3 text-sm leading-7 text-neutral-300 transition hover:bg-neutral-900 hover:text-neutral-100"
+                >
+                  برای شروع، یک مجموعه از اطلاعات شاعر انتخاب کنید.
+                </button>
+              </div>
+            )
           )}
         </div>
       </main>
@@ -990,6 +1003,7 @@ function EcholaliaPoetPage({ poetSlug }: { poetSlug: string }) {
         isOpen={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
         title="اطلاعات شاعر"
+        showBackdrop={false}
       >
         <section className="poet-info-section">
           <PoetDetails poet={poet} />
@@ -1404,6 +1418,7 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
         isOpen={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
         title="اطلاعات شاعر"
+        showBackdrop={false}
       >
         <section className="poet-info-section">
           <PoetDetails poet={poetInfo} />

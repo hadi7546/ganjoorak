@@ -44,6 +44,7 @@ interface SettingsState {
 
 interface SettingsContextValue {
   settings: SettingsState;
+  isHydrated: boolean;
   setTheme: (theme: ThemeOption) => void;
   toggleLineNumbers: () => void;
   setShowLineNumbers: (show: boolean) => void;
@@ -131,9 +132,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [settings, setSettings] = useState<SettingsState>(DEFAULT_SETTINGS);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") {
+      setIsHydrated(true);
+      return;
+    }
 
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -210,15 +215,18 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         "data-font",
         DEFAULT_SETTINGS.fontFamily,
       );
+    } finally {
+      setIsHydrated(true);
     }
   }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!isHydrated) return;
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     window.localStorage.setItem("theme", settings.theme);
-  }, [settings]);
+  }, [isHydrated, settings]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", settings.theme);
@@ -282,6 +290,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   const value = useMemo(
     () => ({
       settings,
+      isHydrated,
       setTheme,
       toggleLineNumbers,
       setShowLineNumbers,
@@ -293,6 +302,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     }),
     [
       settings,
+      isHydrated,
       setTheme,
       toggleLineNumbers,
       setShowLineNumbers,

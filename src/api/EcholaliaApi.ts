@@ -259,19 +259,21 @@ const echolaliaApi = {
       }
 
       let profile: { description?: string } | undefined;
-      try {
-        const profileResponse = await echolaliaHttp.get<string>(category.link, {
-          headers: {
-            Accept: "text/html",
-          },
-        });
-        profile = {
-          description:
-            extractMetaContent(profileResponse.data, "description") ||
-            extractMetaContent(profileResponse.data, "og:description"),
-        };
-      } catch (error) {
-        logger.warn("Could not fetch Echolalia poet profile page:", error);
+      if (typeof window === "undefined") {
+        try {
+          const profileResponse = await echolaliaHttp.get<string>(category.link, {
+            headers: {
+              Accept: "text/html",
+            },
+          });
+          profile = {
+            description:
+              extractMetaContent(profileResponse.data, "description") ||
+              extractMetaContent(profileResponse.data, "og:description"),
+          };
+        } catch (error) {
+          logger.warn("Could not fetch Echolalia poet profile page:", error);
+        }
       }
 
       let sourceGroupName: string | undefined;

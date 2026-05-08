@@ -53,7 +53,7 @@ interface PoemViewerProps {
 const PoemViewer: React.FC<PoemViewerProps> = ({
   poem,
   onNext,
-  onPrevious = () => { },
+  onPrevious = () => {},
   isFirst = true,
   isLast = true,
   isModern = true,
@@ -85,6 +85,13 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const poemTextRef = useRef<HTMLDivElement>(null);
+  const boundaryNavigationUntilRef = useRef(0);
+  const lastBoundaryNavigationAtRef = useRef(0);
+  const reachedTopAtRef = useRef(0);
+  const reachedBottomAtRef = useRef(0);
+  const previousScrollTopRef = useRef(0);
+  const isAtTopRef = useRef(true);
+  const isAtBottomRef = useRef(false);
   const { settings } = useSettings();
   const poemViewerVisibility = settings.poemViewerVisibility;
   const showTitleSection = poemViewerVisibility.titleSection;
@@ -105,6 +112,19 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   // Turn off loading when a new poem arrives
   useEffect(() => {
     setIsLoading(false);
+    if (poemTextRef.current) {
+      poemTextRef.current.scrollTop = 0;
+    }
+    const now = Date.now();
+    lastBoundaryNavigationAtRef.current = now;
+    boundaryNavigationUntilRef.current = now + 750;
+    reachedTopAtRef.current = now;
+    reachedBottomAtRef.current = 0;
+    previousScrollTopRef.current = 0;
+    isAtTopRef.current = true;
+    isAtBottomRef.current = false;
+    setIsAtTop(true);
+    setIsAtBottom(false);
 
     // Reset recitation index if needed
     if (poem.recitations && poem.recitations.length > 0) {
@@ -252,8 +272,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     const threshold = 20;
     return (
       poemTextRef.current.scrollHeight -
-      poemTextRef.current.scrollTop -
-      poemTextRef.current.clientHeight <
+        poemTextRef.current.scrollTop -
+        poemTextRef.current.clientHeight <
       threshold
     );
   };
@@ -266,137 +286,110 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   // Update useEffect for optimized scrolling behavior
   useEffect(() => {
     const poemTextElement = poemTextRef.current;
-    if (!poemTextElement) return;
+    const viewerElement = containerRef.current;
+    if (!poemTextElement || !viewerElement) return;
 
-    // Debounce/accumulation helpers to require deliberate scroll gestures
-    let wheelResetTimer: NodeJS.Timeout | null = null;
-    let lastWheelTime = 0;
-    let downwardAccumulatedDelta = 0;
-    let upwardAccumulatedDelta = 0;
-    const WHEEL_RESET_TIMEOUT = 400; // ms before clearing accumulated delta
-    const WHEEL_TRIGGER_DELTA = 220; // total delta required to trigger navigation
+    let touchStartY = 0;
+    let touchStartedAtTop = false;
+    let touchStartedAtBottom = false;
+    const NAVIGATION_COOLDOWN_MS = 950;
+    const BOUNDARY_READ_DELAY_MS = 450;
+    const SWIPE_TRIGGER_DISTANCE = 80;
 
-    // Direct wheel handler with improved logic
-    const SWIPE_TRIGGER_DISTANCE = 100; // px finger travel before navigating
+    const canNavigate = () => {
+      const now = Date.now();
+      if (now < boundaryNavigationUntilRef.current) {
+        return false;
+      }
+      if (now - lastBoundaryNavigationAtRef.current < NAVIGATION_COOLDOWN_MS) {
+        return false;
+      }
+      lastBoundaryNavigationAtRef.current = now;
+      boundaryNavigationUntilRef.current = now + NAVIGATION_COOLDOWN_MS;
+      return true;
+    };
 
-    const wheelHandler = (e: WheelEvent) => {
-      // Only check if we're at boundaries
+    const canLeaveBoundary = (reachedAt: number) => {
+      return reachedAt > 0 && Date.now() - reachedAt >= BOUNDARY_READ_DELAY_MS;
+    };
+
+    const wheelHandler = (event: WheelEvent) => {
       const atBottom = isScrollNearBottom();
       const atTop = isScrollNearTop();
+      const deltaY = event.deltaY;
 
-      const now = Date.now();
-      const deltaY = e.deltaY;
-
-      if (Math.abs(deltaY) < 1) {
+      if (Math.abs(deltaY) < 8) {
         return;
       }
 
-      if (now - lastWheelTime > WHEEL_RESET_TIMEOUT) {
-        downwardAccumulatedDelta = 0;
-        upwardAccumulatedDelta = 0;
-      }
-      lastWheelTime = now;
-
-      if (wheelResetTimer) {
-        clearTimeout(wheelResetTimer);
-      }
-      wheelResetTimer = setTimeout(() => {
-        downwardAccumulatedDelta = 0;
-        upwardAccumulatedDelta = 0;
-        wheelResetTimer = null;
-      }, WHEEL_RESET_TIMEOUT);
-
-      if (deltaY > 0) {
-        upwardAccumulatedDelta = 0;
-        if (!atBottom) {
-          downwardAccumulatedDelta = 0;
-          return;
-        }
-
-        downwardAccumulatedDelta += deltaY;
-        if (downwardAccumulatedDelta >= WHEEL_TRIGGER_DELTA && !isLast) {
-          e.preventDefault();
-          handleNext();
-          downwardAccumulatedDelta = 0;
-          upwardAccumulatedDelta = 0;
-        }
-      } else {
-        downwardAccumulatedDelta = 0;
-        if (!atTop) {
-          upwardAccumulatedDelta = 0;
-          return;
-        }
-
-        upwardAccumulatedDelta += Math.abs(deltaY);
-        if (upwardAccumulatedDelta >= WHEEL_TRIGGER_DELTA && !isFirst) {
-          e.preventDefault();
-          handlePrevious();
-          downwardAccumulatedDelta = 0;
-          upwardAccumulatedDelta = 0;
-        }
+      if (
+        deltaY > 0 &&
+        atBottom &&
+        !isLast &&
+        canLeaveBoundary(reachedBottomAtRef.current) &&
+        canNavigate()
+      ) {
+        handleNext();
+      } else if (
+        deltaY < 0 &&
+        atTop &&
+        !isFirst &&
+        canLeaveBoundary(reachedTopAtRef.current) &&
+        canNavigate()
+      ) {
+        handlePrevious();
       }
     };
 
-    // Touch event handlers
-    let touchStartY = 0;
-    let isTouching = false;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-      isTouching = true;
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartY = event.touches[0].clientY;
+      touchStartedAtTop = isScrollNearTop();
+      touchStartedAtBottom = isScrollNearBottom();
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isTouching) return;
+    const handleTouchEnd = (event: TouchEvent) => {
+      const touch = event.changedTouches[0];
+      if (!touch) {
+        return;
+      }
 
-      const touchCurrentY = e.touches[0].clientY;
-      const diff = touchStartY - touchCurrentY;
+      const diff = touchStartY - touch.clientY;
 
-      // If poem is scrollable, let the user scroll
-      if (poemTextElement.scrollHeight > poemTextElement.clientHeight) {
+      if (Math.abs(diff) >= SWIPE_TRIGGER_DISTANCE && canNavigate()) {
         if (
-          (diff > 0 && !isScrollNearBottom()) ||
-          (diff < 0 && !isScrollNearTop())
+          diff > 0 &&
+          touchStartedAtBottom &&
+          isScrollNearBottom() &&
+          !isLast &&
+          canLeaveBoundary(reachedBottomAtRef.current)
         ) {
-          return;
-        }
-      }
-
-      if (Math.abs(diff) > SWIPE_TRIGGER_DISTANCE) {
-        if (diff > 0 && !isLast) {
           handleNext();
-        } else if (diff < 0 && !isFirst) {
+        } else if (
+          diff < 0 &&
+          touchStartedAtTop &&
+          isScrollNearTop() &&
+          !isFirst &&
+          canLeaveBoundary(reachedTopAtRef.current)
+        ) {
           handlePrevious();
         }
-        isTouching = false;
       }
     };
 
-    const handleTouchEnd = () => {
-      isTouching = false;
-    };
-
-    poemTextElement.addEventListener("touchstart", handleTouchStart, {
+    viewerElement.addEventListener("touchstart", handleTouchStart, {
       passive: true,
     });
-    poemTextElement.addEventListener("touchmove", handleTouchMove, {
-      passive: false,
-    });
-    poemTextElement.addEventListener("touchend", handleTouchEnd, {
+    viewerElement.addEventListener("touchend", handleTouchEnd, {
       passive: true,
     });
-    poemTextElement.addEventListener("wheel", wheelHandler, { passive: false });
+    viewerElement.addEventListener("wheel", wheelHandler, { passive: true });
 
     return () => {
-      poemTextElement.removeEventListener("touchstart", handleTouchStart);
-      poemTextElement.removeEventListener("touchmove", handleTouchMove);
-      poemTextElement.removeEventListener("touchend", handleTouchEnd);
-      poemTextElement.removeEventListener("wheel", wheelHandler);
-      if (wheelResetTimer) {
-        clearTimeout(wheelResetTimer);
-      }
+      viewerElement.removeEventListener("touchstart", handleTouchStart);
+      viewerElement.removeEventListener("touchend", handleTouchEnd);
+      viewerElement.removeEventListener("wheel", wheelHandler);
     };
-  }, [isFirst, isLast, handleNext, handlePrevious]);
+  }, [poem.id, isFirst, isLast, handleNext, handlePrevious]);
 
   const openSource = () => {
     // For custom poems, use the fullUrl directly
@@ -643,8 +636,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   }, [poem.recitations, currentRecitationIndex]);
 
   useEffect(() => {
+    isAtTopRef.current = true;
+    isAtBottomRef.current = false;
     setIsAtTop(true);
     setIsAtBottom(false);
+    previousScrollTopRef.current = 0;
   }, [poem.id]);
 
   useEffect(() => {
@@ -668,20 +664,54 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         maxScrollable <= effectiveThreshold ||
         maxScrollable - scrollTop <= effectiveThreshold;
 
-      setIsAtTop(atTop);
-      setIsAtBottom(atBottom);
+      const now = Date.now();
+      if (atTop && reachedTopAtRef.current === 0) {
+        reachedTopAtRef.current = now;
+      } else if (!atTop) {
+        reachedTopAtRef.current = 0;
+      }
+
+      if (atBottom && reachedBottomAtRef.current === 0) {
+        reachedBottomAtRef.current = now;
+      } else if (!atBottom) {
+        reachedBottomAtRef.current = 0;
+      }
+
+      if (isAtTopRef.current !== atTop) {
+        isAtTopRef.current = atTop;
+        setIsAtTop(atTop);
+      }
+
+      if (isAtBottomRef.current !== atBottom) {
+        isAtBottomRef.current = atBottom;
+        setIsAtBottom(atBottom);
+      }
+
+      previousScrollTopRef.current = scrollTop;
     };
+
+    let animationFrameId: number | null = null;
 
     updateScrollEdges();
 
     const handleScroll = () => {
-      updateScrollEdges();
+      if (animationFrameId !== null) {
+        return;
+      }
+
+      animationFrameId = window.requestAnimationFrame(() => {
+        animationFrameId = null;
+        updateScrollEdges();
+      });
     };
 
     poemElement.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       poemElement.removeEventListener("scroll", handleScroll);
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
     };
   }, [poem.id]);
 
@@ -823,7 +853,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     (isAtTop && !isFirst) || (isAtBottom && !isLast);
   const showActionButtons = isAtTop || isAtBottom;
   const poetPageHref =
-    poem.source === "echolalia" ? `/echolalia/${poem.poetSlug}` : `/${poem.poetSlug}`;
+    poem.source === "echolalia"
+      ? `/echolalia/${poem.poetSlug}`
+      : `/${poem.poetSlug}`;
   if (!poem) return null;
 
   return (
@@ -999,12 +1031,27 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
           >
             {showTitleSection && (
-              <div className="title-section">
+              <motion.div
+                className="title-section"
+                style={{
+                  width: "100%",
+                  maxWidth: "min(92vw, 760px)",
+                  marginInline: "auto",
+                  paddingInline: "12px",
+                  boxSizing: "border-box",
+                }}
+              >
                 <motion.h2
                   className="poem-title"
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
+                  style={{
+                    fontSize: "clamp(1.45rem, 4.2vw, 2.25rem)",
+                    lineHeight: 1.18,
+                    maxWidth: "100%",
+                    marginInline: "auto",
+                  }}
                 >
                   {poem.title}
                 </motion.h2>
@@ -1014,6 +1061,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.1 }}
+                    style={{
+                      fontSize: "clamp(0.85rem, 2.4vw, 1rem)",
+                      lineHeight: 1.45,
+                      maxWidth: "100%",
+                    }}
                   >
                     <span className="poet-name">
                       {poem.poet}
@@ -1026,9 +1078,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                     </span>
                   </motion.div>
                 )}
-              </div>
+              </motion.div>
             )}
-            <div className={poemTextClassName} ref={poemTextRef}>
+            <div key={poem.id} className={poemTextClassName} ref={poemTextRef}>
               {isModern ? (
                 <motion.div
                   className="modern-poem"
@@ -1054,8 +1106,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                 ).map((pair, index) => (
                   <motion.div
                     key={index}
-                    className={`verse-pair ${settings.showLineNumbers ? "verse-pair-numbered" : ""
-                      }`}
+                    className={`verse-pair ${
+                      settings.showLineNumbers ? "verse-pair-numbered" : ""
+                    }`}
                     data-couplet-number={
                       settings.showLineNumbers
                         ? formatPersianNumber(index + 1)
@@ -1106,7 +1159,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           >
             <FaExternalLinkAlt />
           </a>
-          {poem.poet && poem.poetSlug &&
+          {poem.poet &&
+            poem.poetSlug &&
             (isPoetPage && onTogglePoetInfo ? (
               <button
                 type="button"
@@ -1150,8 +1204,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       {/* Navigation controls */}
       {poemViewerVisibility.navigationControls && (
         <div
-          className={`navigation-controls${showNavigationControls ? "" : " is-hidden"
-            }`}
+          className={`navigation-controls${
+            showNavigationControls ? "" : " is-hidden"
+          }`}
         >
           {!isFirst && (
             <button className="nav-button up" onClick={handlePrevious}>

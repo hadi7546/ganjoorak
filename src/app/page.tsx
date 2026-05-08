@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
@@ -12,13 +11,14 @@ import { Poem } from '@/types/poem';
 import { Poet, isValidPoetSlug } from '@/types/poet';
 import { useSettings } from '@/context/SettingsContext';
 import { logger } from '@/utils/logger';
-import { FaRandom, FaSearch } from 'react-icons/fa';
+import { FaRandom, FaSearch, FaTimes } from 'react-icons/fa';
 
-const INITIAL_POEMS_COUNT = 3;
+const INITIAL_POEMS_MIN_COUNT = 30;
+const INITIAL_POEMS_MAX_COUNT = 40;
+const INITIAL_VISIBLE_POEMS_COUNT = 6;
 const PREFETCH_THRESHOLD = 2;
 const BATCH_SIZE = 2;
-const RANDOM_POET_SELECTION_COUNT = 12;
-
+const POEM_FETCH_CONCURRENCY = 6;
 const getPoetKey = (poet: Pick<Poet, 'source' | 'urlSlug' | 'fullUrl' | 'id'>) => {
     const source = poet.source || 'ganjoor';
     const slug = poet.urlSlug || poet.fullUrl.replace(/^\/+/, '') || String(poet.id);
@@ -27,6 +27,22 @@ const getPoetKey = (poet: Pick<Poet, 'source' | 'urlSlug' | 'fullUrl' | 'id'>) =
 
 const getPoetDisplayName = (poet: Poet) => poet.nickname || poet.name;
 const DEFAULT_FEED_GROUP = 'گنجور';
+const FEED_GROUP_ORDER = [DEFAULT_FEED_GROUP, 'اکولالیا', 'شاعران محلی'] as const;
+
+const getInitialPoemCount = () =>
+    INITIAL_POEMS_MIN_COUNT +
+    Math.floor(Math.random() * (INITIAL_POEMS_MAX_COUNT - INITIAL_POEMS_MIN_COUNT + 1));
+
+const sampleKeys = (keys: string[], count: number) => {
+    const shuffled = [...keys];
+
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled.slice(0, count);
+};
 
 function FeedPoetDialog({
     poets,
@@ -62,14 +78,15 @@ function FeedPoetDialog({
             return groups;
         }, {});
     }, [poets]);
+
     const groupNames = useMemo(() => {
-        const orderedGroups = [DEFAULT_FEED_GROUP, 'اکولالیا', 'شاعران محلی'];
         const availableGroupNames = Object.keys(groupedPoets);
         return [
             'همه',
-            ...orderedGroups.filter((groupName) => availableGroupNames.includes(groupName)),
+            ...FEED_GROUP_ORDER.filter((groupName) => availableGroupNames.includes(groupName)),
         ];
     }, [groupedPoets]);
+
     const visiblePoets = useMemo(() => {
         const sourcePoets =
             activeGroupName === 'همه'
@@ -93,6 +110,24 @@ function FeedPoetDialog({
         });
     }, [activeGroupName, groupedPoets, poets, searchTerm]);
 
+    const categoryGroups = useMemo(() => {
+        return FEED_GROUP_ORDER
+            .filter((groupName) => groupedPoets[groupName]?.length)
+            .filter((groupName) => activeGroupName === 'همه' || activeGroupName === groupName)
+            .map((groupName) => {
+                const poetsInGroup = groupedPoets[groupName] || [];
+                const selectedCount = poetsInGroup.reduce((count, poet) => (
+                    count + (pendingKeySet.has(getPoetKey(poet)) ? 1 : 0)
+                ), 0);
+
+                return {
+                    name: groupName,
+                    poets: poetsInGroup,
+                    selectedCount,
+                };
+            });
+    }, [activeGroupName, groupedPoets, pendingKeySet]);
+
     const togglePoet = (key: string) => {
         setPendingKeys((currentKeys) =>
             currentKeys.includes(key)
@@ -101,12 +136,33 @@ function FeedPoetDialog({
         );
     };
 
-    const selectRandomPoets = () => {
-        const candidates = visiblePoets.length > 0 ? visiblePoets : poets;
-        const shuffledKeys = candidates
-            .map(getPoetKey)
-            .sort(() => Math.random() - 0.5);
-        setPendingKeys(shuffledKeys.slice(0, RANDOM_POET_SELECTION_COUNT));
+    const applyRandomSelection = () => {
+        const pool = visiblePoets.length > 0 ? visiblePoets : poets;
+        const poolKeys = pool.map(getPoetKey);
+
+        if (poolKeys.length === 0) {
+            return;
+        }
+
+        const nextCount = Math.min(poolKeys.length, Math.max(4, Math.ceil(poolKeys.length / 4)));
+        const sampledKeys = sampleKeys(poolKeys, nextCount);
+        const poolKeySet = new Set(poolKeys);
+
+        setPendingKeys((currentKeys) => [
+            ...currentKeys.filter((key) => !poolKeySet.has(key)),
+            ...sampledKeys,
+        ]);
+    };
+
+    const selectGroup = (groupPoets: Poet[]) => {
+        setPendingKeys((currentKeys) => (
+            Array.from(new Set([...currentKeys, ...groupPoets.map(getPoetKey)]))
+        ));
+    };
+
+    const clearGroup = (groupPoets: Poet[]) => {
+        const groupKeySet = new Set(groupPoets.map(getPoetKey));
+        setPendingKeys((currentKeys) => currentKeys.filter((key) => !groupKeySet.has(key)));
     };
 
     return (
@@ -128,15 +184,15 @@ function FeedPoetDialog({
                             onClick={onClose}
                             aria-label="بستن"
                         >
-                            ×
+                            <FaTimes />
                         </button>
                     </header>
                     <div className="settings-body">
                         <div className="settings-form">
                             <section className="settings-section">
                                 <div className="feed-poet-summary">
-                                    <span>{pendingKeys.length} شاعر انتخاب شده</span>
-                                    <span>{visiblePoets.length} شاعر در این دسته</span>
+                                    <span><strong>{pendingKeys.length}</strong> شاعر انتخاب شده</span>
+                                    <span><strong>{visiblePoets.length}</strong> شاعر در این دسته</span>
                                 </div>
                                 <form
                                     className="feed-poet-toolbar"
@@ -159,11 +215,12 @@ function FeedPoetDialog({
                                     </label>
                                     <button
                                         type="button"
-                                        className="settings-action-button secondary feed-poet-random"
-                                        onClick={selectRandomPoets}
+                                        className="feed-poet-random"
+                                        onClick={applyRandomSelection}
+                                        aria-label="انتخاب تصادفی"
+                                        title="انتخاب تصادفی"
                                     >
                                         <FaRandom />
-                                        تصادفی
                                     </button>
                                 </form>
                                 <div className="feed-poet-tabs" role="tablist">
@@ -180,27 +237,31 @@ function FeedPoetDialog({
                                         </button>
                                     ))}
                                 </div>
-                                <div className="feed-poet-actions">
-                                    <button
-                                        type="button"
-                                        className="settings-action-button secondary"
-                                        onClick={() => setPendingKeys((currentKeys) => (
-                                            Array.from(new Set([...currentKeys, ...visiblePoets.map(getPoetKey)]))
-                                        ))}
-                                    >
-                                        انتخاب دسته
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="settings-action-button secondary"
-                                        onClick={() => setPendingKeys((currentKeys) =>
-                                            currentKeys.filter(
-                                                (key) => !visiblePoets.some((poet) => getPoetKey(poet) === key),
-                                            ),
-                                        )}
-                                    >
-                                        حذف دسته
-                                    </button>
+                                <div className="feed-poet-category-cards">
+                                    {categoryGroups.map((group) => (
+                                        <section key={group.name} className="feed-poet-category-card">
+                                            <header>
+                                                <div>
+                                                    <h3>{group.name}</h3>
+                                                    <span>{group.selectedCount} از {group.poets.length}</span>
+                                                </div>
+                                            </header>
+                                            <div className="feed-poet-category-actions">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => selectGroup(group.poets)}
+                                                >
+                                                    انتخاب همه
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => clearGroup(group.poets)}
+                                                >
+                                                    پاک کردن
+                                                </button>
+                                            </div>
+                                        </section>
+                                    ))}
                                 </div>
                                 <div className="feed-poet-grid">
                                     {visiblePoets.map((poet) => {
@@ -258,9 +319,9 @@ function FeedPoetDialog({
 export default function Home() {
     const {
         settings,
+        isHydrated: areSettingsHydrated,
         setFollowedPoetKeys,
     } = useSettings();
-    const router = useRouter();
     const [poems, setPoems] = useState<Poem[]>([]);
     const [availablePoets, setAvailablePoets] = useState<Poet[]>([]);
     const [isLoadingPoets, setIsLoadingPoets] = useState(true);
@@ -294,6 +355,13 @@ export default function Home() {
     const followedKeySignature = effectiveFollowedPoetKeys.join('|');
     const currentPoem = poems[currentPoemIndex];
 
+    const clearFeedQuery = useCallback(() => {
+        if (typeof window !== 'undefined') {
+            window.history.replaceState(null, '', '/');
+        }
+        setShouldClearFeedQuery(false);
+    }, []);
+
     useEffect(() => {
         if (typeof window === 'undefined') {
             return;
@@ -306,6 +374,10 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
+        if (!areSettingsHydrated) {
+            return;
+        }
+
         const loadPoets = async () => {
             try {
                 setIsLoadingPoets(true);
@@ -318,7 +390,7 @@ export default function Home() {
                     .filter((poet) => poet.published)
                     .sort((a, b) => getPoetDisplayName(a).localeCompare(getPoetDisplayName(b), 'fa'));
                 setAvailablePoets(poets);
-                if (settings.followedPoetKeys.length === 0) {
+                if (areSettingsHydrated && settings.followedPoetKeys.length === 0) {
                     const defaultPoetKeys = poets
                         .filter((poet) => (poet.source || 'ganjoor') === 'ganjoor')
                         .map(getPoetKey);
@@ -333,7 +405,7 @@ export default function Home() {
         };
 
         loadPoets();
-    }, [setFollowedPoetKeys, settings.followedPoetKeys.length]);
+    }, [areSettingsHydrated, setFollowedPoetKeys, settings.followedPoetKeys.length]);
 
     const fetchRandomPoemFromFollowedPoet = useCallback(async () => {
         if (followedPoets.length === 0) {
@@ -361,13 +433,19 @@ export default function Home() {
     const fetchPoemBatch = useCallback(async (count: number) => {
         const fetchedPoems: Poem[] = [];
 
-        for (let i = 0; i < count; i++) {
-            try {
-                const poem = await fetchRandomPoemFromFollowedPoet();
-                fetchedPoems.push(poem);
-            } catch (err) {
-                logger.error('Error fetching feed poem:', err);
-            }
+        for (let i = 0; i < count; i += POEM_FETCH_CONCURRENCY) {
+            const batchSize = Math.min(POEM_FETCH_CONCURRENCY, count - i);
+            const batchResults = await Promise.allSettled(
+                Array.from({ length: batchSize }, () => fetchRandomPoemFromFollowedPoet()),
+            );
+
+            batchResults.forEach((result) => {
+                if (result.status === 'fulfilled') {
+                    fetchedPoems.push(result.value);
+                } else {
+                    logger.error('Error fetching feed poem:', result.reason);
+                }
+            });
         }
 
         return fetchedPoems;
@@ -384,11 +462,28 @@ export default function Home() {
         try {
             setLoading(true);
             setError(null);
-            const fetchedPoems = await fetchPoemBatch(INITIAL_POEMS_COUNT);
+            const targetPoemCount = getInitialPoemCount();
+            const visiblePoems = await fetchPoemBatch(
+                Math.min(INITIAL_VISIBLE_POEMS_COUNT, targetPoemCount),
+            );
 
-            if (fetchedPoems.length > 0) {
-                setPoems(fetchedPoems);
+            if (visiblePoems.length > 0) {
+                setPoems(visiblePoems);
                 setCurrentPoemIndex(0);
+                setLoading(false);
+
+                const remainingPoemCount = targetPoemCount - visiblePoems.length;
+                if (remainingPoemCount > 0) {
+                    fetchPoemBatch(remainingPoemCount)
+                        .then((backgroundPoems) => {
+                            if (backgroundPoems.length > 0) {
+                                setPoems((prevPoems) => [...prevPoems, ...backgroundPoems]);
+                            }
+                        })
+                        .catch((backgroundError) => {
+                            logger.error('Failed to preload feed poems:', backgroundError);
+                        });
+                }
             } else {
                 throw new Error('Could not fetch any poems');
             }
@@ -401,13 +496,13 @@ export default function Home() {
     }, [fetchPoemBatch, followedPoets.length]);
 
     useEffect(() => {
-        if (isLoadingPoets || isFeedDialogOpen) {
+        if (!areSettingsHydrated || isLoadingPoets) {
             setLoading(false);
             return;
         }
 
         fetchInitialPoems();
-    }, [fetchInitialPoems, followedKeySignature, isFeedDialogOpen, isLoadingPoets]);
+    }, [areSettingsHydrated, fetchInitialPoems, followedKeySignature, isLoadingPoets]);
 
     useEffect(() => {
         const shouldFetchMore = currentPoemIndex >= poems.length - PREFETCH_THRESHOLD &&
@@ -445,8 +540,7 @@ export default function Home() {
         setFollowedPoetKeys(keys);
         setIsFeedDialogOpen(false);
         if (shouldClearFeedQuery) {
-            router.replace('/');
-            setShouldClearFeedQuery(false);
+            clearFeedQuery();
         }
     };
 
@@ -462,7 +556,7 @@ export default function Home() {
         }
     };
 
-    if (isLoadingPoets || loading) {
+    if (!areSettingsHydrated || isLoadingPoets || loading) {
         return <LoadingScreen />;
     }
 
@@ -480,8 +574,7 @@ export default function Home() {
                     onClose={() => {
                         setIsFeedDialogOpen(false);
                         if (shouldClearFeedQuery) {
-                            router.replace('/');
-                            setShouldClearFeedQuery(false);
+                            clearFeedQuery();
                         }
                     }}
                 />

@@ -631,11 +631,40 @@ body {
     font-size: 0.9rem;
 }
 
+.feed-poet-summary strong {
+    color: rgb(var(--foreground) / 0.9);
+    font-weight: 700;
+}
+
 .feed-poet-toolbar {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 1rem;
+}
+
+.feed-poet-random {
+    min-width: 3rem;
+    min-height: 3rem;
+    border: 1px solid rgb(var(--foreground) / 0.12);
+    border-radius: 10px;
+    background: rgb(var(--foreground) / 0.06);
+    color: rgb(var(--foreground) / 0.82);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.feed-poet-random:hover {
+    background: rgb(var(--foreground) / 0.1);
+    border-color: rgb(var(--foreground) / 0.2);
+    transform: translateY(-1px);
 }
 
 .feed-poet-search {
@@ -673,14 +702,6 @@ body {
     justify-content: center;
 }
 
-.feed-poet-random {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    white-space: nowrap;
-}
-
 .feed-poet-tabs {
     display: flex;
     gap: 0.5rem;
@@ -715,12 +736,71 @@ body {
     margin-bottom: 1rem;
 }
 
+.feed-poet-category-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.feed-poet-category-card {
+    border: 1px solid rgb(var(--foreground) / 0.12);
+    border-radius: 12px;
+    background: rgb(var(--foreground) / 0.05);
+    padding: 0.9rem;
+    text-align: right;
+}
+
+.feed-poet-category-card header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.8rem;
+}
+
+.feed-poet-category-card h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: rgb(var(--foreground) / 0.9);
+}
+
+.feed-poet-category-card span {
+    color: rgb(var(--foreground) / 0.58);
+    font-size: 0.8rem;
+}
+
+.feed-poet-category-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.feed-poet-category-actions button {
+    flex: 1;
+    min-height: 2.35rem;
+    border: 1px solid rgb(var(--foreground) / 0.12);
+    border-radius: 9px;
+    background: transparent;
+    color: rgb(var(--foreground) / 0.82);
+    cursor: pointer;
+    font: inherit;
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.feed-poet-category-actions button:hover {
+    background: rgb(var(--foreground) / 0.08);
+    border-color: rgb(var(--foreground) / 0.2);
+}
+
 .feed-poet-option {
     min-height: 2.75rem;
-    border: 1px solid rgb(var(--foreground) / 0.12);
+    border: 1px solid rgb(var(--accent) / 0.9);
     border-radius: 8px;
-    background: rgb(var(--foreground) / 0.06);
-    color: rgb(var(--foreground) / 0.82);
+    background: rgb(var(--accent) / 0.72);
+    color: rgb(var(--accent-foreground));
     cursor: pointer;
     font: inherit;
     line-height: 1.5;
@@ -733,14 +813,19 @@ body {
 }
 
 .feed-poet-option:hover {
-    background: rgb(var(--foreground) / 0.1);
-    border-color: rgb(var(--foreground) / 0.22);
+    background: rgb(var(--accent) / 0.82);
+    border-color: rgb(var(--accent));
 }
 
 .feed-poet-option.active {
-    background: rgb(var(--accent) / 0.72);
-    border-color: rgb(var(--accent) / 0.9);
-    color: rgb(var(--accent-foreground));
+    background: rgb(var(--foreground) / 0.06);
+    border-color: rgb(var(--foreground) / 0.12);
+    color: rgb(var(--foreground) / 0.82);
+}
+
+.feed-poet-option.active:hover {
+    background: rgb(var(--foreground) / 0.1);
+    border-color: rgb(var(--foreground) / 0.22);
 }
 
 .feed-poet-empty {
@@ -1111,6 +1196,12 @@ body {
     pointer-events: none;
 }
 
+.poet-info-dialog--side {
+    justify-content: flex-end;
+    align-items: stretch;
+    padding: 1rem;
+}
+
 .global-modal-backdrop {
     z-index: 1090;
 }
@@ -1129,6 +1220,13 @@ body {
     color: rgb(var(--card-foreground));
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
     pointer-events: auto;
+}
+
+.poet-info-panel--side {
+    width: min(100%, 24rem);
+    max-height: none;
+    height: 100%;
+    border-radius: 1.1rem;
 }
 
 .global-search-header,
@@ -1351,6 +1449,20 @@ body {
     color: rgb(var(--foreground) / 0.68);
     font-size: 0.9rem;
     font-weight: 700;
+}
+
+@media (max-width: 1023px) {
+    .poet-info-dialog--side {
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0.75rem;
+    }
+
+    .poet-info-panel--side {
+        width: min(100%, 44rem);
+        height: min(72vh, 44rem);
+        border-radius: 1.1rem 1.1rem 0 0;
+    }
 }
 
 .lyrics-share-panel {
