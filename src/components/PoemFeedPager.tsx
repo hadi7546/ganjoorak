@@ -320,8 +320,8 @@ export default function PoemFeedPager({
             poem={poem}
             onNext={() => requestBoundaryNavigation("next", false)}
             onPrevious={() => requestBoundaryNavigation("previous", false)}
-            isFirst={isFirst}
-            isLast={false}
+            isFirst={true}
+            isLast={true}
             isModern={poem.source !== "ganjoor"}
             onOpenFeed={onOpenFeed}
           />
