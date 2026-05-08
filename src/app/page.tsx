@@ -340,6 +340,12 @@ export default function Home() {
         currentPoemIndexRef.current = currentPoemIndex;
     }, [currentPoemIndex]);
 
+    useEffect(() => {
+        if (currentPoemIndex >= poems.length && poems.length > 0) {
+            setCurrentPoemIndex(poems.length - 1);
+        }
+    }, [currentPoemIndex, poems.length]);
+
     const poetByKey = useMemo(() => {
         return new Map(availablePoets.map((poet) => [getPoetKey(poet), poet]));
     }, [availablePoets]);
@@ -524,9 +530,9 @@ export default function Home() {
         fetchMorePromiseRef.current = null;
         setError(null);
         setCurrentPoemIndex(0);
-        setPoems([]);
 
         if (followedPoets.length === 0) {
+            setPoems([]);
             setLoading(false);
             return;
         }
@@ -612,7 +618,7 @@ export default function Home() {
         setCurrentPoemIndex((prevIndex) => Math.max(prevIndex - 1, 0));
     }, []);
 
-    if (!areSettingsHydrated || isLoadingPoets || loading) {
+    if (!areSettingsHydrated || isLoadingPoets || loading || (!currentPoem && !error)) {
         return <LoadingScreen />;
     }
 
