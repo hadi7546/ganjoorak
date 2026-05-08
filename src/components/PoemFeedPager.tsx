@@ -12,6 +12,7 @@ const WHEEL_THRESHOLD_PX = 48;
 const BOUNDARY_ARM_MS = 1500;
 const NAVIGATION_COOLDOWN_MS = 650;
 const EDGE_THRESHOLD_PX = 8;
+const KEY_SCROLL_AMOUNT_PX = 110;
 
 type Direction = "next" | "previous";
 
@@ -35,6 +36,9 @@ const getPoemText = (target: EventTarget | null) => {
   if (!(target instanceof Element)) return null;
   return target.closest(".poem-text") as HTMLElement | null;
 };
+
+const getActivePoemText = (root: HTMLElement | null) =>
+  root?.querySelector(".poem-text") as HTMLElement | null;
 
 export default function PoemFeedPager({
   poem,
@@ -116,7 +120,7 @@ export default function PoemFeedPager({
 
   useEffect(() => {
     resetArm();
-    const poemText = rootRef.current?.querySelector(".poem-text") as HTMLElement | null;
+    const poemText = getActivePoemText(rootRef.current);
     if (poemText) {
       poemText.scrollTop = 0;
     }
@@ -195,6 +199,46 @@ export default function PoemFeedPager({
       root.removeEventListener("touchstart", handleTouchStart, true);
       root.removeEventListener("touchend", handleTouchEnd, true);
     };
+  }, [requestBoundaryNavigation, resetArm]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      if (event.altKey || event.metaKey || event.ctrlKey) return;
+      if (event.code !== "ArrowDown" && event.code !== "ArrowUp") return;
+
+      const target = event.target as Element | null;
+      if (target?.matches("input, textarea, select, [contenteditable='true']")) {
+        return;
+      }
+
+      const poemText = getActivePoemText(rootRef.current);
+      if (!poemText) return;
+
+      const direction: Direction = event.code === "ArrowDown" ? "next" : "previous";
+      const canScrollInside = isScrollable(poemText);
+      const shouldNavigate = direction === "next"
+        ? !canScrollInside || isAtBottom(poemText)
+        : !canScrollInside || isAtTop(poemText);
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      if (!shouldNavigate) {
+        poemText.scrollBy({
+          top: direction === "next" ? KEY_SCROLL_AMOUNT_PX : -KEY_SCROLL_AMOUNT_PX,
+          behavior: "smooth",
+        });
+        resetArm();
+        return;
+      }
+
+      requestBoundaryNavigation(direction, false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, [requestBoundaryNavigation, resetArm]);
 
   return (
