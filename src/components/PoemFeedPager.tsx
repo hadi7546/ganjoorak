@@ -413,6 +413,15 @@ export default function PoemFeedPager({
           }
         }
 
+        .poem-feed-lock-button {
+          position: fixed !important;
+          top: 7rem !important;
+          right: 1rem !important;
+          width: 2.5rem !important;
+          height: 2.5rem !important;
+          z-index: 1000;
+        }
+
         .poem-feed-lock-button.is-active {
           background: rgb(var(--accent) / 0.86);
           color: rgb(var(--accent-foreground));
@@ -427,7 +436,7 @@ export default function PoemFeedPager({
         .poem-zen-mode .navigation-controls,
         .poem-zen-mode .action-buttons,
         .poem-zen-mode .global-search-button,
-        .poem-zen-mode .menu-button {
+        .poem-zen-mode .menu-button:not(.poem-feed-lock-button) {
           opacity: 0 !important;
           pointer-events: none !important;
         }
@@ -507,7 +516,7 @@ export default function PoemFeedPager({
       <button
         type="button"
         className={[
-          "poem-feed-lock-button menu-button fixed top-28 right-4 w-10 h-10",
+          "poem-feed-lock-button menu-button fixed right-4 w-10 h-10",
           "flex items-center justify-center rounded-full",
           "text-foreground transition-all",
           isZenLocked ? "is-active" : "",
