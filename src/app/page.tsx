@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import PoemViewer from '@/components/PoemViewer';
+import PoemFeedPager from '@/components/PoemFeedPager';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
 import ganjoorApi from '@/api/GanjoorApi';
@@ -636,13 +636,12 @@ export default function Home() {
                 />
             )}
             {currentPoem && (
-                <PoemViewer
+                <PoemFeedPager
                     poem={currentPoem}
+                    currentIndex={currentPoemIndex}
+                    isFirst={currentPoemIndex === 0}
                     onNext={handleNext}
                     onPrevious={handlePrevious}
-                    isFirst={currentPoemIndex === 0}
-                    isLast={false}
-                    isModern={currentPoem.source !== 'ganjoor'}
                     onOpenFeed={() => setIsFeedDialogOpen(true)}
                 />
             )}
