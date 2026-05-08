@@ -25,6 +25,21 @@ interface PoemFeedPagerProps {
   onOpenFeed?: () => void;
 }
 
+const slideVariants = {
+  enter: (direction: number) => ({
+    y: `${direction * 9}%`,
+    opacity: 0.98,
+  }),
+  center: {
+    y: "0%",
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    y: `${direction * -5}%`,
+    opacity: 0.98,
+  }),
+};
+
 const isScrollable = (element: HTMLElement) => element.scrollHeight > element.clientHeight + 4;
 
 const isAtTop = (element: HTMLElement) => element.scrollTop <= EDGE_THRESHOLD_PX;
@@ -330,15 +345,10 @@ export default function PoemFeedPager({
           key={poem.id}
           className="poem-feed-slide"
           custom={slideDirection}
-          initial={(direction: number) => ({
-            y: `${direction * 9}%`,
-            opacity: 0.98,
-          })}
-          animate={{ y: "0%", opacity: 1 }}
-          exit={(direction: number) => ({
-            y: `${direction * -5}%`,
-            opacity: 0.98,
-          })}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
           transition={{
             type: "spring",
             stiffness: 360,
