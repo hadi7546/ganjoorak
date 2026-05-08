@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
@@ -331,6 +331,17 @@ export default function Home() {
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [isFeedDialogOpen, setIsFeedDialogOpen] = useState(false);
     const [shouldClearFeedQuery, setShouldClearFeedQuery] = useState(false);
+    const poemsRef = useRef<Poem[]>([]);
+    const currentPoemIndexRef = useRef(0);
+    const fetchMorePromiseRef = useRef<Promise<Poem[]> | null>(null);
+
+    useEffect(() => {
+        poemsRef.current = poems;
+    }, [poems]);
+
+    useEffect(() => {
+        currentPoemIndexRef.current = currentPoemIndex;
+    }, [currentPoemIndex]);
 
     const poetByKey = useMemo(() => {
         return new Map(availablePoets.map((poet) => [getPoetKey(poet), poet]));
@@ -451,6 +462,38 @@ export default function Home() {
         return fetchedPoems;
     }, [fetchRandomPoemFromFollowedPoet]);
 
+    const fetchMorePoems = useCallback(async () => {
+        if (followedPoets.length === 0) {
+            return [];
+        }
+
+        if (fetchMorePromiseRef.current) {
+            return fetchMorePromiseRef.current;
+        }
+
+        const fetchPromise = (async () => {
+            try {
+                setIsFetchingMore(true);
+                const newPoems = await fetchPoemBatch(BATCH_SIZE);
+
+                if (newPoems.length > 0) {
+                    setPoems((prevPoems) => [...prevPoems, ...newPoems]);
+                }
+
+                return newPoems;
+            } catch (err) {
+                logger.error('Failed to fetch more poems:', err);
+                return [];
+            } finally {
+                setIsFetchingMore(false);
+                fetchMorePromiseRef.current = null;
+            }
+        })();
+
+        fetchMorePromiseRef.current = fetchPromise;
+        return fetchPromise;
+    }, [fetchPoemBatch, followedPoets.length]);
+
     const fetchInitialPoems = useCallback(async () => {
         if (followedPoets.length === 0) {
             setPoems([]);
@@ -462,6 +505,7 @@ export default function Home() {
         try {
             setLoading(true);
             setError(null);
+            fetchMorePromiseRef.current = null;
             const targetPoemCount = getInitialPoemCount();
             const visiblePoems = await fetchPoemBatch(
                 Math.min(INITIAL_VISIBLE_POEMS_COUNT, targetPoemCount),
@@ -511,21 +555,6 @@ export default function Home() {
             followedPoets.length > 0;
 
         if (shouldFetchMore) {
-            const fetchMorePoems = async () => {
-                try {
-                    setIsFetchingMore(true);
-                    const newPoems = await fetchPoemBatch(BATCH_SIZE);
-
-                    if (newPoems.length > 0) {
-                        setPoems((prevPoems) => [...prevPoems, ...newPoems]);
-                    }
-                } catch (err) {
-                    logger.error('Failed to fetch more poems:', err);
-                } finally {
-                    setIsFetchingMore(false);
-                }
-            };
-
             fetchMorePoems();
         }
     }, [
@@ -533,7 +562,7 @@ export default function Home() {
         poems.length,
         isFetchingMore,
         followedPoets.length,
-        fetchPoemBatch,
+        fetchMorePoems,
     ]);
 
     const handleSaveFeedPoets = (keys: string[]) => {
@@ -544,17 +573,24 @@ export default function Home() {
         }
     };
 
-    const handleNext = () => {
-        setCurrentPoemIndex((prevIndex) =>
-            Math.min(prevIndex + 1, Math.max(poems.length - 1, 0)),
-        );
-    };
+    const handleNext = useCallback(async () => {
+        const nextIndex = currentPoemIndexRef.current + 1;
 
-    const handlePrevious = () => {
-        if (currentPoemIndex > 0) {
-            setCurrentPoemIndex((prevIndex) => prevIndex - 1);
+        if (nextIndex < poemsRef.current.length) {
+            setCurrentPoemIndex(nextIndex);
+            return;
         }
-    };
+
+        const newPoems = await fetchMorePoems();
+
+        if (newPoems.length > 0) {
+            setCurrentPoemIndex(nextIndex);
+        }
+    }, [fetchMorePoems]);
+
+    const handlePrevious = useCallback(() => {
+        setCurrentPoemIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+    }, []);
 
     if (!areSettingsHydrated || isLoadingPoets || loading) {
         return <LoadingScreen />;
@@ -585,7 +621,7 @@ export default function Home() {
                     onNext={handleNext}
                     onPrevious={handlePrevious}
                     isFirst={currentPoemIndex === 0}
-                    isLast={currentPoemIndex === poems.length - 1}
+                    isLast={false}
                     isModern={currentPoem.source !== 'ganjoor'}
                     onOpenFeed={() => setIsFeedDialogOpen(true)}
                 />
