@@ -426,8 +426,7 @@ export default function PoemFeedPager({
         .poem-zen-mode .navigation-controls,
         .poem-zen-mode .action-buttons,
         .poem-zen-mode .global-search-button,
-        .poem-zen-mode .menu-button,
-        .poem-feed-is-reading .poem-feed-lock-button {
+        .poem-zen-mode .menu-button {
           opacity: 0 !important;
           pointer-events: none !important;
         }
@@ -447,6 +446,40 @@ export default function PoemFeedPager({
           .poem-feed-pager .navigation-controls,
           .poem-feed-pager .action-buttons {
             transition: opacity 0.2s ease;
+          }
+
+          .poem-feed-pager .poem-text {
+            padding-top: 10.75rem !important;
+          }
+
+          .poem-feed-pager .poem-content--centered .poem-text {
+            padding-top: 10.75rem !important;
+          }
+
+          .poem-feed-pager .poem-content--title-hidden .poem-text,
+          .poem-feed-pager .poem-content--centered.poem-content--title-hidden .poem-text {
+            padding-top: 4.25rem !important;
+          }
+
+          .poem-feed-pager .title-section {
+            max-height: 9.75rem;
+            overflow: hidden;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .poem-feed-pager .poem-text,
+          .poem-feed-pager .poem-content--centered .poem-text {
+            padding-top: 10rem !important;
+          }
+
+          .poem-feed-pager .poem-content--title-hidden .poem-text,
+          .poem-feed-pager .poem-content--centered.poem-content--title-hidden .poem-text {
+            padding-top: 4rem !important;
+          }
+
+          .poem-feed-pager .title-section {
+            max-height: 9rem;
           }
         }
       `}</style>
