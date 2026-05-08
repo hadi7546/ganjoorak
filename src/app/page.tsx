@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import PoemViewer from '@/components/PoemViewer';
 import LoadingScreen from '@/components/LoadingScreen';
 import ErrorScreen from '@/components/ErrorScreen';
@@ -18,30 +18,75 @@ export default function Home() {
     const [error, setError] = useState<string | null>(null);
     const [currentPoemIndex, setCurrentPoemIndex] = useState(0);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const poemsRef = useRef<Poem[]>([]);
+    const currentPoemIndexRef = useRef(0);
+    const fetchMorePromiseRef = useRef<Promise<Poem[]> | null>(null);
+
+    useEffect(() => {
+        poemsRef.current = poems;
+    }, [poems]);
+
+    useEffect(() => {
+        currentPoemIndexRef.current = currentPoemIndex;
+    }, [currentPoemIndex]);
+
+    const fetchPoemsBatch = useCallback(async (count: number) => {
+        const fetchedPoems: Poem[] = [];
+
+        for (let i = 0; i < count; i++) {
+            try {
+                // Get random poem first
+                const randomPoem = await ganjoorApi.getRandomPoem();
+                // Then fetch the complete poem data with recitations
+                const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
+                fetchedPoems.push(fullPoem);
+            } catch (err) {
+                logger.error('Error fetching poem:', err);
+            }
+        }
+
+        return fetchedPoems;
+    }, []);
+
+    const fetchMorePoems = useCallback(async () => {
+        if (fetchMorePromiseRef.current) {
+            return fetchMorePromiseRef.current;
+        }
+
+        const fetchPromise = (async () => {
+            try {
+                setIsFetchingMore(true);
+                const newPoems = await fetchPoemsBatch(BATCH_SIZE);
+
+                if (newPoems.length > 0) {
+                    setPoems(prevPoems => [...prevPoems, ...newPoems]);
+                }
+
+                return newPoems;
+            } catch (err) {
+                logger.error('Failed to fetch more poems:', err);
+                return [];
+            } finally {
+                setIsFetchingMore(false);
+                fetchMorePromiseRef.current = null;
+            }
+        })();
+
+        fetchMorePromiseRef.current = fetchPromise;
+        return fetchPromise;
+    }, [fetchPoemsBatch]);
 
     // Fetch initial poems
-    const fetchInitialPoems = async () => {
+    const fetchInitialPoems = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
 
-            // Fetch poems one by one
-            const fetchedPoems: Poem[] = [];
-
-            for (let i = 0; i < INITIAL_POEMS_COUNT; i++) {
-                try {
-                    // Get random poem first
-                    const randomPoem = await ganjoorApi.getRandomPoem();
-                    // Then fetch the complete poem data with recitations
-                    const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
-                    fetchedPoems.push(fullPoem);
-                } catch (err) {
-                    logger.error('Error fetching poem:', err);
-                }
-            }
+            const fetchedPoems = await fetchPoemsBatch(INITIAL_POEMS_COUNT);
 
             if (fetchedPoems.length > 0) {
                 setPoems(fetchedPoems);
+                setCurrentPoemIndex(0);
                 setLoading(false);
             } else {
                 throw new Error('Could not fetch any poems');
@@ -51,12 +96,12 @@ export default function Home() {
             setError('متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.');
             setLoading(false);
         }
-    };
+    }, [fetchPoemsBatch]);
 
     // Fetch initial poems
     useEffect(() => {
         fetchInitialPoems();
-    }, []);
+    }, [fetchInitialPoems]);
 
     // Fetch more poems when approaching the end
     useEffect(() => {
@@ -65,48 +110,28 @@ export default function Home() {
             !isFetchingMore;
 
         if (shouldFetchMore) {
-            const fetchMorePoems = async () => {
-                try {
-                    setIsFetchingMore(true);
-
-                    // Fetch poems one by one
-                    const newPoems: Poem[] = [];
-
-                    for (let i = 0; i < BATCH_SIZE; i++) {
-                        try {
-                            // Get random poem first
-                            const randomPoem = await ganjoorApi.getRandomPoem();
-                            // Then fetch the complete poem data with recitations
-                            const fullPoem = await ganjoorApi.getPoemById(randomPoem.id);
-                            newPoems.push(fullPoem);
-                        } catch (err) {
-                            logger.error('Error fetching additional poem:', err);
-                        }
-                    }
-
-                    if (newPoems.length > 0) {
-                        setPoems(prevPoems => [...prevPoems, ...newPoems]);
-                    }
-                } catch (err) {
-                    logger.error('Failed to fetch more poems:', err);
-                } finally {
-                    setIsFetchingMore(false);
-                }
-            };
-
             fetchMorePoems();
         }
-    }, [currentPoemIndex, poems.length, isFetchingMore]);
+    }, [currentPoemIndex, poems.length, isFetchingMore, fetchMorePoems]);
 
-    const handleNext = () => {
-        setCurrentPoemIndex(prevIndex => prevIndex + 1);
-    };
+    const handleNext = useCallback(async () => {
+        const nextIndex = currentPoemIndexRef.current + 1;
 
-    const handlePrevious = () => {
-        if (currentPoemIndex > 0) {
-            setCurrentPoemIndex(prevIndex => prevIndex - 1);
+        if (nextIndex < poemsRef.current.length) {
+            setCurrentPoemIndex(nextIndex);
+            return;
         }
-    };
+
+        const newPoems = await fetchMorePoems();
+
+        if (newPoems.length > 0) {
+            setCurrentPoemIndex(nextIndex);
+        }
+    }, [fetchMorePoems]);
+
+    const handlePrevious = useCallback(() => {
+        setCurrentPoemIndex(prevIndex => Math.max(prevIndex - 1, 0));
+    }, []);
 
     if (loading) {
         return <LoadingScreen />;
@@ -118,13 +143,13 @@ export default function Home() {
 
     return (
         <main className="h-screen overflow-hidden">
-            {poems.length > 0 && (
+            {poems[currentPoemIndex] && (
                 <PoemViewer
                     poem={poems[currentPoemIndex]}
                     onNext={handleNext}
                     onPrevious={handlePrevious}
                     isFirst={currentPoemIndex === 0}
-                    isLast={currentPoemIndex === poems.length - 1}
+                    isLast={false}
                     isModern={false}
                 />
             )}
