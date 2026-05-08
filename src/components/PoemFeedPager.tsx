@@ -56,7 +56,13 @@ export default function PoemFeedPager({
   const armedDirectionRef = useRef<Direction | null>(null);
   const armedUntilRef = useRef(0);
   const lastNavigationAtRef = useRef(0);
+  const previousIndexRef = useRef(currentIndex);
   const [isZenLocked, setIsZenLocked] = useState(false);
+  const slideDirection = currentIndex >= previousIndexRef.current ? 1 : -1;
+
+  useEffect(() => {
+    previousIndexRef.current = currentIndex;
+  }, [currentIndex]);
 
   useEffect(() => {
     setIsZenLocked(localStorage.getItem(ZEN_STORAGE_KEY) === "1");
@@ -250,6 +256,18 @@ export default function PoemFeedPager({
           overflow: hidden;
           background: rgb(var(--background));
           touch-action: pan-y;
+          isolation: isolate;
+        }
+
+        .poem-feed-slide {
+          position: absolute;
+          inset: 0;
+          background: rgb(var(--background));
+          will-change: transform, opacity;
+        }
+
+        .poem-feed-slide .poem-viewer {
+          background: rgb(var(--background));
         }
 
         .poem-feed-lock-button {
@@ -307,14 +325,26 @@ export default function PoemFeedPager({
           }
         }
       `}</style>
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence initial={false} custom={slideDirection}>
         <motion.div
           key={poem.id}
           className="poem-feed-slide"
-          initial={{ opacity: 0, y: 44, scale: 0.985 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -44, scale: 0.985 }}
-          transition={{ duration: 0.24, ease: [0.2, 0.8, 0.2, 1] }}
+          custom={slideDirection}
+          initial={(direction: number) => ({
+            y: `${direction * 9}%`,
+            opacity: 0.98,
+          })}
+          animate={{ y: "0%", opacity: 1 }}
+          exit={(direction: number) => ({
+            y: `${direction * -5}%`,
+            opacity: 0.98,
+          })}
+          transition={{
+            type: "spring",
+            stiffness: 360,
+            damping: 42,
+            mass: 0.85,
+          }}
         >
           <PoemViewer
             poem={poem}
