@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { FaLock, FaLockOpen } from 'react-icons/fa';
 
 const TITLE_HIDE_SCROLL_TOP = 12;
 const ZEN_STORAGE_KEY = 'ganjoorak:zen-scroll-lock';
@@ -20,6 +21,7 @@ const isAtBottom = (element: HTMLElement) => (
 
 export default function Template({ children }: { children: ReactNode }) {
     const [isZenLocked, setIsZenLocked] = useState(false);
+    const [showZenControl, setShowZenControl] = useState(false);
 
     useEffect(() => {
         setIsZenLocked(localStorage.getItem(ZEN_STORAGE_KEY) === '1');
@@ -29,6 +31,32 @@ export default function Template({ children }: { children: ReactNode }) {
         document.documentElement.classList.toggle('poem-zen-mode', isZenLocked);
         localStorage.setItem(ZEN_STORAGE_KEY, isZenLocked ? '1' : '0');
     }, [isZenLocked]);
+
+    useEffect(() => {
+        let pendingFrame: number | null = null;
+
+        const updateZenControlVisibility = () => {
+            pendingFrame = null;
+            setShowZenControl(Boolean(document.querySelector('.poem-viewer')));
+        };
+
+        const scheduleUpdate = () => {
+            if (pendingFrame !== null) return;
+            pendingFrame = window.requestAnimationFrame(updateZenControlVisibility);
+        };
+
+        const observer = new MutationObserver(scheduleUpdate);
+        observer.observe(document.body, { childList: true, subtree: true });
+        updateZenControlVisibility();
+
+        return () => {
+            observer.disconnect();
+
+            if (pendingFrame !== null) {
+                window.cancelAnimationFrame(pendingFrame);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         const updateTitleVisibility = (poemText: Element) => {
@@ -189,9 +217,9 @@ export default function Template({ children }: { children: ReactNode }) {
                     box-shadow: 0 0 0 1px rgb(var(--accent) / 0.35), 0 8px 20px rgb(var(--background) / 0.28);
                 }
 
-                .zen-lock-button__icon {
-                    font-size: 1rem;
-                    line-height: 1;
+                .zen-lock-button svg {
+                    width: 1rem;
+                    height: 1rem;
                 }
 
                 .poem-zen-mode .menu-button,
@@ -247,18 +275,18 @@ export default function Template({ children }: { children: ReactNode }) {
                 }
             `}</style>
             {children}
-            <button
-                type="button"
-                className={`zen-lock-button${isZenLocked ? ' zen-lock-button--active' : ''}`}
-                onClick={() => setIsZenLocked((value) => !value)}
-                aria-pressed={isZenLocked}
-                aria-label={isZenLocked ? 'باز کردن اسکرول شعر بعدی' : 'قفل کردن اسکرول روی همین شعر'}
-                title={isZenLocked ? 'قفل اسکرول روشن است' : 'قفل اسکرول روی همین شعر'}
-            >
-                <span className="zen-lock-button__icon" aria-hidden="true">
-                    {isZenLocked ? '🔒' : '🔓'}
-                </span>
-            </button>
+            {showZenControl && (
+                <button
+                    type="button"
+                    className={`zen-lock-button${isZenLocked ? ' zen-lock-button--active' : ''}`}
+                    onClick={() => setIsZenLocked((value) => !value)}
+                    aria-pressed={isZenLocked}
+                    aria-label={isZenLocked ? 'باز کردن اسکرول شعر بعدی' : 'قفل کردن اسکرول روی همین شعر'}
+                    title={isZenLocked ? 'قفل اسکرول روشن است' : 'قفل اسکرول روی همین شعر'}
+                >
+                    {isZenLocked ? <FaLock aria-hidden="true" /> : <FaLockOpen aria-hidden="true" />}
+                </button>
+            )}
         </>
     );
 }
