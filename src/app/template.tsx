@@ -6,6 +6,11 @@ import { FaLock, FaLockOpen } from 'react-icons/fa';
 
 const TITLE_HIDE_SCROLL_TOP = 12;
 const ZEN_STORAGE_KEY = 'ganjoorak:zen-scroll-lock';
+const MOBILE_STRONG_SWIPE_PX = 72;
+const MOBILE_BOUNDARY_ARM_MS = 1600;
+const MOBILE_CONTROLS_HIDE_MS = 900;
+
+type BoundaryDirection = 'next' | 'previous';
 
 const getPoemTextFromEvent = (event: Event) => {
     const target = event.target;
@@ -17,6 +22,10 @@ const isAtTop = (element: HTMLElement) => element.scrollTop <= 2;
 
 const isAtBottom = (element: HTMLElement) => (
     element.scrollHeight - element.scrollTop - element.clientHeight <= 2
+);
+
+const isMobileViewport = () => (
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
 );
 
 export default function Template({ children }: { children: ReactNode }) {
@@ -74,11 +83,28 @@ export default function Template({ children }: { children: ReactNode }) {
             document.querySelectorAll('.poem-text').forEach(updateTitleVisibility);
         };
 
+        let controlsHideTimeout: number | null = null;
+        const hideMobileControlsTemporarily = () => {
+            if (!isMobileViewport()) return;
+
+            document.documentElement.classList.add('poem-mobile-is-scrolling');
+
+            if (controlsHideTimeout !== null) {
+                window.clearTimeout(controlsHideTimeout);
+            }
+
+            controlsHideTimeout = window.setTimeout(() => {
+                document.documentElement.classList.remove('poem-mobile-is-scrolling');
+                controlsHideTimeout = null;
+            }, MOBILE_CONTROLS_HIDE_MS);
+        };
+
         const handleScroll = (event: Event) => {
             const poemText = getPoemTextFromEvent(event);
             if (!poemText) return;
 
             updateTitleVisibility(poemText);
+            hideMobileControlsTemporarily();
         };
 
         const stopBoundaryNavigation = (event: Event) => {
@@ -106,12 +132,39 @@ export default function Template({ children }: { children: ReactNode }) {
         let touchPoemText: HTMLElement | null = null;
         let touchStartedAtTop = false;
         let touchStartedAtBottom = false;
+        let armedDirection: BoundaryDirection | null = null;
+        let armedUntil = 0;
 
-        const handleTouchStart = (event: TouchEvent) => {
-            if (!document.documentElement.classList.contains('poem-zen-mode')) {
-                return;
+        const resetMobileBoundaryArm = () => {
+            armedDirection = null;
+            armedUntil = 0;
+            document.documentElement.classList.remove('poem-mobile-boundary-armed');
+        };
+
+        const armMobileBoundary = (direction: BoundaryDirection) => {
+            armedDirection = direction;
+            armedUntil = Date.now() + MOBILE_BOUNDARY_ARM_MS;
+            document.documentElement.classList.add('poem-mobile-boundary-armed');
+        };
+
+        const consumeFirstMobileBoundarySwipe = (
+            event: TouchEvent,
+            direction: BoundaryDirection,
+        ) => {
+            const now = Date.now();
+            const isSecondSwipe = armedDirection === direction && now <= armedUntil;
+
+            if (isSecondSwipe) {
+                resetMobileBoundaryArm();
+                return false;
             }
 
+            armMobileBoundary(direction);
+            stopBoundaryNavigation(event);
+            return true;
+        };
+
+        const handleTouchStart = (event: TouchEvent) => {
             const poemText = getPoemTextFromEvent(event);
             const touch = event.touches[0];
             if (!poemText || !touch) return;
@@ -123,8 +176,7 @@ export default function Template({ children }: { children: ReactNode }) {
         };
 
         const handleTouchEnd = (event: TouchEvent) => {
-            if (!document.documentElement.classList.contains('poem-zen-mode') || !touchPoemText) {
-                touchPoemText = null;
+            if (!touchPoemText) {
                 return;
             }
 
@@ -137,9 +189,28 @@ export default function Template({ children }: { children: ReactNode }) {
             const diff = touchStartY - touch.clientY;
             const isLeavingDown = diff > 0 && touchStartedAtBottom && isAtBottom(touchPoemText);
             const isLeavingUp = diff < 0 && touchStartedAtTop && isAtTop(touchPoemText);
+            const direction: BoundaryDirection | null = isLeavingDown
+                ? 'next'
+                : isLeavingUp
+                    ? 'previous'
+                    : null;
 
-            if (isLeavingDown || isLeavingUp) {
+            if (!direction || Math.abs(diff) < MOBILE_STRONG_SWIPE_PX) {
+                if (!direction) {
+                    resetMobileBoundaryArm();
+                }
+                touchPoemText = null;
+                return;
+            }
+
+            if (document.documentElement.classList.contains('poem-zen-mode')) {
                 stopBoundaryNavigation(event);
+                touchPoemText = null;
+                return;
+            }
+
+            if (isMobileViewport()) {
+                consumeFirstMobileBoundarySwipe(event, direction);
             }
 
             touchPoemText = null;
@@ -152,6 +223,7 @@ export default function Template({ children }: { children: ReactNode }) {
             pendingResetFrame = window.requestAnimationFrame(() => {
                 pendingResetFrame = null;
                 resetTitleVisibility();
+                resetMobileBoundaryArm();
             });
         };
 
@@ -170,6 +242,12 @@ export default function Template({ children }: { children: ReactNode }) {
             document.removeEventListener('touchstart', handleTouchStart, true);
             document.removeEventListener('touchend', handleTouchEnd, true);
             observer.disconnect();
+            resetMobileBoundaryArm();
+            document.documentElement.classList.remove('poem-mobile-is-scrolling');
+
+            if (controlsHideTimeout !== null) {
+                window.clearTimeout(controlsHideTimeout);
+            }
 
             if (pendingResetFrame !== null) {
                 window.cancelAnimationFrame(pendingResetFrame);
@@ -250,6 +328,18 @@ export default function Template({ children }: { children: ReactNode }) {
                     .title-section {
                         max-height: 9.5rem;
                         overflow: hidden;
+                    }
+
+                    .poem-mobile-is-scrolling .navigation-controls,
+                    .poem-mobile-is-scrolling .poem-navigation,
+                    .poem-mobile-is-scrolling .action-buttons,
+                    .poem-mobile-is-scrolling .poem-actions {
+                        opacity: 0 !important;
+                        pointer-events: none !important;
+                    }
+
+                    .poem-mobile-boundary-armed .navigation-controls {
+                        opacity: 0.72 !important;
                     }
                 }
 
