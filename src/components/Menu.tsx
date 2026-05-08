@@ -86,16 +86,16 @@ const Menu: React.FC<MenuProps> = ({
           }
 
           .menu-drawer {
-            top: auto !important;
+            top: calc(0.75rem + env(safe-area-inset-top)) !important;
             left: 0.75rem !important;
             right: 0.75rem !important;
-            bottom: calc(0.75rem + env(safe-area-inset-bottom)) !important;
+            bottom: auto !important;
             width: auto !important;
             max-height: min(78vh, 32rem);
             overflow: hidden;
             padding: 0.75rem !important;
             border-radius: 1.5rem !important;
-            background: rgb(var(--background) / 0.88) !important;
+            background: rgb(var(--background) / 0.9) !important;
             border: 1px solid rgb(var(--foreground) / 0.1);
             box-shadow: 0 24px 60px rgb(0 0 0 / 0.38) !important;
           }
@@ -144,7 +144,6 @@ const Menu: React.FC<MenuProps> = ({
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -153,12 +152,11 @@ const Menu: React.FC<MenuProps> = ({
               className="menu-backdrop fixed inset-0 bg-black bg-opacity-30 z-40"
             />
 
-            {/* Menu popup */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: -12 }}
+              initial={{ opacity: 0, scale: 0.96, y: -18 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: -12 }}
-              transition={{ type: "spring", duration: 0.28, bounce: 0.16 }}
+              exit={{ opacity: 0, scale: 0.96, y: -18 }}
+              transition={{ type: "spring", duration: 0.32, bounce: 0.18 }}
               className="menu-drawer fixed top-16 right-4 w-72 rounded-2xl p-4 shadow-2xl"
               role="dialog"
               aria-modal="true"
