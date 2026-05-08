@@ -154,44 +154,39 @@ export default function Template({ children }: { children: ReactNode }) {
             <style>{`
                 .zen-lock-button {
                     position: fixed;
-                    left: 1rem;
-                    bottom: 1rem;
-                    z-index: 1300;
-                    min-width: 3.25rem;
-                    height: 3.25rem;
-                    border: 1px solid rgb(var(--foreground) / 0.14);
+                    top: 7rem;
+                    right: 1rem;
+                    z-index: 12;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    border: none;
                     border-radius: 999px;
-                    background: rgb(var(--background) / 0.72);
-                    color: rgb(var(--foreground) / 0.82);
-                    -webkit-backdrop-filter: blur(18px);
-                    backdrop-filter: blur(18px);
-                    box-shadow: 0 16px 42px rgb(0 0 0 / 0.28);
-                    display: inline-flex;
+                    background-color: rgb(var(--foreground) / 0.1);
+                    color: rgb(var(--foreground));
+                    -webkit-backdrop-filter: blur(8px);
+                    backdrop-filter: blur(8px);
+                    display: flex;
                     align-items: center;
                     justify-content: center;
-                    gap: 0.45rem;
-                    padding: 0 1rem;
-                    font: inherit;
-                    font-size: 0.88rem;
+                    padding: 0;
                     cursor: pointer;
                     transition:
-                        background-color 0.18s ease,
-                        border-color 0.18s ease,
-                        color 0.18s ease,
-                        opacity 0.18s ease,
-                        transform 0.18s ease;
+                        transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        background-color 0.22s ease,
+                        box-shadow 0.28s ease,
+                        opacity 0.25s ease;
                 }
 
                 .zen-lock-button:hover {
-                    transform: translateY(-1px);
-                    background: rgb(var(--foreground) / 0.08);
-                    border-color: rgb(var(--foreground) / 0.24);
+                    background-color: rgb(var(--foreground) / 0.2);
+                    transform: translateY(-1px) scale(1.02);
+                    box-shadow: 0 6px 16px rgb(var(--background) / 0.22);
                 }
 
                 .zen-lock-button--active {
                     background: rgb(var(--accent) / 0.86);
-                    border-color: rgb(var(--accent));
                     color: rgb(var(--accent-foreground));
+                    box-shadow: 0 0 0 1px rgb(var(--accent) / 0.35), 0 8px 20px rgb(var(--background) / 0.28);
                 }
 
                 .zen-lock-button__icon {
@@ -200,7 +195,7 @@ export default function Template({ children }: { children: ReactNode }) {
                 }
 
                 .poem-zen-mode .menu-button,
-                .poem-zen-mode .search-button,
+                .poem-zen-mode .global-search-button,
                 .poem-zen-mode .navigation-controls,
                 .poem-zen-mode .poem-navigation,
                 .poem-zen-mode .action-buttons,
@@ -215,18 +210,39 @@ export default function Template({ children }: { children: ReactNode }) {
                         rgb(var(--background));
                 }
 
-                @media (max-width: 640px) {
-                    .zen-lock-button {
-                        left: 0.85rem;
-                        bottom: 0.85rem;
-                        min-width: 3rem;
-                        height: 3rem;
-                        padding: 0 0.82rem;
-                        font-size: 0.78rem;
+                @media (max-width: 768px) {
+                    .poem-text {
+                        padding-top: 10.5rem !important;
                     }
 
-                    .zen-lock-button__label {
-                        display: none;
+                    .poem-content.poem-content--centered .poem-text {
+                        padding-top: 10.5rem !important;
+                    }
+
+                    .title-section {
+                        max-height: 9.5rem;
+                        overflow: hidden;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .poem-text {
+                        padding-top: 9.75rem !important;
+                    }
+
+                    .poem-content.poem-content--centered .poem-text {
+                        padding-top: 9.75rem !important;
+                    }
+
+                    .zen-lock-button {
+                        top: 6.75rem;
+                        right: 1rem;
+                        width: 2.5rem;
+                        height: 2.5rem;
+                    }
+
+                    .title-section {
+                        max-height: 8.75rem;
                     }
                 }
             `}</style>
@@ -237,13 +253,10 @@ export default function Template({ children }: { children: ReactNode }) {
                 onClick={() => setIsZenLocked((value) => !value)}
                 aria-pressed={isZenLocked}
                 aria-label={isZenLocked ? 'باز کردن اسکرول شعر بعدی' : 'قفل کردن اسکرول روی همین شعر'}
-                title={isZenLocked ? 'Zen روشن است؛ اسکرول روی همین شعر قفل شده' : 'Zen: تمرکز روی همین شعر'}
+                title={isZenLocked ? 'قفل اسکرول روشن است' : 'قفل اسکرول روی همین شعر'}
             >
                 <span className="zen-lock-button__icon" aria-hidden="true">
-                    {isZenLocked ? '🔒' : '🧘'}
-                </span>
-                <span className="zen-lock-button__label">
-                    {isZenLocked ? 'قفل' : 'Zen'}
+                    {isZenLocked ? '🔒' : '🔓'}
                 </span>
             </button>
         </>
