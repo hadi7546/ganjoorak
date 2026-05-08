@@ -79,25 +79,39 @@ const Menu: React.FC<MenuProps> = ({
     <>
       <style>{`
         @media (max-width: 640px) {
+          .menu-button {
+            top: auto !important;
+            right: 1rem !important;
+            bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
+          }
+
+          .global-search-button {
+            top: auto !important;
+            right: 1rem !important;
+            bottom: calc(4.25rem + env(safe-area-inset-bottom)) !important;
+          }
+
           .menu-backdrop {
-            background: rgb(0 0 0 / 0.42) !important;
-            -webkit-backdrop-filter: blur(3px);
-            backdrop-filter: blur(3px);
+            z-index: 1090 !important;
+            background: rgb(0 0 0 / 0.46) !important;
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
           }
 
           .menu-drawer {
-            top: calc(0.75rem + env(safe-area-inset-top)) !important;
+            z-index: 1100 !important;
+            top: auto !important;
             left: 0.75rem !important;
             right: 0.75rem !important;
-            bottom: auto !important;
+            bottom: calc(0.75rem + env(safe-area-inset-bottom)) !important;
             width: auto !important;
-            max-height: min(78vh, 32rem);
+            max-height: min(78dvh, 34rem);
             overflow: hidden;
             padding: 0.75rem !important;
-            border-radius: 1.5rem !important;
-            background: rgb(var(--background) / 0.9) !important;
+            border-radius: 1.5rem 1.5rem 1.25rem 1.25rem !important;
+            background: rgb(var(--background) / 0.92) !important;
             border: 1px solid rgb(var(--foreground) / 0.1);
-            box-shadow: 0 24px 60px rgb(0 0 0 / 0.38) !important;
+            box-shadow: 0 24px 60px rgb(0 0 0 / 0.42) !important;
           }
 
           .menu-drawer::before {
@@ -111,7 +125,7 @@ const Menu: React.FC<MenuProps> = ({
           }
 
           .menu-drawer nav {
-            max-height: calc(min(78vh, 32rem) - 2rem);
+            max-height: calc(min(78dvh, 34rem) - 2rem);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
           }
@@ -153,11 +167,11 @@ const Menu: React.FC<MenuProps> = ({
             />
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: -18 }}
+              initial={{ opacity: 0, scale: 0.98, y: 28 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: -18 }}
-              transition={{ type: "spring", duration: 0.32, bounce: 0.18 }}
-              className="menu-drawer fixed top-16 right-4 w-72 rounded-2xl p-4 shadow-2xl"
+              exit={{ opacity: 0, scale: 0.98, y: 28 }}
+              transition={{ type: "spring", duration: 0.32, bounce: 0.16 }}
+              className="menu-drawer fixed top-16 right-4 w-72 rounded-2xl p-4 shadow-2xl z-50"
               role="dialog"
               aria-modal="true"
               aria-label="منوی اصلی"
