@@ -13,12 +13,11 @@ import { useSettings } from '@/context/SettingsContext';
 import { logger } from '@/utils/logger';
 import { FaRandom, FaSearch, FaTimes } from 'react-icons/fa';
 
-const INITIAL_POEMS_MIN_COUNT = 30;
-const INITIAL_POEMS_MAX_COUNT = 40;
-const INITIAL_VISIBLE_POEMS_COUNT = 6;
-const PREFETCH_THRESHOLD = 2;
-const BATCH_SIZE = 2;
-const POEM_FETCH_CONCURRENCY = 6;
+const INITIAL_POEMS_COUNT = 12;
+const PREFETCH_THRESHOLD = 5;
+const BATCH_SIZE = 6;
+const POEM_FETCH_CONCURRENCY = 3;
+
 const getPoetKey = (poet: Pick<Poet, 'source' | 'urlSlug' | 'fullUrl' | 'id'>) => {
     const source = poet.source || 'ganjoor';
     const slug = poet.urlSlug || poet.fullUrl.replace(/^\/+/, '') || String(poet.id);
@@ -28,10 +27,6 @@ const getPoetKey = (poet: Pick<Poet, 'source' | 'urlSlug' | 'fullUrl' | 'id'>) =
 const getPoetDisplayName = (poet: Poet) => poet.nickname || poet.name;
 const DEFAULT_FEED_GROUP = 'گنجور';
 const FEED_GROUP_ORDER = [DEFAULT_FEED_GROUP, 'اکولالیا', 'شاعران محلی'] as const;
-
-const getInitialPoemCount = () =>
-    INITIAL_POEMS_MIN_COUNT +
-    Math.floor(Math.random() * (INITIAL_POEMS_MAX_COUNT - INITIAL_POEMS_MIN_COUNT + 1));
 
 const sampleKeys = (keys: string[], count: number) => {
     const shuffled = [...keys];
@@ -333,7 +328,9 @@ export default function Home() {
     const [shouldClearFeedQuery, setShouldClearFeedQuery] = useState(false);
     const poemsRef = useRef<Poem[]>([]);
     const currentPoemIndexRef = useRef(0);
+    const feedVersionRef = useRef(0);
     const fetchMorePromiseRef = useRef<Promise<Poem[]> | null>(null);
+    const loadedPoetDefaultsRef = useRef(false);
 
     useEffect(() => {
         poemsRef.current = poems;
@@ -385,9 +382,11 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if (!areSettingsHydrated) {
+        if (!areSettingsHydrated || loadedPoetDefaultsRef.current) {
             return;
         }
+
+        let isCancelled = false;
 
         const loadPoets = async () => {
             try {
@@ -397,25 +396,39 @@ export default function Home() {
                     customApi.getPoets(),
                     echolaliaApi.getPoets(),
                 ]);
+
+                if (isCancelled) return;
+
                 const poets = [...ganjoorPoets, ...customPoets, ...modernPoets]
                     .filter((poet) => poet.published)
                     .sort((a, b) => getPoetDisplayName(a).localeCompare(getPoetDisplayName(b), 'fa'));
                 setAvailablePoets(poets);
-                if (areSettingsHydrated && settings.followedPoetKeys.length === 0) {
+
+                if (settings.followedPoetKeys.length === 0) {
                     const defaultPoetKeys = poets
                         .filter((poet) => (poet.source || 'ganjoor') === 'ganjoor')
                         .map(getPoetKey);
                     setFollowedPoetKeys(defaultPoetKeys.length > 0 ? defaultPoetKeys : poets.map(getPoetKey));
                 }
+
+                loadedPoetDefaultsRef.current = true;
             } catch (err) {
-                logger.error('Failed to load feed poets:', err);
-                setError('متأسفانه در بارگیری فهرست شاعرها مشکلی پیش آمد.');
+                if (!isCancelled) {
+                    logger.error('Failed to load feed poets:', err);
+                    setError('متأسفانه در بارگیری فهرست شاعرها مشکلی پیش آمد.');
+                }
             } finally {
-                setIsLoadingPoets(false);
+                if (!isCancelled) {
+                    setIsLoadingPoets(false);
+                }
             }
         };
 
         loadPoets();
+
+        return () => {
+            isCancelled = true;
+        };
     }, [areSettingsHydrated, setFollowedPoetKeys, settings.followedPoetKeys.length]);
 
     const fetchRandomPoemFromFollowedPoet = useCallback(async () => {
@@ -462,6 +475,18 @@ export default function Home() {
         return fetchedPoems;
     }, [fetchRandomPoemFromFollowedPoet]);
 
+    const appendPoems = useCallback((newPoems: Poem[], version: number) => {
+        if (newPoems.length === 0 || feedVersionRef.current !== version) {
+            return;
+        }
+
+        setPoems((prevPoems) => {
+            const existingIds = new Set(prevPoems.map((poem) => poem.id));
+            const uniquePoems = newPoems.filter((poem) => !existingIds.has(poem.id));
+            return uniquePoems.length > 0 ? [...prevPoems, ...uniquePoems] : prevPoems;
+        });
+    }, []);
+
     const fetchMorePoems = useCallback(async () => {
         if (followedPoets.length === 0) {
             return [];
@@ -471,77 +496,69 @@ export default function Home() {
             return fetchMorePromiseRef.current;
         }
 
+        const version = feedVersionRef.current;
         const fetchPromise = (async () => {
             try {
                 setIsFetchingMore(true);
                 const newPoems = await fetchPoemBatch(BATCH_SIZE);
-
-                if (newPoems.length > 0) {
-                    setPoems((prevPoems) => [...prevPoems, ...newPoems]);
-                }
-
-                return newPoems;
+                appendPoems(newPoems, version);
+                return feedVersionRef.current === version ? newPoems : [];
             } catch (err) {
                 logger.error('Failed to fetch more poems:', err);
                 return [];
             } finally {
-                setIsFetchingMore(false);
+                if (feedVersionRef.current === version) {
+                    setIsFetchingMore(false);
+                }
                 fetchMorePromiseRef.current = null;
             }
         })();
 
         fetchMorePromiseRef.current = fetchPromise;
         return fetchPromise;
-    }, [fetchPoemBatch, followedPoets.length]);
+    }, [appendPoems, fetchPoemBatch, followedPoets.length]);
 
     const fetchInitialPoems = useCallback(async () => {
+        const version = feedVersionRef.current + 1;
+        feedVersionRef.current = version;
+        fetchMorePromiseRef.current = null;
+        setError(null);
+        setCurrentPoemIndex(0);
+        setPoems([]);
+
         if (followedPoets.length === 0) {
-            setPoems([]);
-            setCurrentPoemIndex(0);
             setLoading(false);
             return;
         }
 
         try {
             setLoading(true);
-            setError(null);
-            fetchMorePromiseRef.current = null;
-            const targetPoemCount = getInitialPoemCount();
-            const visiblePoems = await fetchPoemBatch(
-                Math.min(INITIAL_VISIBLE_POEMS_COUNT, targetPoemCount),
-            );
+            const visiblePoems = await fetchPoemBatch(INITIAL_POEMS_COUNT);
+
+            if (feedVersionRef.current !== version) {
+                return;
+            }
 
             if (visiblePoems.length > 0) {
                 setPoems(visiblePoems);
                 setCurrentPoemIndex(0);
-                setLoading(false);
-
-                const remainingPoemCount = targetPoemCount - visiblePoems.length;
-                if (remainingPoemCount > 0) {
-                    fetchPoemBatch(remainingPoemCount)
-                        .then((backgroundPoems) => {
-                            if (backgroundPoems.length > 0) {
-                                setPoems((prevPoems) => [...prevPoems, ...backgroundPoems]);
-                            }
-                        })
-                        .catch((backgroundError) => {
-                            logger.error('Failed to preload feed poems:', backgroundError);
-                        });
-                }
             } else {
                 throw new Error('Could not fetch any poems');
             }
         } catch (err) {
-            logger.error('Failed to fetch initial poems:', err);
-            setError('متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.');
+            if (feedVersionRef.current === version) {
+                logger.error('Failed to fetch initial poems:', err);
+                setError('متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.');
+            }
         } finally {
-            setLoading(false);
+            if (feedVersionRef.current === version) {
+                setLoading(false);
+            }
         }
     }, [fetchPoemBatch, followedPoets.length]);
 
     useEffect(() => {
         if (!areSettingsHydrated || isLoadingPoets) {
-            setLoading(false);
             return;
         }
 
@@ -549,7 +566,9 @@ export default function Home() {
     }, [areSettingsHydrated, fetchInitialPoems, followedKeySignature, isLoadingPoets]);
 
     useEffect(() => {
-        const shouldFetchMore = currentPoemIndex >= poems.length - PREFETCH_THRESHOLD &&
+        const shouldFetchMore =
+            !loading &&
+            currentPoemIndex >= poems.length - PREFETCH_THRESHOLD &&
             poems.length > 0 &&
             !isFetchingMore &&
             followedPoets.length > 0;
@@ -560,6 +579,7 @@ export default function Home() {
     }, [
         currentPoemIndex,
         poems.length,
+        loading,
         isFetchingMore,
         followedPoets.length,
         fetchMorePoems,
@@ -573,7 +593,7 @@ export default function Home() {
         }
     };
 
-    const handleNext = useCallback(async () => {
+    const handleNext = useCallback(() => {
         const nextIndex = currentPoemIndexRef.current + 1;
 
         if (nextIndex < poemsRef.current.length) {
@@ -581,11 +601,11 @@ export default function Home() {
             return;
         }
 
-        const newPoems = await fetchMorePoems();
-
-        if (newPoems.length > 0) {
-            setCurrentPoemIndex(nextIndex);
-        }
+        fetchMorePoems().then((newPoems) => {
+            if (newPoems.length > 0 && nextIndex < poemsRef.current.length) {
+                setCurrentPoemIndex(nextIndex);
+            }
+        });
     }, [fetchMorePoems]);
 
     const handlePrevious = useCallback(() => {
