@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 import PoemViewer from "@/components/PoemViewer";
 import type { Poem } from "@/types/poem";
@@ -27,21 +26,6 @@ interface PoemFeedPagerProps {
   onOpenFeed?: () => void;
 }
 
-const slideVariants = {
-  enter: (direction: number) => ({
-    y: `${direction * 9}%`,
-    opacity: 0.98,
-  }),
-  center: {
-    y: "0%",
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    y: `${direction * -5}%`,
-    opacity: 0.98,
-  }),
-};
-
 const isScrollable = (element: HTMLElement) => element.scrollHeight > element.clientHeight + 4;
 
 const isAtTop = (element: HTMLElement) => element.scrollTop <= EDGE_THRESHOLD_PX;
@@ -59,7 +43,6 @@ const getActivePoemText = (root: HTMLElement | null) =>
 
 export default function PoemFeedPager({
   poem,
-  currentIndex,
   isFirst,
   onNext,
   onPrevious,
@@ -73,14 +56,8 @@ export default function PoemFeedPager({
   const armedDirectionRef = useRef<Direction | null>(null);
   const armedUntilRef = useRef(0);
   const lastNavigationAtRef = useRef(0);
-  const previousIndexRef = useRef(currentIndex);
   const readingChromeTimeoutRef = useRef<number | null>(null);
   const [isZenLocked, setIsZenLocked] = useState(false);
-  const slideDirection = currentIndex >= previousIndexRef.current ? 1 : -1;
-
-  useEffect(() => {
-    previousIndexRef.current = currentIndex;
-  }, [currentIndex]);
 
   useEffect(() => {
     setIsZenLocked(localStorage.getItem(ZEN_STORAGE_KEY) === "1");
@@ -174,7 +151,7 @@ export default function PoemFeedPager({
       poemText.scrollTop = 0;
       updateTitleVisibility(poemText);
     }
-  }, [currentIndex, poem.id, resetArm, updateTitleVisibility]);
+  }, [poem.id, resetArm, updateTitleVisibility]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -331,14 +308,13 @@ export default function PoemFeedPager({
           isolation: isolate;
         }
 
-        .poem-feed-slide {
+        .poem-feed-viewer {
           position: absolute;
           inset: 0;
           background: rgb(var(--background));
-          will-change: transform, opacity;
         }
 
-        .poem-feed-slide .poem-viewer {
+        .poem-feed-viewer .poem-viewer {
           background: rgb(var(--background));
         }
 
@@ -398,33 +374,18 @@ export default function PoemFeedPager({
           }
         }
       `}</style>
-      <AnimatePresence initial={false} custom={slideDirection}>
-        <motion.div
+      <div className="poem-feed-viewer">
+        <PoemViewer
           key={poem.id}
-          className="poem-feed-slide"
-          custom={slideDirection}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{
-            type: "spring",
-            stiffness: 360,
-            damping: 42,
-            mass: 0.85,
-          }}
-        >
-          <PoemViewer
-            poem={poem}
-            onNext={() => requestBoundaryNavigation("next", false)}
-            onPrevious={() => requestBoundaryNavigation("previous", false)}
-            isFirst={true}
-            isLast={true}
-            isModern={poem.source !== "ganjoor"}
-            onOpenFeed={onOpenFeed}
-          />
-        </motion.div>
-      </AnimatePresence>
+          poem={poem}
+          onNext={() => requestBoundaryNavigation("next", false)}
+          onPrevious={() => requestBoundaryNavigation("previous", false)}
+          isFirst={true}
+          isLast={true}
+          isModern={poem.source !== "ganjoor"}
+          onOpenFeed={onOpenFeed}
+        />
+      </div>
       <button
         type="button"
         className={`poem-feed-lock-button${isZenLocked ? " is-active" : ""}`}
