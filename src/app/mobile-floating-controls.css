@@ -1,0 +1,51 @@
+@media (max-width: 768px) {
+  .menu-button:not(.poem-feed-lock-button),
+  .global-search-button,
+  .poem-feed-lock-button {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    z-index: 1000 !important;
+    border: none !important;
+    border-radius: 999px !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgb(var(--foreground)) !important;
+    backdrop-filter: blur(8px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .menu-button:not(.poem-feed-lock-button):hover,
+  .global-search-button:hover,
+  .poem-feed-lock-button:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .menu-button:not(.poem-feed-lock-button) {
+    top: auto !important;
+    right: 1rem !important;
+    bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .global-search-button {
+    top: auto !important;
+    right: 1rem !important;
+    bottom: calc(4.25rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .poem-feed-lock-button {
+    top: auto !important;
+    right: 1rem !important;
+    bottom: calc(7.5rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .poem-feed-lock-button.is-active {
+    background: rgb(var(--accent) / 0.86) !important;
+    color: rgb(var(--accent-foreground)) !important;
+    box-shadow: 0 0 0 1px rgb(var(--accent) / 0.35), 0 4px 12px rgba(0, 0, 0, 0.24) !important;
+  }
+}
