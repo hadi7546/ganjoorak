@@ -1,24 +1,26 @@
 @media (max-width: 768px) {
   .settings-header {
     display: grid !important;
-    grid-template-columns: auto minmax(0, 1fr) !important;
+    grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem !important;
     align-items: center !important;
-    gap: 0.75rem !important;
+    gap: 0.5rem !important;
   }
 
   .settings-title {
+    grid-column: 2 !important;
     min-width: 0 !important;
-    text-align: right !important;
+    text-align: center !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
   }
 
   .settings-close {
+    grid-column: 1 !important;
     position: static !important;
     left: auto !important;
     right: auto !important;
-    order: -1 !important;
+    order: 0 !important;
     width: 2.5rem !important;
     min-width: 2.5rem !important;
     height: 2.5rem !important;
@@ -29,10 +31,6 @@
 
   .settings-close::after {
     content: none !important;
-  }
-
-  .settings-close svg {
-    transform: rotate(180deg);
   }
 
   .feed-poet-tabs {
