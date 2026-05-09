@@ -83,6 +83,15 @@ const Menu: React.FC<MenuProps> = ({
     };
   }, [isOpen, onClose]);
 
+  const openSearch = () => {
+    if (onOpenSearch) {
+      onOpenSearch();
+      return;
+    }
+
+    document.querySelector<HTMLButtonElement>(".global-search-button")?.click();
+  };
+
   return (
     <>
       <style>{`
@@ -180,22 +189,18 @@ const Menu: React.FC<MenuProps> = ({
             >
               <nav>
                 <ul className="space-y-1">
-                  {onOpenSearch && (
-                    <li>
-                      <button
-                        type="button"
-                        className="menu-link menu-link-button"
-                        onClick={() => {
-                          onOpenSearch();
-                        }}
-                      >
-                        <span className="menu-link-icon">
-                          <FaSearch />
-                        </span>
-                        <span className="menu-item-text">جستجو</span>
-                      </button>
-                    </li>
-                  )}
+                  <li>
+                    <button
+                      type="button"
+                      className="menu-link menu-link-button"
+                      onClick={openSearch}
+                    >
+                      <span className="menu-link-icon">
+                        <FaSearch />
+                      </span>
+                      <span className="menu-item-text">جستجو</span>
+                    </button>
+                  </li>
                   {onToggleZenLock && (
                     <li>
                       <button
@@ -312,6 +317,32 @@ export function MenuButton({
       {hasNotification && (
         <span className="menu-button-indicator" aria-hidden="true" />
       )}
+    </button>
+  );
+}
+
+export function SearchButton({
+  onClick,
+  isHidden = false,
+}: {
+  onClick: () => void;
+  isHidden?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        "global-search-button fixed top-16 right-4 w-10 h-10",
+        "flex items-center justify-center rounded-full",
+        "text-foreground transition-all",
+        isHidden ? "is-hidden" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      aria-label="جستجو"
+    >
+      <FaSearch size={15} />
     </button>
   );
 }
