@@ -1,0 +1,53 @@
+@media (max-width: 768px) {
+  .settings-close {
+    left: auto !important;
+    right: 0 !important;
+  }
+
+  .settings-close::after {
+    content: "برگشت";
+    margin-inline-start: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .settings-close {
+    width: auto !important;
+    min-width: 4.25rem !important;
+    padding-inline: 0.75rem !important;
+    gap: 0.25rem;
+  }
+
+  .feed-poet-tabs {
+    padding-inline: 0.25rem !important;
+    margin-inline: -0.25rem !important;
+    scroll-padding-inline: 0.25rem;
+  }
+
+  .feed-poet-tab:first-child {
+    margin-inline-start: 0.25rem;
+  }
+
+  .feed-poet-tab:last-child {
+    margin-inline-end: 0.25rem;
+  }
+
+  .feed-poet-category-cards {
+    grid-template-columns: 1fr !important;
+    overflow: hidden;
+  }
+
+  .feed-poet-category-card {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .feed-poet-category-card header,
+  .feed-poet-category-actions {
+    min-width: 0;
+  }
+
+  .feed-poet-category-actions button {
+    min-width: 0;
+  }
+}
