@@ -11,6 +11,8 @@ import {
   FaUsers,
   FaSlidersH,
   FaSearch,
+  FaLock,
+  FaLockOpen,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -22,6 +24,9 @@ interface MenuProps {
   onUpdatesViewed?: () => void;
   onOpenSettings: () => void;
   onOpenFeed?: () => void;
+  onOpenSearch?: () => void;
+  isZenLocked?: boolean;
+  onToggleZenLock?: () => void;
 }
 
 const Menu: React.FC<MenuProps> = ({
@@ -31,6 +36,9 @@ const Menu: React.FC<MenuProps> = ({
   onUpdatesViewed,
   onOpenSettings,
   onOpenFeed,
+  onOpenSearch,
+  isZenLocked = false,
+  onToggleZenLock,
 }) => {
   const router = useRouter();
 
@@ -83,12 +91,6 @@ const Menu: React.FC<MenuProps> = ({
             top: auto !important;
             right: 1rem !important;
             bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
-          }
-
-          .global-search-button {
-            top: auto !important;
-            right: 1rem !important;
-            bottom: calc(4.25rem + env(safe-area-inset-bottom)) !important;
           }
 
           .menu-backdrop {
@@ -178,6 +180,39 @@ const Menu: React.FC<MenuProps> = ({
             >
               <nav>
                 <ul className="space-y-1">
+                  {onOpenSearch && (
+                    <li>
+                      <button
+                        type="button"
+                        className="menu-link menu-link-button"
+                        onClick={() => {
+                          onOpenSearch();
+                        }}
+                      >
+                        <span className="menu-link-icon">
+                          <FaSearch />
+                        </span>
+                        <span className="menu-item-text">جستجو</span>
+                      </button>
+                    </li>
+                  )}
+                  {onToggleZenLock && (
+                    <li>
+                      <button
+                        type="button"
+                        className="menu-link menu-link-button"
+                        onClick={onToggleZenLock}
+                        aria-pressed={isZenLocked}
+                      >
+                        <span className="menu-link-icon">
+                          {isZenLocked ? <FaLock /> : <FaLockOpen />}
+                        </span>
+                        <span className="menu-item-text">
+                          {isZenLocked ? "باز کردن قفل شعر" : "قفل روی همین شعر"}
+                        </span>
+                      </button>
+                    </li>
+                  )}
                   {menuItems.map((item) => (
                     <li key={item.href}>
                       <Link
@@ -277,32 +312,6 @@ export function MenuButton({
       {hasNotification && (
         <span className="menu-button-indicator" aria-hidden="true" />
       )}
-    </button>
-  );
-}
-
-export function SearchButton({
-  onClick,
-  isHidden = false,
-}: {
-  onClick: () => void;
-  isHidden?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        "global-search-button fixed top-16 right-4 w-10 h-10",
-        "flex items-center justify-center rounded-full",
-        "text-foreground transition-all",
-        isHidden ? "is-hidden" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
-      aria-label="جستجو"
-    >
-      <FaSearch size={15} />
     </button>
   );
 }
