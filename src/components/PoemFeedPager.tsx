@@ -484,6 +484,12 @@ export default function PoemFeedPager({
           .poem-feed-viewer .poem-text::-webkit-scrollbar {
             width: 0.35rem;
           }
+
+          .poem-feed-lock-button {
+            top: auto !important;
+            right: 1rem !important;
+            bottom: calc(7.5rem + env(safe-area-inset-bottom)) !important;
+          }
         }
 
         @media (max-width: 480px) {
