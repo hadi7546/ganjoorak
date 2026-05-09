@@ -8,19 +8,20 @@ import type { Poem } from "@/types/poem";
 const ZEN_STORAGE_KEY = "ganjoorak:zen-scroll-lock";
 const STRONG_SWIPE_PX = 72;
 const WHEEL_THRESHOLD_PX = 48;
-const BOUNDARY_ARM_MS = 1500;
 const NAVIGATION_COOLDOWN_MS = 650;
 const EDGE_THRESHOLD_PX = 8;
 const KEY_SCROLL_AMOUNT_PX = 110;
 const TITLE_HIDE_SCROLL_TOP = 12;
 const READING_CHROME_HIDE_MS = 850;
 const CONTENT_TRANSITION_MS = 260;
+const NEXT_PREVIEW_HIDE_MS = 900;
 
 type Direction = "next" | "previous";
 type ContentTransition = "next" | "previous" | null;
 
 interface PoemFeedPagerProps {
   poem: Poem;
+  nextPoem?: Poem;
   currentIndex: number;
   isFirst: boolean;
   onNext: () => void;
@@ -45,6 +46,7 @@ const getActivePoemText = (root: HTMLElement | null) =>
 
 export default function PoemFeedPager({
   poem,
+  nextPoem,
   currentIndex,
   isFirst,
   onNext,
@@ -56,14 +58,14 @@ export default function PoemFeedPager({
   const touchPoemTextRef = useRef<HTMLElement | null>(null);
   const touchStartedAtTopRef = useRef(false);
   const touchStartedAtBottomRef = useRef(false);
-  const armedDirectionRef = useRef<Direction | null>(null);
-  const armedUntilRef = useRef(0);
   const lastNavigationAtRef = useRef(0);
   const readingChromeTimeoutRef = useRef<number | null>(null);
   const previousIndexRef = useRef(currentIndex);
   const contentTransitionTimeoutRef = useRef<number | null>(null);
+  const nextPreviewTimeoutRef = useRef<number | null>(null);
   const [isZenLocked, setIsZenLocked] = useState(false);
   const [contentTransition, setContentTransition] = useState<ContentTransition>(null);
+  const [isNextPreviewVisible, setIsNextPreviewVisible] = useState(false);
 
   useEffect(() => {
     const previousIndex = previousIndexRef.current;
@@ -72,6 +74,7 @@ export default function PoemFeedPager({
     if (previousIndex === currentIndex) return;
 
     setContentTransition(currentIndex > previousIndex ? "next" : "previous");
+    setIsNextPreviewVisible(false);
 
     if (contentTransitionTimeoutRef.current !== null) {
       window.clearTimeout(contentTransitionTimeoutRef.current);
@@ -92,17 +95,56 @@ export default function PoemFeedPager({
     localStorage.setItem(ZEN_STORAGE_KEY, isZenLocked ? "1" : "0");
   }, [isZenLocked]);
 
+  useEffect(() => {
+    const updateAudioClass = () => {
+      document.documentElement.classList.toggle(
+        "poem-feed-has-audio-player",
+        Boolean(rootRef.current?.querySelector(".audio-player")),
+      );
+    };
+
+    updateAudioClass();
+    const observer = new MutationObserver(updateAudioClass);
+    if (rootRef.current) {
+      observer.observe(rootRef.current, { childList: true, subtree: true });
+    }
+
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove("poem-feed-has-audio-player");
+    };
+  }, [poem.id]);
+
+  const resetPreview = useCallback(() => {
+    setIsNextPreviewVisible(false);
+    if (nextPreviewTimeoutRef.current !== null) {
+      window.clearTimeout(nextPreviewTimeoutRef.current);
+      nextPreviewTimeoutRef.current = null;
+    }
+  }, []);
+
+  const showNextPreview = useCallback(() => {
+    if (!nextPoem || isZenLocked) return;
+
+    setIsNextPreviewVisible(true);
+    if (nextPreviewTimeoutRef.current !== null) {
+      window.clearTimeout(nextPreviewTimeoutRef.current);
+    }
+
+    nextPreviewTimeoutRef.current = window.setTimeout(() => {
+      setIsNextPreviewVisible(false);
+      nextPreviewTimeoutRef.current = null;
+    }, NEXT_PREVIEW_HIDE_MS);
+  }, [isZenLocked, nextPoem]);
+
   const resetArm = useCallback(() => {
-    armedDirectionRef.current = null;
-    armedUntilRef.current = 0;
     document.documentElement.classList.remove("poem-feed-boundary-armed");
   }, []);
 
-  const arm = useCallback((direction: Direction) => {
-    armedDirectionRef.current = direction;
-    armedUntilRef.current = Date.now() + BOUNDARY_ARM_MS;
+  const arm = useCallback(() => {
+    showNextPreview();
     document.documentElement.classList.add("poem-feed-boundary-armed");
-  }, []);
+  }, [showNextPreview]);
 
   const updateTitleVisibility = useCallback((poemText: HTMLElement) => {
     const poemContent = poemText.closest(".poem-content");
@@ -141,6 +183,7 @@ export default function PoemFeedPager({
     if (isZenLocked || !canNavigate()) return;
 
     resetArm();
+    resetPreview();
 
     if (direction === "next") {
       onNext();
@@ -150,24 +193,16 @@ export default function PoemFeedPager({
     if (!isFirst) {
       onPrevious();
     }
-  }, [canNavigate, isFirst, isZenLocked, onNext, onPrevious, resetArm]);
+  }, [canNavigate, isFirst, isZenLocked, onNext, onPrevious, resetArm, resetPreview]);
 
-  const requestBoundaryNavigation = useCallback((direction: Direction, isTouch: boolean) => {
+  const requestBoundaryNavigation = useCallback((direction: Direction) => {
     if (isZenLocked) return;
-
-    const now = Date.now();
-    const isSecondIntent = armedDirectionRef.current === direction && now <= armedUntilRef.current;
-
-    if (isTouch && !isSecondIntent) {
-      arm(direction);
-      return;
-    }
-
     navigate(direction);
-  }, [arm, isZenLocked, navigate]);
+  }, [isZenLocked, navigate]);
 
   useEffect(() => {
     resetArm();
+    resetPreview();
     document.documentElement.classList.remove("poem-feed-is-reading");
 
     const poemText = getActivePoemText(rootRef.current);
@@ -175,7 +210,7 @@ export default function PoemFeedPager({
       poemText.scrollTop = 0;
       updateTitleVisibility(poemText);
     }
-  }, [poem.id, resetArm, updateTitleVisibility]);
+  }, [poem.id, resetArm, resetPreview, updateTitleVisibility]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -193,6 +228,10 @@ export default function PoemFeedPager({
 
       updateTitleVisibility(poemText);
       hideReadingChromeTemporarily();
+
+      if (isAtBottom(poemText)) {
+        showNextPreview();
+      }
     };
 
     const handleWheel = (event: WheelEvent) => {
@@ -214,8 +253,12 @@ export default function PoemFeedPager({
         return;
       }
 
+      if (shouldGoNext) {
+        showNextPreview();
+      }
+
       stop(event);
-      requestBoundaryNavigation(shouldGoNext ? "next" : "previous", false);
+      requestBoundaryNavigation(shouldGoNext ? "next" : "previous");
     };
 
     const handleTouchStart = (event: TouchEvent) => {
@@ -252,8 +295,12 @@ export default function PoemFeedPager({
         return;
       }
 
+      if (shouldGoNext) {
+        showNextPreview();
+      }
+
       stop(event);
-      requestBoundaryNavigation(shouldGoNext ? "next" : "previous", true);
+      requestBoundaryNavigation(shouldGoNext ? "next" : "previous");
     };
 
     root.addEventListener("scroll", handlePoemScroll, { capture: true, passive: true });
@@ -267,7 +314,7 @@ export default function PoemFeedPager({
       root.removeEventListener("touchstart", handleTouchStart, true);
       root.removeEventListener("touchend", handleTouchEnd, true);
     };
-  }, [hideReadingChromeTemporarily, requestBoundaryNavigation, resetArm, updateTitleVisibility]);
+  }, [hideReadingChromeTemporarily, requestBoundaryNavigation, resetArm, showNextPreview, updateTitleVisibility]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -304,21 +351,28 @@ export default function PoemFeedPager({
         return;
       }
 
-      requestBoundaryNavigation(direction, false);
+      if (direction === "next") {
+        showNextPreview();
+      }
+
+      requestBoundaryNavigation(direction);
     };
 
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [hideReadingChromeTemporarily, requestBoundaryNavigation, resetArm, updateTitleVisibility]);
+  }, [hideReadingChromeTemporarily, requestBoundaryNavigation, resetArm, showNextPreview, updateTitleVisibility]);
 
   useEffect(() => {
     return () => {
-      document.documentElement.classList.remove("poem-feed-is-reading");
+      document.documentElement.classList.remove("poem-feed-is-reading", "poem-feed-has-audio-player");
       if (readingChromeTimeoutRef.current !== null) {
         window.clearTimeout(readingChromeTimeoutRef.current);
       }
       if (contentTransitionTimeoutRef.current !== null) {
         window.clearTimeout(contentTransitionTimeoutRef.current);
+      }
+      if (nextPreviewTimeoutRef.current !== null) {
+        window.clearTimeout(nextPreviewTimeoutRef.current);
       }
     };
   }, []);
@@ -451,6 +505,48 @@ export default function PoemFeedPager({
           height: 1rem;
         }
 
+        .poem-feed-next-preview {
+          position: fixed;
+          left: 50%;
+          bottom: calc(1rem + env(safe-area-inset-bottom));
+          z-index: 8;
+          width: min(22rem, calc(100vw - 7.5rem));
+          transform: translateX(-50%) translateY(0.75rem);
+          opacity: 0;
+          pointer-events: none;
+          border: 1px solid rgb(var(--foreground) / 0.1);
+          border-radius: 1rem;
+          background: rgb(var(--background) / 0.72);
+          color: rgb(var(--foreground));
+          -webkit-backdrop-filter: blur(14px);
+          backdrop-filter: blur(14px);
+          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+          padding: 0.7rem 0.9rem;
+          text-align: center;
+          transition: opacity 0.22s ease, transform 0.22s ease;
+        }
+
+        .poem-feed-next-preview.is-visible {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+
+        .poem-feed-next-preview-label {
+          display: block;
+          margin-bottom: 0.2rem;
+          font-size: 0.72rem;
+          opacity: 0.68;
+        }
+
+        .poem-feed-next-preview-title {
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 0.95rem;
+          font-weight: 700;
+        }
+
         .poem-zen-mode .navigation-controls,
         .poem-zen-mode .action-buttons,
         .poem-zen-mode .global-search-button,
@@ -529,14 +625,20 @@ export default function PoemFeedPager({
       <div className={`poem-feed-viewer${transitionClassName}`}>
         <PoemViewer
           poem={poem}
-          onNext={() => requestBoundaryNavigation("next", false)}
-          onPrevious={() => requestBoundaryNavigation("previous", false)}
+          onNext={() => requestBoundaryNavigation("next")}
+          onPrevious={() => requestBoundaryNavigation("previous")}
           isFirst={true}
           isLast={true}
           isModern={poem.source !== "ganjoor"}
           onOpenFeed={onOpenFeed}
         />
       </div>
+      {nextPoem && (
+        <div className={`poem-feed-next-preview${isNextPreviewVisible ? " is-visible" : ""}`}>
+          <span className="poem-feed-next-preview-label">شعر بعدی</span>
+          <span className="poem-feed-next-preview-title">{nextPoem.title}</span>
+        </div>
+      )}
       <button
         type="button"
         className={`poem-feed-lock-button${isZenLocked ? " is-active" : ""}`}
