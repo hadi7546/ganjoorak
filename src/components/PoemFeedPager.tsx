@@ -420,6 +420,24 @@ export default function PoemFeedPager({
           width: 2.5rem !important;
           height: 2.5rem !important;
           z-index: 1000;
+          border: none;
+          border-radius: 999px;
+          background-color: rgba(255, 255, 255, 0.1);
+          color: rgb(var(--foreground));
+          -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .poem-feed-lock-button:hover {
+          background-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .poem-feed-lock-button.is-active {
@@ -436,7 +454,7 @@ export default function PoemFeedPager({
         .poem-zen-mode .navigation-controls,
         .poem-zen-mode .action-buttons,
         .poem-zen-mode .global-search-button,
-        .poem-zen-mode .menu-button:not(.poem-feed-lock-button) {
+        .poem-zen-mode .menu-button {
           opacity: 0 !important;
           pointer-events: none !important;
         }
@@ -521,14 +539,7 @@ export default function PoemFeedPager({
       </div>
       <button
         type="button"
-        className={[
-          "poem-feed-lock-button menu-button fixed right-4 w-10 h-10",
-          "flex items-center justify-center rounded-full",
-          "text-foreground transition-all",
-          isZenLocked ? "is-active" : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        className={`poem-feed-lock-button${isZenLocked ? " is-active" : ""}`}
         onClick={() => setIsZenLocked((value) => !value)}
         aria-pressed={isZenLocked}
         aria-label={isZenLocked ? "باز کردن اسکرول شعر بعدی" : "قفل کردن اسکرول روی همین شعر"}
