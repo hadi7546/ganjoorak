@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import "./mobile-polish.css";
 import "./mobile-floating-controls.css";
+import "./mobile-modal-polish.css";
 import { SettingsProvider } from "@/context/SettingsContext";
 import RouteTransition from "@/components/RouteTransition";
 import "samim-font/dist/font-face.css";
