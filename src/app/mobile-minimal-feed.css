@@ -1,0 +1,35 @@
+@media (max-width: 768px) {
+  .poem-feed-pager .global-search-button,
+  .poem-feed-lock-button {
+    display: none !important;
+  }
+
+  .poem-feed-pager .menu-button:not(.poem-feed-lock-button) {
+    right: 1rem !important;
+    bottom: calc(1rem + var(--mobile-audio-offset, 0rem) + env(safe-area-inset-bottom)) !important;
+  }
+
+  .poem-feed-pager .title-section {
+    background: linear-gradient(to bottom, rgb(var(--background) / 0.72), rgb(var(--background) / 0.32), transparent) !important;
+    box-shadow: none !important;
+  }
+
+  .poem-feed-pager .poem-title {
+    font-size: clamp(1.28rem, 6vw, 1.75rem) !important;
+    margin-bottom: 0.35rem !important;
+  }
+
+  .poem-feed-pager .poet-line {
+    background: transparent !important;
+    padding: 0 !important;
+    opacity: 0.72;
+  }
+
+  .poem-feed-next-preview {
+    width: min(16rem, calc(100vw - 7rem)) !important;
+    bottom: calc(0.8rem + var(--mobile-audio-offset, 0rem) + env(safe-area-inset-bottom)) !important;
+    padding: 0.45rem 0.7rem !important;
+    border-radius: 999px !important;
+    background: rgb(var(--background) / 0.58) !important;
+  }
+}
