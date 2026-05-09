@@ -249,7 +249,6 @@ function FilterablePoetsList({
               onClick={() => setActiveFilter(filter.id)}
             >
               <span>{filter.label}</span>
-              <small>{filter.count.toLocaleString("fa-IR")}</small>
             </button>
           ))}
         </div>
