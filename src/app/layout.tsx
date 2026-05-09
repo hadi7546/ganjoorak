@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
+import "./mobile-polish.css";
 import { SettingsProvider } from "@/context/SettingsContext";
 import RouteTransition from "@/components/RouteTransition";
 import "samim-font/dist/font-face.css";
@@ -52,91 +53,6 @@ export const metadata: Metadata = {
   },
 };
 
-const mobilePolishStyles = `
-@media (max-width: 768px) {
-  .menu-button:not(.poem-feed-lock-button) {
-    top: auto !important;
-    right: 1rem !important;
-    bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-    z-index: 1000;
-  }
-
-  .global-search-button {
-    top: auto !important;
-    right: 1rem !important;
-    bottom: calc(4.25rem + env(safe-area-inset-bottom)) !important;
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-    z-index: 1000;
-  }
-
-  .poem-feed-lock-button {
-    top: auto !important;
-    right: 1rem !important;
-    bottom: calc(7.5rem + env(safe-area-inset-bottom)) !important;
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-    z-index: 1000;
-  }
-
-  .action-buttons {
-    left: 1rem !important;
-    right: auto !important;
-    bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
-    gap: 0.6rem !important;
-    align-items: center !important;
-    z-index: 12;
-  }
-
-  .action-button {
-    width: 2.5rem !important;
-    height: 2.5rem !important;
-  }
-
-  .poet-info {
-    left: 1rem !important;
-    bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
-    z-index: 12;
-  }
-
-  .menu-backdrop,
-  .settings-backdrop {
-    z-index: 1090 !important;
-  }
-
-  .menu-drawer,
-  .settings-dialog {
-    z-index: 1100 !important;
-  }
-
-  .settings-dialog {
-    align-items: flex-end !important;
-    justify-content: center !important;
-    padding: 0 0.75rem calc(0.75rem + env(safe-area-inset-bottom)) !important;
-  }
-
-  .settings-panel {
-    width: min(100%, 42rem) !important;
-    max-height: min(86dvh, 42rem) !important;
-    border-radius: 1.5rem !important;
-    padding: 1rem !important;
-  }
-
-  .settings-panel::before {
-    content: "";
-    display: block;
-    width: 2.75rem;
-    height: 0.25rem;
-    flex: 0 0 auto;
-    border-radius: 999px;
-    background: rgb(var(--foreground) / 0.22);
-    margin: 0 auto 0.85rem;
-  }
-}
-`;
-
 export default function RootLayout({
   children,
 }: {
@@ -145,7 +61,6 @@ export default function RootLayout({
   return (
     <html lang="en" dir="rtl" suppressHydrationWarning data-font="vazirmatn">
       <head>
-        <style dangerouslySetInnerHTML={{ __html: mobilePolishStyles }} />
         <script
           dangerouslySetInnerHTML={{
             __html:
