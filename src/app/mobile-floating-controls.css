@@ -1,4 +1,12 @@
 @media (max-width: 768px) {
+  body {
+    --mobile-audio-offset: 0rem;
+  }
+
+  body:has(.audio-player) {
+    --mobile-audio-offset: 5.25rem;
+  }
+
   .menu-button:not(.poem-feed-lock-button),
   .global-search-button,
   .poem-feed-lock-button {
@@ -25,30 +33,22 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
   }
 
-  .poem-viewer {
-    --mobile-audio-offset: 0rem;
-  }
-
-  .poem-viewer:has(.audio-player) {
-    --mobile-audio-offset: 5.25rem;
-  }
-
   .menu-button:not(.poem-feed-lock-button) {
     top: auto !important;
     right: 1rem !important;
-    bottom: calc(1rem + var(--mobile-audio-offset, 0rem) + env(safe-area-inset-bottom)) !important;
+    bottom: calc(1rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
   }
 
   .global-search-button {
     top: auto !important;
     right: 1rem !important;
-    bottom: calc(4.25rem + var(--mobile-audio-offset, 0rem) + env(safe-area-inset-bottom)) !important;
+    bottom: calc(4.25rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
   }
 
   .poem-feed-lock-button {
     top: auto !important;
     right: 1rem !important;
-    bottom: calc(7.5rem + var(--mobile-audio-offset, 0rem) + env(safe-area-inset-bottom)) !important;
+    bottom: calc(7.5rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
   }
 
   body:has(.menu-drawer) .menu-button:not(.poem-feed-lock-button),
