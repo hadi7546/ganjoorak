@@ -202,7 +202,6 @@ const Menu: React.FC<MenuProps> = ({
                         className="menu-link menu-link-button"
                         onClick={() => {
                           onOpenFeed();
-                          onClose();
                         }}
                       >
                         <span className="menu-link-icon">
@@ -233,7 +232,6 @@ const Menu: React.FC<MenuProps> = ({
                       className="menu-link menu-link-button"
                       onClick={() => {
                         onOpenSettings();
-                        onClose();
                       }}
                     >
                       <span className="menu-link-icon">
