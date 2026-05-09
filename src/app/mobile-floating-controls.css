@@ -15,7 +15,7 @@
     align-items: center !important;
     justify-content: center !important;
     padding: 0 !important;
-    transition: all 0.2s ease !important;
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease !important;
   }
 
   .menu-button:not(.poem-feed-lock-button):hover,
@@ -41,6 +41,29 @@
     top: auto !important;
     right: 1rem !important;
     bottom: calc(7.5rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .poem-viewer:has(.audio-player) .menu-button:not(.poem-feed-lock-button) {
+    bottom: calc(6.25rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .poem-viewer:has(.audio-player) .global-search-button {
+    bottom: calc(9.5rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .poem-viewer:has(.audio-player) .poem-feed-lock-button {
+    bottom: calc(12.75rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  body:has(.menu-drawer) .menu-button:not(.poem-feed-lock-button),
+  body:has(.menu-drawer) .global-search-button,
+  body:has(.menu-drawer) .poem-feed-lock-button,
+  body:has(.settings-backdrop) .menu-button:not(.poem-feed-lock-button),
+  body:has(.settings-backdrop) .global-search-button,
+  body:has(.settings-backdrop) .poem-feed-lock-button {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(0.4rem) scale(0.96) !important;
   }
 
   .poem-feed-lock-button.is-active {
