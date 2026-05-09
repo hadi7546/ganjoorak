@@ -368,6 +368,7 @@ export default function Home() {
 
     const followedKeySignature = effectiveFollowedPoetKeys.join('|');
     const currentPoem = poems[currentPoemIndex];
+    const nextPoem = poems[currentPoemIndex + 1];
 
     const clearFeedQuery = useCallback(() => {
         if (typeof window !== 'undefined') {
@@ -548,6 +549,7 @@ export default function Home() {
             if (visiblePoems.length > 0) {
                 setPoems(visiblePoems);
                 setCurrentPoemIndex(0);
+                setLoading(false);
             } else {
                 throw new Error('Could not fetch any poems');
             }
@@ -618,11 +620,11 @@ export default function Home() {
         setCurrentPoemIndex((prevIndex) => Math.max(prevIndex - 1, 0));
     }, []);
 
-    if (!areSettingsHydrated || isLoadingPoets || loading || (!currentPoem && !error)) {
+    if (!areSettingsHydrated || isLoadingPoets || (!currentPoem && !error)) {
         return <LoadingScreen />;
     }
 
-    if (error) {
+    if (error && !currentPoem) {
         return <ErrorScreen message={error} onRetry={fetchInitialPoems} />;
     }
 
@@ -644,6 +646,7 @@ export default function Home() {
             {currentPoem && (
                 <PoemFeedPager
                     poem={currentPoem}
+                    nextPoem={nextPoem}
                     currentIndex={currentPoemIndex}
                     isFirst={currentPoemIndex === 0}
                     onNext={handleNext}
