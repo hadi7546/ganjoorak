@@ -497,7 +497,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
                     onClick={() => setMobileStep("preview")}
                     disabled={selectedTextLines.length === 0}
                   >
-                    پیشنمایش
+                    پیش‌نمایش
                   </button>
                 </section>
 
