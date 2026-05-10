@@ -25,10 +25,40 @@
   }
 
   .poem-feed-next-preview {
-    width: min(16rem, calc(100vw - 7rem)) !important;
-    bottom: calc(0.8rem + var(--mobile-audio-offset, 0rem) + env(safe-area-inset-bottom)) !important;
-    padding: 0.45rem 0.7rem !important;
+    box-sizing: border-box !important;
+    left: 50% !important;
+    right: auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: min(15rem, calc(100vw - 8.75rem)) !important;
+    bottom: calc(0.85rem + var(--mobile-audio-offset, 0rem) + env(safe-area-inset-bottom)) !important;
+    padding: 0.42rem 0.7rem !important;
     border-radius: 999px !important;
-    background: rgb(var(--background) / 0.58) !important;
+    background: rgb(var(--background) / 0.64) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .poem-feed-next-preview-label,
+  .poem-feed-next-preview-title {
+    display: inline !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    vertical-align: baseline !important;
+  }
+
+  .poem-feed-next-preview-label {
+    margin: 0 !important;
+  }
+
+  .poem-feed-next-preview-label::after {
+    content: ": ";
+  }
+
+  .poem-feed-next-preview-title {
+    max-width: 10rem !important;
+    font-size: 0.78rem !important;
   }
 }
