@@ -620,17 +620,6 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
                 </section>
               </div>
 
-              <div className="lyrics-share-mobile-link-action">
-                <button type="button" onClick={shareLink}>
-                  <FaLink />
-                  <span>اشتراک لینک</span>
-                </button>
-                <button type="button" onClick={copyLink}>
-                  <FaCopy />
-                  <span>کپی لینک</span>
-                </button>
-              </div>
-
               <footer className="lyrics-share-actions">
                 <button type="button" onClick={shareLink}>
                   <FaLink />
