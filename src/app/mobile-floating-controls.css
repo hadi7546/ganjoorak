@@ -1,10 +1,10 @@
 @media (max-width: 768px) {
-  body {
+  :root {
     --mobile-audio-offset: 0rem;
   }
 
-  body:has(.audio-player),
-  .poem-feed-has-audio-player {
+  :root.poem-feed-has-audio-player,
+  :root:has(.audio-player) {
     --mobile-audio-offset: 5.25rem;
   }
 
@@ -48,10 +48,7 @@
     display: none !important;
   }
 
-  .action-buttons {
-    bottom: calc(1rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
-  }
-
+  .action-buttons,
   .poet-info {
     bottom: calc(1rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
   }
