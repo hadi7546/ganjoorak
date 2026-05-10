@@ -8,10 +8,8 @@
     --mobile-audio-offset: 5.25rem;
   }
 
-  .menu-button:not(.poem-feed-lock-button) {
-    top: auto !important;
-    right: 1rem !important;
-    bottom: calc(1rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
+  .menu-button:not(.poem-feed-lock-button),
+  .global-search-button {
     width: 2.5rem !important;
     height: 2.5rem !important;
     z-index: 1000 !important;
@@ -28,18 +26,40 @@
     transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease !important;
   }
 
-  .menu-button:not(.poem-feed-lock-button):hover {
+  .menu-button:not(.poem-feed-lock-button):hover,
+  .global-search-button:hover {
     background-color: rgba(255, 255, 255, 0.2) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
   }
 
-  .poem-feed-pager .global-search-button,
+  .menu-button:not(.poem-feed-lock-button) {
+    top: auto !important;
+    right: 1rem !important;
+    bottom: calc(1rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
+  }
+
+  .global-search-button {
+    top: auto !important;
+    right: 1rem !important;
+    bottom: calc(4.25rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
+  }
+
   .poem-feed-lock-button {
     display: none !important;
   }
 
+  .action-buttons {
+    bottom: calc(1rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
+  }
+
+  .poet-info {
+    bottom: calc(1rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
+  }
+
   body:has(.menu-drawer) .menu-button:not(.poem-feed-lock-button),
-  body:has(.settings-backdrop) .menu-button:not(.poem-feed-lock-button) {
+  body:has(.menu-drawer) .global-search-button,
+  body:has(.settings-backdrop) .menu-button:not(.poem-feed-lock-button),
+  body:has(.settings-backdrop) .global-search-button {
     opacity: 0 !important;
     pointer-events: none !important;
     transform: translateX(0.4rem) scale(0.96) !important;
