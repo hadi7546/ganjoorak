@@ -18,6 +18,57 @@ const INITIAL_POEMS_COUNT = 12;
 const PREFETCH_THRESHOLD = 5;
 const BATCH_SIZE = 6;
 const POEM_FETCH_CONCURRENCY = 3;
+const FEED_CACHE_KEY = 'ganjoorak:latest-feed-poems:v1';
+const FEED_CACHE_LIMIT = 8;
+
+type CachedFeed = {
+    poems: Poem[];
+    savedAt: number;
+};
+
+const readCachedFeedPoems = () => {
+    if (typeof window === 'undefined') {
+        return [] as Poem[];
+    }
+
+    try {
+        const rawCache = window.localStorage.getItem(FEED_CACHE_KEY);
+        if (!rawCache) {
+            return [] as Poem[];
+        }
+
+        const parsed = JSON.parse(rawCache) as Partial<CachedFeed>;
+        if (!Array.isArray(parsed.poems)) {
+            return [] as Poem[];
+        }
+
+        return parsed.poems.filter((poem): poem is Poem => Boolean(poem?.id && poem?.plainText));
+    } catch (error) {
+        logger.error('Failed to read cached feed poems:', error);
+        return [] as Poem[];
+    }
+};
+
+const writeCachedFeedPoems = (poems: Poem[], currentIndex: number) => {
+    if (typeof window === 'undefined' || poems.length === 0) {
+        return;
+    }
+
+    try {
+        const currentPoem = poems[currentIndex] ?? poems[0];
+        const orderedPoems = [
+            currentPoem,
+            ...poems.filter((poem) => poem.id !== currentPoem.id),
+        ].slice(0, FEED_CACHE_LIMIT);
+
+        window.localStorage.setItem(
+            FEED_CACHE_KEY,
+            JSON.stringify({ poems: orderedPoems, savedAt: Date.now() } satisfies CachedFeed),
+        );
+    } catch (error) {
+        logger.error('Failed to cache feed poems:', error);
+    }
+};
 
 const getPoetKey = (poet: Pick<Poet, 'source' | 'urlSlug' | 'fullUrl' | 'id'>) => {
     const source = poet.source || 'ganjoor';
@@ -351,7 +402,7 @@ export default function Home() {
         isHydrated: areSettingsHydrated,
         setFollowedPoetKeys,
     } = useSettings();
-    const [poems, setPoems] = useState<Poem[]>([]);
+    const [poems, setPoems] = useState<Poem[]>(() => readCachedFeedPoems());
     const [availablePoets, setAvailablePoets] = useState<Poet[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -369,6 +420,10 @@ export default function Home() {
     useEffect(() => {
         poemsRef.current = poems;
     }, [poems]);
+
+    useEffect(() => {
+        writeCachedFeedPoems(poems, currentPoemIndex);
+    }, [currentPoemIndex, poems]);
 
     useEffect(() => {
         currentPoemIndexRef.current = currentPoemIndex;
