@@ -540,30 +540,31 @@ export default function Home() {
 
         try {
             setLoading(true);
-            const visiblePoems = await fetchPoemBatch(INITIAL_POEMS_COUNT);
+            const firstPoem = await fetchRandomPoemFromFollowedPoet();
 
             if (feedVersionRef.current !== version) {
                 return;
             }
 
-            if (visiblePoems.length > 0) {
-                setPoems(visiblePoems);
-                setCurrentPoemIndex(0);
-                setLoading(false);
-            } else {
-                throw new Error('Could not fetch any poems');
-            }
+            setPoems([firstPoem]);
+            setCurrentPoemIndex(0);
+            setLoading(false);
+
+            fetchPoemBatch(INITIAL_POEMS_COUNT - 1)
+                .then((remainingPoems) => {
+                    appendPoems(remainingPoems, version);
+                })
+                .catch((err) => {
+                    logger.error('Failed to fetch remaining initial poems:', err);
+                });
         } catch (err) {
             if (feedVersionRef.current === version) {
-                logger.error('Failed to fetch initial poems:', err);
+                logger.error('Failed to fetch initial poem:', err);
                 setError('متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.');
-            }
-        } finally {
-            if (feedVersionRef.current === version) {
                 setLoading(false);
             }
         }
-    }, [fetchPoemBatch, followedPoets.length]);
+    }, [appendPoems, fetchPoemBatch, fetchRandomPoemFromFollowedPoet, followedPoets.length]);
 
     useEffect(() => {
         if (!areSettingsHydrated || isLoadingPoets) {
