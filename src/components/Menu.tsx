@@ -85,6 +85,13 @@ const Menu: React.FC<MenuProps> = ({
   return (
     <>
       <style>{`
+        body:has(.menu-drawer) .poem-feed-lock-button,
+        body:has(.menu-drawer) .sidebar-toggle-button {
+          opacity: 0 !important;
+          pointer-events: none !important;
+          transform: translateX(0.35rem) scale(0.96) !important;
+        }
+
         @media (max-width: 640px) {
           .menu-button {
             top: auto !important;
@@ -178,7 +185,7 @@ const Menu: React.FC<MenuProps> = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: 28 }}
               transition={{ type: "spring", duration: 0.32, bounce: 0.16 }}
-              className="menu-drawer fixed top-16 right-4 w-72 rounded-2xl p-4 shadow-2xl z-50"
+              className="menu-drawer fixed top-16 right-4 w-72 rounded-2xl p-4 shadow-2xl z-[1201]"
               role="dialog"
               aria-modal="true"
               aria-label="منوی اصلی"

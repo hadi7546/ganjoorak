@@ -299,12 +299,15 @@ const ganjoorApi = {
     }));
   },
 
-  async getRandomPoemByPoet(slug: string): Promise<Poem> {
-    const poet = await ganjoorApi.getPoetBySlug(slug);
+  async getRandomPoemByPoetId(poetId: number): Promise<Poem> {
+    if (!Number.isInteger(poetId) || poetId < 1) {
+      throw new Error("شناسه شاعر معتبر نیست");
+    }
+
     try {
       // Don't use session storage cache - always get fresh data
       const response = await ganjoorHttp.get(
-        `${API_BASE_URL}/api/ganjoor/poem/random?poetId=${poet.id}`,
+        `${API_BASE_URL}/api/ganjoor/poem/random?poetId=${poetId}`,
         {
           timeout: API_TIMEOUT_MS,
           headers: {
@@ -322,6 +325,11 @@ const ganjoorApi = {
         "متأسفانه در دریافت شعر مشکلی پیش آمد. لطفاً دوباره تلاش کنید",
       );
     }
+  },
+
+  async getRandomPoemByPoet(slug: string): Promise<Poem> {
+    const poet = await ganjoorApi.getPoetBySlug(slug);
+    return ganjoorApi.getRandomPoemByPoetId(poet.id);
   },
 
   async getPoetImage(poetSlug: string): Promise<string> {

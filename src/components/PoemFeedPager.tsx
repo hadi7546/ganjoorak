@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FaLock, FaLockOpen } from "react-icons/fa";
+import { FaLock, FaLockOpen, FaSpinner } from "react-icons/fa";
 import PoemViewer from "@/components/PoemViewer";
 import type { Poem } from "@/types/poem";
 
@@ -24,6 +24,7 @@ interface PoemFeedPagerProps {
   nextPoem?: Poem;
   currentIndex: number;
   isFirst: boolean;
+  isPreparingNextPoem?: boolean;
   onNext: () => void;
   onPrevious: () => void;
   onOpenFeed?: () => void;
@@ -49,6 +50,7 @@ export default function PoemFeedPager({
   nextPoem,
   currentIndex,
   isFirst,
+  isPreparingNextPoem = false,
   onNext,
   onPrevious,
   onOpenFeed,
@@ -124,7 +126,7 @@ export default function PoemFeedPager({
   }, []);
 
   const showNextPreview = useCallback(() => {
-    if (!nextPoem || isZenLocked) return;
+    if ((!nextPoem && !isPreparingNextPoem) || isZenLocked) return;
 
     setIsNextPreviewVisible(true);
     if (nextPreviewTimeoutRef.current !== null) {
@@ -135,7 +137,12 @@ export default function PoemFeedPager({
       setIsNextPreviewVisible(false);
       nextPreviewTimeoutRef.current = null;
     }, NEXT_PREVIEW_HIDE_MS);
-  }, [isZenLocked, nextPoem]);
+  }, [isPreparingNextPoem, isZenLocked, nextPoem]);
+
+  useEffect(() => {
+    if (!isPreparingNextPoem || isZenLocked) return;
+    setIsNextPreviewVisible(true);
+  }, [isPreparingNextPoem, isZenLocked]);
 
   const resetArm = useCallback(() => {
     document.documentElement.classList.remove("poem-feed-boundary-armed");
@@ -547,6 +554,19 @@ export default function PoemFeedPager({
           font-weight: 700;
         }
 
+        .poem-feed-next-spinner {
+          display: inline-block;
+          width: 0.95rem;
+          height: 0.95rem;
+          animation: poem-feed-spin 0.85s linear infinite;
+        }
+
+        @keyframes poem-feed-spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
         .poem-zen-mode .navigation-controls,
         .poem-zen-mode .action-buttons,
         .poem-zen-mode .global-search-button,
@@ -633,10 +653,14 @@ export default function PoemFeedPager({
           onOpenFeed={onOpenFeed}
         />
       </div>
-      {nextPoem && (
+      {(nextPoem || isPreparingNextPoem) && (
         <div className={`poem-feed-next-preview${isNextPreviewVisible ? " is-visible" : ""}`}>
-          <span className="poem-feed-next-preview-label">شعر بعدی</span>
-          <span className="poem-feed-next-preview-title">{nextPoem.title}</span>
+          <span className="poem-feed-next-preview-label">
+            {isPreparingNextPoem ? "در حال آماده‌سازی" : "شعر بعدی"}
+          </span>
+          <span className="poem-feed-next-preview-title">
+            {nextPoem ? nextPoem.title : <FaSpinner className="poem-feed-next-spinner" aria-hidden="true" />}
+          </span>
         </div>
       )}
       <button

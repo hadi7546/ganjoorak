@@ -1064,6 +1064,13 @@ body {
     z-index: 1200;
 }
 
+body:has(.menu-drawer) .poem-feed-lock-button,
+body:has(.menu-drawer) .sidebar-toggle-button {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(0.35rem) scale(0.96) !important;
+}
+
 @media (max-width: 640px) {
     .menu-button {
         top: calc(env(safe-area-inset-top) + 0.75rem);
@@ -1487,8 +1494,7 @@ body {
 }
 
 .lyrics-share-mobile-next,
-.lyrics-share-mobile-back,
-.lyrics-share-mobile-link-action {
+.lyrics-share-mobile-back {
     display: none;
 }
 
@@ -1545,6 +1551,36 @@ body {
     direction: ltr;
     padding-right: 0.4rem;
     scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--foreground) / 0.28) transparent;
+}
+
+.lyrics-share-lines::-webkit-scrollbar,
+.lyrics-share-body::-webkit-scrollbar,
+.lyrics-share-theme-bar>div::-webkit-scrollbar {
+    width: 0.4rem;
+    height: 0.4rem;
+}
+
+.lyrics-share-lines::-webkit-scrollbar-track,
+.lyrics-share-body::-webkit-scrollbar-track,
+.lyrics-share-theme-bar>div::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.lyrics-share-lines::-webkit-scrollbar-thumb,
+.lyrics-share-body::-webkit-scrollbar-thumb,
+.lyrics-share-theme-bar>div::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background-color: rgb(var(--foreground) / 0.24);
+    border: 1px solid transparent;
+    background-clip: padding-box;
+}
+
+.lyrics-share-lines::-webkit-scrollbar-thumb:hover,
+.lyrics-share-body::-webkit-scrollbar-thumb:hover,
+.lyrics-share-theme-bar>div::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--foreground) / 0.4);
 }
 
 .lyrics-share-lines button {
@@ -1776,15 +1812,7 @@ body {
         display: none;
     }
 
-    .lyrics-share-panel--select .lyrics-share-mobile-link-action {
-        display: block;
-    }
-
     .lyrics-share-panel--preview .lyrics-share-controls {
-        display: none;
-    }
-
-    .lyrics-share-panel--preview .lyrics-share-mobile-link-action {
         display: none;
     }
 
@@ -1812,26 +1840,6 @@ body {
         width: 100%;
         background-color: rgb(var(--secondary));
         color: rgb(var(--secondary-foreground));
-    }
-
-    .lyrics-share-mobile-link-action {
-        padding: 0 0.65rem 0.65rem;
-    }
-
-    .lyrics-share-mobile-link-action button {
-        display: inline-flex;
-        width: 100%;
-        min-height: 2.4rem;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-        border: 1px solid rgb(var(--border));
-        border-radius: 9999px;
-        background-color: rgb(var(--card));
-        color: rgb(var(--card-foreground));
-        cursor: pointer;
-        font: inherit;
-        font-size: 0.84rem;
     }
 
     .lyrics-share-actions {

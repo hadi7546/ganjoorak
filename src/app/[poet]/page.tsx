@@ -19,6 +19,7 @@ import PoetImage from "@/components/PoetImage";
 import { useSettings } from "@/context/SettingsContext";
 import { logger } from "@/utils/logger";
 import poetSourceIndex from "@/data/poet-source-index.json";
+import { FaSpinner } from "react-icons/fa";
 
 type RemotePoetSource = "ganjoor" | "echolalia";
 
@@ -73,6 +74,7 @@ interface CategoryListProps {
   selectedId: number | null;
   onSelectCategory: (categoryId: number) => void;
   categoryCache: Record<number, GanjoorCategory>;
+  loadingCategoryId?: number | null;
   level?: number;
 }
 
@@ -81,6 +83,7 @@ function CategoryList({
   selectedId,
   onSelectCategory,
   categoryCache,
+  loadingCategoryId = null,
   level = 0,
 }: CategoryListProps) {
   if (!categories || categories.length === 0) {
@@ -103,6 +106,7 @@ function CategoryList({
             ? cached.children
             : category.children;
         const isSelected = selectedId === category.id;
+        const isLoading = loadingCategoryId === category.id;
 
         return (
           <li key={category.id}>
@@ -117,11 +121,16 @@ function CategoryList({
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-medium">{category.title}</span>
-                {poemCount > 0 && (
+                {isLoading ? (
+                  <FaSpinner
+                    className="h-3.5 w-3.5 shrink-0 animate-spin text-neutral-400"
+                    aria-label="در حال بارگذاری"
+                  />
+                ) : poemCount > 0 ? (
                   <span className="text-xs text-neutral-400">
                     {formatPersianNumber(poemCount)}
                   </span>
-                )}
+                ) : null}
               </div>
             </button>
             {childNodes && childNodes.length > 0 && (
@@ -131,6 +140,7 @@ function CategoryList({
                   selectedId={selectedId}
                   onSelectCategory={onSelectCategory}
                   categoryCache={categoryCache}
+                  loadingCategoryId={loadingCategoryId}
                   level={level + 1}
                 />
               </div>
@@ -570,8 +580,9 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
 
   useEffect(() => {
     if (!isInfoOpen) return;
-    if (!selectedCategoryId) return;
+    if (selectedCategoryId === null) return;
     if (categoryLoading) return;
+    if (poemLoading) return;
     if (selectedCategoryHasChildren) return;
     if (!shouldAutoCloseInfoRef.current) return;
     shouldAutoCloseInfoRef.current = false;
@@ -580,6 +591,7 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
     isInfoOpen,
     selectedCategoryId,
     categoryLoading,
+    poemLoading,
     selectedCategoryHasChildren,
   ]);
 
@@ -625,6 +637,10 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
     !randomizePoems &&
     (poemOrder.length === 0 || currentPoemIndex >= poemOrder.length - 1);
   const showPoemLoadingOverlay = poemLoading && !currentPoem;
+  const loadingCategoryId =
+    selectedCategoryId !== null && (categoryLoading || poemLoading)
+      ? selectedCategoryId
+      : null;
   const containerClassName = [
     "poet-page",
     "relative flex h-screen flex-col bg-neutral-950 text-neutral-100",
@@ -664,8 +680,6 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
         isOpen={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
         title="اطلاعات شاعر"
-        showBackdrop={false}
-        variant="side-panel"
       >
         <section className="poet-info-section">
           <PoetDetails poet={catalog.poet} />
@@ -683,6 +697,7 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
               selectedId={selectedCategoryId}
               onSelectCategory={handleSelectCategory}
               categoryCache={categoryCache}
+              loadingCategoryId={loadingCategoryId}
             />
           ) : (
             <p className="text-sm text-neutral-400">
@@ -704,12 +719,7 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
         </section>
       </PoetInfoDialog>
       <main
-        className={[
-          "relative flex flex-1 flex-col overflow-hidden transition-[padding] duration-300",
-          isInfoOpen ? "lg:pr-[26rem]" : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        className="relative flex flex-1 flex-col overflow-hidden"
       >
         <div className="relative flex flex-1 flex-col overflow-hidden">
           {showPoemLoadingOverlay && <LoadingScreen />}

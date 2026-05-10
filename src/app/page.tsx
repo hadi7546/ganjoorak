@@ -12,6 +12,7 @@ import { Poet, isValidPoetSlug } from '@/types/poet';
 import { useSettings } from '@/context/SettingsContext';
 import { logger } from '@/utils/logger';
 import { FaRandom, FaSearch, FaTimes } from 'react-icons/fa';
+import poetSourceIndex from '@/data/poet-source-index.json';
 
 const INITIAL_POEMS_COUNT = 12;
 const PREFETCH_THRESHOLD = 5;
@@ -27,6 +28,39 @@ const getPoetKey = (poet: Pick<Poet, 'source' | 'urlSlug' | 'fullUrl' | 'id'>) =
 const getPoetDisplayName = (poet: Poet) => poet.nickname || poet.name;
 const DEFAULT_FEED_GROUP = 'گنجور';
 const FEED_GROUP_ORDER = [DEFAULT_FEED_GROUP, 'اکولالیا', 'شاعران محلی'] as const;
+type FeedPoetSource = NonNullable<Poet['source']>;
+type PoetSourceIndexEntry = {
+    source: 'ganjoor' | 'echolalia';
+    id?: number | null;
+};
+
+const indexedPoetSources = poetSourceIndex.sourcesBySlug as Record<
+    string,
+    PoetSourceIndexEntry | undefined
+>;
+
+const parseFollowedPoetKey = (key: string): { source: FeedPoetSource; slug: string } | null => {
+    const separatorIndex = key.indexOf(':');
+    const source = separatorIndex >= 0 ? key.slice(0, separatorIndex) : 'ganjoor';
+    const slug = separatorIndex >= 0 ? key.slice(separatorIndex + 1) : key;
+
+    if (!slug) {
+        return null;
+    }
+
+    if (source === 'custom' || source === 'echolalia' || source === 'ganjoor') {
+        return { source, slug };
+    }
+
+    return { source: 'ganjoor', slug };
+};
+
+const getIndexedGanjoorPoetId = (slug: string) => {
+    const entry = indexedPoetSources[slug];
+    return entry?.source === 'ganjoor' && typeof entry.id === 'number'
+        ? entry.id
+        : null;
+};
 
 const sampleKeys = (keys: string[], count: number) => {
     const shuffled = [...keys];
@@ -319,7 +353,6 @@ export default function Home() {
     } = useSettings();
     const [poems, setPoems] = useState<Poem[]>([]);
     const [availablePoets, setAvailablePoets] = useState<Poet[]>([]);
-    const [isLoadingPoets, setIsLoadingPoets] = useState(true);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPoemIndex, setCurrentPoemIndex] = useState(0);
@@ -330,7 +363,8 @@ export default function Home() {
     const currentPoemIndexRef = useRef(0);
     const feedVersionRef = useRef(0);
     const fetchMorePromiseRef = useRef<Promise<Poem[]> | null>(null);
-    const loadedPoetDefaultsRef = useRef(false);
+    const pendingNavigationIndexRef = useRef<number | null>(null);
+    const loadedPoetsRef = useRef(false);
 
     useEffect(() => {
         poemsRef.current = poems;
@@ -346,9 +380,16 @@ export default function Home() {
         }
     }, [currentPoemIndex, poems.length]);
 
-    const poetByKey = useMemo(() => {
-        return new Map(availablePoets.map((poet) => [getPoetKey(poet), poet]));
-    }, [availablePoets]);
+    useEffect(() => {
+        const pendingIndex = pendingNavigationIndexRef.current;
+
+        if (pendingIndex === null || pendingIndex >= poems.length) {
+            return;
+        }
+
+        pendingNavigationIndexRef.current = null;
+        setCurrentPoemIndex(pendingIndex);
+    }, [poems.length]);
 
     const effectiveFollowedPoetKeys = useMemo(() => {
         if (settings.followedPoetKeys.length > 0) {
@@ -360,13 +401,7 @@ export default function Home() {
             .map(getPoetKey);
     }, [availablePoets, settings.followedPoetKeys]);
 
-    const followedPoets = useMemo(() => {
-        return effectiveFollowedPoetKeys
-            .map((key) => poetByKey.get(key))
-            .filter((poet): poet is Poet => Boolean(poet));
-    }, [effectiveFollowedPoetKeys, poetByKey]);
-
-    const followedKeySignature = effectiveFollowedPoetKeys.join('|');
+    const followedKeySignature = settings.followedPoetKeys.join('|');
     const currentPoem = poems[currentPoemIndex];
     const nextPoem = poems[currentPoemIndex + 1];
 
@@ -389,7 +424,7 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if (!areSettingsHydrated || loadedPoetDefaultsRef.current) {
+        if (!areSettingsHydrated || loadedPoetsRef.current || !currentPoem) {
             return;
         }
 
@@ -397,7 +432,6 @@ export default function Home() {
 
         const loadPoets = async () => {
             try {
-                setIsLoadingPoets(true);
                 const [ganjoorPoets, customPoets, modernPoets] = await Promise.all([
                     ganjoorApi.getPoets(),
                     customApi.getPoets(),
@@ -411,22 +445,10 @@ export default function Home() {
                     .sort((a, b) => getPoetDisplayName(a).localeCompare(getPoetDisplayName(b), 'fa'));
                 setAvailablePoets(poets);
 
-                if (settings.followedPoetKeys.length === 0) {
-                    const defaultPoetKeys = poets
-                        .filter((poet) => (poet.source || 'ganjoor') === 'ganjoor')
-                        .map(getPoetKey);
-                    setFollowedPoetKeys(defaultPoetKeys.length > 0 ? defaultPoetKeys : poets.map(getPoetKey));
-                }
-
-                loadedPoetDefaultsRef.current = true;
+                loadedPoetsRef.current = true;
             } catch (err) {
                 if (!isCancelled) {
                     logger.error('Failed to load feed poets:', err);
-                    setError('متأسفانه در بارگیری فهرست شاعرها مشکلی پیش آمد.');
-                }
-            } finally {
-                if (!isCancelled) {
-                    setIsLoadingPoets(false);
                 }
             }
         };
@@ -436,30 +458,40 @@ export default function Home() {
         return () => {
             isCancelled = true;
         };
-    }, [areSettingsHydrated, setFollowedPoetKeys, settings.followedPoetKeys.length]);
+    }, [areSettingsHydrated, currentPoem]);
 
     const fetchRandomPoemFromFollowedPoet = useCallback(async () => {
-        if (followedPoets.length === 0) {
-            throw new Error('No followed poets selected');
+        const selectedKeys = settings.followedPoetKeys;
+
+        if (selectedKeys.length === 0) {
+            return ganjoorApi.getRandomPoem();
         }
 
-        const poet = followedPoets[Math.floor(Math.random() * followedPoets.length)];
-        const source = poet.source || 'ganjoor';
+        const selectedKey = selectedKeys[Math.floor(Math.random() * selectedKeys.length)];
+        const poet = parseFollowedPoetKey(selectedKey);
 
-        if (source === 'custom') {
-            if (!isValidPoetSlug(poet.urlSlug)) {
-                throw new Error(`Unsupported custom poet: ${poet.urlSlug}`);
+        if (!poet) {
+            throw new Error('Invalid followed poet selection');
+        }
+
+        if (poet.source === 'custom') {
+            if (!isValidPoetSlug(poet.slug)) {
+                throw new Error(`Unsupported custom poet: ${poet.slug}`);
             }
-            return customApi.getRandomPoem(poet.urlSlug);
+            return customApi.getRandomPoem(poet.slug);
         }
 
-        if (source === 'echolalia') {
-            return echolaliaApi.getRandomPoemByPoetSlug(poet.urlSlug);
+        if (poet.source === 'echolalia') {
+            return echolaliaApi.getRandomPoemByPoetSlug(poet.slug);
         }
 
-        const randomPoem = await ganjoorApi.getRandomPoemByPoet(poet.urlSlug);
-        return ganjoorApi.getPoemById(randomPoem.id);
-    }, [followedPoets]);
+        const poetId = getIndexedGanjoorPoetId(poet.slug);
+        if (poetId) {
+            return ganjoorApi.getRandomPoemByPoetId(poetId);
+        }
+
+        return ganjoorApi.getRandomPoemByPoet(poet.slug);
+    }, [settings.followedPoetKeys]);
 
     const fetchPoemBatch = useCallback(async (count: number) => {
         const fetchedPoems: Poem[] = [];
@@ -495,10 +527,6 @@ export default function Home() {
     }, []);
 
     const fetchMorePoems = useCallback(async () => {
-        if (followedPoets.length === 0) {
-            return [];
-        }
-
         if (fetchMorePromiseRef.current) {
             return fetchMorePromiseRef.current;
         }
@@ -507,9 +535,16 @@ export default function Home() {
         const fetchPromise = (async () => {
             try {
                 setIsFetchingMore(true);
-                const newPoems = await fetchPoemBatch(BATCH_SIZE);
-                appendPoems(newPoems, version);
-                return feedVersionRef.current === version ? newPoems : [];
+                const fetchedPoems = await fetchPoemBatch(BATCH_SIZE);
+
+                if (feedVersionRef.current !== version) {
+                    return [];
+                }
+
+                const existingIds = new Set(poemsRef.current.map((poem) => poem.id));
+                const uniquePoems = fetchedPoems.filter((poem) => !existingIds.has(poem.id));
+                appendPoems(uniquePoems, version);
+                return uniquePoems;
             } catch (err) {
                 logger.error('Failed to fetch more poems:', err);
                 return [];
@@ -523,20 +558,15 @@ export default function Home() {
 
         fetchMorePromiseRef.current = fetchPromise;
         return fetchPromise;
-    }, [appendPoems, fetchPoemBatch, followedPoets.length]);
+    }, [appendPoems, fetchPoemBatch]);
 
     const fetchInitialPoems = useCallback(async () => {
         const version = feedVersionRef.current + 1;
         feedVersionRef.current = version;
         fetchMorePromiseRef.current = null;
+        pendingNavigationIndexRef.current = null;
         setError(null);
         setCurrentPoemIndex(0);
-
-        if (followedPoets.length === 0) {
-            setPoems([]);
-            setLoading(false);
-            return;
-        }
 
         try {
             setLoading(true);
@@ -564,23 +594,22 @@ export default function Home() {
                 setLoading(false);
             }
         }
-    }, [appendPoems, fetchPoemBatch, fetchRandomPoemFromFollowedPoet, followedPoets.length]);
+    }, [appendPoems, fetchPoemBatch, fetchRandomPoemFromFollowedPoet]);
 
     useEffect(() => {
-        if (!areSettingsHydrated || isLoadingPoets) {
+        if (!areSettingsHydrated) {
             return;
         }
 
         fetchInitialPoems();
-    }, [areSettingsHydrated, fetchInitialPoems, followedKeySignature, isLoadingPoets]);
+    }, [areSettingsHydrated, fetchInitialPoems, followedKeySignature]);
 
     useEffect(() => {
         const shouldFetchMore =
             !loading &&
             currentPoemIndex >= poems.length - PREFETCH_THRESHOLD &&
             poems.length > 0 &&
-            !isFetchingMore &&
-            followedPoets.length > 0;
+            !isFetchingMore;
 
         if (shouldFetchMore) {
             fetchMorePoems();
@@ -590,7 +619,6 @@ export default function Home() {
         poems.length,
         loading,
         isFetchingMore,
-        followedPoets.length,
         fetchMorePoems,
     ]);
 
@@ -610,9 +638,10 @@ export default function Home() {
             return;
         }
 
+        pendingNavigationIndexRef.current = nextIndex;
         fetchMorePoems().then((newPoems) => {
-            if (newPoems.length > 0 && nextIndex < poemsRef.current.length) {
-                setCurrentPoemIndex(nextIndex);
+            if (newPoems.length === 0 && pendingNavigationIndexRef.current === nextIndex) {
+                pendingNavigationIndexRef.current = null;
             }
         });
     }, [fetchMorePoems]);
@@ -621,7 +650,7 @@ export default function Home() {
         setCurrentPoemIndex((prevIndex) => Math.max(prevIndex - 1, 0));
     }, []);
 
-    if (!areSettingsHydrated || isLoadingPoets || (!currentPoem && !error)) {
+    if (!areSettingsHydrated || (!currentPoem && !error)) {
         return <LoadingScreen />;
     }
 
@@ -650,6 +679,7 @@ export default function Home() {
                     nextPoem={nextPoem}
                     currentIndex={currentPoemIndex}
                     isFirst={currentPoemIndex === 0}
+                    isPreparingNextPoem={isFetchingMore && !nextPoem}
                     onNext={handleNext}
                     onPrevious={handlePrevious}
                     onOpenFeed={() => setIsFeedDialogOpen(true)}

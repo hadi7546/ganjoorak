@@ -507,7 +507,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
               <div className="lyrics-share-body">
                 <section className="lyrics-share-controls">
                   <div
-                    className="lyrics-share-lines"
+                    className="lyrics-share-lines modern-scrollbar"
                     aria-label="انتخاب مصرع‌ها"
                   >
                     {shareableLines.map((line, index) => {
@@ -609,13 +609,6 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
                     تغییر انتخاب
                   </button>
                 </section>
-              </div>
-
-              <div className="lyrics-share-mobile-link-action">
-                <button type="button" onClick={shareLink}>
-                  <FaLink />
-                  <span>اشتراک لینک</span>
-                </button>
               </div>
 
               <footer className="lyrics-share-actions">
