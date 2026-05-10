@@ -6,8 +6,6 @@ import {
   FaCheck,
   FaCopy,
   FaDownload,
-  FaImage,
-  FaLink,
   FaPalette,
   FaTimes,
 } from "react-icons/fa";
@@ -420,22 +418,6 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
     }
   };
 
-  const shareLink = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: `${poem.title} | گنجورک`,
-          text: selectedTextLines.join("\n"),
-          url: poemUrl,
-        });
-      } else {
-        await copyLink();
-      }
-    } catch (error) {
-      logger.error("Failed to share link:", error);
-    }
-  };
-
   const downloadImage = () => {
     if (!imageUrl) {
       return;
@@ -445,33 +427,6 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
     link.href = imageUrl;
     link.download = `ganjoorak-${poem.id}.png`;
     link.click();
-  };
-
-  const shareImage = async () => {
-    if (!imageUrl) {
-      return;
-    }
-
-    try {
-      const blob = await toBlob(imageUrl);
-
-      const file = new File([blob], `ganjoorak-${poem.id}.png`, {
-        type: "image/png",
-      });
-
-      if (navigator.canShare?.({ files: [file] }) && navigator.share) {
-        await navigator.share({
-          title: `${poem.title} | گنجورک`,
-          text: `${poem.title} - ${poem.poet}`,
-          files: [file],
-        });
-      } else {
-        downloadImage();
-      }
-    } catch (error) {
-      logger.error("Failed to share image:", error);
-      downloadImage();
-    }
   };
 
   return (
@@ -621,11 +576,6 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
               </div>
 
               <footer className="lyrics-share-actions">
-                <button type="button" onClick={shareLink}>
-                  <FaLink />
-                  <span>اشتراک لینک</span>
-                </button>
-
                 <button type="button" onClick={copyLink}>
                   <FaCopy />
                   <span>کپی لینک</span>
@@ -636,18 +586,13 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
                   <span>کپی متن</span>
                 </button>
 
-                <button type="button" onClick={shareImage} disabled={!imageUrl}>
-                  <FaImage />
-                  <span>اشتراک تصویر</span>
-                </button>
-
                 <button
                   type="button"
                   onClick={downloadImage}
                   disabled={!imageUrl}
                 >
                   <FaDownload />
-                  <span>دانلود</span>
+                  <span>دانلود تصویر</span>
                 </button>
               </footer>
 
