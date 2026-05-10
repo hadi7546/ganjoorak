@@ -139,19 +139,9 @@ export default function PoemFeedPager({
     }, NEXT_PREVIEW_HIDE_MS);
   }, [isPreparingNextPoem, isZenLocked, nextPoem]);
 
-  useEffect(() => {
-    if (!isPreparingNextPoem || isZenLocked) return;
-    setIsNextPreviewVisible(true);
-  }, [isPreparingNextPoem, isZenLocked]);
-
   const resetArm = useCallback(() => {
     document.documentElement.classList.remove("poem-feed-boundary-armed");
   }, []);
-
-  const arm = useCallback(() => {
-    showNextPreview();
-    document.documentElement.classList.add("poem-feed-boundary-armed");
-  }, [showNextPreview]);
 
   const updateTitleVisibility = useCallback((poemText: HTMLElement) => {
     const poemContent = poemText.closest(".poem-content");
@@ -238,6 +228,8 @@ export default function PoemFeedPager({
 
       if (isAtBottom(poemText)) {
         showNextPreview();
+      } else {
+        resetPreview();
       }
     };
 
@@ -257,6 +249,7 @@ export default function PoemFeedPager({
 
       if (!shouldGoNext && !shouldGoPrevious) {
         resetArm();
+        resetPreview();
         return;
       }
 
@@ -299,6 +292,7 @@ export default function PoemFeedPager({
 
       if (!shouldGoNext && !shouldGoPrevious) {
         resetArm();
+        resetPreview();
         return;
       }
 
@@ -321,7 +315,7 @@ export default function PoemFeedPager({
       root.removeEventListener("touchstart", handleTouchStart, true);
       root.removeEventListener("touchend", handleTouchEnd, true);
     };
-  }, [hideReadingChromeTemporarily, requestBoundaryNavigation, resetArm, showNextPreview, updateTitleVisibility]);
+  }, [hideReadingChromeTemporarily, requestBoundaryNavigation, resetArm, resetPreview, showNextPreview, updateTitleVisibility]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -355,6 +349,7 @@ export default function PoemFeedPager({
           behavior: "smooth",
         });
         resetArm();
+        resetPreview();
         return;
       }
 
@@ -367,7 +362,7 @@ export default function PoemFeedPager({
 
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [hideReadingChromeTemporarily, requestBoundaryNavigation, resetArm, showNextPreview, updateTitleVisibility]);
+  }, [hideReadingChromeTemporarily, requestBoundaryNavigation, resetArm, resetPreview, showNextPreview, updateTitleVisibility]);
 
   useEffect(() => {
     return () => {
