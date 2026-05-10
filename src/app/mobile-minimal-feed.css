@@ -40,6 +40,13 @@
     text-overflow: ellipsis !important;
   }
 
+  body:has(.settings-backdrop) .poem-feed-next-preview,
+  body:has(.lyrics-share-dialog) .poem-feed-next-preview,
+  body:has(.menu-drawer) .poem-feed-next-preview {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
   .poem-feed-next-preview-label,
   .poem-feed-next-preview-title {
     display: inline !important;
@@ -60,5 +67,27 @@
   .poem-feed-next-preview-title {
     max-width: 10rem !important;
     font-size: 0.78rem !important;
+  }
+
+  .lyrics-share-panel {
+    overflow: hidden !important;
+  }
+
+  .lyrics-share-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    padding-inline: 0.25rem !important;
+  }
+
+  .lyrics-share-actions button {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+    white-space: nowrap !important;
   }
 }
