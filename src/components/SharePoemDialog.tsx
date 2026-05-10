@@ -410,6 +410,16 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
     }
   };
 
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(poemUrl);
+      setStatus("لینک کپی شد");
+    } catch (error) {
+      logger.error("Failed to copy link:", error);
+      setStatus("کپی لینک انجام نشد");
+    }
+  };
+
   const shareLink = async () => {
     try {
       if (navigator.share) {
@@ -419,8 +429,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
           url: poemUrl,
         });
       } else {
-        await navigator.clipboard.writeText(poemUrl);
-        setStatus("لینک کپی شد");
+        await copyLink();
       }
     } catch (error) {
       logger.error("Failed to share link:", error);
@@ -611,10 +620,26 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
                 </section>
               </div>
 
+              <div className="lyrics-share-mobile-link-action">
+                <button type="button" onClick={shareLink}>
+                  <FaLink />
+                  <span>اشتراک لینک</span>
+                </button>
+                <button type="button" onClick={copyLink}>
+                  <FaCopy />
+                  <span>کپی لینک</span>
+                </button>
+              </div>
+
               <footer className="lyrics-share-actions">
                 <button type="button" onClick={shareLink}>
                   <FaLink />
                   <span>اشتراک لینک</span>
+                </button>
+
+                <button type="button" onClick={copyLink}>
+                  <FaCopy />
+                  <span>کپی لینک</span>
                 </button>
 
                 <button type="button" onClick={copyText}>
