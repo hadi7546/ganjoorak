@@ -5,15 +5,17 @@ import echolaliaApi from '@/api/EcholaliaApi';
 import PoetsContent from '@/components/PoetsContent';
 import '@/styles/Poets.css';
 import { logger } from '@/utils/logger';
+import { getStaticGanjoorCenturies, getStaticPoetsBySource } from '@/data/static-poets';
 
 export const dynamic = 'force-static';
 
 async function getCenturies(): Promise<Century[]> {
     try {
-        return await ganjoorApi.getCenturies();
+        const centuries = await ganjoorApi.getCenturies();
+        return centuries.length > 0 ? centuries : getStaticGanjoorCenturies();
     } catch (error) {
         logger.error("Error fetching centuries:", error);
-        return [];
+        return getStaticGanjoorCenturies();
     }
 }
 
@@ -34,15 +36,14 @@ async function getModernPoets(): Promise<Poet[]> {
         logger.log("Fetching Echolalia poets...");
         const poets = await echolaliaApi.getPoets();
         logger.log(`Found ${poets.length} Echolalia poets`);
-        return poets;
+        return poets.length > 0 ? poets : getStaticPoetsBySource('echolalia');
     } catch (error) {
         logger.error("Error fetching Echolalia poets:", error);
-        return [];
+        return getStaticPoetsBySource('echolalia');
     }
 }
 
 export default async function PoetsPage() {
-    // Fetch data in parallel for better performance
     const [centuries, customPoets, modernPoets] = await Promise.all([
         getCenturies(),
         getCustomPoets(),
