@@ -1,5 +1,4 @@
 @media (max-width: 768px) {
-  .poem-feed-pager .global-search-button,
   .poem-feed-lock-button {
     display: none !important;
   }
