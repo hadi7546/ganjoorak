@@ -10,9 +10,9 @@ import {
   FaBell,
   FaUsers,
   FaSlidersH,
-  FaSearch,
   FaLock,
   FaLockOpen,
+  FaSearch,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -36,7 +36,6 @@ const Menu: React.FC<MenuProps> = ({
   onUpdatesViewed,
   onOpenSettings,
   onOpenFeed,
-  onOpenSearch,
   isZenLocked = false,
   onToggleZenLock,
 }) => {
@@ -83,15 +82,6 @@ const Menu: React.FC<MenuProps> = ({
     };
   }, [isOpen, onClose]);
 
-  const openSearch = () => {
-    if (onOpenSearch) {
-      onOpenSearch();
-      return;
-    }
-
-    document.querySelector<HTMLButtonElement>(".global-search-button")?.click();
-  };
-
   return (
     <>
       <style>{`
@@ -100,6 +90,12 @@ const Menu: React.FC<MenuProps> = ({
             top: auto !important;
             right: 1rem !important;
             bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
+          }
+
+          .global-search-button {
+            top: auto !important;
+            right: 1rem !important;
+            bottom: calc(4.25rem + env(safe-area-inset-bottom)) !important;
           }
 
           .menu-backdrop {
@@ -189,18 +185,6 @@ const Menu: React.FC<MenuProps> = ({
             >
               <nav>
                 <ul className="space-y-1">
-                  <li>
-                    <button
-                      type="button"
-                      className="menu-link menu-link-button"
-                      onClick={openSearch}
-                    >
-                      <span className="menu-link-icon">
-                        <FaSearch />
-                      </span>
-                      <span className="menu-item-text">جستجو</span>
-                    </button>
-                  </li>
                   {onToggleZenLock && (
                     <li>
                       <button
