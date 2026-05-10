@@ -89,6 +89,10 @@
     transition: height 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+.faq-answer-wrapper.open {
+    overflow: visible;
+}
+
 .faq-answer {
     color: rgb(var(--foreground) / 0.82);
     line-height: 2;
@@ -96,7 +100,9 @@
     opacity: 0;
     margin-top: 0;
     padding-inline: 0.1rem;
+    padding-bottom: 0.4rem;
     white-space: normal;
+    overflow: visible;
     overflow-wrap: anywhere;
     transition:
         opacity 0.24s ease,
@@ -166,7 +172,7 @@
 
     .faq-answer {
         font-size: 0.98rem;
-        line-height: 2;
+        line-height: 2.05;
     }
 }
 
