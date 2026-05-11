@@ -260,7 +260,7 @@ function FeedPoetDialog({
                 >
                     <header className="settings-header">
                         <h2 id="feed-poets-title" className="settings-title">
-                            شاعرهای صفحه اصلی را انتخاب کن
+                            شاعران صفحه اصلی
                         </h2>
                         <button
                             type="button"

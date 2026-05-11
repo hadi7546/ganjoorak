@@ -37,7 +37,7 @@ const Menu: React.FC<MenuProps> = ({
   onUpdatesViewed,
   onOpenSettings,
   onOpenFeed,
-  onOpenFeedLabel = "شاعرهای صفحه اصلی",
+  onOpenFeedLabel = "شاعران صفحه اصلی",
   isZenLocked = false,
   onToggleZenLock,
 }) => {
