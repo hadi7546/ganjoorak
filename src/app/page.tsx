@@ -18,7 +18,7 @@ const INITIAL_POEMS_COUNT = 12;
 const PREFETCH_THRESHOLD = 5;
 const BATCH_SIZE = 6;
 const POEM_FETCH_CONCURRENCY = 3;
-const FEED_CACHE_KEY = 'ganjoorak:latest-feed-poems:v1';
+const FEED_CACHE_KEY = 'ganjoorak:latest-feed-poems:v2';
 const FEED_CACHE_LIMIT = 8;
 
 type CachedFeed = {
@@ -111,6 +111,10 @@ const getIndexedGanjoorPoetId = (slug: string) => {
     return entry?.source === 'ganjoor' && typeof entry.id === 'number'
         ? entry.id
         : null;
+};
+
+const loadFullGanjoorPoem = async (poem: Poem) => {
+    return ganjoorApi.getPoemById(poem.id);
 };
 
 const sampleKeys = (keys: string[], count: number) => {
@@ -519,7 +523,8 @@ export default function Home() {
         const selectedKeys = settings.followedPoetKeys;
 
         if (selectedKeys.length === 0) {
-            return ganjoorApi.getRandomPoem();
+            const randomPoem = await ganjoorApi.getRandomPoem();
+            return loadFullGanjoorPoem(randomPoem);
         }
 
         const selectedKey = selectedKeys[Math.floor(Math.random() * selectedKeys.length)];
@@ -542,10 +547,12 @@ export default function Home() {
 
         const poetId = getIndexedGanjoorPoetId(poet.slug);
         if (poetId) {
-            return ganjoorApi.getRandomPoemByPoetId(poetId);
+            const randomPoem = await ganjoorApi.getRandomPoemByPoetId(poetId);
+            return loadFullGanjoorPoem(randomPoem);
         }
 
-        return ganjoorApi.getRandomPoemByPoet(poet.slug);
+        const randomPoem = await ganjoorApi.getRandomPoemByPoet(poet.slug);
+        return loadFullGanjoorPoem(randomPoem);
     }, [settings.followedPoetKeys]);
 
     const fetchPoemBatch = useCallback(async (count: number) => {

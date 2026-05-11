@@ -27,6 +27,11 @@ interface SharePoemDialogProps {
 const MAX_SHARE_LINES = 16;
 
 type ShareThemeId = "night" | "paper" | "ink";
+type ShareActionId = "copyLink" | "copyText" | "downloadImage";
+type ShareActionFeedback = {
+  action: ShareActionId;
+  state: "success" | "error";
+} | null;
 
 const SHARE_FONT_CHOICES: Array<{ value: FontFamilyOption; label: string }> = [
   { value: "vazirmatn", label: "وزیرمتن" },
@@ -288,7 +293,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
     useState<FontFamilyOption>(settings.fontFamily);
   const [imageUrl, setImageUrl] = useState("");
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<ShareActionFeedback>(null);
   const [mobileStep, setMobileStep] = useState<"select" | "preview">("select");
 
   const poemUrl = useMemo(() => buildPoemUrl(poem, poetSlug), [poem, poetSlug]);
@@ -338,11 +343,23 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
       return;
     }
 
-    setStatus(null);
+    setActionFeedback(null);
     setMobileStep("select");
     setSelectedFontFamily(settings.fontFamily);
     setSelectedLines(shareableLines.slice(0, 4).map((_, index) => index));
   }, [isOpen, poem.id, settings.fontFamily, shareableLines]);
+
+  useEffect(() => {
+    if (!actionFeedback) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setActionFeedback(null);
+    }, 1400);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [actionFeedback]);
 
   useEffect(() => {
     if (!isOpen || selectedTextLines.length === 0) {
@@ -383,7 +400,7 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
   }, [isOpen, poem, selectedFontFamily, selectedTextLines, selectedTheme]);
 
   const toggleLine = (index: number) => {
-    setStatus(null);
+    setActionFeedback(null);
 
     setSelectedLines((prev) => {
       if (prev.includes(index)) {
@@ -401,20 +418,20 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
   const copyText = async () => {
     try {
       await navigator.clipboard.writeText(shareText);
-      setStatus("شعر کپی شد");
+      setActionFeedback({ action: "copyText", state: "success" });
     } catch (error) {
       logger.error("Failed to copy share text:", error);
-      setStatus("کپی متن انجام نشد");
+      setActionFeedback({ action: "copyText", state: "error" });
     }
   };
 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(poemUrl);
-      setStatus("لینک کپی شد");
+      setActionFeedback({ action: "copyLink", state: "success" });
     } catch (error) {
       logger.error("Failed to copy link:", error);
-      setStatus("کپی لینک انجام نشد");
+      setActionFeedback({ action: "copyLink", state: "error" });
     }
   };
 
@@ -427,6 +444,23 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
     link.href = imageUrl;
     link.download = `ganjoorak-${poem.id}.png`;
     link.click();
+    setActionFeedback({ action: "downloadImage", state: "success" });
+  };
+
+  const getActionButtonClassName = (action: ShareActionId) => {
+    if (actionFeedback?.action !== action) {
+      return "";
+    }
+
+    return `is-${actionFeedback.state}`;
+  };
+
+  const getActionIcon = (action: ShareActionId, fallback: React.ReactNode) => {
+    if (actionFeedback?.action === action && actionFeedback.state === "success") {
+      return <FaCheck />;
+    }
+
+    return fallback;
   };
 
   return (
@@ -576,13 +610,21 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
               </div>
 
               <footer className="lyrics-share-actions">
-                <button type="button" onClick={copyLink}>
-                  <FaCopy />
+                <button
+                  type="button"
+                  onClick={copyLink}
+                  className={getActionButtonClassName("copyLink")}
+                >
+                  {getActionIcon("copyLink", <FaCopy />)}
                   <span>کپی لینک</span>
                 </button>
 
-                <button type="button" onClick={copyText}>
-                  <FaCopy />
+                <button
+                  type="button"
+                  onClick={copyText}
+                  className={getActionButtonClassName("copyText")}
+                >
+                  {getActionIcon("copyText", <FaCopy />)}
                   <span>کپی متن</span>
                 </button>
 
@@ -590,13 +632,12 @@ const SharePoemDialog: React.FC<SharePoemDialogProps> = ({
                   type="button"
                   onClick={downloadImage}
                   disabled={!imageUrl}
+                  className={getActionButtonClassName("downloadImage")}
                 >
-                  <FaDownload />
+                  {getActionIcon("downloadImage", <FaDownload />)}
                   <span>دانلود تصویر</span>
                 </button>
               </footer>
-
-              {status && <div className="lyrics-share-status">{status}</div>}
             </motion.div>
           </motion.div>
         </>

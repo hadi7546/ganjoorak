@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const ALLOWED_HOSTS = new Set([
     'api.ganjoor.net',
@@ -50,5 +51,69 @@ export async function GET(request: NextRequest) {
         return new Response('Invalid URL domain', { status: 403 });
     }
 
-    return NextResponse.redirect(parsedUrl.toString(), 302);
+    const hostname = parsedUrl.hostname.toLowerCase();
+
+    if (hostname === 'bayanbox.ir' || hostname.endsWith('.bayanbox.ir')) {
+        return NextResponse.redirect(parsedUrl.toString(), 307);
+    }
+
+    try {
+        const upstreamHeaders = new Headers();
+        const range = request.headers.get('range');
+        const ifRange = request.headers.get('if-range');
+
+        if (range) {
+            upstreamHeaders.set('Range', range);
+        }
+
+        if (ifRange) {
+            upstreamHeaders.set('If-Range', ifRange);
+        }
+
+        upstreamHeaders.set('Accept', request.headers.get('accept') || 'audio/mpeg,*/*');
+        upstreamHeaders.set('User-Agent', 'Mozilla/5.0 (compatible; GanjoorakAudioProxy/1.0)');
+
+        const response = await fetch(parsedUrl, {
+            headers: upstreamHeaders,
+            cache: 'no-store',
+            redirect: 'follow',
+        });
+
+        const headers = new Headers();
+        const passthroughHeaders = [
+            'accept-ranges',
+            'cache-control',
+            'content-length',
+            'content-range',
+            'content-type',
+            'etag',
+            'last-modified',
+        ];
+
+        passthroughHeaders.forEach((header) => {
+            const value = response.headers.get(header);
+            if (value) {
+                headers.set(header, value);
+            }
+        });
+
+        if (!headers.has('content-type')) {
+            headers.set('content-type', 'audio/mpeg');
+        }
+
+        headers.set('Cache-Control', headers.get('cache-control') || 'no-store');
+
+        return new NextResponse(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers,
+        });
+    } catch (error) {
+        console.error('Error proxying audio file:', error);
+        if (parsedUrl.protocol === 'https:') {
+            return NextResponse.redirect(parsedUrl.toString(), 307);
+        }
+
+        return new Response('Failed to load audio', { status: 502 });
+    }
 }

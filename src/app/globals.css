@@ -1681,6 +1681,11 @@ body:has(.menu-drawer) .sidebar-toggle-button {
     color: rgb(var(--card-foreground));
     cursor: pointer;
     font: inherit;
+    transition:
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
 }
 
 .lyrics-share-actions button:hover:not(:disabled) {
@@ -1688,15 +1693,22 @@ body:has(.menu-drawer) .sidebar-toggle-button {
     color: rgb(var(--primary));
 }
 
+.lyrics-share-actions button.is-success {
+    border-color: rgb(46 160 67 / 0.65);
+    background-color: rgb(46 160 67 / 0.14);
+    color: rgb(86 211 100);
+    transform: translateY(-1px);
+}
+
+.lyrics-share-actions button.is-error {
+    border-color: rgb(248 81 73 / 0.7);
+    background-color: rgb(248 81 73 / 0.14);
+    color: rgb(255 132 122);
+}
+
 .lyrics-share-actions button:disabled {
     cursor: not-allowed;
     opacity: 0.45;
-}
-
-.lyrics-share-status {
-    padding: 0 1rem 1rem;
-    color: rgb(var(--foreground) / 0.68);
-    font-size: 0.85rem;
 }
 
 @media (max-width: 760px) {
@@ -1861,10 +1873,6 @@ body:has(.menu-drawer) .sidebar-toggle-button {
         font-size: 0.82rem;
     }
 
-    .lyrics-share-status {
-        padding: 0 0.75rem 0.65rem;
-        font-size: 0.78rem;
-    }
 }
 
 @media (max-width: 420px) {

@@ -287,7 +287,7 @@ const customApi = {
       const isAllowed = allowedDomains.some(domain => localPoem.recitation.startsWith(domain));
 
       if (isAllowed) {
-        recitationUrl = `/api/audio?url=${encodeURIComponent(localPoem.recitation)}`;
+        recitationUrl = localPoem.recitation;
       } else {
         logger.warn(`Skipping unauthorized recitation URL: ${localPoem.recitation}`);
       }

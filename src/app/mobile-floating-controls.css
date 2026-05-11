@@ -5,13 +5,19 @@
 
   :root.poem-feed-has-audio-player,
   :root:has(.audio-player) {
-    --mobile-audio-offset: 5.25rem;
+    --mobile-audio-offset: 4.75rem;
   }
 
   .menu-button:not(.poem-feed-lock-button),
   .global-search-button {
+    --mobile-floating-slot: 0;
     width: 2.5rem !important;
     height: 2.5rem !important;
+    top: auto !important;
+    right: 1rem !important;
+    bottom: calc(
+      1rem + var(--mobile-audio-offset) + (var(--mobile-floating-slot) * 3.25rem) + env(safe-area-inset-bottom)
+    ) !important;
     z-index: 1000 !important;
     border: none !important;
     border-radius: 999px !important;
@@ -33,15 +39,11 @@
   }
 
   .menu-button:not(.poem-feed-lock-button) {
-    top: auto !important;
-    right: 1rem !important;
-    bottom: calc(1rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
+    --mobile-floating-slot: 0;
   }
 
   .global-search-button {
-    top: auto !important;
-    right: 1rem !important;
-    bottom: calc(4.25rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
+    --mobile-floating-slot: 1;
   }
 
   .poem-feed-lock-button {

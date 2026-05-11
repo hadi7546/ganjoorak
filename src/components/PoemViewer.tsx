@@ -104,6 +104,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     : [];
   const fullTitleIntermediateParts =
     fullTitleParts.length > 2 ? fullTitleParts.slice(1, -1) : [];
+  const currentRecitation = poem.recitations?.[currentRecitationIndex];
+  const currentAudioSrc =
+    currentRecitation?.mp3Url ||
+    currentRecitation?.audioSrc ||
+    currentRecitation?.audioSrcUrl ||
+    "";
 
   // Define loading animation variants
   const loadingVariants = {
@@ -408,7 +414,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
   // Handle audio playback and navigation
   const toggleAudio = () => {
-    if (!audioRef.current || isAudioLoading) return;
+    if (!audioRef.current || !currentAudioSrc) return;
 
     if (isPlaying) {
       audioRef.current.pause();
@@ -584,8 +590,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const handleAudioError = (
     e: React.SyntheticEvent<HTMLAudioElement, Event>,
   ) => {
-    logger.error("Audio error:", e);
+    logger.error("Audio error:", e.currentTarget.error || e);
     setError("خطا در بارگذاری صدا");
+    setIsAudioLoading(false);
     setIsPlaying(false);
   };
 
@@ -638,7 +645,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   // Reset error when audio source changes
   useEffect(() => {
     setError(null);
-  }, [poem.recitations, currentRecitationIndex]);
+    setIsAudioLoading(false);
+    setCurrentTime(0);
+    setDuration(0);
+  }, [currentAudioSrc]);
 
   useEffect(() => {
     isAtTopRef.current = true;
@@ -821,8 +831,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     poem.recitations && currentRecitationIndex < poem.recitations.length - 1;
   const hasPreviousRecitation = poem.recitations && currentRecitationIndex > 0;
   const hasRecitations = (poem.recitations?.length ?? 0) > 0;
-  const isAudioPlayerVisible =
-    poemViewerVisibility.audioPlayer && hasRecitations;
+  const isAudioPlayerVisible = hasRecitations;
   const isMinimalPoemView =
     !showTitleSection &&
     !poemViewerVisibility.actionButtons &&
@@ -934,7 +943,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             <button
               className="audio-control-button"
               onClick={handlePreviousRecitation}
-              disabled={!hasPreviousRecitation || isAudioLoading}
+              disabled={!hasPreviousRecitation}
               title="قطعه قبلی"
             >
               <FaBackward />
@@ -942,7 +951,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             <button
               className="audio-control-button"
               onClick={toggleAudio}
-              disabled={isAudioLoading}
+              disabled={!currentAudioSrc}
               title={isPlaying ? "توقف" : "پخش"}
             >
               {isAudioLoading ? (
@@ -956,7 +965,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             <button
               className="audio-control-button"
               onClick={handleNextRecitation}
-              disabled={!hasNextRecitation || isAudioLoading}
+              disabled={!hasNextRecitation}
               title="قطعه بعدی"
             >
               <FaForward />
@@ -987,7 +996,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
 
           <audio
             ref={audioRef}
-            src={poem.recitations[currentRecitationIndex]?.mp3Url}
+            src={currentAudioSrc}
+            preload="none"
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={() => {
               if (audioRef.current) {
@@ -996,7 +1006,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               }
             }}
             onLoadStart={() => {
-              setIsAudioLoading(true);
+              if (isPlaying) {
+                setIsAudioLoading(true);
+              }
             }}
             onCanPlayThrough={() => {
               setIsAudioLoading(false);
@@ -1008,7 +1020,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
               setIsAudioLoading(false);
             }}
             onWaiting={() => {
-              setIsAudioLoading(true);
+              if (isPlaying) {
+                setIsAudioLoading(true);
+              }
             }}
             onPlaying={() => {
               setIsAudioLoading(false);

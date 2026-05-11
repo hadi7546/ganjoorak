@@ -4,8 +4,11 @@
   }
 
   .poem-feed-pager .menu-button:not(.poem-feed-lock-button) {
-    right: 1rem !important;
-    bottom: calc(1rem + var(--mobile-audio-offset, 0rem) + env(safe-area-inset-bottom)) !important;
+    --mobile-floating-slot: 0;
+  }
+
+  .poem-feed-pager .global-search-button {
+    --mobile-floating-slot: 1;
   }
 
   .poem-feed-pager .title-section {
