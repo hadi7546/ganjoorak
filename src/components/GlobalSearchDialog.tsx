@@ -478,6 +478,7 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
     results.poets.length > 0 ||
     results.poems.length > 0 ||
     results.books.length > 0;
+  const showLoadingMessage = isLoading && !hasResults;
 
   return (
     <AnimatePresence>
@@ -549,7 +550,7 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
                     حداقل دو نویسه وارد کنید.
                   </p>
                 )}
-                {isLoading && (
+                {showLoadingMessage && (
                   <p className="global-search-empty">در حال جستجو...</p>
                 )}
                 {error && <p className="global-search-error">{error}</p>}

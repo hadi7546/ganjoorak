@@ -3,8 +3,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FaChevronUp,
-  FaChevronDown,
   FaShare,
   FaPause,
   FaPlay,
@@ -835,7 +833,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const isMinimalPoemView =
     !showTitleSection &&
     !poemViewerVisibility.actionButtons &&
-    !poemViewerVisibility.navigationControls &&
     !isAudioPlayerVisible;
   const highlightActive =
     isHighlightEnabled &&
@@ -863,7 +860,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     .filter(Boolean)
     .join(" ");
 
-  const showNavigationControls = !isFirst || !isLast;
   const showActionButtons = true;
   const keepPoetProfileVisible =
     isPoetPage && Boolean(onTogglePoetInfo && poem.poet && poem.poetSlug);
@@ -1216,26 +1212,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                 <h3 className="poet-profile-name">{poem.poet}</h3>
               </Link>
             ))}
-        </div>
-      )}
-
-      {/* Navigation controls */}
-      {poemViewerVisibility.navigationControls && (
-        <div
-          className={`navigation-controls${
-            showNavigationControls ? "" : " is-hidden"
-          }`}
-        >
-          {!isFirst && (
-            <button className="nav-button up" onClick={handlePrevious}>
-              <FaChevronUp />
-            </button>
-          )}
-          {!isLast && (
-            <button className="nav-button down" onClick={handleNext}>
-              <FaChevronDown />
-            </button>
-          )}
         </div>
       )}
     </motion.div>
