@@ -31,6 +31,9 @@ const ganjoorHttp = axios.create({
   proxy: false,
 });
 
+const getAudioProxyUrl = (url?: string) =>
+  url ? `/api/audio?url=${encodeURIComponent(url)}` : "";
+
 // Cache for poet data
 const poetCache: Record<string, Poet | undefined> = {};
 const poetCatalogCache: Record<string, GanjoorPoetCatalog | undefined> = {};
@@ -592,31 +595,35 @@ const ganjoorApi = {
 
     // Map recitations to our type if available
     const recitations: PoemRecitation[] =
-      data.recitations?.map((rec: any) => ({
-        id: rec.id,
-        poemId: rec.poemId,
-        poemFullTitle: rec.poemFullTitle,
-        poemFullUrl: rec.poemFullUrl,
-        audioTitle: rec.audioTitle,
-        audioArtist: rec.audioArtist,
-        audioArtistUrl: rec.audioArtistUrl,
-        audioSrc: rec.audioSrc,
-        audioSrcUrl: rec.audioSrcUrl,
-        legacyAudioGuid: rec.legacyAudioGuid,
-        mp3FileCheckSum: rec.mp3FileCheckSum,
-        mp3SizeInBytes: rec.mp3SizeInBytes,
-        publishDate: rec.publishDate,
-        fileLastUpdated: rec.fileLastUpdated,
-        mp3Url: rec.mp3Url,
-        xmlText: rec.xmlText,
-        plainText: rec.plainText,
-        htmlText: rec.htmlText,
-        mistakes: rec.mistakes || [],
-        audioOrder: rec.audioOrder,
-        recitationType: rec.recitationType,
-        inSyncWithText: rec.inSyncWithText,
-        upVotedByUser: rec.upVotedByUser,
-      })) || [];
+      data.recitations?.map((rec: any) => {
+        const proxiedMp3Url = getAudioProxyUrl(rec.mp3Url);
+
+        return {
+          id: rec.id,
+          poemId: rec.poemId,
+          poemFullTitle: rec.poemFullTitle,
+          poemFullUrl: rec.poemFullUrl,
+          audioTitle: rec.audioTitle,
+          audioArtist: rec.audioArtist,
+          audioArtistUrl: rec.audioArtistUrl,
+          audioSrc: proxiedMp3Url || rec.audioSrc,
+          audioSrcUrl: proxiedMp3Url || rec.audioSrcUrl,
+          legacyAudioGuid: rec.legacyAudioGuid,
+          mp3FileCheckSum: rec.mp3FileCheckSum,
+          mp3SizeInBytes: rec.mp3SizeInBytes,
+          publishDate: rec.publishDate,
+          fileLastUpdated: rec.fileLastUpdated,
+          mp3Url: proxiedMp3Url || rec.mp3Url,
+          xmlText: rec.xmlText,
+          plainText: rec.plainText,
+          htmlText: rec.htmlText,
+          mistakes: rec.mistakes || [],
+          audioOrder: rec.audioOrder,
+          recitationType: rec.recitationType,
+          inSyncWithText: rec.inSyncWithText,
+          upVotedByUser: rec.upVotedByUser,
+        };
+      }) || [];
 
     // Clean up HTML text by removing unnecessary divs and keeping only meaningful structure
     const cleanHtml =

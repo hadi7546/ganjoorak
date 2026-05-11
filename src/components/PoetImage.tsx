@@ -14,6 +14,7 @@ interface PoetImageProps {
 export default function PoetImage({ imgUrl, alt, poetSlug, width = 60, height = 60 }: PoetImageProps) {
     const [imgSrc, setImgSrc] = useState<string>(imgUrl);
     const [error, setError] = useState(false);
+    const isApiBackedImage = imgSrc.startsWith('/api/');
 
     useEffect(() => {
         setImgSrc(imgUrl || '/images/default-poet.png');
@@ -42,6 +43,7 @@ export default function PoetImage({ imgUrl, alt, poetSlug, width = 60, height = 
             priority={false} // Set priority to false to reduce initial load impact
             onError={handleError}
             loading="lazy"
+            unoptimized={isApiBackedImage}
             quality={75} // Reduce quality slightly to save bandwidth
         />
     );

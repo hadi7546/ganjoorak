@@ -114,11 +114,52 @@ const getPoetImageRoute = (categoryId: number) =>
   `/api/echolalia/poet-image/${categoryId}`;
 
 const extractMetaContent = (html: string, property: string) => {
-  const pattern = new RegExp(
-    `<meta\\s+(?:name|property)=["']${property}["']\\s+content=["']([^"']*)["']`,
-    "i",
-  );
-  return decodeHtmlEntities(pattern.exec(html)?.[1] ?? "").trim();
+  const metaTagPattern = /<meta\s+[^>]*>/gi;
+  const attributePattern = /([\w:-]+)=["']([^"']*)["']/gi;
+  const tags = html.match(metaTagPattern) ?? [];
+
+  for (const tag of tags) {
+    const attributes: Record<string, string> = {};
+    let attributeMatch: RegExpExecArray | null;
+    attributePattern.lastIndex = 0;
+
+    while ((attributeMatch = attributePattern.exec(tag)) !== null) {
+      attributes[attributeMatch[1].toLowerCase()] = attributeMatch[2];
+    }
+
+    if (
+      attributes.name?.toLowerCase() === property.toLowerCase() ||
+      attributes.property?.toLowerCase() === property.toLowerCase()
+    ) {
+      return decodeHtmlEntities(attributes.content ?? "").trim();
+    }
+  }
+
+  return "";
+};
+
+const getMediaImageUrl = (media: any): string | null => {
+  const sizes = media?.media_details?.sizes;
+  const preferred =
+    sizes?.detail?.source_url ||
+    sizes?.thumbnail?.source_url ||
+    sizes?.["post-image"]?.source_url;
+
+  if (preferred) {
+    return preferred;
+  }
+
+  if (sizes && typeof sizes === "object") {
+    const firstSize = Object.values(sizes).find(
+      (size: any) => typeof size?.source_url === "string" && size.source_url,
+    ) as { source_url?: string } | undefined;
+
+    if (firstSize?.source_url) {
+      return firstSize.source_url;
+    }
+  }
+
+  return media?.source_url || null;
 };
 
 const mapCategoryToPoet = (
@@ -333,14 +374,7 @@ const echolaliaApi = {
           },
         );
 
-        return (
-          mediaResponse.data?.media_details?.sizes?.detail?.source_url ||
-          mediaResponse.data?.media_details?.sizes?.thumbnail?.source_url ||
-          mediaResponse.data?.media_details?.sizes?.["post-image"]
-            ?.source_url ||
-          mediaResponse.data?.source_url ||
-          null
-        );
+        return getMediaImageUrl(mediaResponse.data);
       } catch (error) {
         if (
           axios.isAxiosError(error) &&

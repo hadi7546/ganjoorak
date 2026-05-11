@@ -857,6 +857,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const showNavigationControls =
     (isAtTop && !isFirst) || (isAtBottom && !isLast);
   const showActionButtons = isAtTop || isAtBottom;
+  const keepPoetProfileVisible =
+    isPoetPage && Boolean(onTogglePoetInfo && poem.poet && poem.poetSlug);
   const poetPageHref =
     poem.source === "echolalia"
       ? `/echolalia/${poem.poetSlug}`
@@ -1146,7 +1148,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       {/* Action buttons */}
       {poemViewerVisibility.actionButtons && (
         <div
-          className={`action-buttons${showActionButtons ? "" : " is-hidden"}`}
+          className={`action-buttons${keepPoetProfileVisible ? " action-buttons--profile-persistent" : ""}${showActionButtons ? "" : " is-hidden"}`}
         >
           <button
             className="action-button"

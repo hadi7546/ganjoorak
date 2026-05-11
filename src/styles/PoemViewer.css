@@ -804,6 +804,22 @@
     height: 1.25rem;
 }
 
+.action-buttons.action-buttons--profile-persistent.is-hidden {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.action-buttons.action-buttons--profile-persistent.is-hidden .action-button {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.35rem) scale(0.96);
+}
+
+.action-buttons.action-buttons--profile-persistent.is-hidden .poet-profile {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 @media (max-width: 768px) {
     .poem-text {
         padding-bottom: calc(11rem + env(safe-area-inset-bottom));

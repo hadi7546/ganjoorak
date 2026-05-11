@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic'; // Mark this route as dynamic
 const ALLOWED_DOMAINS = [
     'https://bayanbox.ir/',
     'https://api.ganjoor.net/',
+    'https://i.ganjoor.net/',
     'https://ganjgah.ir/'
 ];
 const AUDIO_PROXY_TIMEOUT_MS = 30000;
