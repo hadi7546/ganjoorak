@@ -48,6 +48,7 @@ interface PoemViewerProps {
   isPoetPage?: boolean;
   onTogglePoetInfo?: () => void;
   onOpenFeed?: () => void;
+  onOpenFeedLabel?: string;
 }
 
 const PoemViewer: React.FC<PoemViewerProps> = ({
@@ -62,6 +63,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   isPoetPage = false,
   onTogglePoetInfo,
   onOpenFeed,
+  onOpenFeedLabel,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -112,6 +114,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   // Turn off loading when a new poem arrives
   useEffect(() => {
     setIsLoading(false);
+    containerRef.current
+      ?.querySelector(".poem-content")
+      ?.classList.remove("poem-content--title-hidden");
     if (poemTextRef.current) {
       poemTextRef.current.scrollTop = 0;
     }
@@ -882,6 +887,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         hasNewUpdates={hasNewUpdates}
         onUpdatesViewed={markAsRead}
         onOpenFeed={onOpenFeed}
+        onOpenFeedLabel={onOpenFeedLabel}
         onOpenSettings={() => {
           setIsSettingsOpen(true);
           setIsMenuOpen(false);
@@ -969,7 +975,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
           <div className="audio-progress" onClick={handleProgressClick}>
             <div
               className="audio-progress-bar"
-              style={{ width: `${(currentTime / duration) * 100}%` }}
+              style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
             />
           </div>
 

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useSearchParams } from "next/navigation";
-import PoemViewer from "@/components/PoemViewer";
+import PoemFeedPager from "@/components/PoemFeedPager";
 import LoadingScreen from "@/components/LoadingScreen";
 import ErrorScreen from "@/components/ErrorScreen";
 import AppNotFound from "@/app/not-found";
@@ -636,6 +636,8 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
   const isLastPoem =
     !randomizePoems &&
     (poemOrder.length === 0 || currentPoemIndex >= poemOrder.length - 1);
+  const nextPoemId = poemOrder[currentPoemIndex + 1];
+  const nextPoem = nextPoemId ? poemCacheRef.current[nextPoemId] : undefined;
   const showPoemLoadingOverlay = poemLoading && !currentPoem;
   const loadingCategoryId =
     selectedCategoryId !== null && (categoryLoading || poemLoading)
@@ -740,19 +742,26 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
           )}
 
           {!showPoemLoadingOverlay && !poemError && currentPoem && (
-            <PoemViewer
+            <PoemFeedPager
               poem={currentPoem}
+              nextPoem={nextPoem}
+              currentIndex={currentPoemIndex}
               onNext={handleNext}
               onPrevious={handlePrevious}
               isFirst={isFirstPoem}
               isLast={isLastPoem}
-              isModern={false}
+              isPreparingNextPoem={poemLoading && !nextPoem && !isLastPoem}
               poetSlug={catalog.poet.urlSlug}
               isPoetPage={true}
               onTogglePoetInfo={() => {
                 shouldAutoCloseInfoRef.current = false;
                 setIsInfoOpen(true);
               }}
+              onOpenFeed={() => {
+                shouldAutoCloseInfoRef.current = false;
+                setIsInfoOpen(true);
+              }}
+              onOpenFeedLabel="مجموعه‌های شاعر"
             />
           )}
 
@@ -998,6 +1007,8 @@ function EcholaliaPoetPage({ poetSlug }: { poetSlug: string }) {
   const isLastPoem =
     !randomizePoems &&
     (poemOrder.length === 0 || currentPoemIndex >= poemOrder.length - 1);
+  const nextPoemId = poemOrder[currentPoemIndex + 1];
+  const nextPoem = nextPoemId ? poemCacheRef.current[nextPoemId] : undefined;
   const showRandomizePrompt =
     !isInfoOpen && shouldAskRandomizeChoice && randomizeChoice === null;
 
@@ -1067,16 +1078,20 @@ function EcholaliaPoetPage({ poetSlug }: { poetSlug: string }) {
             </div>
           )}
           {!poemError && currentPoem && (
-            <PoemViewer
+            <PoemFeedPager
               poem={currentPoem}
+              nextPoem={nextPoem}
+              currentIndex={currentPoemIndex}
               onNext={handleNext}
               onPrevious={handlePrevious}
               isFirst={isFirstPoem}
               isLast={isLastPoem}
-              isModern={true}
+              isPreparingNextPoem={poemLoading && !nextPoem && !isLastPoem}
               poetSlug={currentPoem.poetSlug}
               isPoetPage={true}
               onTogglePoetInfo={() => setIsInfoOpen(true)}
+              onOpenFeed={() => setIsInfoOpen(true)}
+              onOpenFeedLabel="شعرهای شاعر"
             />
           )}
         </div>
@@ -1395,6 +1410,8 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
   const isLastPoem =
     !randomizePoems &&
     (poemOrder.length === 0 || currentPoemIndex >= poemOrder.length - 1);
+  const nextPoemId = poemOrder[currentPoemIndex + 1];
+  const nextPoem = nextPoemId ? poemCacheRef.current[nextPoemId] : undefined;
   const showPoemLoadingOverlay = poemLoading && !currentPoem;
   const containerClassName = [
     "poet-page",
@@ -1443,20 +1460,6 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
         </section>
       </PoetInfoDialog>
       <main className="relative flex flex-1 flex-col overflow-hidden">
-        <div className="border-b border-neutral-800/60 bg-neutral-900/40 px-5 py-3 text-sm text-neutral-300">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-base font-semibold text-neutral-100">
-              {randomizePoems ? "شعرهای تصادفی" : "شعرهای پیاپی"} از{" "}
-              {poetInfo.nickname || poetInfo.name}
-            </span>
-            {poemOrder.length > 0 && (
-              <span className="text-xs text-neutral-500">
-                {formatPersianNumber(currentPoemIndex + 1)} از{" "}
-                {formatPersianNumber(poemOrder.length)}
-              </span>
-            )}
-          </div>
-        </div>
         <div className="relative flex flex-1 flex-col overflow-hidden">
           {showPoemLoadingOverlay && <LoadingScreen />}
 
@@ -1476,16 +1479,20 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
           )}
 
           {!showPoemLoadingOverlay && !poemError && currentPoem && (
-            <PoemViewer
+            <PoemFeedPager
               poem={currentPoem}
+              nextPoem={nextPoem}
+              currentIndex={currentPoemIndex}
               onNext={handleNext}
               onPrevious={handlePrevious}
               isFirst={isFirstPoem}
               isLast={isLastPoem}
-              isModern={true}
+              isPreparingNextPoem={poemLoading && !nextPoem && !isLastPoem}
               poetSlug={poetSlug}
               isPoetPage={true}
               onTogglePoetInfo={() => setIsInfoOpen(true)}
+              onOpenFeed={() => setIsInfoOpen(true)}
+              onOpenFeedLabel="اطلاعات شاعر"
             />
           )}
 

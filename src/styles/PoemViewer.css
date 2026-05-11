@@ -1408,7 +1408,10 @@
 
 @media (max-width: 768px) {
 
-    .poem-text.poem-text--no-audio,
+    .poem-text.poem-text--no-audio {
+        padding-bottom: 2.5rem;
+    }
+
     .poem-text.poem-text--minimal {
         padding-top: 2rem;
         padding-bottom: 2.5rem;
@@ -1417,7 +1420,10 @@
 
 @media (max-width: 480px) {
 
-    .poem-text.poem-text--no-audio,
+    .poem-text.poem-text--no-audio {
+        padding-bottom: 2rem;
+    }
+
     .poem-text.poem-text--minimal {
         padding-top: 1.75rem;
         padding-bottom: 2rem;

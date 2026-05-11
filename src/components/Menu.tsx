@@ -24,6 +24,7 @@ interface MenuProps {
   onUpdatesViewed?: () => void;
   onOpenSettings: () => void;
   onOpenFeed?: () => void;
+  onOpenFeedLabel?: string;
   onOpenSearch?: () => void;
   isZenLocked?: boolean;
   onToggleZenLock?: () => void;
@@ -36,6 +37,7 @@ const Menu: React.FC<MenuProps> = ({
   onUpdatesViewed,
   onOpenSettings,
   onOpenFeed,
+  onOpenFeedLabel = "شاعرهای صفحه اصلی",
   isZenLocked = false,
   onToggleZenLock,
 }) => {
@@ -233,12 +235,13 @@ const Menu: React.FC<MenuProps> = ({
                         className="menu-link menu-link-button"
                         onClick={() => {
                           onOpenFeed();
+                          onClose();
                         }}
                       >
                         <span className="menu-link-icon">
                           <FaBookOpen />
                         </span>
-                        <span className="menu-item-text">شاعرهای صفحه اصلی</span>
+                        <span className="menu-item-text">{onOpenFeedLabel}</span>
                       </button>
                     </li>
                   )}

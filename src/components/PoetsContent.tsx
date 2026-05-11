@@ -142,6 +142,16 @@ function CategorySection({
 
 const OTHER_MODERN_GROUP = "دیگر شاعران";
 const ALL_FILTER_ID = "all";
+const FALLBACK_FEATURED_GANJOOR_SLUGS = [
+  "hafez",
+  "saadi",
+  "moulavi",
+  "ferdousi",
+  "khayyam",
+  "attar",
+  "nezami",
+  "sanaee",
+];
 
 interface PoetFilterOption {
   id: string;
@@ -309,9 +319,18 @@ export default function PoetsContent({
     .flatMap((century) => century.poets)
     .filter((poet) => poet.published && poet.pinOrder > 0)
     .sort((a, b) => a.pinOrder - b.pinOrder);
+  const fallbackFeaturedPoets = pinnedPoets.length > 0
+    ? pinnedPoets
+    : FALLBACK_FEATURED_GANJOOR_SLUGS
+      .map((slug) =>
+        otherCenturies
+          .flatMap((century) => century.poets)
+          .find((poet) => poet.published && poet.urlSlug === slug),
+      )
+      .filter((poet): poet is Poet => Boolean(poet));
   const featuredCentury =
     apiFeaturedCentury ||
-    (pinnedPoets.length > 0
+    (fallbackFeaturedPoets.length > 0
       ? {
         id: 0,
         name: "شاعران محبوب",
@@ -319,7 +338,7 @@ export default function PoetsContent({
         startYear: 0,
         endYear: 0,
         showInTimeLine: false,
-        poets: pinnedPoets,
+        poets: fallbackFeaturedPoets,
       }
       : null);
   const newPoets = [...customPoets, ...modernPoets];

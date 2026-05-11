@@ -24,10 +24,15 @@ interface PoemFeedPagerProps {
   nextPoem?: Poem;
   currentIndex: number;
   isFirst: boolean;
+  isLast?: boolean;
   isPreparingNextPoem?: boolean;
   onNext: () => void;
   onPrevious: () => void;
+  isPoetPage?: boolean;
+  poetSlug?: string;
+  onTogglePoetInfo?: () => void;
   onOpenFeed?: () => void;
+  onOpenFeedLabel?: string;
 }
 
 const isScrollable = (element: HTMLElement) => element.scrollHeight > element.clientHeight + 4;
@@ -50,10 +55,15 @@ export default function PoemFeedPager({
   nextPoem,
   currentIndex,
   isFirst,
+  isLast = false,
   isPreparingNextPoem = false,
   onNext,
   onPrevious,
+  isPoetPage = false,
+  poetSlug,
+  onTogglePoetInfo,
   onOpenFeed,
+  onOpenFeedLabel,
 }: PoemFeedPagerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef(0);
@@ -125,6 +135,14 @@ export default function PoemFeedPager({
     }
   }, []);
 
+  const resetTitleVisibility = useCallback(() => {
+    rootRef.current
+      ?.querySelectorAll(".poem-content--title-hidden")
+      .forEach((element) => {
+        element.classList.remove("poem-content--title-hidden");
+      });
+  }, []);
+
   const showNextPreview = useCallback(() => {
     if ((!nextPoem && !isPreparingNextPoem) || isZenLocked) return;
 
@@ -181,8 +199,10 @@ export default function PoemFeedPager({
 
     resetArm();
     resetPreview();
+    resetTitleVisibility();
 
     if (direction === "next") {
+      if (isLast) return;
       onNext();
       return;
     }
@@ -190,7 +210,7 @@ export default function PoemFeedPager({
     if (!isFirst) {
       onPrevious();
     }
-  }, [canNavigate, isFirst, isZenLocked, onNext, onPrevious, resetArm, resetPreview]);
+  }, [canNavigate, isFirst, isLast, isZenLocked, onNext, onPrevious, resetArm, resetPreview, resetTitleVisibility]);
 
   const requestBoundaryNavigation = useCallback((direction: Direction) => {
     if (isZenLocked) return;
@@ -200,6 +220,7 @@ export default function PoemFeedPager({
   useEffect(() => {
     resetArm();
     resetPreview();
+    resetTitleVisibility();
     document.documentElement.classList.remove("poem-feed-is-reading");
 
     const poemText = getActivePoemText(rootRef.current);
@@ -207,7 +228,7 @@ export default function PoemFeedPager({
       poemText.scrollTop = 0;
       updateTitleVisibility(poemText);
     }
-  }, [poem.id, resetArm, resetPreview, updateTitleVisibility]);
+  }, [poem.id, resetArm, resetPreview, resetTitleVisibility, updateTitleVisibility]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -588,11 +609,11 @@ export default function PoemFeedPager({
           }
 
           .poem-feed-pager .poem-text {
-            padding-top: 10.75rem !important;
+            padding-top: clamp(8.5rem, 24vh, 10.75rem) !important;
           }
 
           .poem-feed-pager .poem-content--centered .poem-text {
-            padding-top: 10.75rem !important;
+            padding-top: clamp(8.5rem, 24vh, 10.75rem) !important;
           }
 
           .poem-feed-pager .poem-content--title-hidden .poem-text,
@@ -624,7 +645,7 @@ export default function PoemFeedPager({
         @media (max-width: 480px) {
           .poem-feed-pager .poem-text,
           .poem-feed-pager .poem-content--centered .poem-text {
-            padding-top: 10rem !important;
+            padding-top: clamp(8rem, 24vh, 10rem) !important;
           }
 
           .poem-feed-pager .poem-content--title-hidden .poem-text,
@@ -645,7 +666,11 @@ export default function PoemFeedPager({
           isFirst={true}
           isLast={true}
           isModern={poem.source !== "ganjoor"}
+          poetSlug={poetSlug}
+          isPoetPage={isPoetPage}
+          onTogglePoetInfo={onTogglePoetInfo}
           onOpenFeed={onOpenFeed}
+          onOpenFeedLabel={onOpenFeedLabel}
         />
       </div>
       {(nextPoem || isPreparingNextPoem) && (
