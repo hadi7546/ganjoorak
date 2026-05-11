@@ -1,8 +1,4 @@
 @media (max-width: 768px) {
-  .poem-feed-lock-button {
-    display: none !important;
-  }
-
   .poem-feed-pager .menu-button:not(.poem-feed-lock-button) {
     --mobile-floating-slot: 0;
   }
