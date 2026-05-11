@@ -110,10 +110,11 @@ const readExistingIndex = async () => {
 
 const addEntry = (entries, slug, entry) => {
   if (!slug) return;
-  if (entries[slug]?.source === "ganjoor") return;
+  if (entries[slug]?.source === "ganjoor" && entry.source !== "ganjoor") return;
   entries[slug] = {
     ...(entries[slug] ?? {}),
     ...entry,
+    localImageUrl: entries[slug]?.localImageUrl ?? entry.localImageUrl,
   };
 };
 
@@ -353,6 +354,45 @@ const hydratePoetImages = async (entries) => {
 };
 
 const loadGanjoorPoets = async (entries) => {
+  const centuriesResponse = await fetchJson(
+    `${GANJOOR_API_BASE_URL}/api/ganjoor/centuries`,
+  );
+  const centuries = Array.isArray(centuriesResponse.data)
+    ? centuriesResponse.data
+    : [];
+  let poetCount = 0;
+
+  centuries
+    .filter((century) => Number(century?.id) !== 0)
+    .forEach((century) => {
+      const poets = Array.isArray(century?.poets) ? century.poets : [];
+
+      poets.forEach((poet) => {
+        const slug = getGanjoorSlug(poet.fullUrl);
+        addEntry(entries, slug, {
+          source: "ganjoor",
+          id: poet.id ?? null,
+          name: poet.name ?? "",
+          centuryId: century.id ?? null,
+          centuryName: century.name ?? "",
+          centuryHalfCenturyOrder: century.halfCenturyOrder ?? 0,
+          centuryStartYear: century.startYear ?? 0,
+          centuryEndYear: century.endYear ?? 0,
+          centuryShowInTimeLine: Boolean(century.showInTimeLine),
+          birthYearInLHijri: poet.birthYearInLHijri ?? null,
+          validBirthDate: Boolean(poet.validBirthDate),
+          deathYearInLHijri: poet.deathYearInLHijri ?? null,
+          validDeathDate: Boolean(poet.validDeathDate),
+          pinOrder: poet.pinOrder ?? 0,
+        });
+        poetCount += 1;
+      });
+    });
+
+  if (poetCount > 0) {
+    return poetCount;
+  }
+
   const response = await fetchJson(`${GANJOOR_API_BASE_URL}/api/ganjoor/poets`);
   const poets = Array.isArray(response.data) ? response.data : [];
 
@@ -362,6 +402,11 @@ const loadGanjoorPoets = async (entries) => {
       source: "ganjoor",
       id: poet.id ?? null,
       name: poet.name ?? "",
+      birthYearInLHijri: poet.birthYearInLHijri ?? null,
+      validBirthDate: Boolean(poet.validBirthDate),
+      deathYearInLHijri: poet.deathYearInLHijri ?? null,
+      validDeathDate: Boolean(poet.validDeathDate),
+      pinOrder: poet.pinOrder ?? 0,
     });
   });
 
