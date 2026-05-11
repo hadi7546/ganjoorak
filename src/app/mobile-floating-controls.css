@@ -9,7 +9,14 @@
 
   :root.poem-feed-has-audio-player,
   :root:has(.audio-player) {
-    --mobile-audio-offset: 4.95rem;
+    --mobile-audio-offset: 6.5rem;
+  }
+
+  .poem-viewer:has(.audio-player) .menu-button:not(.poem-feed-lock-button),
+  .poem-viewer:has(.audio-player) .global-search-button,
+  .poem-feed-pager:has(.audio-player) .menu-button:not(.poem-feed-lock-button),
+  .poem-feed-pager:has(.audio-player) .global-search-button {
+    --mobile-audio-offset: 6.5rem;
   }
 
   .menu-button:not(.poem-feed-lock-button),
@@ -83,5 +90,19 @@
     opacity: 0 !important;
     pointer-events: none !important;
     transform: translateX(0.4rem) scale(0.96) !important;
+  }
+}
+
+@media (max-width: 768px) and (max-height: 720px) {
+  :root.poem-feed-has-audio-player,
+  :root:has(.audio-player) {
+    --mobile-audio-offset: 7rem;
+  }
+
+  .poem-viewer:has(.audio-player) .menu-button:not(.poem-feed-lock-button),
+  .poem-viewer:has(.audio-player) .global-search-button,
+  .poem-feed-pager:has(.audio-player) .menu-button:not(.poem-feed-lock-button),
+  .poem-feed-pager:has(.audio-player) .global-search-button {
+    --mobile-audio-offset: 7rem;
   }
 }
