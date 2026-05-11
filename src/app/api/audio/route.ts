@@ -1,18 +1,6 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-
-const AUDIO_RESPONSE_HEADERS = [
-    'accept-ranges',
-    'cache-control',
-    'content-disposition',
-    'content-encoding',
-    'content-length',
-    'content-range',
-    'content-type',
-    'etag',
-    'last-modified',
-] as const;
 
 const ALLOWED_HOSTS = new Set([
     'api.ganjoor.net',
@@ -21,6 +9,7 @@ const ALLOWED_HOSTS = new Set([
     'ganjoor.net',
     'i.ganjoor.net',
     'offline.ganjoor.net',
+    'api.offline.ganjoor.net',
 ]);
 
 const isAllowedAudioUrl = (url: URL) => {
@@ -61,41 +50,5 @@ export async function GET(request: NextRequest) {
         return new Response('Invalid URL domain', { status: 403 });
     }
 
-    const upstreamHeaders = new Headers();
-    const range = request.headers.get('range');
-
-    if (range) {
-        upstreamHeaders.set('range', range);
-    }
-
-    upstreamHeaders.set(
-        'user-agent',
-        'Mozilla/5.0 (compatible; GanjoorakAudioProxy/1.0)',
-    );
-
-    const upstreamResponse = await fetch(parsedUrl.toString(), {
-        headers: upstreamHeaders,
-        cache: 'no-store',
-    });
-
-    const headers = new Headers();
-
-    AUDIO_RESPONSE_HEADERS.forEach((headerName) => {
-        const value = upstreamResponse.headers.get(headerName);
-        if (value) {
-            headers.set(headerName, value);
-        }
-    });
-
-    if (!headers.has('content-type')) {
-        headers.set('content-type', 'audio/mpeg');
-    }
-
-    headers.set('access-control-allow-origin', '*');
-
-    return new Response(upstreamResponse.body, {
-        status: upstreamResponse.status,
-        statusText: upstreamResponse.statusText,
-        headers,
-    });
+    return NextResponse.redirect(parsedUrl.toString(), 302);
 }
