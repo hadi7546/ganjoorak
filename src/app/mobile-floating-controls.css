@@ -1,6 +1,7 @@
 @media (max-width: 768px) {
   :root {
     --mobile-audio-offset: 0rem;
+    --mobile-left-audio-offset: 0rem;
     --mobile-floating-right: 1rem;
     --mobile-floating-size: 2.5rem;
     --mobile-floating-gap: 0.75rem;
@@ -9,7 +10,8 @@
 
   :root.poem-feed-has-audio-player,
   :root:has(.audio-player) {
-    --mobile-audio-offset: 6.5rem;
+    --mobile-audio-offset: 5.35rem;
+    --mobile-left-audio-offset: 4.15rem;
   }
 
   .poem-viewer:has(.audio-player) .menu-button:not(.poem-feed-lock-button),
@@ -18,7 +20,14 @@
   .poem-feed-pager:has(.audio-player) .menu-button:not(.poem-feed-lock-button),
   .poem-feed-pager:has(.audio-player) .global-search-button,
   .poem-feed-pager:has(.audio-player) .poem-feed-lock-button {
-    --mobile-audio-offset: 6.5rem;
+    --mobile-audio-offset: 5.35rem;
+  }
+
+  .poem-viewer:has(.audio-player) .action-buttons,
+  .poem-viewer:has(.audio-player) .poet-info,
+  .poem-feed-pager:has(.audio-player) .action-buttons,
+  .poem-feed-pager:has(.audio-player) .poet-info {
+    --mobile-left-audio-offset: 4.15rem;
   }
 
   .menu-button:not(.poem-feed-lock-button),
@@ -100,7 +109,7 @@
 
   .action-buttons,
   .poet-info {
-    bottom: calc(1rem + var(--mobile-audio-offset) + env(safe-area-inset-bottom)) !important;
+    bottom: calc(1rem + var(--mobile-left-audio-offset) + env(safe-area-inset-bottom)) !important;
   }
 
   body:has(.menu-drawer) .menu-button:not(.poem-feed-lock-button),
@@ -118,7 +127,8 @@
 @media (max-width: 768px) and (max-height: 720px) {
   :root.poem-feed-has-audio-player,
   :root:has(.audio-player) {
-    --mobile-audio-offset: 7rem;
+    --mobile-audio-offset: 5.75rem;
+    --mobile-left-audio-offset: 4.35rem;
   }
 
   .poem-viewer:has(.audio-player) .menu-button:not(.poem-feed-lock-button),
@@ -127,6 +137,13 @@
   .poem-feed-pager:has(.audio-player) .menu-button:not(.poem-feed-lock-button),
   .poem-feed-pager:has(.audio-player) .global-search-button,
   .poem-feed-pager:has(.audio-player) .poem-feed-lock-button {
-    --mobile-audio-offset: 7rem;
+    --mobile-audio-offset: 5.75rem;
+  }
+
+  .poem-viewer:has(.audio-player) .action-buttons,
+  .poem-viewer:has(.audio-player) .poet-info,
+  .poem-feed-pager:has(.audio-player) .action-buttons,
+  .poem-feed-pager:has(.audio-player) .poet-info {
+    --mobile-left-audio-offset: 4.35rem;
   }
 }
