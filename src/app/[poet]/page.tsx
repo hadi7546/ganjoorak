@@ -19,7 +19,7 @@ import PoetImage from "@/components/PoetImage";
 import { useSettings } from "@/context/SettingsContext";
 import { logger } from "@/utils/logger";
 import poetSourceIndex from "@/data/poet-source-index.json";
-import { FaSpinner } from "react-icons/fa";
+import { FaCheck, FaSpinner } from "react-icons/fa";
 
 type RemotePoetSource = "ganjoor" | "echolalia";
 
@@ -228,15 +228,17 @@ function RandomizePoemsPrompt({
               می‌توانید شعرها را به صورت تصادفی بخوانید یا از ابتدای مجموعه
               پیاپی جلو بروید.
             </p>
-            <label className="mt-5 flex cursor-pointer items-center justify-start gap-3 rounded-xl bg-neutral-800/60 px-4 py-3 text-sm text-neutral-200">
-              <input
-                type="checkbox"
-                checked={rememberChoice}
-                onChange={(event) => setRememberChoice(event.target.checked)}
-                className="h-4 w-4 accent-neutral-100"
-              />
+            <button
+              type="button"
+              className={`randomize-remember-toggle${rememberChoice ? " active" : ""}`}
+              onClick={() => setRememberChoice((current) => !current)}
+              aria-pressed={rememberChoice}
+            >
+              <span className="randomize-remember-check" aria-hidden="true">
+                {rememberChoice && <FaCheck />}
+              </span>
               <span>برای همهٔ شاعران همین را استفاده کن و دوباره نپرس</span>
-            </label>
+            </button>
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <button
                 type="button"
