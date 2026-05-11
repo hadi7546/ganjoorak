@@ -9,6 +9,7 @@ import type {
   GanjoorPoemSearchResult,
 } from "@/types/ganjoor";
 import { logger } from "@/utils/logger";
+import { getIndexedPoetImageUrl } from "@/utils/poetImages";
 
 const API_TIMEOUT_MS = 15000;
 
@@ -228,7 +229,9 @@ const ganjoorApi = {
       rootCatId: poet.rootCatId,
       nickname: poet.nickname,
       published: poet.published,
-      imageUrl: `${API_BASE_URL}/api/ganjoor/poet/image/${poet.fullUrl.slice(1)}.gif`,
+      imageUrl:
+        getIndexedPoetImageUrl("ganjoor", poet.fullUrl.slice(1)) ||
+        `${API_BASE_URL}/api/ganjoor/poet/image/${poet.fullUrl.slice(1)}.gif`,
       birthYearInLHijri: poet.birthYearInLHijri,
       validBirthDate: poet.validBirthDate,
       deathYearInLHijri: poet.deathYearInLHijri,
@@ -294,7 +297,11 @@ const ganjoorApi = {
       ...century,
       poets: century.poets.map((poet: any) => ({
         ...poet,
-        imageUrl: `${API_BASE_URL}${poet.imageUrl}`,
+        imageUrl:
+          getIndexedPoetImageUrl(
+            "ganjoor",
+            String(poet.fullUrl || "").replace(/^\/+/, "").split("/")[0],
+          ) || `${API_BASE_URL}${poet.imageUrl}`,
         fullUrl: poet.fullUrl.startsWith("/")
           ? poet.fullUrl.slice(1)
           : poet.fullUrl,
@@ -364,7 +371,11 @@ const ganjoorApi = {
       rootCatId: poet.rootCatId,
       nickname: poet.nickname,
       published: poet.published,
-      imageUrl: `${API_BASE_URL}${poet.imageUrl}`,
+      imageUrl:
+        getIndexedPoetImageUrl(
+          "ganjoor",
+          poet.fullUrl.startsWith("/") ? poet.fullUrl.slice(1) : poet.fullUrl,
+        ) || `${API_BASE_URL}${poet.imageUrl}`,
       birthYearInLHijri: poet.birthYearInLHijri,
       validBirthDate: poet.validBirthDate,
       deathYearInLHijri: poet.deathYearInLHijri,

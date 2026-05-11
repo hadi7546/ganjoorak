@@ -2,6 +2,7 @@ import axios from "axios";
 import type { Poem } from "@/types/poem";
 import { createPoet, type Poet } from "@/types/poet";
 import { logger } from "@/utils/logger";
+import { getIndexedPoetImageUrl } from "@/utils/poetImages";
 
 const ECHOLALIA_API_BASE_URL = "https://echolalia.ir/wp-json/wp/v2";
 const ECHOLALIA_POET_ROOT_SLUG = "sher";
@@ -181,7 +182,9 @@ const mapCategoryToPoet = (
     rootCatId: category.id,
     nickname: null,
     published: true,
-    imageUrl: getPoetImageRoute(category.id),
+    imageUrl:
+      getIndexedPoetImageUrl("echolalia", slug) ||
+      getPoetImageRoute(category.id),
     source: "echolalia",
     sourceGroupName,
   });

@@ -1305,6 +1305,16 @@ body:has(.menu-drawer) .sidebar-toggle-button {
     background-color: rgb(var(--secondary) / 0.8);
 }
 
+.global-search-header .global-search-close-button {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px rgb(var(--border));
+}
+
+.global-search-header .global-search-close-button:hover {
+    transform: translateY(-50%) translateX(-2px);
+    background-color: rgb(var(--secondary) / 0.75);
+}
+
 .global-search-input-wrap {
     display: flex;
     align-items: center;

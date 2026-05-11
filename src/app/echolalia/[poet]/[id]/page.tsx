@@ -7,6 +7,9 @@ import ErrorScreen from "@/components/ErrorScreen";
 import LoadingScreen from "@/components/LoadingScreen";
 import { logger } from "@/utils/logger";
 
+const isValidPoetRouteSlug = (slug: string) =>
+  slug.length >= 2 && !/[/?#\\\u0000-\u001F\u007F]/.test(slug);
+
 export default function LegacyEcholaliaPoemPage() {
   const params = useParams();
   const router = useRouter();
@@ -35,7 +38,7 @@ export default function LegacyEcholaliaPoemPage() {
     redirectToCleanUrl();
   }, [poemId, poetSlug, router]);
 
-  if (!poetSlug || poetSlug.length < 2 || /[^a-z0-9-]/i.test(poetSlug)) {
+  if (!isValidPoetRouteSlug(poetSlug)) {
     return (
       <ErrorScreen
         message="نشانی شعر معتبر نیست."

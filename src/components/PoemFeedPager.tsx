@@ -11,7 +11,6 @@ const WHEEL_THRESHOLD_PX = 48;
 const NAVIGATION_COOLDOWN_MS = 650;
 const EDGE_THRESHOLD_PX = 8;
 const KEY_SCROLL_AMOUNT_PX = 110;
-const TITLE_HIDE_SCROLL_TOP = 12;
 const READING_CHROME_HIDE_MS = 850;
 const CONTENT_TRANSITION_MS = 260;
 const NEXT_PREVIEW_HIDE_MS = 900;
@@ -165,10 +164,7 @@ export default function PoemFeedPager({
     const poemContent = poemText.closest(".poem-content");
     if (!poemContent) return;
 
-    poemContent.classList.toggle(
-      "poem-content--title-hidden",
-      poemText.scrollTop > TITLE_HIDE_SCROLL_TOP,
-    );
+    poemContent.classList.remove("poem-content--title-hidden");
   }, []);
 
   const hideReadingChromeTemporarily = useCallback(() => {
@@ -663,8 +659,8 @@ export default function PoemFeedPager({
           poem={poem}
           onNext={() => requestBoundaryNavigation("next")}
           onPrevious={() => requestBoundaryNavigation("previous")}
-          isFirst={true}
-          isLast={true}
+          isFirst={isFirst}
+          isLast={isLast}
           isModern={poem.source !== "ganjoor"}
           poetSlug={poetSlug}
           isPoetPage={isPoetPage}

@@ -34,6 +34,8 @@ const indexedPoetSources = poetSourceIndex.sourcesBySlug as Record<
   string,
   PoetSourceIndexEntry | undefined
 >;
+const isValidPoetRouteSlug = (slug: string) =>
+  slug.length >= 2 && !/[/?#\\\u0000-\u001F\u007F]/.test(slug);
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 
@@ -1519,7 +1521,7 @@ export default function PoetPage() {
       ? parsedPoetId
       : undefined;
 
-  if (!poetSlug || poetSlug.length < 2 || /[^a-z0-9-]/i.test(poetSlug)) {
+  if (!isValidPoetRouteSlug(poetSlug)) {
     return <AppNotFound />;
   }
 

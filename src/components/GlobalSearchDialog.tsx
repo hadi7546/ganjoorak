@@ -4,10 +4,10 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  FaArrowLeft,
   FaBookOpen,
   FaFeatherAlt,
   FaSearch,
-  FaTimes,
   FaUser,
 } from "react-icons/fa";
 import ganjoorApi from "@/api/GanjoorApi";
@@ -65,10 +65,6 @@ const normalizeSearchText = (value: string) =>
     .toLowerCase();
 
 const getPoetHref = (poet: Poet) => {
-  if (poet.source === "echolalia") {
-    return poet.fullUrl;
-  }
-
   if (/^https?:\/\//.test(poet.fullUrl)) {
     return poet.fullUrl;
   }
@@ -77,6 +73,12 @@ const getPoetHref = (poet: Poet) => {
     ? poet.fullUrl
     : `/${poet.fullUrl || poet.urlSlug}`;
   return poetPath;
+};
+
+const getPoetSourcePriority = (poet: Poet) => {
+  if (poet.source === "ganjoor" || !poet.source) return 0;
+  if (poet.source === "custom") return 1;
+  return 2;
 };
 
 const getPoemHref = (poem: GanjoorPoemSearchResult | LocalPoemSearchResult) => {
@@ -318,6 +320,7 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [allPoets, setAllPoets] = useState<Poet[]>([]);
+  const [hasLoadedPoets, setHasLoadedPoets] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const normalizedQuery = useMemo(() => normalizeSearchText(query), [query]);
   const shouldSearch = normalizedQuery.length >= 2;
@@ -347,9 +350,13 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
         ]);
         if (!cancelled) {
           setAllPoets([...ganjoorPoets, ...customPoets, ...echolaliaPoets]);
+          setHasLoadedPoets(true);
         }
       } catch (loadError) {
         logger.error("Error loading poets for search:", loadError);
+        if (!cancelled) {
+          setHasLoadedPoets(true);
+        }
       }
     };
 
@@ -372,6 +379,13 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
       return;
     }
 
+    if ((filter === "all" || filter === "poets") && !hasLoadedPoets) {
+      setResults(emptyState);
+      setError(null);
+      setIsLoading(true);
+      return;
+    }
+
     let cancelled = false;
     const timer = window.setTimeout(async () => {
       setIsLoading(true);
@@ -385,8 +399,26 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
         const matchingPoets = shouldSearchPoets
           ? allPoets
               .filter((poet) => poet.published && poetMatchesQuery(poet, normalizedQuery))
+              .sort((a, b) => {
+                const sourceDelta = getPoetSourcePriority(a) - getPoetSourcePriority(b);
+                if (sourceDelta !== 0) return sourceDelta;
+                return (a.nickname || a.name).localeCompare(b.nickname || b.name, "fa");
+              })
               .slice(0, 10)
           : [];
+
+        if (!cancelled) {
+          setResults({
+            poets: matchingPoets,
+            poems: [],
+            books: [],
+          });
+          setIsLoading(shouldSearchPoems || shouldSearchBooks);
+        }
+
+        if (!shouldSearchPoems && !shouldSearchBooks) {
+          return;
+        }
 
         const [remotePoems, localResults, echolaliaPoems, ganjoorBookResults] = await Promise.all([
           shouldSearchPoems || shouldSearchBooks
@@ -440,7 +472,7 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [allPoets, filter, isOpen, normalizedQuery, query, shouldSearch]);
+  }, [allPoets, filter, hasLoadedPoets, isOpen, normalizedQuery, query, shouldSearch]);
 
   const hasResults =
     results.poets.length > 0 ||
@@ -476,8 +508,13 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
             >
               <header className="global-search-header">
                 <h2 id="global-search-title">جستجو</h2>
-                <button type="button" onClick={onClose} aria-label="بستن">
-                  <FaTimes />
+                <button
+                  type="button"
+                  className="global-search-close-button"
+                  onClick={onClose}
+                  aria-label="بستن"
+                >
+                  <FaArrowLeft />
                 </button>
               </header>
 

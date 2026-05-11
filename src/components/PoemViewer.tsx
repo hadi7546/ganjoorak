@@ -863,15 +863,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     .filter(Boolean)
     .join(" ");
 
-  const showNavigationControls =
-    (isAtTop && !isFirst) || (isAtBottom && !isLast);
-  const showActionButtons = isAtTop || isAtBottom;
+  const showNavigationControls = !isFirst || !isLast;
+  const showActionButtons = true;
   const keepPoetProfileVisible =
     isPoetPage && Boolean(onTogglePoetInfo && poem.poet && poem.poetSlug);
-  const poetPageHref =
-    poem.source === "echolalia"
-      ? `/echolalia/${poem.poetSlug}`
-      : `/${poem.poetSlug}`;
+  const poetPageHref = `/${poem.poetSlug}`;
   if (!poem) return null;
 
   return (

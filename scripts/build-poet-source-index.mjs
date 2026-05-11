@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const GANJOOR_API_BASE_URL = (
@@ -15,6 +15,16 @@ const OUTPUT_PATH = path.join(
   "data",
   "poet-source-index.json",
 );
+const POET_IMAGE_OUTPUT_DIR = path.join(process.cwd(), "public", "images", "poets");
+const POET_IMAGE_ROUTE_PREFIX = "/images/poets";
+const IMAGE_DOWNLOAD_CONCURRENCY = Number(
+  process.env.POET_IMAGE_DOWNLOAD_CONCURRENCY || 8,
+);
+const IMAGE_DOWNLOAD_LIMIT = Number(process.env.POET_IMAGE_DOWNLOAD_LIMIT || 0);
+const SHOULD_DOWNLOAD_POET_IMAGES =
+  process.env.SKIP_POET_IMAGE_DOWNLOAD !== "1" &&
+  process.env.DOWNLOAD_POET_IMAGES !== "0";
+const IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
 
 const decodeWordPressSlug = (slug) => {
   try {
@@ -60,6 +70,33 @@ const fetchJson = async (url, params) => {
   }
 };
 
+const fetchText = async (url, params) => {
+  const requestUrl = new URL(url);
+  Object.entries(params || {}).forEach(([key, value]) => {
+    requestUrl.searchParams.set(key, String(value));
+  });
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch(requestUrl, {
+      headers: {
+        Accept: "text/html,*/*",
+      },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    return await response.text();
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
 const readExistingIndex = async () => {
   try {
     return JSON.parse(await readFile(OUTPUT_PATH, "utf8"));
@@ -74,7 +111,245 @@ const readExistingIndex = async () => {
 const addEntry = (entries, slug, entry) => {
   if (!slug) return;
   if (entries[slug]?.source === "ganjoor") return;
-  entries[slug] = entry;
+  entries[slug] = {
+    ...(entries[slug] ?? {}),
+    ...entry,
+  };
+};
+
+const safeImageSlug = (slug) =>
+  /^[a-z0-9-]+$/i.test(slug)
+    ? slug
+    : `u-${Buffer.from(slug, "utf8").toString("base64url")}`;
+
+const getLocalImageRoute = (source, slug, extension) =>
+  `${POET_IMAGE_ROUTE_PREFIX}/${source}-${safeImageSlug(slug)}.${extension}`;
+
+const getLocalImagePath = (source, slug, extension) =>
+  path.join(POET_IMAGE_OUTPUT_DIR, `${source}-${safeImageSlug(slug)}.${extension}`);
+
+const findExistingLocalImageRoute = async (source, slug) => {
+  for (const extension of IMAGE_EXTENSIONS) {
+    const imagePath = getLocalImagePath(source, slug, extension);
+    try {
+      await access(imagePath);
+      return getLocalImageRoute(source, slug, extension);
+    } catch {
+      // Try the next supported extension.
+    }
+  }
+
+  return null;
+};
+
+const getImageExtension = (url, contentType) => {
+  const normalizedContentType = String(contentType || "").toLowerCase();
+  if (normalizedContentType.includes("gif")) return "gif";
+  if (normalizedContentType.includes("png")) return "png";
+  if (normalizedContentType.includes("webp")) return "webp";
+  if (normalizedContentType.includes("jpeg") || normalizedContentType.includes("jpg")) {
+    return "jpg";
+  }
+
+  const pathname = new URL(url).pathname.toLowerCase();
+  const match = pathname.match(/\.([a-z0-9]+)$/);
+  const extension = match?.[1] === "jpeg" ? "jpg" : match?.[1];
+  return IMAGE_EXTENSIONS.includes(extension) ? extension : "jpg";
+};
+
+const downloadImage = async (url) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Accept: "image/avif,image/webp,image/png,image/jpeg,image/gif,*/*",
+      },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.toLowerCase().startsWith("image/")) {
+      throw new Error(`Unexpected content type: ${contentType || "unknown"}`);
+    }
+
+    return {
+      bytes: Buffer.from(await response.arrayBuffer()),
+      extension: getImageExtension(response.url || url, contentType),
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
+const extractMetaContent = (html, property) => {
+  const metaTagPattern = /<meta\s+[^>]*>/gi;
+  const attributePattern = /([\w:-]+)=["']([^"']*)["']/gi;
+  const tags = html.match(metaTagPattern) ?? [];
+
+  for (const tag of tags) {
+    const attributes = {};
+    let attributeMatch;
+    attributePattern.lastIndex = 0;
+
+    while ((attributeMatch = attributePattern.exec(tag)) !== null) {
+      attributes[attributeMatch[1].toLowerCase()] = attributeMatch[2];
+    }
+
+    if (
+      attributes.name?.toLowerCase() === property.toLowerCase() ||
+      attributes.property?.toLowerCase() === property.toLowerCase()
+    ) {
+      return attributes.content?.trim() || "";
+    }
+  }
+
+  return "";
+};
+
+const getMediaImageUrl = (media) => {
+  const sizes = media?.media_details?.sizes;
+  const preferred =
+    sizes?.detail?.source_url ||
+    sizes?.thumbnail?.source_url ||
+    sizes?.["post-image"]?.source_url;
+
+  if (preferred) return preferred;
+
+  if (sizes && typeof sizes === "object") {
+    const firstSize = Object.values(sizes).find(
+      (size) => typeof size?.source_url === "string" && size.source_url,
+    );
+
+    if (firstSize?.source_url) return firstSize.source_url;
+  }
+
+  return media?.source_url || null;
+};
+
+const getEcholaliaPoetImageUrl = async (categoryId) => {
+  const postsResponse = await fetchJson(`${ECHOLALIA_API_BASE_URL}/posts`, {
+    categories: categoryId,
+    per_page: 1,
+    page: 1,
+    _fields: "id,link,featured_media",
+  });
+  const post = Array.isArray(postsResponse.data) ? postsResponse.data[0] : null;
+
+  if (!post) {
+    return null;
+  }
+
+  if (post.featured_media) {
+    try {
+      const mediaResponse = await fetchJson(
+        `${ECHOLALIA_API_BASE_URL}/media/${post.featured_media}`,
+        {
+          _fields:
+            "source_url,media_details.sizes.thumbnail.source_url,media_details.sizes.post-image.source_url,media_details.sizes.detail.source_url",
+        },
+      );
+      const mediaUrl = getMediaImageUrl(mediaResponse.data);
+      if (mediaUrl) return mediaUrl;
+    } catch {
+      // Some Echolalia media endpoints are private; fall through to page metadata.
+    }
+  }
+
+  if (post.link) {
+    try {
+      const postHtml = await fetchText(post.link);
+      return (
+        extractMetaContent(postHtml, "og:image") ||
+        extractMetaContent(postHtml, "twitter:image") ||
+        null
+      );
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+};
+
+const getRemotePoetImageUrl = async (slug, entry) => {
+  if (entry.source === "ganjoor") {
+    return `${GANJOOR_API_BASE_URL}/api/ganjoor/poet/image/${slug}.gif`;
+  }
+
+  if (entry.source === "echolalia" && Number.isInteger(entry.id)) {
+    return getEcholaliaPoetImageUrl(entry.id);
+  }
+
+  return null;
+};
+
+const downloadPoetImage = async (slug, entry) => {
+  const existing = await findExistingLocalImageRoute(entry.source, slug);
+  if (existing) {
+    entry.localImageUrl = existing;
+    return true;
+  }
+
+  const remoteUrl = await getRemotePoetImageUrl(slug, entry);
+  if (!remoteUrl) {
+    return false;
+  }
+
+  const image = await downloadImage(remoteUrl);
+  await mkdir(POET_IMAGE_OUTPUT_DIR, { recursive: true });
+  await writeFile(getLocalImagePath(entry.source, slug, image.extension), image.bytes);
+  entry.localImageUrl = getLocalImageRoute(entry.source, slug, image.extension);
+  return true;
+};
+
+const runWithConcurrency = async (items, concurrency, worker) => {
+  let cursor = 0;
+
+  await Promise.all(
+    Array.from({ length: Math.max(1, concurrency) }, async () => {
+      while (cursor < items.length) {
+        const item = items[cursor];
+        cursor += 1;
+        await worker(item);
+      }
+    }),
+  );
+};
+
+const hydratePoetImages = async (entries) => {
+  if (!SHOULD_DOWNLOAD_POET_IMAGES) {
+    return { downloaded: 0, failed: 0, skipped: Object.keys(entries).length };
+  }
+
+  const allItems = Object.entries(entries).filter(
+    ([, entry]) => entry?.source === "ganjoor" || entry?.source === "echolalia",
+  );
+  const items = IMAGE_DOWNLOAD_LIMIT > 0 ? allItems.slice(0, IMAGE_DOWNLOAD_LIMIT) : allItems;
+  let downloaded = 0;
+  let failed = 0;
+
+  await runWithConcurrency(items, IMAGE_DOWNLOAD_CONCURRENCY, async ([slug, entry]) => {
+    try {
+      if (await downloadPoetImage(slug, entry)) {
+        downloaded += 1;
+      }
+    } catch (error) {
+      failed += 1;
+      console.warn(
+        `Could not download poet image for ${entry.source}:${slug}: ${
+          error instanceof Error ? error.message : error
+        }`,
+      );
+    }
+  });
+
+  return { downloaded, failed, skipped: allItems.length - items.length };
 };
 
 const loadGanjoorPoets = async (entries) => {
@@ -173,6 +448,7 @@ const main = async () => {
     const sortedEntries = Object.fromEntries(
       Object.entries(entries).sort(([a], [b]) => a.localeCompare(b)),
     );
+    const imageStats = await hydratePoetImages(sortedEntries);
 
     await mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
     await writeFile(
@@ -189,6 +465,9 @@ const main = async () => {
 
     console.log(
       `Built poet source index: ${ganjoorCount} Ganjoor poets, ${echolaliaCount} Echolalia poets`,
+    );
+    console.log(
+      `Poet images: ${imageStats.downloaded} local, ${imageStats.failed} failed, ${imageStats.skipped} skipped`,
     );
   } catch (error) {
     console.warn("Could not refresh poet source index; keeping existing file.");

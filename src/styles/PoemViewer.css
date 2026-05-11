@@ -101,9 +101,12 @@
     text-align: center;
     padding: 2rem 1rem;
     direction: rtl;
-    background: rgb(var(--background) / 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: linear-gradient(to bottom,
+            rgb(var(--background) / 0.92),
+            rgb(var(--background) / 0.72),
+            transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     position: absolute;
     top: 0;
     left: 0;
@@ -473,9 +476,12 @@
 
     .title-section {
         padding: 1rem 0.75rem;
-        background: rgb(var(--background) / 0.6);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        background: linear-gradient(to bottom,
+                rgb(var(--background) / 0.94),
+                rgb(var(--background) / 0.74),
+                transparent);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
     }
 
     .poem-title {

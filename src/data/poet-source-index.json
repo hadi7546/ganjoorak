@@ -1,2477 +1,2927 @@
 {
-  "generatedAt": "2026-05-10T20:31:49.621Z",
+  "generatedAt": "2026-05-11T17:14:48.760Z",
   "sourcesBySlug": {
     "abbadi": {
       "source": "ganjoor",
       "id": 95,
-      "name": "عبادی مروزی"
+      "name": "عبادی مروزی",
+      "localImageUrl": "/images/poets/ganjoor-abbadi.gif"
     },
     "abbas-kiarostami": {
       "source": "echolalia",
       "id": 1360,
       "name": "عباس کیارستمی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-abbas-kiarostami.jpg"
     },
     "abbas-maroufi": {
       "source": "echolalia",
       "id": 499,
       "name": "عباس معروفی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-abbas-maroufi.jpg"
     },
     "abd-al-wahhab-bayati": {
       "source": "echolalia",
       "id": 3062,
       "name": "عبدالوهاب بیاتی",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-abd-al-wahhab-bayati.jpg"
     },
     "abdul-qadir-bedil": {
       "source": "echolalia",
       "id": 1049,
       "name": "بیدل دهلوی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-abdul-qadir-bedil.jpg"
     },
     "abdullah": {
       "source": "ganjoor",
       "id": 72,
-      "name": "خواجه عبدالله انصاری"
+      "name": "خواجه عبدالله انصاری",
+      "localImageUrl": "/images/poets/ganjoor-abdullah.gif"
     },
     "abolala": {
       "source": "ganjoor",
       "id": 211,
-      "name": "ابوالعلاء شوشتری"
+      "name": "ابوالعلاء شوشتری",
+      "localImageUrl": "/images/poets/ganjoor-abolala.gif"
     },
     "abolhasan": {
       "source": "ganjoor",
       "id": 114,
-      "name": "ابوالحسن فراهانی"
+      "name": "ابوالحسن فراهانی",
+      "localImageUrl": "/images/poets/ganjoor-abolhasan.gif"
     },
     "abolhoseyn": {
       "source": "ganjoor",
       "id": 209,
-      "name": "ابوالحسین خارجی"
+      "name": "ابوالحسین خارجی",
+      "localImageUrl": "/images/poets/ganjoor-abolhoseyn.gif"
     },
     "abolmoayyed": {
       "source": "ganjoor",
       "id": 215,
-      "name": "ابوالمؤید بلخی"
+      "name": "ابوالمؤید بلخی",
+      "localImageUrl": "/images/poets/ganjoor-abolmoayyed.gif"
     },
     "abueshagh": {
       "source": "ganjoor",
       "id": 208,
-      "name": "ابواسحاق جویباری"
+      "name": "ابواسحاق جویباری",
+      "localImageUrl": "/images/poets/ganjoor-abueshagh.gif"
     },
     "abusaeed": {
       "source": "ganjoor",
       "id": 26,
-      "name": "ابوسعید ابوالخیر"
+      "name": "ابوسعید ابوالخیر",
+      "localImageUrl": "/images/poets/ganjoor-abusaeed.gif"
     },
     "adib": {
       "source": "ganjoor",
       "id": 147,
-      "name": "ادیب الممالک فراهانی"
+      "name": "ادیب الممالک فراهانی",
+      "localImageUrl": "/images/poets/ganjoor-adib.gif"
     },
     "adunis": {
       "source": "echolalia",
       "id": 3343,
       "name": "آدونیس",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-adunis.jpg"
     },
     "afanasy-fet": {
       "source": "echolalia",
       "id": 2937,
       "name": "آفاناسی فیت",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-afanasy-fet.jpg"
     },
     "afsar": {
       "source": "ganjoor",
       "id": 92,
-      "name": "افسرالملوک عاملی"
+      "name": "افسرالملوک عاملی",
+      "localImageUrl": "/images/poets/ganjoor-afsar.gif"
     },
     "aghakhan": {
       "source": "ganjoor",
       "id": 139,
-      "name": "میرزا آقاخان کرمانی"
+      "name": "میرزا آقاخان کرمانی",
+      "localImageUrl": "/images/poets/ganjoor-aghakhan.gif"
     },
     "ahli": {
       "source": "ganjoor",
       "id": 122,
-      "name": "اهلی شیرازی"
+      "name": "اهلی شیرازی",
+      "localImageUrl": "/images/poets/ganjoor-ahli.gif"
     },
     "ahmad-shamlou": {
       "source": "echolalia",
       "id": 405,
       "name": "احمد شاملو",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-ahmad-shamlou.jpg"
     },
     "ahmadreza-ahmadi": {
       "source": "echolalia",
       "id": 456,
       "name": "احمدرضا احمدی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-ahmadreza-ahmadi.jpg"
     },
     "ahmet-erhan": {
       "source": "echolalia",
       "id": 3276,
       "name": "احمد ارهان",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-ahmet-erhan.jpg"
     },
     "akhsikati": {
       "source": "ganjoor",
       "id": 143,
-      "name": "اثیر اخسیکتی"
+      "name": "اثیر اخسیکتی",
+      "localImageUrl": "/images/poets/ganjoor-akhsikati.gif"
     },
     "alain-borne": {
       "source": "echolalia",
       "id": 2084,
       "name": "الن برن",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-alain-borne.jpg"
     },
     "alda-merini": {
       "source": "echolalia",
       "id": 3073,
       "name": "آلدا مرینی",
-      "sourceGroupName": "شاعران ایتالیا"
+      "sourceGroupName": "شاعران ایتالیا",
+      "localImageUrl": "/images/poets/echolalia-alda-merini.jpg"
     },
     "aleksandr-blok": {
       "source": "echolalia",
       "id": 3165,
       "name": "الکساندر بلوک",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-aleksandr-blok.jpg"
     },
     "alexander-pushkin": {
       "source": "echolalia",
       "id": 2642,
       "name": "الکساندر پوشکین",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-alexander-pushkin.jpg"
     },
     "alfred-de-musset": {
       "source": "echolalia",
       "id": 2071,
       "name": "آلفرد دو موسه",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-alfred-de-musset.jpg"
     },
     "amagh": {
       "source": "ganjoor",
       "id": 136,
-      "name": "عمعق بخاری"
+      "name": "عمعق بخاری",
+      "localImageUrl": "/images/poets/ganjoor-amagh.gif"
     },
     "amir": {
       "source": "ganjoor",
       "id": 64,
-      "name": "امیر معزی نیشابوری"
+      "name": "امیر معزی نیشابوری",
+      "localImageUrl": "/images/poets/ganjoor-amir.gif"
     },
     "amy-lowell": {
       "source": "echolalia",
       "id": 3292,
       "name": "امی لارنس لاول",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-amy-lowell.jpg"
     },
     "andrew-volter": {
       "source": "echolalia",
       "id": 265,
       "name": "آندره ولتر",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-andrew-volter.jpg"
     },
     "anna-akhmatova": {
       "source": "echolalia",
       "id": 392,
       "name": "آنا آخماتووا",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-anna-akhmatova.jpg"
     },
     "anna-gavalda": {
       "source": "echolalia",
       "id": 2372,
       "name": "آنا گاوالدا",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-anna-gavalda.jpg"
     },
     "anna-swirszczynska": {
       "source": "echolalia",
       "id": 2658,
       "name": "آنا اشویر",
-      "sourceGroupName": "شاعران لهستان"
+      "sourceGroupName": "شاعران لهستان",
+      "localImageUrl": "/images/poets/echolalia-anna-swirszczynska.jpg"
     },
     "anne-sexton": {
       "source": "echolalia",
       "id": 215,
       "name": "ان سکستون",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-anne-sexton.jpg"
     },
     "anvari": {
       "source": "ganjoor",
       "id": 18,
-      "name": "انوری ابیوردی"
+      "name": "انوری ابیوردی",
+      "localImageUrl": "/images/poets/ganjoor-anvari.gif"
     },
     "anwar-salman": {
       "source": "echolalia",
       "id": 2602,
       "name": "انور سلمان",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-anwar-salman.jpg"
     },
     "aref": {
       "source": "ganjoor",
       "id": 68,
-      "name": "عارف قزوینی"
+      "name": "عارف قزوینی",
+      "localImageUrl": "/images/poets/ganjoor-aref.gif"
     },
     "aris-alexandrou": {
       "source": "echolalia",
       "id": 3311,
       "name": "آریس آلکساندرو",
-      "sourceGroupName": "شاعران یونان"
+      "sourceGroupName": "شاعران یونان",
+      "localImageUrl": "/images/poets/echolalia-aris-alexandrou.jpg"
     },
     "aroozi": {
       "source": "ganjoor",
       "id": 84,
-      "name": "نظامی عروضی"
+      "name": "نظامی عروضی",
+      "localImageUrl": "/images/poets/ganjoor-aroozi.gif"
     },
     "arsalan-chalabi": {
       "source": "echolalia",
       "id": 2690,
       "name": "ارسلان چلبی",
-      "sourceGroupName": "شاعران کوردی"
+      "sourceGroupName": "شاعران کوردی",
+      "localImageUrl": "/images/poets/echolalia-arsalan-chalabi.jpg"
     },
     "asad": {
       "source": "ganjoor",
       "id": 38,
-      "name": "فخرالدین اسعد گرگانی"
+      "name": "فخرالدین اسعد گرگانی",
+      "localImageUrl": "/images/poets/ganjoor-asad.gif"
     },
     "asadi": {
       "source": "ganjoor",
       "id": 52,
-      "name": "اسدی توسی"
+      "name": "اسدی توسی",
+      "localImageUrl": "/images/poets/ganjoor-asadi.gif"
     },
     "ashofte": {
       "source": "ganjoor",
       "id": 119,
-      "name": "آشفتهٔ شیرازی"
+      "name": "آشفتهٔ شیرازی",
+      "localImageUrl": "/images/poets/ganjoor-ashofte.gif"
     },
     "asiri": {
       "source": "ganjoor",
       "id": 97,
-      "name": "اسیری لاهیجی"
+      "name": "اسیری لاهیجی",
+      "localImageUrl": "/images/poets/ganjoor-asiri.gif"
     },
     "asjadi": {
       "source": "ganjoor",
       "id": 125,
-      "name": "عسجدی مروزی"
+      "name": "عسجدی مروزی",
+      "localImageUrl": "/images/poets/ganjoor-asjadi.gif"
     },
     "asrar": {
       "source": "ganjoor",
       "id": 80,
-      "name": "حکیم سبزواری"
+      "name": "حکیم سبزواری",
+      "localImageUrl": "/images/poets/ganjoor-asrar.gif"
     },
     "attar": {
       "source": "ganjoor",
       "id": 9,
-      "name": "عطار نیشابوری"
+      "name": "عطار نیشابوری",
+      "localImageUrl": "/images/poets/ganjoor-attar.gif"
     },
     "attar-of-nishapur": {
       "source": "echolalia",
       "id": 1844,
       "name": "عطار نیشابوری",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-attar-of-nishapur.jpg"
     },
     "attila-ilhan": {
       "source": "echolalia",
       "id": 3234,
       "name": "آتیلا ایلهان",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-attila-ilhan.jpg"
     },
     "ayatib": {
       "source": "ganjoor",
       "id": 229,
-      "name": "آیتی بیرجندی"
+      "name": "آیتی بیرجندی",
+      "localImageUrl": "/images/poets/ganjoor-ayatib.gif"
     },
     "ayten-mutlu": {
       "source": "echolalia",
       "id": 3026,
       "name": "آیتن موتلو",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-ayten-mutlu.jpg"
     },
     "ayyooghi": {
       "source": "ganjoor",
       "id": 124,
-      "name": "عیوقی"
+      "name": "عیوقی",
+      "localImageUrl": "/images/poets/ganjoor-ayyooghi.gif"
     },
     "azar": {
       "source": "ganjoor",
       "id": 148,
-      "name": "آذر بیگدلی"
+      "name": "آذر بیگدلی",
+      "localImageUrl": "/images/poets/ganjoor-azar.gif"
     },
     "aziz-nesin": {
       "source": "echolalia",
       "id": 2513,
       "name": "عزیز نسین",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-aziz-nesin.jpg"
     },
     "azraghi": {
       "source": "ganjoor",
       "id": 63,
-      "name": "ازرقی هروی"
+      "name": "ازرقی هروی",
+      "localImageUrl": "/images/poets/ganjoor-azraghi.gif"
     },
     "babaafzal": {
       "source": "ganjoor",
       "id": 56,
-      "name": "باباافضل کاشانی"
+      "name": "باباافضل کاشانی",
+      "localImageUrl": "/images/poets/ganjoor-babaafzal.gif"
     },
     "babak-zamani": {
       "source": "echolalia",
       "id": 174,
       "name": "بابک زمانی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-babak-zamani.jpg"
     },
     "babataher": {
       "source": "ganjoor",
       "id": 28,
-      "name": "باباطاهر"
+      "name": "باباطاهر",
+      "localImageUrl": "/images/poets/ganjoor-babataher.gif"
     },
     "baha": {
       "source": "ganjoor",
       "id": 193,
-      "name": "بهاء ولد"
+      "name": "بهاء ولد",
+      "localImageUrl": "/images/poets/ganjoor-baha.gif"
     },
     "bahaee": {
       "source": "ganjoor",
       "id": 30,
-      "name": "شیخ بهایی"
+      "name": "شیخ بهایی",
+      "localImageUrl": "/images/poets/ganjoor-bahaee.gif"
     },
     "bahar": {
       "source": "ganjoor",
       "id": 27,
-      "name": "ملک‌الشعرا بهار"
+      "name": "ملک‌الشعرا بهار",
+      "localImageUrl": "/images/poets/ganjoor-bahar.gif"
     },
     "bahoo": {
       "source": "ganjoor",
       "id": 105,
-      "name": "سلطان باهو"
+      "name": "سلطان باهو",
+      "localImageUrl": "/images/poets/ganjoor-bahoo.gif"
     },
     "balami": {
       "source": "ganjoor",
       "id": 217,
-      "name": "بلعمی"
+      "name": "بلعمی",
+      "localImageUrl": "/images/poets/ganjoor-balami.gif"
     },
     "barmaki": {
       "source": "ganjoor",
       "id": 216,
-      "name": "احمد برمکی"
+      "name": "احمد برمکی",
+      "localImageUrl": "/images/poets/ganjoor-barmaki.gif"
     },
     "bassam": {
       "source": "ganjoor",
       "id": 204,
-      "name": "بسام کرد"
+      "name": "بسام کرد",
+      "localImageUrl": "/images/poets/ganjoor-bassam.gif"
     },
     "bella-akhmadulina": {
       "source": "echolalia",
       "id": 3284,
       "name": "بلا آخمادولینا",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-bella-akhmadulina.jpg"
     },
     "bertolt-brecht": {
       "source": "echolalia",
       "id": 64,
       "name": "برتولت برشت",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-bertolt-brecht.jpg"
     },
     "beyhaghi": {
       "source": "ganjoor",
       "id": 194,
-      "name": "ابوالفضل بیهقی"
+      "name": "ابوالفضل بیهقی",
+      "localImageUrl": "/images/poets/ganjoor-beyhaghi.gif"
     },
     "beylaghani": {
       "source": "ganjoor",
       "id": 140,
-      "name": "مجیرالدین بیلقانی"
+      "name": "مجیرالدین بیلقانی",
+      "localImageUrl": "/images/poets/ganjoor-beylaghani.gif"
     },
     "bidel": {
       "source": "ganjoor",
       "id": 43,
-      "name": "بیدل دهلوی"
+      "name": "بیدل دهلوی",
+      "localImageUrl": "/images/poets/ganjoor-bidel.gif"
     },
     "bijan-elahi": {
       "source": "echolalia",
       "id": 2947,
       "name": "بیژن الهی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-bijan-elahi.jpg"
     },
     "bijan-jalali": {
       "source": "echolalia",
       "id": 2948,
       "name": "بیژن جلالی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-bijan-jalali.jpg"
     },
     "bijan-najdi": {
       "source": "echolalia",
       "id": 1290,
       "name": "بیژن نجدی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-bijan-najdi.jpg"
     },
     "blaga-dimitrova": {
       "source": "echolalia",
       "id": 2684,
       "name": "بلاگا دیمیتروا",
-      "sourceGroupName": "شاعران بلغاری"
+      "sourceGroupName": "شاعران بلغاری",
+      "localImageUrl": "/images/poets/echolalia-blaga-dimitrova.jpg"
     },
     "bob-dylan": {
       "source": "echolalia",
       "id": 1743,
       "name": "باب دیلن",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-bob-dylan.jpg"
     },
     "bolandeghbal": {
       "source": "ganjoor",
       "id": 173,
-      "name": "بلند اقبال"
+      "name": "بلند اقبال",
+      "localImageUrl": "/images/poets/ganjoor-bolandeghbal.gif"
     },
     "bolmasal": {
       "source": "ganjoor",
       "id": 214,
-      "name": "ابوالمثل بخارایی"
+      "name": "ابوالمثل بخارایی",
+      "localImageUrl": "/images/poets/ganjoor-bolmasal.gif"
     },
     "can-yucel": {
       "source": "echolalia",
       "id": 2987,
       "name": "جان یوجل",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-can-yucel.jpg"
     },
     "carl-sandburg": {
       "source": "echolalia",
       "id": 2352,
       "name": "کارل سندبرگ",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-carl-sandburg.jpg"
     },
     "carlos-drummond-de-andrade": {
       "source": "echolalia",
       "id": 1824,
       "name": "کارلوس دروموند د آندراده",
-      "sourceGroupName": "شاعران برزیل"
+      "sourceGroupName": "شاعران برزیل",
+      "localImageUrl": "/images/poets/echolalia-carlos-drummond-de-andrade.jpg"
     },
     "cemal-sureya": {
       "source": "echolalia",
       "id": 1437,
       "name": "جمال ثریا",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-cemal-sureya.jpg"
     },
     "cesare-pavese": {
       "source": "echolalia",
       "id": 3290,
       "name": "چزاره پاوزه",
-      "sourceGroupName": "شاعران ایتالیا"
+      "sourceGroupName": "شاعران ایتالیا",
+      "localImageUrl": "/images/poets/echolalia-cesare-pavese.jpg"
     },
     "charles-baudelaire": {
       "source": "echolalia",
       "id": 602,
       "name": "شارل بودلر",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-charles-baudelaire.jpg"
     },
     "charles-bukowski": {
       "source": "echolalia",
       "id": 446,
       "name": "چارلز بوکوفسکی",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-charles-bukowski.jpg"
     },
     "charles-van-lerberghe": {
       "source": "echolalia",
       "id": 3288,
       "name": "شارل وان لربرگ",
-      "sourceGroupName": "شاعران بلژیک"
+      "sourceGroupName": "شاعران بلژیک",
+      "localImageUrl": "/images/poets/echolalia-charles-van-lerberghe.jpg"
     },
     "christina-rossetti": {
       "source": "echolalia",
       "id": 2261,
       "name": "کریستینا روزتی",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-christina-rossetti.jpg"
     },
     "christopher-marlowe": {
       "source": "echolalia",
       "id": 2225,
       "name": "کریستوفر مارلو",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-christopher-marlowe.jpg"
     },
     "christopher-poindexter": {
       "source": "echolalia",
       "id": 2450,
       "name": "کریستوفر پویندکستر",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-christopher-poindexter.jpg"
     },
     "constantine-cavafy": {
       "source": "echolalia",
       "id": 383,
       "name": "کنستانتین کاوافی",
-      "sourceGroupName": "شاعران یونان"
+      "sourceGroupName": "شاعران یونان",
+      "localImageUrl": "/images/poets/echolalia-constantine-cavafy.jpg"
     },
     "daghighi": {
       "source": "ganjoor",
       "id": 112,
-      "name": "دقیقی طوسی"
+      "name": "دقیقی طوسی",
+      "localImageUrl": "/images/poets/ganjoor-daghighi.gif"
     },
     "daye": {
       "source": "ganjoor",
       "id": 102,
-      "name": "نجم‌الدین رازی"
+      "name": "نجم‌الدین رازی",
+      "localImageUrl": "/images/poets/ganjoor-daye.gif"
     },
     "dennis-brutus": {
       "source": "echolalia",
       "id": 2537,
       "name": "دنیس بروتوس",
-      "sourceGroupName": "شاعران آفریقای‌جنوبی"
+      "sourceGroupName": "شاعران آفریقای‌جنوبی",
+      "localImageUrl": "/images/poets/echolalia-dennis-brutus.jpg"
     },
     "drita-como": {
       "source": "echolalia",
       "id": 1702,
       "name": "دریتا کومو",
-      "sourceGroupName": "شاعران آلبانی"
+      "sourceGroupName": "شاعران آلبانی",
+      "localImageUrl": "/images/poets/echolalia-drita-como.jpg"
     },
     "ebneemad": {
       "source": "ganjoor",
       "id": 196,
-      "name": "محمد بن عمادالدین خراسانی"
+      "name": "محمد بن عمادالدین خراسانی",
+      "localImageUrl": "/images/poets/ganjoor-ebneemad.gif"
     },
     "ebnehesam": {
       "source": "ganjoor",
       "id": 57,
-      "name": "ابن حسام خوسفی"
+      "name": "ابن حسام خوسفی",
+      "localImageUrl": "/images/poets/ganjoor-ebnehesam.gif"
     },
     "ebneyamin": {
       "source": "ganjoor",
       "id": 106,
-      "name": "ابن یمین فریومدی"
+      "name": "ابن یمین فریومدی",
+      "localImageUrl": "/images/poets/ganjoor-ebneyamin.gif"
     },
     "edgar-allan-poe": {
       "source": "echolalia",
       "id": 2364,
       "name": "ادگار آلن پو",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-edgar-allan-poe.jpg"
     },
     "edmund-spenser": {
       "source": "echolalia",
       "id": 2166,
       "name": "ادموند اسپنسر",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-edmund-spenser.jpg"
     },
     "edwin-arlington-robinson": {
       "source": "echolalia",
       "id": 2736,
       "name": "ادوین آرلینگتون رابینسون",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-edwin-arlington-robinson.jpg"
     },
     "elhami": {
       "source": "ganjoor",
       "id": 155,
-      "name": "الهامی کرمانشاهی"
+      "name": "الهامی کرمانشاهی",
+      "localImageUrl": "/images/poets/ganjoor-elhami.gif"
     },
     "elizabeth-barrett-browning": {
       "source": "echolalia",
       "id": 2172,
       "name": "الیزابت برت براونینگ",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-elizabeth-barrett-browning.jpg"
     },
     "ella-wheeler-wilcox": {
       "source": "echolalia",
       "id": 2387,
       "name": "الا ویلر ویلکاکس",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-ella-wheeler-wilcox.jpg"
     },
     "emami": {
       "source": "ganjoor",
       "id": 116,
-      "name": "امامی هروی"
+      "name": "امامی هروی",
+      "localImageUrl": "/images/poets/ganjoor-emami.gif"
     },
     "emily-dickinson": {
       "source": "echolalia",
       "id": 1802,
       "name": "امیلی دیکنسون",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-emily-dickinson.jpg"
     },
     "endre-ady": {
       "source": "echolalia",
       "id": 3295,
       "name": "اندره آدی",
-      "sourceGroupName": "شاعران مجارستان"
+      "sourceGroupName": "شاعران مجارستان",
+      "localImageUrl": "/images/poets/echolalia-endre-ady.jpg"
     },
     "enes-kisevic": {
       "source": "echolalia",
       "id": 3313,
       "name": "اِنِس کیشِویچ",
-      "sourceGroupName": "شاعران کرواسی"
+      "sourceGroupName": "شاعران کرواسی",
+      "localImageUrl": "/images/poets/echolalia-enes-kisevic.jpg"
     },
     "eraghi": {
       "source": "ganjoor",
       "id": 21,
-      "name": "عراقی"
+      "name": "عراقی",
+      "localImageUrl": "/images/poets/ganjoor-eraghi.gif"
     },
     "erich-fried": {
       "source": "echolalia",
       "id": 1225,
       "name": "اریش فرید",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-erich-fried.jpg"
     },
     "ernesto-sabato": {
       "source": "echolalia",
       "id": 2254,
       "name": "ارنستو ساباتو",
-      "sourceGroupName": "شاعران آرژانتین"
+      "sourceGroupName": "شاعران آرژانتین",
+      "localImageUrl": "/images/poets/echolalia-ernesto-sabato.jpg"
     },
     "eshghi": {
       "source": "ganjoor",
       "id": 153,
-      "name": "میرزاده عشقی"
+      "name": "میرزاده عشقی",
+      "localImageUrl": "/images/poets/ganjoor-eshghi.gif"
     },
     "eshraghb": {
       "source": "ganjoor",
       "id": 227,
-      "name": "عبدالکریم اشراق بیرجندی"
+      "name": "عبدالکریم اشراق بیرجندی",
+      "localImageUrl": "/images/poets/ganjoor-eshraghb.gif"
     },
     "esmail-khoi": {
       "source": "echolalia",
       "id": 2961,
       "name": "اسماعیل خویی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-esmail-khoi.jpg"
     },
     "eynolghozat": {
       "source": "ganjoor",
       "id": 94,
-      "name": "عین‌القضات همدانی"
+      "name": "عین‌القضات همدانی",
+      "localImageUrl": "/images/poets/ganjoor-eynolghozat.gif"
     },
     "faghani": {
       "source": "ganjoor",
       "id": 115,
-      "name": "بابافغانی شیرازی"
+      "name": "بابافغانی شیرازی",
+      "localImageUrl": "/images/poets/ganjoor-faghani.gif"
     },
     "fakhr-al-din-iraqi": {
       "source": "echolalia",
       "id": 341,
       "name": "فخرالدین عراقی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-fakhr-al-din-iraqi.jpg"
     },
     "falaki": {
       "source": "ganjoor",
       "id": 141,
-      "name": "فلکی شروانی"
+      "name": "فلکی شروانی",
+      "localImageUrl": "/images/poets/ganjoor-falaki.gif"
     },
     "fani": {
       "source": "ganjoor",
       "id": 151,
-      "name": "امیرعلیشیر نوایی"
+      "name": "امیرعلیشیر نوایی",
+      "localImageUrl": "/images/poets/ganjoor-fani.gif"
     },
     "fanoodi": {
       "source": "ganjoor",
       "id": 228,
-      "name": "فنودی"
+      "name": "فنودی",
+      "localImageUrl": "/images/poets/ganjoor-fanoodi.gif"
     },
     "faralavi": {
       "source": "ganjoor",
       "id": 226,
-      "name": "فرالاوی"
+      "name": "فرالاوی",
+      "localImageUrl": "/images/poets/ganjoor-faralavi.gif"
     },
     "farrokhi": {
       "source": "ganjoor",
       "id": 15,
-      "name": "فرخی سیستانی"
+      "name": "فرخی سیستانی",
+      "localImageUrl": "/images/poets/ganjoor-farrokhi.gif"
     },
     "fasihi": {
       "source": "ganjoor",
       "id": 185,
-      "name": "فصیحی هروی"
+      "name": "فصیحی هروی",
+      "localImageUrl": "/images/poets/ganjoor-fasihi.gif"
     },
     "fatemeh-ekhtesari": {
       "source": "echolalia",
       "id": 672,
       "name": "فاطمه اختصاری",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-fatemeh-ekhtesari.jpg"
     },
     "fayez": {
       "source": "ganjoor",
       "id": 61,
-      "name": "فایز"
+      "name": "فایز",
+      "localImageUrl": "/images/poets/ganjoor-fayez.gif"
     },
     "fayyaz": {
       "source": "ganjoor",
       "id": 172,
-      "name": "فیاض لاهیجی"
+      "name": "فیاض لاهیجی",
+      "localImageUrl": "/images/poets/ganjoor-fayyaz.gif"
     },
     "fazel-nazari": {
       "source": "echolalia",
       "id": 175,
       "name": "فاضل نظری",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-fazel-nazari.jpg"
     },
     "federico-garcia-lorca": {
       "source": "echolalia",
       "id": 38,
       "name": "فدریکو گارسیا لورکا",
-      "sourceGroupName": "شاعران اسپانیا"
+      "sourceGroupName": "شاعران اسپانیا",
+      "localImageUrl": "/images/poets/echolalia-federico-garcia-lorca.jpg"
     },
     "ferdousi": {
       "source": "ganjoor",
       "id": 4,
-      "name": "ابوالقاسم فردوسی"
+      "name": "ابوالقاسم فردوسی",
+      "localImageUrl": "/images/poets/ganjoor-ferdousi.gif"
     },
     "fereydoon-moshiri": {
       "source": "echolalia",
       "id": 246,
       "name": "فریدون مشیری",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-fereydoon-moshiri.jpg"
     },
     "fernando-pessoa": {
       "source": "echolalia",
       "id": 2210,
       "name": "فرناندو پسوآ",
-      "sourceGroupName": "شاعران پرتغال"
+      "sourceGroupName": "شاعران پرتغال",
+      "localImageUrl": "/images/poets/echolalia-fernando-pessoa.jpg"
     },
     "feyz": {
       "source": "ganjoor",
       "id": 39,
-      "name": "فیض کاشانی"
+      "name": "فیض کاشانی",
+      "localImageUrl": "/images/poets/ganjoor-feyz.gif"
     },
     "firooz": {
       "source": "ganjoor",
       "id": 202,
-      "name": "فیروز مشرقی"
+      "name": "فیروز مشرقی",
+      "localImageUrl": "/images/poets/ganjoor-firooz.gif"
     },
     "forooghi": {
       "source": "ganjoor",
       "id": 32,
-      "name": "فروغی بسطامی"
+      "name": "فروغی بسطامی",
+      "localImageUrl": "/images/poets/ganjoor-forooghi.gif"
     },
     "forough-farrokhzad": {
       "source": "echolalia",
       "id": 199,
       "name": "فروغ فرخزاد",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-forough-farrokhzad.jpg"
     },
     "fozooli": {
       "source": "ganjoor",
       "id": 145,
-      "name": "فضولی بغدادی"
+      "name": "فضولی بغدادی",
+      "localImageUrl": "/images/poets/ganjoor-fozooli.gif"
     },
     "friedrich-holderlin": {
       "source": "echolalia",
       "id": 3032,
       "name": "فریدریش هولدرلین",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-friedrich-holderlin.jpg"
     },
     "friedrich-nietzsche": {
       "source": "echolalia",
       "id": 3131,
       "name": "فریدریش نیچه",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-friedrich-nietzsche.jpg"
     },
     "georg-trakl": {
       "source": "echolalia",
       "id": 3344,
       "name": "گئورگ تراکل",
-      "sourceGroupName": "شاعران اتریشی"
+      "sourceGroupName": "شاعران اتریشی",
+      "localImageUrl": "/images/poets/echolalia-georg-trakl.jpg"
     },
     "gevorg-emin": {
       "source": "echolalia",
       "id": 1159,
       "name": "گئورک امین",
-      "sourceGroupName": "شاعران ارمنی"
+      "sourceGroupName": "شاعران ارمنی",
+      "localImageUrl": "/images/poets/echolalia-gevorg-emin.jpg"
     },
     "ghaani": {
       "source": "ganjoor",
       "id": 44,
-      "name": "قاآنی"
+      "name": "قاآنی",
+      "localImageUrl": "/images/poets/ganjoor-ghaani.gif"
     },
     "ghada-al-samman": {
       "source": "echolalia",
       "id": 115,
       "name": "غاده السمان",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-ghada-al-samman.jpg"
     },
     "ghaemmagham": {
       "source": "ganjoor",
       "id": 98,
-      "name": "قائم مقام فراهانی"
+      "name": "قائم مقام فراهانی",
+      "localImageUrl": "/images/poets/ganjoor-ghaemmagham.gif"
     },
     "ghaleb": {
       "source": "ganjoor",
       "id": 123,
-      "name": "غالب دهلوی"
+      "name": "غالب دهلوی",
+      "localImageUrl": "/images/poets/ganjoor-ghaleb.gif"
     },
     "ghani": {
       "source": "ganjoor",
       "id": 199,
-      "name": "غنی کشمیری"
+      "name": "غنی کشمیری",
+      "localImageUrl": "/images/poets/ganjoor-ghani.gif"
     },
     "ghari": {
       "source": "ganjoor",
       "id": 169,
-      "name": "نظام قاری"
+      "name": "نظام قاری",
+      "localImageUrl": "/images/poets/ganjoor-ghari.gif"
     },
     "ghasem": {
       "source": "ganjoor",
       "id": 129,
-      "name": "قاسم انوار"
+      "name": "قاسم انوار",
+      "localImageUrl": "/images/poets/ganjoor-ghasem.gif"
     },
     "ghassab": {
       "source": "ganjoor",
       "id": 86,
-      "name": "قصاب کاشانی"
+      "name": "قصاب کاشانی",
+      "localImageUrl": "/images/poets/ganjoor-ghassab.gif"
     },
     "ghatran": {
       "source": "ganjoor",
       "id": 142,
-      "name": "قطران تبریزی"
+      "name": "قطران تبریزی",
+      "localImageUrl": "/images/poets/ganjoor-ghatran.gif"
     },
     "ghavami": {
       "source": "ganjoor",
       "id": 179,
-      "name": "قوامی رازی"
+      "name": "قوامی رازی",
+      "localImageUrl": "/images/poets/ganjoor-ghavami.gif"
     },
     "ghazzali": {
       "source": "ganjoor",
       "id": 160,
-      "name": "امام محمد غزالی"
+      "name": "امام محمد غزالی",
+      "localImageUrl": "/images/poets/ganjoor-ghazzali.gif"
     },
     "ghobad-jolizadeh": {
       "source": "echolalia",
       "id": 2594,
       "name": "قباد جلیزاده",
-      "sourceGroupName": "شاعران کوردی"
+      "sourceGroupName": "شاعران کوردی",
+      "localImageUrl": "/images/poets/echolalia-ghobad-jolizadeh.jpg"
     },
     "ghobar": {
       "source": "ganjoor",
       "id": 77,
-      "name": "غبار همدانی"
+      "name": "غبار همدانی",
+      "localImageUrl": "/images/poets/ganjoor-ghobar.gif"
     },
     "ghodsi": {
       "source": "ganjoor",
       "id": 71,
-      "name": "قدسی مشهدی"
+      "name": "قدسی مشهدی",
+      "localImageUrl": "/images/poets/ganjoor-ghodsi.gif"
     },
     "ghomri": {
       "source": "ganjoor",
       "id": 166,
-      "name": "سراج قمری"
+      "name": "سراج قمری",
+      "localImageUrl": "/images/poets/ganjoor-ghomri.gif"
     },
     "gilani": {
       "source": "ganjoor",
       "id": 70,
-      "name": "عبدالقادر گیلانی"
+      "name": "عبدالقادر گیلانی",
+      "localImageUrl": "/images/poets/ganjoor-gilani.gif"
     },
     "gorgani": {
       "source": "ganjoor",
       "id": 203,
-      "name": "ابوسلیک گرگانی"
+      "name": "ابوسلیک گرگانی",
+      "localImageUrl": "/images/poets/ganjoor-gorgani.gif"
     },
     "gross-abdul-malikian": {
       "source": "echolalia",
       "id": 678,
       "name": "گروس عبدالملکیان",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-gross-abdul-malikian.jpg"
     },
     "guillaume-apollinaire": {
       "source": "echolalia",
       "id": 3285,
       "name": "گیوم آپولینر",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-guillaume-apollinaire.jpg"
     },
     "gunnar-ekelof": {
       "source": "echolalia",
       "id": 316,
       "name": "گونار اکلوف",
-      "sourceGroupName": "شاعران سوئد"
+      "sourceGroupName": "شاعران سوئد",
+      "localImageUrl": "/images/poets/echolalia-gunnar-ekelof.jpg"
     },
     "habib": {
       "source": "ganjoor",
       "id": 170,
-      "name": "میرزا حبیب خراسانی"
+      "name": "میرزا حبیب خراسانی",
+      "localImageUrl": "/images/poets/ganjoor-habib.gif"
     },
     "hafez": {
       "source": "ganjoor",
       "id": 2,
-      "name": "حافظ شیرازی"
+      "name": "حافظ شیرازی",
+      "localImageUrl": "/images/poets/ganjoor-hafez.gif"
     },
     "hajeb": {
       "source": "ganjoor",
       "id": 190,
-      "name": "حاجب شیرازی"
+      "name": "حاجب شیرازی",
+      "localImageUrl": "/images/poets/ganjoor-hajeb.gif"
     },
     "halina-poswiatowska": {
       "source": "echolalia",
       "id": 375,
       "name": "هالینا پوشویاتوسکا",
-      "sourceGroupName": "شاعران لهستان"
+      "sourceGroupName": "شاعران لهستان",
+      "localImageUrl": "/images/poets/echolalia-halina-poswiatowska.jpg"
     },
     "hamedani": {
       "source": "ganjoor",
       "id": 174,
-      "name": "صابر همدانی"
+      "name": "صابر همدانی",
+      "localImageUrl": "/images/poets/ganjoor-hamedani.gif"
     },
     "hamgar": {
       "source": "ganjoor",
       "id": 152,
-      "name": "مجد همگر"
+      "name": "مجد همگر",
+      "localImageUrl": "/images/poets/ganjoor-hamgar.gif"
     },
     "hamid": {
       "source": "ganjoor",
       "id": 162,
-      "name": "حمیدالدین بلخی"
+      "name": "حمیدالدین بلخی",
+      "localImageUrl": "/images/poets/ganjoor-hamid.gif"
     },
     "hamid-mossadegh": {
       "source": "echolalia",
       "id": 1856,
       "name": "حمید مصدق",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-hamid-mossadegh.jpg"
     },
     "hanzale": {
       "source": "ganjoor",
       "id": 200,
-      "name": "حنظلهٔ بادغیسی"
+      "name": "حنظلهٔ بادغیسی",
+      "localImageUrl": "/images/poets/ganjoor-hanzale.gif"
     },
     "hasan": {
       "source": "ganjoor",
       "id": 144,
-      "name": "سید حسن غزنوی"
+      "name": "سید حسن غزنوی",
+      "localImageUrl": "/images/poets/ganjoor-hasan.gif"
     },
     "hatef": {
       "source": "ganjoor",
       "id": 25,
-      "name": "هاتف اصفهانی"
+      "name": "هاتف اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-hatef.gif"
     },
     "haydar-ergulen": {
       "source": "echolalia",
       "id": 2699,
       "name": "حیدر ارگولن",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-haydar-ergulen.jpg"
     },
     "hazin": {
       "source": "ganjoor",
       "id": 76,
-      "name": "حزین لاهیجی"
+      "name": "حزین لاهیجی",
+      "localImageUrl": "/images/poets/ganjoor-hazin.gif"
     },
     "heinrich-boll": {
       "source": "echolalia",
       "id": 299,
       "name": "هاینریش بل",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-heinrich-boll.jpg"
     },
     "heinrich-heine": {
       "source": "echolalia",
       "id": 696,
       "name": "هاینریش هاینه",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-heinrich-heine.jpg"
     },
     "helali": {
       "source": "ganjoor",
       "id": 50,
-      "name": "هلالی جغتایی"
+      "name": "هلالی جغتایی",
+      "localImageUrl": "/images/poets/ganjoor-helali.gif"
     },
     "hermann-hesse": {
       "source": "echolalia",
       "id": 1466,
       "name": "هرمان هسه",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-hermann-hesse.jpg"
     },
     "herta-muller": {
       "source": "echolalia",
       "id": 1226,
       "name": "هرتا مولر",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-herta-muller.jpg"
     },
     "heydar": {
       "source": "ganjoor",
       "id": 131,
-      "name": "حیدر شیرازی"
+      "name": "حیدر شیرازی",
+      "localImageUrl": "/images/poets/ganjoor-heydar.gif"
     },
     "hojviri": {
       "source": "ganjoor",
       "id": 53,
-      "name": "علی بن عثمان هجویری"
+      "name": "علی بن عثمان هجویری",
+      "localImageUrl": "/images/poets/ganjoor-hojviri.gif"
     },
     "homam": {
       "source": "ganjoor",
       "id": 75,
-      "name": "همام تبریزی"
+      "name": "همام تبریزی",
+      "localImageUrl": "/images/poets/ganjoor-homam.gif"
     },
     "hoseyn": {
       "source": "ganjoor",
       "id": 89,
-      "name": "حسین خوارزمی"
+      "name": "حسین خوارزمی",
+      "localImageUrl": "/images/poets/ganjoor-hoseyn.gif"
     },
     "hoseyni": {
       "source": "ganjoor",
       "id": 99,
-      "name": "امیر حسینی هروی"
+      "name": "امیر حسینی هروی",
+      "localImageUrl": "/images/poets/ganjoor-hoseyni.gif"
     },
     "hossein-monzavi": {
       "source": "echolalia",
       "id": 171,
       "name": "حسین منزوی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-hossein-monzavi.jpg"
     },
     "hossein-panahi": {
       "source": "echolalia",
       "id": 434,
       "name": "حسین پناهی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-hossein-panahi.jpg"
     },
     "hushang-ebtehaj": {
       "source": "echolalia",
       "id": 902,
       "name": "هوشنگ ابتهاج",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-hushang-ebtehaj.jpg"
     },
     "ilhan-berk": {
       "source": "echolalia",
       "id": 1584,
       "name": "ایلهان برک",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-ilhan-berk.jpg"
     },
     "ilva-macky": {
       "source": "echolalia",
       "id": 2900,
       "name": "ایلوا ماکی",
-      "sourceGroupName": "شاعران آفریقای‌جنوبی"
+      "sourceGroupName": "شاعران آفریقای‌جنوبی",
+      "localImageUrl": "/images/poets/echolalia-ilva-macky.jpg"
     },
     "imran-salahi": {
       "source": "echolalia",
       "id": 1850,
       "name": "عمران صلاحی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-imran-salahi.jpg"
     },
     "ingeborg-bachmann": {
       "source": "echolalia",
       "id": 2750,
       "name": "اینگه بورگ باخمن",
-      "sourceGroupName": "شاعران اتریشی"
+      "sourceGroupName": "شاعران اتریشی",
+      "localImageUrl": "/images/poets/echolalia-ingeborg-bachmann.jpg"
     },
     "iqbal": {
       "source": "ganjoor",
       "id": 42,
-      "name": "اقبال لاهوری"
+      "name": "اقبال لاهوری",
+      "localImageUrl": "/images/poets/ganjoor-iqbal.gif"
     },
     "iraj": {
       "source": "ganjoor",
       "id": 88,
-      "name": "ایرج میرزا"
+      "name": "ایرج میرزا",
+      "localImageUrl": "/images/poets/ganjoor-iraj.gif"
     },
     "iranshan": {
       "source": "ganjoor",
       "id": 127,
-      "name": "ایرانشان ابن ابی الخیر "
+      "name": "ایرانشان ابن ابی الخیر ",
+      "localImageUrl": "/images/poets/ganjoor-iranshan.gif"
     },
     "jabali": {
       "source": "ganjoor",
       "id": 37,
-      "name": "عبدالواسع جبلی"
+      "name": "عبدالواسع جبلی",
+      "localImageUrl": "/images/poets/ganjoor-jabali.gif"
     },
     "jacques-prevert": {
       "source": "echolalia",
       "id": 755,
       "name": "ژاک پره‌ ور",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-jacques-prevert.jpg"
     },
     "jahan": {
       "source": "ganjoor",
       "id": 137,
-      "name": "جهان ملک خاتون"
+      "name": "جهان ملک خاتون",
+      "localImageUrl": "/images/poets/ganjoor-jahan.gif"
     },
     "jalal": {
       "source": "ganjoor",
       "id": 85,
-      "name": "جلال عضد"
+      "name": "جلال عضد",
+      "localImageUrl": "/images/poets/ganjoor-jalal.gif"
     },
     "jamal": {
       "source": "ganjoor",
       "id": 107,
-      "name": "جمال‌الدین عبدالرزاق اصفهانی"
+      "name": "جمال‌الدین عبدالرزاق اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-jamal.gif"
     },
     "jami": {
       "source": "ganjoor",
       "id": 24,
-      "name": "جامی"
+      "name": "جامی",
+      "localImageUrl": "/images/poets/ganjoor-jami.gif"
     },
     "jane-hirshfield": {
       "source": "echolalia",
       "id": 1401,
       "name": "جین هیرشفیلد",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-jane-hirshfield.jpg"
     },
     "jarooni": {
       "source": "ganjoor",
       "id": 133,
-      "name": "سلیمی جرونی"
+      "name": "سلیمی جرونی",
+      "localImageUrl": "/images/poets/ganjoor-jarooni.gif"
     },
     "jeyhoon": {
       "source": "ganjoor",
       "id": 178,
-      "name": "جیحون یزدی"
+      "name": "جیحون یزدی",
+      "localImageUrl": "/images/poets/ganjoor-jeyhoon.gif"
     },
     "joan-baez": {
       "source": "echolalia",
       "id": 2217,
       "name": "جون بایز",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-joan-baez.jpg"
     },
     "jollab": {
       "source": "ganjoor",
       "id": 219,
-      "name": "جلاب بخارایی"
+      "name": "جلاب بخارایی",
+      "localImageUrl": "/images/poets/ganjoor-jollab.gif"
     },
     "jooya": {
       "source": "ganjoor",
       "id": 121,
-      "name": "جویای تبریزی"
+      "name": "جویای تبریزی",
+      "localImageUrl": "/images/poets/ganjoor-jooya.gif"
     },
     "jorge-luis-borges": {
       "source": "echolalia",
       "id": 1207,
       "name": "خورخه لوئیس بورخس",
-      "sourceGroupName": "شاعران آرژانتین"
+      "sourceGroupName": "شاعران آرژانتین",
+      "localImageUrl": "/images/poets/echolalia-jorge-luis-borges.jpg"
     },
     "jose-angel-valente": {
       "source": "echolalia",
       "id": 238,
       "name": "خوزه آنخل بالنته",
-      "sourceGroupName": "شاعران اسپانیا"
+      "sourceGroupName": "شاعران اسپانیا",
+      "localImageUrl": "/images/poets/echolalia-jose-angel-valente.jpg"
     },
     "jose-marti": {
       "source": "echolalia",
       "id": 2042,
       "name": "خوزه مارتی",
-      "sourceGroupName": "شاعران کوبا"
+      "sourceGroupName": "شاعران کوبا",
+      "localImageUrl": "/images/poets/echolalia-jose-marti.jpg"
     },
     "joseph-brodsky": {
       "source": "echolalia",
       "id": 3291,
       "name": "جوزف برودسکی",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-joseph-brodsky.jpg"
     },
     "kahlil-gibran": {
       "source": "echolalia",
       "id": 1519,
       "name": "جبران خلیل جبران",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-kahlil-gibran.jpg"
     },
     "kalim": {
       "source": "ganjoor",
       "id": 100,
-      "name": "کلیم"
+      "name": "کلیم",
+      "localImageUrl": "/images/poets/ganjoor-kalim.gif"
     },
     "kamal": {
       "source": "ganjoor",
       "id": 67,
-      "name": "کمال‌الدین اسماعیل"
+      "name": "کمال‌الدین اسماعیل",
+      "localImageUrl": "/images/poets/ganjoor-kamal.gif"
     },
     "kashi": {
       "source": "ganjoor",
       "id": 218,
-      "name": "ترکی کشی"
+      "name": "ترکی کشی",
+      "localImageUrl": "/images/poets/ganjoor-kashi.gif"
     },
     "keikavus": {
       "source": "ganjoor",
       "id": 82,
-      "name": "عنصرالمعالی کیکاووس"
+      "name": "عنصرالمعالی کیکاووس",
+      "localImageUrl": "/images/poets/ganjoor-keikavus.gif"
     },
     "kermani": {
       "source": "ganjoor",
       "id": 164,
-      "name": "افسر کرمانی"
+      "name": "افسر کرمانی",
+      "localImageUrl": "/images/poets/ganjoor-kermani.gif"
     },
     "kesayee": {
       "source": "ganjoor",
       "id": 45,
-      "name": "کسایی مروزی"
+      "name": "کسایی مروزی",
+      "localImageUrl": "/images/poets/ganjoor-kesayee.gif"
     },
     "khaghani": {
       "source": "ganjoor",
       "id": 16,
-      "name": "خاقانی شروانی"
+      "name": "خاقانی شروانی",
+      "localImageUrl": "/images/poets/ganjoor-khaghani.gif"
     },
     "khajenasir": {
       "source": "ganjoor",
       "id": 161,
-      "name": "خواجه نصیرالدین طوسی"
+      "name": "خواجه نصیرالدین طوسی",
+      "localImageUrl": "/images/poets/ganjoor-khajenasir.gif"
     },
     "khajoo": {
       "source": "ganjoor",
       "id": 20,
-      "name": "خواجوی کرمانی"
+      "name": "خواجوی کرمانی",
+      "localImageUrl": "/images/poets/ganjoor-khajoo.gif"
     },
     "khaled": {
       "source": "ganjoor",
       "id": 104,
-      "name": "خالد نقشبندی"
+      "name": "خالد نقشبندی",
+      "localImageUrl": "/images/poets/ganjoor-khaled.gif"
     },
     "khalili": {
       "source": "ganjoor",
       "id": 48,
-      "name": "خلیل‌الله خلیلی"
+      "name": "خلیل‌الله خلیلی",
+      "localImageUrl": "/images/poets/ganjoor-khalili.gif"
     },
     "khayyam": {
       "source": "ganjoor",
       "id": 3,
-      "name": "خیام نیشابوری"
+      "name": "خیام نیشابوری",
+      "localImageUrl": "/images/poets/ganjoor-khayyam.gif"
     },
     "khiali": {
       "source": "ganjoor",
       "id": 118,
-      "name": "خیالی بخارایی"
+      "name": "خیالی بخارایی",
+      "localImageUrl": "/images/poets/ganjoor-khiali.gif"
     },
     "khojandi": {
       "source": "ganjoor",
       "id": 73,
-      "name": "کمال خجندی"
+      "name": "کمال خجندی",
+      "localImageUrl": "/images/poets/ganjoor-khojandi.gif"
     },
     "khosro": {
       "source": "ganjoor",
       "id": 34,
-      "name": "امیرخسرو دهلوی"
+      "name": "امیرخسرو دهلوی",
+      "localImageUrl": "/images/poets/ganjoor-khosro.gif"
     },
     "khosrow-golsorkhi": {
       "source": "echolalia",
       "id": 169,
       "name": "خسرو گلسرخی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-khosrow-golsorkhi.jpg"
     },
     "koohi": {
       "source": "ganjoor",
       "id": 171,
-      "name": "کوهی"
+      "name": "کوهی",
+      "localImageUrl": "/images/poets/ganjoor-koohi.gif"
     },
     "koosaj": {
       "source": "ganjoor",
       "id": 159,
-      "name": "محمد کوسج"
+      "name": "محمد کوسج",
+      "localImageUrl": "/images/poets/ganjoor-koosaj.gif"
     },
     "kucuk-iskender": {
       "source": "echolalia",
       "id": 133,
       "name": "کوچوک اسکندر",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-kucuk-iskender.jpg"
     },
     "labibi": {
       "source": "ganjoor",
       "id": 180,
-      "name": "لبیبی"
+      "name": "لبیبی",
+      "localImageUrl": "/images/poets/ganjoor-labibi.gif"
     },
     "langston-hughes": {
       "source": "echolalia",
       "id": 1510,
       "name": "لنگستون هیوز",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-langston-hughes.jpg"
     },
     "leo-ferre": {
       "source": "echolalia",
       "id": 1972,
       "name": "لئو فره",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-leo-ferre.jpg"
     },
     "linda-pastan": {
       "source": "echolalia",
       "id": 336,
       "name": "لیندا پاستان",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-linda-pastan.jpg"
     },
     "louis-aragon": {
       "source": "echolalia",
       "id": 1452,
       "name": "لویی آراگون",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-louis-aragon.jpg"
     },
     "luis-omar-lara-mendoza": {
       "source": "echolalia",
       "id": 271,
       "name": "لوییس عمر لارا مندوزا",
-      "sourceGroupName": "شاعران شیلی"
+      "sourceGroupName": "شاعران شیلی",
+      "localImageUrl": "/images/poets/echolalia-luis-omar-lara-mendoza.jpg"
     },
     "magda-herzberger": {
       "source": "echolalia",
       "id": 2092,
       "name": "ماگدا هرزبرگر",
-      "sourceGroupName": "شاعران رومانی"
+      "sourceGroupName": "شاعران رومانی",
+      "localImageUrl": "/images/poets/echolalia-magda-herzberger.jpg"
     },
     "maghrebi": {
       "source": "ganjoor",
       "id": 78,
-      "name": "شمس مغربی"
+      "name": "شمس مغربی",
+      "localImageUrl": "/images/poets/ganjoor-maghrebi.gif"
     },
     "mahabadi": {
       "source": "ganjoor",
       "id": 175,
-      "name": "وفایی مهابادی"
+      "name": "وفایی مهابادی",
+      "localImageUrl": "/images/poets/ganjoor-mahabadi.gif"
     },
     "mahmoud-darwish": {
       "source": "echolalia",
       "id": 467,
       "name": "محمود درویش",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-mahmoud-darwish.jpg"
     },
     "mahsati": {
       "source": "ganjoor",
       "id": 54,
-      "name": "مهستی گنجوی"
+      "name": "مهستی گنجوی",
+      "localImageUrl": "/images/poets/ganjoor-mahsati.gif"
     },
     "mamdouh-adwan": {
       "source": "echolalia",
       "id": 545,
       "name": "ممدوح عدوان",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-mamdouh-adwan.jpg"
     },
     "manoochehri": {
       "source": "ganjoor",
       "id": 14,
-      "name": "منوچهری دامغانی"
+      "name": "منوچهری دامغانی",
+      "localImageUrl": "/images/poets/ganjoor-manoochehri.gif"
     },
     "maram-al-masri": {
       "source": "echolalia",
       "id": 1644,
       "name": "مرام المصری",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-maram-al-masri.jpg"
     },
     "margaret-atwood": {
       "source": "echolalia",
       "id": 2147,
       "name": "مارگارت اتوود",
-      "sourceGroupName": "شاعران کانادا"
+      "sourceGroupName": "شاعران کانادا",
+      "localImageUrl": "/images/poets/echolalia-margaret-atwood.jpg"
     },
     "margot-bickel": {
       "source": "echolalia",
       "id": 317,
       "name": "مارگوت بیکل",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-margot-bickel.jpg"
     },
     "marianne-cohen": {
       "source": "echolalia",
       "id": 2180,
       "name": "ماریان کوهن",
-      "sourceGroupName": "شاعران نروژ"
+      "sourceGroupName": "شاعران نروژ",
+      "localImageUrl": "/images/poets/echolalia-marianne-cohen.jpg"
     },
     "marina-tsvetaeva": {
       "source": "echolalia",
       "id": 2158,
       "name": "مارینا تسوتایوا",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-marina-tsvetaeva.jpg"
     },
     "marine-petrossian": {
       "source": "echolalia",
       "id": 3002,
       "name": "مارینه پطروسیان",
-      "sourceGroupName": "شاعران ارمنی"
+      "sourceGroupName": "شاعران ارمنی",
+      "localImageUrl": "/images/poets/echolalia-marine-petrossian.jpg"
     },
     "marta-rivera-de-la-cruz": {
       "source": "echolalia",
       "id": 1654,
       "name": "مارتا ریورا دلا کروز",
-      "sourceGroupName": "شاعران اسپانیا"
+      "sourceGroupName": "شاعران اسپانیا",
+      "localImageUrl": "/images/poets/echolalia-marta-rivera-de-la-cruz.jpg"
     },
     "martinus-nijhoff": {
       "source": "echolalia",
       "id": 3281,
       "name": "مارتینوس نایهوف",
-      "sourceGroupName": "شاعران هلند"
+      "sourceGroupName": "شاعران هلند",
+      "localImageUrl": "/images/poets/echolalia-martinus-nijhoff.jpg"
     },
     "masih": {
       "source": "ganjoor",
       "id": 90,
-      "name": "ملا مسیح پانی‌پتی"
+      "name": "ملا مسیح پانی‌پتی",
+      "localImageUrl": "/images/poets/ganjoor-masih.gif"
     },
     "masood": {
       "source": "ganjoor",
       "id": 17,
-      "name": "مسعود سعد سلمان"
+      "name": "مسعود سعد سلمان",
+      "localImageUrl": "/images/poets/ganjoor-masood.gif"
     },
     "masoudi": {
       "source": "ganjoor",
       "id": 210,
-      "name": "مسعودی مروزی"
+      "name": "مسعودی مروزی",
+      "localImageUrl": "/images/poets/ganjoor-masoudi.gif"
     },
     "massimo-bontempelli": {
       "source": "echolalia",
       "id": 2825,
       "name": "ماسیمو بونتمپلی",
-      "sourceGroupName": "شاعران ایتالیا"
+      "sourceGroupName": "شاعران ایتالیا",
+      "localImageUrl": "/images/poets/echolalia-massimo-bontempelli.jpg"
     },
     "mehdi-akhavan-sales": {
       "source": "echolalia",
       "id": 291,
       "name": "مهدی اخوان ثالث",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-mehdi-akhavan-sales.jpg"
     },
     "mehdi-mousavi": {
       "source": "echolalia",
       "id": 666,
       "name": "سید مهدی موسوی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-mehdi-mousavi.jpg"
     },
     "meybodi": {
       "source": "ganjoor",
       "id": 60,
-      "name": "رشیدالدین میبدی"
+      "name": "رشیدالدین میبدی",
+      "localImageUrl": "/images/poets/ganjoor-meybodi.gif"
     },
     "meyli": {
       "source": "ganjoor",
       "id": 183,
-      "name": "میلی"
+      "name": "میلی",
+      "localImageUrl": "/images/poets/ganjoor-meyli.gif"
     },
     "miguel-de-unamuno": {
       "source": "echolalia",
       "id": 3055,
       "name": "میگل د اونامونو",
-      "sourceGroupName": "شاعران اسپانیا"
+      "sourceGroupName": "شاعران اسپانیا",
+      "localImageUrl": "/images/poets/echolalia-miguel-de-unamuno.jpg"
     },
     "miguel-hernandez": {
       "source": "echolalia",
       "id": 2110,
       "name": "میگوئل هرناندز",
-      "sourceGroupName": "شاعران اسپانیا"
+      "sourceGroupName": "شاعران اسپانیا",
+      "localImageUrl": "/images/poets/echolalia-miguel-hernandez.jpg"
     },
     "mikhail-lermontov": {
       "source": "echolalia",
       "id": 2811,
       "name": "میخائیل لرمانتاف",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-mikhail-lermontov.jpg"
     },
     "mir": {
       "source": "ganjoor",
       "id": 186,
-      "name": "میرداماد"
+      "name": "میرداماد",
+      "localImageUrl": "/images/poets/ganjoor-mir.gif"
     },
     "miroslav-holub": {
       "source": "echolalia",
       "id": 3315,
       "name": "میروسلاو هولوب",
-      "sourceGroupName": "شاعران چک"
+      "sourceGroupName": "شاعران چک",
+      "localImageUrl": "/images/poets/echolalia-miroslav-holub.jpg"
     },
     "mmon": {
       "source": "ganjoor",
       "id": 96,
-      "name": "محمد بن منور"
+      "name": "محمد بن منور",
+      "localImageUrl": "/images/poets/ganjoor-mmon.gif"
     },
     "moftagher": {
       "source": "ganjoor",
       "id": 87,
-      "name": "محمدحسین غروی اصفهانی"
+      "name": "محمدحسین غروی اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-moftagher.gif"
     },
     "mohammad-ali-bahmani": {
       "source": "echolalia",
       "id": 728,
       "name": "محمدعلی بهمنی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-mohammad-ali-bahmani.jpg"
     },
     "mohammad-mokhtari": {
       "source": "echolalia",
       "id": 3293,
       "name": "محمد مختاری",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-mohammad-mokhtari.jpg"
     },
     "mohammad-reza-shafiei-kadkani": {
       "source": "echolalia",
       "id": 279,
       "name": "شفیعی کدکنی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-mohammad-reza-shafiei-kadkani.jpg"
     },
     "mohit": {
       "source": "ganjoor",
       "id": 113,
-      "name": "محیط قمی"
+      "name": "محیط قمی",
+      "localImageUrl": "/images/poets/ganjoor-mohit.gif"
     },
     "mohtasham": {
       "source": "ganjoor",
       "id": 29,
-      "name": "محتشم کاشانی"
+      "name": "محتشم کاشانی",
+      "localImageUrl": "/images/poets/ganjoor-mohtasham.gif"
     },
     "mokhallad": {
       "source": "ganjoor",
       "id": 206,
-      "name": "محمد بن مخلد سگزی"
+      "name": "محمد بن مخلد سگزی",
+      "localImageUrl": "/images/poets/ganjoor-mokhallad.gif"
     },
     "mokhtari": {
       "source": "ganjoor",
       "id": 109,
-      "name": "عثمان مختاری"
+      "name": "عثمان مختاری",
+      "localImageUrl": "/images/poets/ganjoor-mokhtari.gif"
     },
     "monshi": {
       "source": "ganjoor",
       "id": 49,
-      "name": "نصرالله منشی"
+      "name": "نصرالله منشی",
+      "localImageUrl": "/images/poets/ganjoor-monshi.gif"
     },
     "moradi": {
       "source": "ganjoor",
       "id": 225,
-      "name": "مرادی"
+      "name": "مرادی",
+      "localImageUrl": "/images/poets/ganjoor-moradi.gif"
     },
     "mosabi": {
       "source": "ganjoor",
       "id": 213,
-      "name": "ابوطیب مصعبی"
+      "name": "ابوطیب مصعبی",
+      "localImageUrl": "/images/poets/ganjoor-mosabi.gif"
     },
     "moshtagh": {
       "source": "ganjoor",
       "id": 154,
-      "name": "مشتاق اصفهانی"
+      "name": "مشتاق اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-moshtagh.gif"
     },
     "moulavi": {
       "source": "ganjoor",
       "id": 5,
-      "name": "جلال الدین محمد مولوی"
+      "name": "جلال الدین محمد مولوی",
+      "localImageUrl": "/images/poets/ganjoor-moulavi.gif"
     },
     "muzaffar-al-nawab": {
       "source": "echolalia",
       "id": 2377,
       "name": "مظفر النواب",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-muzaffar-al-nawab.jpg"
     },
     "nader-ebrahimi": {
       "source": "echolalia",
       "id": 2895,
       "name": "نادر ابراهیمی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-nader-ebrahimi.jpg"
     },
     "nader-naderpour": {
       "source": "echolalia",
       "id": 2933,
       "name": "نادر نادرپور",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-nader-naderpour.jpg"
     },
     "naraghi": {
       "source": "ganjoor",
       "id": 132,
-      "name": "ملا احمد نراقی"
+      "name": "ملا احمد نراقی",
+      "localImageUrl": "/images/poets/ganjoor-naraghi.gif"
     },
     "nasafi": {
       "source": "ganjoor",
       "id": 181,
-      "name": "سیدای نسفی"
+      "name": "سیدای نسفی",
+      "localImageUrl": "/images/poets/ganjoor-nasafi.gif"
     },
     "naser": {
       "source": "ganjoor",
       "id": 198,
-      "name": "ناصر بخارایی"
+      "name": "ناصر بخارایی",
+      "localImageUrl": "/images/poets/ganjoor-naser.gif"
     },
     "naserkhosro": {
       "source": "ganjoor",
       "id": 13,
-      "name": "ناصرخسرو قبادیانی"
+      "name": "ناصرخسرو قبادیانی",
+      "localImageUrl": "/images/poets/ganjoor-naserkhosro.gif"
     },
     "nashenas": {
       "source": "ganjoor",
       "id": 126,
-      "name": "سرایندهٔ فرامرزنامه"
+      "name": "سرایندهٔ فرامرزنامه",
+      "localImageUrl": "/images/poets/ganjoor-nashenas.gif"
     },
     "nasimi": {
       "source": "ganjoor",
       "id": 146,
-      "name": "عمادالدین نسیمی"
+      "name": "عمادالدین نسیمی",
+      "localImageUrl": "/images/poets/ganjoor-nasimi.gif"
     },
     "nayyer": {
       "source": "ganjoor",
       "id": 79,
-      "name": "نیر تبریزی"
+      "name": "نیر تبریزی",
+      "localImageUrl": "/images/poets/ganjoor-nayyer.gif"
     },
     "nazim-hikmet-ran": {
       "source": "echolalia",
       "id": 144,
       "name": "ناظم حکمت",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-nazim-hikmet-ran.jpg"
     },
     "naziri": {
       "source": "ganjoor",
       "id": 157,
-      "name": "نظیری نیشابوری"
+      "name": "نظیری نیشابوری",
+      "localImageUrl": "/images/poets/ganjoor-naziri.gif"
     },
     "nedi-ansi-al-hajj": {
       "source": "echolalia",
       "id": 468,
       "name": "ندي اُنسي الحاج",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-nedi-ansi-al-hajj.jpg"
     },
     "neshat": {
       "source": "ganjoor",
       "id": 149,
-      "name": "نشاط اصفهانی"
+      "name": "نشاط اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-neshat.gif"
     },
     "nezami": {
       "source": "ganjoor",
       "id": 6,
-      "name": "نظامی گنجوی"
+      "name": "نظامی گنجوی",
+      "localImageUrl": "/images/poets/ganjoor-nezami.gif"
     },
     "nezari": {
       "source": "ganjoor",
       "id": 65,
-      "name": "حکیم نزاری قهستانی"
+      "name": "حکیم نزاری قهستانی",
+      "localImageUrl": "/images/poets/ganjoor-nezari.gif"
     },
     "nicanor-parra": {
       "source": "echolalia",
       "id": 3342,
       "name": "نیکانور پارا",
-      "sourceGroupName": "شاعران شیلی"
+      "sourceGroupName": "شاعران شیلی",
+      "localImageUrl": "/images/poets/echolalia-nicanor-parra.jpg"
     },
     "nima-yooshij": {
       "source": "echolalia",
       "id": 929,
       "name": "نیما یوشیج",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-nima-yooshij.jpg"
     },
     "nizami-ganjavi": {
       "source": "echolalia",
       "id": 1394,
       "name": "نظامی گنجوی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-nizami-ganjavi.jpg"
     },
     "nizar-qabbani": {
       "source": "echolalia",
       "id": 221,
       "name": "نزار قبانی",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-nizar-qabbani.jpg"
     },
     "noorali": {
       "source": "ganjoor",
       "id": 191,
-      "name": "نورعلیشاه"
+      "name": "نورعلیشاه",
+      "localImageUrl": "/images/poets/ganjoor-noorali.gif"
     },
     "nosrat-rahmani": {
       "source": "echolalia",
       "id": 186,
       "name": "نصرت رحمانی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-nosrat-rahmani.jpg"
     },
     "nouee": {
       "source": "ganjoor",
       "id": 111,
-      "name": "نوعی خبوشانی"
+      "name": "نوعی خبوشانی",
+      "localImageUrl": "/images/poets/ganjoor-nouee.gif"
     },
     "nuna-bugvsyan": {
       "source": "echolalia",
       "id": 3003,
       "name": "نونا بغوسیان",
-      "sourceGroupName": "شاعران ارمنی"
+      "sourceGroupName": "شاعران ارمنی",
+      "localImageUrl": "/images/poets/echolalia-nuna-bugvsyan.jpg"
     },
     "obeyd": {
       "source": "ganjoor",
       "id": 33,
-      "name": "عبید زاکانی"
+      "name": "عبید زاکانی",
+      "localImageUrl": "/images/poets/ganjoor-obeyd.gif"
     },
     "octavio-paz": {
       "source": "echolalia",
       "id": 1459,
       "name": "اکتاویو پاز",
-      "sourceGroupName": "شاعران مکزیکی"
+      "sourceGroupName": "شاعران مکزیکی",
+      "localImageUrl": "/images/poets/echolalia-octavio-paz.jpg"
     },
     "oktay-rifat": {
       "source": "echolalia",
       "id": 1147,
       "name": "اوکتای رفعت",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-oktay-rifat.jpg"
     },
     "olga-broumas": {
       "source": "echolalia",
       "id": 284,
       "name": "اولگا بروماس",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-olga-broumas.jpg"
     },
     "omman": {
       "source": "ganjoor",
       "id": 59,
-      "name": "عمان سامانی"
+      "name": "عمان سامانی",
+      "localImageUrl": "/images/poets/ganjoor-omman.gif"
     },
     "onsori": {
       "source": "ganjoor",
       "id": 62,
-      "name": "عنصری بلخی"
+      "name": "عنصری بلخی",
+      "localImageUrl": "/images/poets/ganjoor-onsori.gif"
     },
     "orfi": {
       "source": "ganjoor",
       "id": 46,
-      "name": "عرفی شیرازی"
+      "name": "عرفی شیرازی",
+      "localImageUrl": "/images/poets/ganjoor-orfi.gif"
     },
     "orhan-veli-kanik": {
       "source": "echolalia",
       "id": 473,
       "name": "اورهان ولی",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-orhan-veli-kanik.jpg"
     },
     "osmani": {
       "source": "ganjoor",
       "id": 101,
-      "name": "ابوعلی حسن بن احمد عثمانی"
+      "name": "ابوعلی حسن بن احمد عثمانی",
+      "localImageUrl": "/images/poets/ganjoor-osmani.gif"
     },
     "oswald-mtshali": {
       "source": "echolalia",
       "id": 2898,
       "name": "اسوالد متشالی",
-      "sourceGroupName": "شاعران آفریقای‌جنوبی"
+      "sourceGroupName": "شاعران آفریقای‌جنوبی",
+      "localImageUrl": "/images/poets/echolalia-oswald-mtshali.jpg"
     },
     "other": {
       "source": "echolalia",
       "id": 1261,
       "name": "شاعران دیگر",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-other.jpg"
     },
     "ouhad": {
       "source": "ganjoor",
       "id": 117,
-      "name": "اوحدالدین کرمانی"
+      "name": "اوحدالدین کرمانی",
+      "localImageUrl": "/images/poets/ganjoor-ouhad.gif"
     },
     "ouhadi": {
       "source": "ganjoor",
       "id": 19,
-      "name": "اوحدی مراغه‌ای"
+      "name": "اوحدی مراغه‌ای",
+      "localImageUrl": "/images/poets/ganjoor-ouhadi.gif"
     },
     "ozdemir-asaf": {
       "source": "echolalia",
       "id": 411,
       "name": "اوزدمیر آصف",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-ozdemir-asaf.jpg"
     },
     "pablo-neruda": {
       "source": "echolalia",
       "id": 256,
       "name": "پابلو نرودا",
-      "sourceGroupName": "شاعران شیلی"
+      "sourceGroupName": "شاعران شیلی",
+      "localImageUrl": "/images/poets/echolalia-pablo-neruda.jpg"
     },
     "parvin": {
       "source": "ganjoor",
       "id": 8,
-      "name": "پروین اعتصامی"
+      "name": "پروین اعتصامی",
+      "localImageUrl": "/images/poets/ganjoor-parvin.gif"
     },
     "paul-celan": {
       "source": "echolalia",
       "id": 3277,
       "name": "پل سلان",
-      "sourceGroupName": "شاعران رومانی"
+      "sourceGroupName": "شاعران رومانی",
+      "localImageUrl": "/images/poets/echolalia-paul-celan.jpg"
     },
     "paul-eluard": {
       "source": "echolalia",
       "id": 607,
       "name": "پل الوار",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-paul-eluard.jpg"
     },
     "paul-verlaine": {
       "source": "echolalia",
       "id": 3286,
       "name": "پل ورلن",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-paul-verlaine.jpg"
     },
     "pazevari": {
       "source": "ganjoor",
       "id": 195,
-      "name": "امیر پازواری"
+      "name": "امیر پازواری",
+      "localImageUrl": "/images/poets/ganjoor-pazevari.gif"
     },
     "pier-paolo-pasolini": {
       "source": "echolalia",
       "id": 3307,
       "name": "پیر پائولو پازولینی",
-      "sourceGroupName": "شاعران ایتالیا"
+      "sourceGroupName": "شاعران ایتالیا",
+      "localImageUrl": "/images/poets/echolalia-pier-paolo-pasolini.jpg"
     },
     "qeysar-aminpour": {
       "source": "echolalia",
       "id": 713,
       "name": "قیصر امین پور",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-qeysar-aminpour.jpg"
     },
     "rafael-alberti": {
       "source": "echolalia",
       "id": 1239,
       "name": "رافائل آلبرتی",
-      "sourceGroupName": "شاعران اسپانیا"
+      "sourceGroupName": "شاعران اسپانیا",
+      "localImageUrl": "/images/poets/echolalia-rafael-alberti.jpg"
     },
     "rafigh": {
       "source": "ganjoor",
       "id": 167,
-      "name": "رفیق اصفهانی"
+      "name": "رفیق اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-rafigh.gif"
     },
     "rahi": {
       "source": "ganjoor",
       "id": 41,
-      "name": "رهی معیری"
+      "name": "رهی معیری",
+      "localImageUrl": "/images/poets/ganjoor-rahi.gif"
     },
     "rainer-malkowski": {
       "source": "echolalia",
       "id": 2832,
       "name": "راینر مالکوفسکی",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-rainer-malkowski.jpg"
     },
     "rashhe": {
       "source": "ganjoor",
       "id": 36,
-      "name": "رشحه"
+      "name": "رشحه",
+      "localImageUrl": "/images/poets/ganjoor-rashhe.gif"
     },
     "rasoul-yunan": {
       "source": "echolalia",
       "id": 509,
       "name": "رسول یونان",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-rasoul-yunan.jpg"
     },
     "raymond-carver": {
       "source": "echolalia",
       "id": 869,
       "name": "ریموند کارور",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-raymond-carver.jpg"
     },
     "razi": {
       "source": "ganjoor",
       "id": 47,
-      "name": "رضی‌الدین آرتیمانی"
+      "name": "رضی‌الدین آرتیمانی",
+      "localImageUrl": "/images/poets/ganjoor-razi.gif"
     },
     "rebbeca-ndjoze": {
       "source": "echolalia",
       "id": 2899,
       "name": "ربکا ندیوزی",
-      "sourceGroupName": "شاعران آفریقای‌جنوبی"
+      "sourceGroupName": "شاعران آفریقای‌جنوبی",
+      "localImageUrl": "/images/poets/echolalia-rebbeca-ndjoze.jpg"
     },
     "remco-campert": {
       "source": "echolalia",
       "id": 2394,
       "name": "رمکو کامپرت",
-      "sourceGroupName": "شاعران هلند"
+      "sourceGroupName": "شاعران هلند",
+      "localImageUrl": "/images/poets/echolalia-remco-campert.jpg"
     },
     "rene-char": {
       "source": "echolalia",
       "id": 2313,
       "name": "رنه شار",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-rene-char.jpg"
     },
     "reza-baraheni": {
       "source": "echolalia",
       "id": 1274,
       "name": "رضا براهنی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-reza-baraheni.jpg"
     },
     "rhedayat": {
       "source": "ganjoor",
       "id": 93,
-      "name": "رضاقلی خان هدایت"
+      "name": "رضاقلی خان هدایت",
+      "localImageUrl": "/images/poets/ganjoor-rhedayat.gif"
     },
     "richard-brautigan": {
       "source": "echolalia",
       "id": 420,
       "name": "ریچارد براتیگان",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-richard-brautigan.jpg"
     },
     "robert-desnos": {
       "source": "echolalia",
       "id": 1431,
       "name": "روبر دسنوس",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-robert-desnos.jpg"
     },
     "robert-frost": {
       "source": "echolalia",
       "id": 3308,
       "name": "رابرت فراست",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-robert-frost.jpg"
     },
     "roberto-juarroz": {
       "source": "echolalia",
       "id": 3333,
       "name": "روبرتو خواروز",
-      "sourceGroupName": "شاعران آرژانتین"
+      "sourceGroupName": "شاعران آرژانتین",
+      "localImageUrl": "/images/poets/echolalia-roberto-juarroz.jpg"
     },
     "romain-rolland": {
       "source": "echolalia",
       "id": 309,
       "name": "رومن رولان",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-romain-rolland.jpg"
     },
     "ron-willis": {
       "source": "echolalia",
       "id": 3020,
       "name": "ران ویلیس",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-ron-willis.jpg"
     },
     "roodaki": {
       "source": "ganjoor",
       "id": 12,
-      "name": "رودکی سمرقندی"
+      "name": "رودکی سمرقندی",
+      "localImageUrl": "/images/poets/ganjoor-roodaki.gif"
     },
     "rooni": {
       "source": "ganjoor",
       "id": 110,
-      "name": "ابوالفرج رونی"
+      "name": "ابوالفرج رونی",
+      "localImageUrl": "/images/poets/ganjoor-rooni.gif"
     },
     "rose-auslander": {
       "source": "echolalia",
       "id": 2297,
       "name": "رزه آوسلندر",
-      "sourceGroupName": "شاعران اوکراین"
+      "sourceGroupName": "شاعران اوکراین",
+      "localImageUrl": "/images/poets/echolalia-rose-auslander.jpg"
     },
     "rownaghi": {
       "source": "ganjoor",
       "id": 221,
-      "name": "رونقی بخارایی"
+      "name": "رونقی بخارایی",
+      "localImageUrl": "/images/poets/ganjoor-rownaghi.gif"
     },
     "rumi": {
       "source": "echolalia",
       "id": 736,
       "name": "مولانا",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-rumi.jpg"
     },
     "saadi": {
       "source": "ganjoor",
       "id": 7,
-      "name": "سعدی شیرازی"
+      "name": "سعدی شیرازی",
+      "localImageUrl": "/images/poets/ganjoor-saadi.gif"
     },
     "saadi-shirazi": {
       "source": "echolalia",
       "id": 1096,
       "name": "سعدی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-saadi-shirazi.jpg"
     },
     "saber": {
       "source": "ganjoor",
       "id": 156,
-      "name": "ادیب صابر"
+      "name": "ادیب صابر",
+      "localImageUrl": "/images/poets/ganjoor-saber.gif"
     },
     "saeb": {
       "source": "ganjoor",
       "id": 22,
-      "name": "صائب"
+      "name": "صائب",
+      "localImageUrl": "/images/poets/ganjoor-saeb.gif"
     },
     "saeeda": {
       "source": "ganjoor",
       "id": 128,
-      "name": "سعیدا"
+      "name": "سعیدا",
+      "localImageUrl": "/images/poets/ganjoor-saeeda.gif"
     },
     "safa": {
       "source": "ganjoor",
       "id": 108,
-      "name": "صفای اصفهانی"
+      "name": "صفای اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-safa.gif"
     },
     "safayee": {
       "source": "ganjoor",
       "id": 168,
-      "name": "صفایی جندقی"
+      "name": "صفایی جندقی",
+      "localImageUrl": "/images/poets/ganjoor-safayee.gif"
     },
     "safi": {
       "source": "ganjoor",
       "id": 187,
-      "name": "صفی علیشاه"
+      "name": "صفی علیشاه",
+      "localImageUrl": "/images/poets/ganjoor-safi.gif"
     },
     "saghir": {
       "source": "ganjoor",
       "id": 182,
-      "name": "صغیر اصفهانی"
+      "name": "صغیر اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-saghir.gif"
     },
     "sahab": {
       "source": "ganjoor",
       "id": 135,
-      "name": "سحاب اصفهانی"
+      "name": "سحاب اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-sahab.gif"
     },
     "saham-alshasha": {
       "source": "echolalia",
       "id": 2305,
       "name": "سهام الشعشاع",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-saham-alshasha.jpg"
     },
     "saib-tabrizi": {
       "source": "echolalia",
       "id": 1089,
       "name": "صائب تبریزی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-saib-tabrizi.jpg"
     },
     "salim": {
       "source": "ganjoor",
       "id": 120,
-      "name": "سلیم تهرانی"
+      "name": "سلیم تهرانی",
+      "localImageUrl": "/images/poets/ganjoor-salim.gif"
     },
     "salman": {
       "source": "ganjoor",
       "id": 40,
-      "name": "سلمان ساوجی"
+      "name": "سلمان ساوجی",
+      "localImageUrl": "/images/poets/ganjoor-salman.gif"
     },
     "sam": {
       "source": "ganjoor",
       "id": 197,
-      "name": "سام میرزا صفوی"
+      "name": "سام میرزا صفوی",
+      "localImageUrl": "/images/poets/ganjoor-sam.gif"
     },
     "samet": {
       "source": "ganjoor",
       "id": 74,
-      "name": "صامت بروجردی"
+      "name": "صامت بروجردی",
+      "localImageUrl": "/images/poets/ganjoor-samet.gif"
     },
     "samuel-beckett": {
       "source": "echolalia",
       "id": 3305,
       "name": "ساموئل بکت",
-      "sourceGroupName": "شاعران ایرلندی"
+      "sourceGroupName": "شاعران ایرلندی",
+      "localImageUrl": "/images/poets/echolalia-samuel-beckett.jpg"
     },
     "sanaee": {
       "source": "ganjoor",
       "id": 10,
-      "name": "سنایی غزنوی"
+      "name": "سنایی غزنوی",
+      "localImageUrl": "/images/poets/ganjoor-sanaee.gif"
     },
     "sane": {
       "source": "ganjoor",
       "id": 223,
-      "name": "صانع بلخی"
+      "name": "صانع بلخی",
+      "localImageUrl": "/images/poets/ganjoor-sane.gif"
     },
     "sara-teasdale": {
       "source": "echolalia",
       "id": 2116,
       "name": "سارا تیس دیل",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-sara-teasdale.jpg"
     },
     "sepehri": {
       "source": "ganjoor",
       "id": 222,
-      "name": "سپهری بخارایی"
+      "name": "سپهری بخارایی",
+      "localImageUrl": "/images/poets/ganjoor-sepehri.gif"
     },
     "seyed-ali-salehi": {
       "source": "echolalia",
       "id": 510,
       "name": "سید علی صالحی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-seyed-ali-salehi.jpg"
     },
     "seyf": {
       "source": "ganjoor",
       "id": 31,
-      "name": "سیف فرغانی"
+      "name": "سیف فرغانی",
+      "localImageUrl": "/images/poets/ganjoor-seyf.gif"
     },
     "shabestari": {
       "source": "ganjoor",
       "id": 23,
-      "name": "شیخ محمود شبستری"
+      "name": "شیخ محمود شبستری",
+      "localImageUrl": "/images/poets/ganjoor-shabestari.gif"
     },
     "shahedi": {
       "source": "ganjoor",
       "id": 83,
-      "name": "ابراهیم شاهدی دده"
+      "name": "ابراهیم شاهدی دده",
+      "localImageUrl": "/images/poets/ganjoor-shahedi.gif"
     },
     "shahi": {
       "source": "ganjoor",
       "id": 103,
-      "name": "امیر شاهی سبزواری"
+      "name": "امیر شاهی سبزواری",
+      "localImageUrl": "/images/poets/ganjoor-shahi.gif"
     },
     "shahid": {
       "source": "ganjoor",
       "id": 207,
-      "name": "شهید بلخی"
+      "name": "شهید بلخی",
+      "localImageUrl": "/images/poets/ganjoor-shahid.gif"
     },
     "shahnematollah": {
       "source": "ganjoor",
       "id": 51,
-      "name": "شاه نعمت‌الله ولی"
+      "name": "شاه نعمت‌الله ولی",
+      "localImageUrl": "/images/poets/ganjoor-shahnematollah.gif"
     },
     "shahram-sheydayi": {
       "source": "echolalia",
       "id": 3296,
       "name": "شهرام شیدایی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-shahram-sheydayi.jpg"
     },
     "shahrestani": {
       "source": "ganjoor",
       "id": 130,
-      "name": "اسیر شهرستانی"
+      "name": "اسیر شهرستانی",
+      "localImageUrl": "/images/poets/ganjoor-shahrestani.gif"
     },
     "shahriar": {
       "source": "ganjoor",
       "id": 35,
-      "name": "شهریار"
+      "name": "شهریار",
+      "localImageUrl": "/images/poets/ganjoor-shahriar.gif"
     },
     "shahriyar": {
       "source": "echolalia",
       "id": 162,
       "name": "شهریار",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-shahriyar.jpg"
     },
     "shaker": {
       "source": "ganjoor",
       "id": 220,
-      "name": "شاکر بخارایی"
+      "name": "شاکر بخارایی",
+      "localImageUrl": "/images/poets/ganjoor-shaker.gif"
     },
     "shams-langroudi": {
       "source": "echolalia",
       "id": 880,
       "name": "شمس لنگرودی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-shams-langroudi.jpg"
     },
     "shater": {
       "source": "ganjoor",
       "id": 55,
-      "name": "شاطر عباس صبوحی"
+      "name": "شاطر عباس صبوحی",
+      "localImageUrl": "/images/poets/ganjoor-shater.gif"
     },
     "shel-silverstein": {
       "source": "echolalia",
       "id": 787,
       "name": "شل سیلور استاین",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-shel-silverstein.jpg"
     },
     "sherko-bekas": {
       "source": "echolalia",
       "id": 2580,
       "name": "شیرکو بیکس",
-      "sourceGroupName": "شاعران کوردی"
+      "sourceGroupName": "شاعران کوردی",
+      "localImageUrl": "/images/poets/echolalia-sherko-bekas.jpg"
     },
     "shooshtari": {
       "source": "ganjoor",
       "id": 176,
-      "name": "وفایی شوشتری"
+      "name": "وفایی شوشتری",
+      "localImageUrl": "/images/poets/ganjoor-shooshtari.gif"
     },
     "siavash-kasraei": {
       "source": "echolalia",
       "id": 1869,
       "name": "سیاوش کسرایی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-siavash-kasraei.jpg"
     },
     "siegfried-sassoon": {
       "source": "echolalia",
       "id": 3346,
       "name": "زیگفرید ساسون",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-siegfried-sassoon.jpg"
     },
     "simin-behbahani": {
       "source": "echolalia",
       "id": 1577,
       "name": "سیمین بهبهانی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-simin-behbahani.jpg"
     },
     "soghdi": {
       "source": "ganjoor",
       "id": 212,
-      "name": "ابوحفص سغدی"
+      "name": "ابوحفص سغدی",
+      "localImageUrl": "/images/poets/ganjoor-soghdi.gif"
     },
     "sohrab-sepehri": {
       "source": "echolalia",
       "id": 779,
       "name": "سهراب سپهری",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-sohrab-sepehri.jpg"
     },
     "soofi": {
       "source": "ganjoor",
       "id": 188,
-      "name": "صوفی محمد هروی"
+      "name": "صوفی محمد هروی",
+      "localImageUrl": "/images/poets/ganjoor-soofi.gif"
     },
     "soozani": {
       "source": "ganjoor",
       "id": 177,
-      "name": "سوزنی سمرقندی"
+      "name": "سوزنی سمرقندی",
+      "localImageUrl": "/images/poets/ganjoor-soozani.gif"
     },
     "sophia-de-mello-breyner-andresen": {
       "source": "echolalia",
       "id": 2724,
       "name": "سوفیا اندرسون",
-      "sourceGroupName": "شاعران پرتغال"
+      "sourceGroupName": "شاعران پرتغال",
+      "localImageUrl": "/images/poets/echolalia-sophia-de-mello-breyner-andresen.jpg"
     },
     "sophia-parnok": {
       "source": "echolalia",
       "id": 2326,
       "name": "سوفیا پارنوک",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-sophia-parnok.jpg"
     },
     "souad-al-sabah": {
       "source": "echolalia",
       "id": 1217,
       "name": "سعاد الصباح",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-souad-al-sabah.jpg"
     },
     "susan-polis-schutz": {
       "source": "echolalia",
       "id": 1952,
       "name": "سوزان پولیس شوتز",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-susan-polis-schutz.jpg"
     },
     "suzanne-alaywan": {
       "source": "echolalia",
       "id": 2464,
       "name": "سوزان علیوان",
-      "sourceGroupName": "شاعران عرب"
+      "sourceGroupName": "شاعران عرب",
+      "localImageUrl": "/images/poets/echolalia-suzanne-alaywan.jpg"
     },
     "sylvia-plath": {
       "source": "echolalia",
       "id": 40,
       "name": "سیلویا پلات",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-sylvia-plath.jpg"
     },
     "t-s-eliot": {
       "source": "echolalia",
       "id": 3283,
       "name": "تی. اس. الیوت",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-t-s-eliot.jpg"
     },
     "tabib": {
       "source": "ganjoor",
       "id": 138,
-      "name": "طبیب اصفهانی"
+      "name": "طبیب اصفهانی",
+      "localImageUrl": "/images/poets/ganjoor-tabib.gif"
     },
     "tadeusz-borowski": {
       "source": "echolalia",
       "id": 3183,
       "name": "تادئوش بوروفسکی",
-      "sourceGroupName": "شاعران لهستان"
+      "sourceGroupName": "شاعران لهستان",
+      "localImageUrl": "/images/poets/echolalia-tadeusz-borowski.jpg"
     },
     "tadeusz-rozewicz": {
       "source": "echolalia",
       "id": 2667,
       "name": "تادئوش روژه‌ویچ",
-      "sourceGroupName": "شاعران لهستان"
+      "sourceGroupName": "شاعران لهستان",
+      "localImageUrl": "/images/poets/echolalia-tadeusz-rozewicz.jpg"
     },
     "ted-hughes": {
       "source": "echolalia",
       "id": 1475,
       "name": "تد هیوز",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-ted-hughes.jpg"
     },
     "teijo-nakamura": {
       "source": "echolalia",
       "id": 1260,
       "name": "تی جو ناکامورا",
-      "sourceGroupName": "شاعران ژاپنی"
+      "sourceGroupName": "شاعران ژاپنی",
+      "localImageUrl": "/images/poets/echolalia-teijo-nakamura.jpg"
     },
     "tess-gallagher": {
       "source": "echolalia",
       "id": 3306,
       "name": "تس گالاگر",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-tess-gallagher.jpg"
     },
     "theophile-gautier": {
       "source": "echolalia",
       "id": 2248,
       "name": "تئوفیل گوتیه",
-      "sourceGroupName": "شاعران فرانسه"
+      "sourceGroupName": "شاعران فرانسه",
+      "localImageUrl": "/images/poets/echolalia-theophile-gautier.jpg"
     },
     "thomas-hardy": {
       "source": "echolalia",
       "id": 2743,
       "name": "توماس هاردی",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-thomas-hardy.jpg"
     },
     "toghra": {
       "source": "ganjoor",
       "id": 184,
-      "name": "طغرای مشهدی"
+      "name": "طغرای مشهدی",
+      "localImageUrl": "/images/poets/ganjoor-toghra.gif"
     },
     "toghrol": {
       "source": "ganjoor",
       "id": 150,
-      "name": "طغرل احراری"
+      "name": "طغرل احراری",
+      "localImageUrl": "/images/poets/ganjoor-toghrol.gif"
     },
     "tokhari": {
       "source": "ganjoor",
       "id": 224,
-      "name": "طخاری"
+      "name": "طخاری",
+      "localImageUrl": "/images/poets/ganjoor-tokhari.gif"
     },
     "tomas-transtromer": {
       "source": "echolalia",
       "id": 2415,
       "name": "توماس ترانسترومر",
-      "sourceGroupName": "شاعران سوئد"
+      "sourceGroupName": "شاعران سوئد",
+      "localImageUrl": "/images/poets/echolalia-tomas-transtromer.jpg"
     },
     "torki": {
       "source": "ganjoor",
       "id": 189,
-      "name": "ترکی شیرازی"
+      "name": "ترکی شیرازی",
+      "localImageUrl": "/images/poets/ganjoor-torki.gif"
     },
     "tristan-tzara": {
       "source": "echolalia",
       "id": 2426,
       "name": "تریستان تزارا",
-      "sourceGroupName": "شاعران رومانی"
+      "sourceGroupName": "شاعران رومانی",
+      "localImageUrl": "/images/poets/echolalia-tristan-tzara.jpg"
     },
     "turgut-uyar": {
       "source": "echolalia",
       "id": 1245,
       "name": "تورگوت اویار",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-turgut-uyar.jpg"
     },
     "ulla-hahn": {
       "source": "echolalia",
       "id": 3309,
       "name": "اولا هان",
-      "sourceGroupName": "شاعران آلمان"
+      "sourceGroupName": "شاعران آلمان",
+      "localImageUrl": "/images/poets/echolalia-ulla-hahn.jpg"
     },
     "umit-yasar-oguzcan": {
       "source": "echolalia",
       "id": 2368,
       "name": "امید یاشار اوغوزجان",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-umit-yasar-oguzcan.jpg"
     },
     "vaez": {
       "source": "ganjoor",
       "id": 158,
-      "name": "واعظ قزوینی"
+      "name": "واعظ قزوینی",
+      "localImageUrl": "/images/poets/ganjoor-vaez.gif"
     },
     "vahdat": {
       "source": "ganjoor",
       "id": 81,
-      "name": "وحدت کرمانشاهی"
+      "name": "وحدت کرمانشاهی",
+      "localImageUrl": "/images/poets/ganjoor-vahdat.gif"
     },
     "vahe-armen": {
       "source": "echolalia",
       "id": 1178,
       "name": "واهه آرمن",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-vahe-armen.jpg"
     },
     "vahid": {
       "source": "ganjoor",
       "id": 165,
-      "name": "وحیدالزمان قزوینی"
+      "name": "وحیدالزمان قزوینی",
+      "localImageUrl": "/images/poets/ganjoor-vahid.gif"
     },
     "vahshi": {
       "source": "ganjoor",
       "id": 11,
-      "name": "وحشی بافقی"
+      "name": "وحشی بافقی",
+      "localImageUrl": "/images/poets/ganjoor-vahshi.gif"
     },
     "valad": {
       "source": "ganjoor",
       "id": 91,
-      "name": "سلطان ولد"
+      "name": "سلطان ولد",
+      "localImageUrl": "/images/poets/ganjoor-valad.gif"
     },
     "varavini": {
       "source": "ganjoor",
       "id": 66,
-      "name": "سعدالدین وراوینی"
+      "name": "سعدالدین وراوینی",
+      "localImageUrl": "/images/poets/ganjoor-varavini.gif"
     },
     "varragh": {
       "source": "ganjoor",
       "id": 205,
-      "name": "محمود وراق هروی"
+      "name": "محمود وراق هروی",
+      "localImageUrl": "/images/poets/ganjoor-varragh.gif"
     },
     "vasif": {
       "source": "ganjoor",
       "id": 201,
-      "name": "محمد وصیف سگزی"
+      "name": "محمد وصیف سگزی",
+      "localImageUrl": "/images/poets/ganjoor-vasif.gif"
     },
     "vatvat": {
       "source": "ganjoor",
       "id": 58,
-      "name": "رشیدالدین وطواط"
+      "name": "رشیدالدین وطواط",
+      "localImageUrl": "/images/poets/ganjoor-vatvat.gif"
     },
     "vera-brittain": {
       "source": "echolalia",
       "id": 3116,
       "name": "ورا بریتین",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-vera-brittain.jpg"
     },
     "victor-jara": {
       "source": "echolalia",
       "id": 2345,
       "name": "ویکتور خارا",
-      "sourceGroupName": "شاعران شیلی"
+      "sourceGroupName": "شاعران شیلی",
+      "localImageUrl": "/images/poets/echolalia-victor-jara.jpg"
     },
     "vinicius-de-moraes": {
       "source": "echolalia",
       "id": 3304,
       "name": "ونسیوس د مورائس",
-      "sourceGroupName": "شاعران برزیل"
+      "sourceGroupName": "شاعران برزیل",
+      "localImageUrl": "/images/poets/echolalia-vinicius-de-moraes.jpg"
     },
     "vittorio-alfieri": {
       "source": "echolalia",
       "id": 2334,
       "name": "ویتوریو آلفیری",
-      "sourceGroupName": "شاعران ایتالیا"
+      "sourceGroupName": "شاعران ایتالیا",
+      "localImageUrl": "/images/poets/echolalia-vittorio-alfieri.jpg"
     },
     "vladimir-mayakovsky": {
       "source": "echolalia",
       "id": 2202,
       "name": "ولادیمیر مایاکوفسکی",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-vladimir-mayakovsky.jpg"
     },
     "walt-whitman": {
       "source": "echolalia",
       "id": 3347,
       "name": "والت ویتمن",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-walt-whitman.jpg"
     },
     "warsan-shire": {
       "source": "echolalia",
       "id": 2472,
       "name": "وارسان شایر",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-warsan-shire.jpg"
     },
     "william-blake": {
       "source": "echolalia",
       "id": 2191,
       "name": "ویلیام بلیک",
-      "sourceGroupName": "شاعران انگلیس"
+      "sourceGroupName": "شاعران انگلیس",
+      "localImageUrl": "/images/poets/echolalia-william-blake.jpg"
     },
     "william-butler-yeats": {
       "source": "echolalia",
       "id": 2278,
       "name": "ویلیام باتلر ییتس",
-      "sourceGroupName": "شاعران ایرلندی"
+      "sourceGroupName": "شاعران ایرلندی",
+      "localImageUrl": "/images/poets/echolalia-william-butler-yeats.jpg"
     },
     "william-stafford": {
       "source": "echolalia",
       "id": 3015,
       "name": "ویلیام استفورد",
-      "sourceGroupName": "شاعران آمریکا"
+      "sourceGroupName": "شاعران آمریکا",
+      "localImageUrl": "/images/poets/echolalia-william-stafford.jpg"
     },
     "wislawa-szymborska": {
       "source": "echolalia",
       "id": 799,
       "name": "ویسلاوا شیمبورسکا",
-      "sourceGroupName": "شاعران لهستان"
+      "sourceGroupName": "شاعران لهستان",
+      "localImageUrl": "/images/poets/echolalia-wislawa-szymborska.jpg"
     },
     "yadollah-royaee": {
       "source": "echolalia",
       "id": 3230,
       "name": "یدالله رویایی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-yadollah-royaee.jpg"
     },
     "yaghma": {
       "source": "ganjoor",
       "id": 163,
-      "name": "یغمای جندقی"
+      "name": "یغمای جندقی",
+      "localImageUrl": "/images/poets/ganjoor-yaghma.gif"
     },
     "yaghma-golrouee": {
       "source": "echolalia",
       "id": 565,
       "name": "یغما گلرویی",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-yaghma-golrouee.jpg"
     },
     "yasar-kemal": {
       "source": "echolalia",
       "id": 2319,
       "name": "یاشار کمال",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-yasar-kemal.jpg"
     },
     "yavuz-bulent-bakiler": {
       "source": "echolalia",
       "id": 947,
       "name": "یاووز بولنت باکیلر",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-yavuz-bulent-bakiler.jpg"
     },
     "yazdi": {
       "source": "ganjoor",
       "id": 134,
-      "name": "فرخی یزدی"
+      "name": "فرخی یزدی",
+      "localImageUrl": "/images/poets/ganjoor-yazdi.gif"
     },
     "yevgeny-yevtushenko": {
       "source": "echolalia",
       "id": 3082,
       "name": "یوگنی یوفتوشنکو",
-      "sourceGroupName": "شاعران روسیه"
+      "sourceGroupName": "شاعران روسیه",
+      "localImageUrl": "/images/poets/echolalia-yevgeny-yevtushenko.jpg"
     },
     "yiannis-ritsos": {
       "source": "echolalia",
       "id": 1492,
       "name": "یانیس ریتسوس",
-      "sourceGroupName": "شاعران یونان"
+      "sourceGroupName": "شاعران یونان",
+      "localImageUrl": "/images/poets/echolalia-yiannis-ritsos.jpg"
     },
     "yilmaz-guney": {
       "source": "echolalia",
       "id": 3332,
       "name": "ییلماز گونی",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-yilmaz-guney.jpg"
     },
     "yusuf-hayaloglu": {
       "source": "echolalia",
       "id": 522,
       "name": "یوسف هایال اوغلو",
-      "sourceGroupName": "شاعران ترکیه"
+      "sourceGroupName": "شاعران ترکیه",
+      "localImageUrl": "/images/poets/echolalia-yusuf-hayaloglu.jpg"
     },
     "zahir": {
       "source": "ganjoor",
       "id": 69,
-      "name": "ظهیر فاریابی"
+      "name": "ظهیر فاریابی",
+      "localImageUrl": "/images/poets/ganjoor-zahir.gif"
     },
     "zahiri": {
       "source": "ganjoor",
       "id": 192,
-      "name": "ظهیری سمرقندی"
+      "name": "ظهیری سمرقندی",
+      "localImageUrl": "/images/poets/ganjoor-zahiri.gif"
     },
     "zanyar-burur": {
       "source": "echolalia",
       "id": 170,
       "name": "زانیار برور",
-      "sourceGroupName": "شاعران ایرانی"
+      "sourceGroupName": "شاعران ایرانی",
+      "localImageUrl": "/images/poets/echolalia-zanyar-burur.jpg"
     },
     "کلوناريس": {
       "source": "echolalia",
       "id": 2395,
       "name": "آ.کلوناريس",
-      "sourceGroupName": "شاعران یونان"
+      "sourceGroupName": "شاعران یونان",
+      "localImageUrl": "/images/poets/echolalia-u-2qnZhNmI2YbYp9ix2YrYsw.jpg"
     }
   }
 }

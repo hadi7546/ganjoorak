@@ -8,6 +8,7 @@ type StaticPoetEntry = {
   id?: number | null;
   name?: string;
   sourceGroupName?: string;
+  localImageUrl?: string;
 };
 
 const sourcesBySlug = poetSourceIndex.sourcesBySlug as Record<
@@ -26,10 +27,17 @@ const staticPoetToPoet = (slug: string, entry: StaticPoetEntry): Poet => {
     id: entry.id ?? 0,
     name,
     nickname: null,
-    fullUrl: source === 'echolalia' ? `echolalia/${slug}` : slug,
+    fullUrl: slug,
     urlSlug: slug,
     published: true,
-    imageUrl: source === 'echolalia' ? '' : getGanjoorImageUrl(slug),
+    imageUrl:
+      entry.localImageUrl ||
+      (source === 'echolalia' && entry.id
+        ? `/api/echolalia/poet-image/${entry.id}`
+        : source === 'ganjoor'
+          ? getGanjoorImageUrl(slug)
+          : '/images/default-poet.png'),
+    localImageUrl: entry.localImageUrl,
     source,
     sourceGroupName:
       source === 'echolalia'

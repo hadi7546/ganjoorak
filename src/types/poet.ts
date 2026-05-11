@@ -8,6 +8,7 @@ export interface Poet {
     nickname: string | null;
     published: boolean;
     imageUrl: string;
+    localImageUrl?: string;
     birthYearInLHijri: number | null;
     validBirthDate: boolean;
     deathYearInLHijri: number | null;
@@ -71,6 +72,7 @@ export function createPoet(data: Partial<Poet>): Poet {
         nickname: data.nickname ?? null,
         published: data.published ?? false,
         imageUrl: data.imageUrl ?? '',
+        localImageUrl: data.localImageUrl,
         birthYearInLHijri: data.birthYearInLHijri ?? null,
         validBirthDate: data.validBirthDate ?? false,
         deathYearInLHijri: data.deathYearInLHijri ?? null,
