@@ -26,6 +26,7 @@ const sourcesBySlug = poetSourceIndex.sourcesBySlug as Record<
   string,
   StaticPoetEntry | undefined
 >;
+const hiddenEcholaliaSlugs = new Set(['forough-farrokhzad']);
 
 const getGanjoorImageUrl = (slug: string) =>
   `/api/ganjoor/poet/image/${slug}.gif`;
@@ -64,7 +65,11 @@ const staticPoetToPoet = (slug: string, entry: StaticPoetEntry): Poet => {
 
 export const getStaticPoetsBySource = (source: StaticPoetSource): Poet[] =>
   Object.entries(sourcesBySlug)
-    .filter(([, entry]) => entry?.source === source)
+    .filter(
+      ([slug, entry]) =>
+        entry?.source === source &&
+        !(source === 'echolalia' && hiddenEcholaliaSlugs.has(slug)),
+    )
     .map(([slug, entry]) => staticPoetToPoet(slug, entry as StaticPoetEntry))
     .sort((a, b) => (a.nickname || a.name).localeCompare(b.nickname || b.name, 'fa'));
 

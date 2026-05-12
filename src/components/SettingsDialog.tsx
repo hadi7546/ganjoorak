@@ -7,9 +7,16 @@ import {
   useSettings,
   type ThemeOption,
   type FontFamilyOption,
+  type PoemFontSizeOption,
   type PoemViewerComponentKey,
   type PoemViewerComponentVisibility,
   FONT_STACKS,
+  POEM_FONT_SIZE_MIN,
+  POEM_FONT_SIZE_MAX,
+  POEM_FONT_SIZE_STEP,
+  DEFAULT_POEM_FONT_SIZE,
+  applyPoemFontSize,
+  clampPoemFontSize,
 } from "@/context/SettingsContext";
 
 interface SettingsDialogProps {
@@ -42,6 +49,11 @@ const FONT_CHOICES: Array<{
   { value: "nahid", label: "ناهید" },
 ];
 
+const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
+
+const formatPersianNumber = (value: number) =>
+  persianNumberFormatter.format(value);
+
 const POEM_VIEWER_COMPONENT_OPTIONS: Array<{
   key: Exclude<PoemViewerComponentKey, "titleSection">;
   label: string;
@@ -57,6 +69,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     setTheme,
     setShowLineNumbers,
     setFontFamily,
+    setPoemFontSize,
     setPoemViewerVisibility,
     setRandomizePoems,
     setAskRandomizePoemsOnPoetPages,
@@ -68,6 +81,8 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   const [pendingFontFamily, setPendingFontFamily] = useState<FontFamilyOption>(
     settings.fontFamily,
   );
+  const [pendingPoemFontSize, setPendingPoemFontSize] =
+    useState<PoemFontSizeOption>(settings.poemFontSize);
   const [pendingVisibility, setPendingVisibility] =
     useState<PoemViewerComponentVisibility>({
       ...settings.poemViewerVisibility,
@@ -81,6 +96,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
   ] = useState<boolean>(settings.askRandomizePoemsOnPoetPages);
   const originalThemeRef = useRef<ThemeOption>(settings.theme);
   const originalFontRef = useRef<FontFamilyOption>(settings.fontFamily);
+  const originalPoemFontSizeRef = useRef<PoemFontSizeOption>(
+    settings.poemFontSize,
+  );
   const originalLineNumbersRef = useRef<boolean>(settings.showLineNumbers);
   const originalVisibilityRef = useRef<PoemViewerComponentVisibility>({
     ...settings.poemViewerVisibility,
@@ -103,12 +121,15 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
       originalThemeRef.current,
     );
     document.documentElement.setAttribute("data-font", originalFontRef.current);
+    applyPoemFontSize(originalPoemFontSizeRef.current);
     setShowLineNumbers(originalLineNumbersRef.current);
+    setPoemFontSize(originalPoemFontSizeRef.current);
     setPoemViewerVisibility(originalVisibilityRef.current);
     setRandomizePoems(originalRandomizeRef.current);
     setAskRandomizePoemsOnPoetPages(originalAskRandomizeRef.current);
   }, [
     setShowLineNumbers,
+    setPoemFontSize,
     setPoemViewerVisibility,
     setRandomizePoems,
     setAskRandomizePoemsOnPoetPages,
@@ -127,6 +148,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
 
     originalThemeRef.current = settings.theme;
     originalFontRef.current = settings.fontFamily;
+    originalPoemFontSizeRef.current = settings.poemFontSize;
     originalLineNumbersRef.current = settings.showLineNumbers;
     originalVisibilityRef.current = { ...settings.poemViewerVisibility };
     originalRandomizeRef.current = settings.randomizePoems;
@@ -134,6 +156,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     setPendingTheme(settings.theme);
     setPendingShowLineNumbers(settings.showLineNumbers);
     setPendingFontFamily(settings.fontFamily);
+    setPendingPoemFontSize(settings.poemFontSize);
     setPendingVisibility({ ...settings.poemViewerVisibility });
     setPendingRandomizePoems(settings.randomizePoems);
     setPendingAskRandomizePoemsOnPoetPages(
@@ -174,6 +197,12 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (!isOpen) return;
+    if (typeof document === "undefined") return;
+    applyPoemFontSize(pendingPoemFontSize);
+  }, [isOpen, pendingPoemFontSize]);
+
+  useEffect(() => {
+    if (!isOpen) return;
     setShowLineNumbers(pendingShowLineNumbers);
   }, [isOpen, pendingShowLineNumbers, setShowLineNumbers]);
 
@@ -196,6 +225,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
     setTheme(pendingTheme);
     setShowLineNumbers(pendingShowLineNumbers);
     setFontFamily(pendingFontFamily);
+    setPoemFontSize(pendingPoemFontSize);
     setPoemViewerVisibility(pendingVisibility);
     setRandomizePoems(pendingRandomizePoems);
     setAskRandomizePoemsOnPoetPages(pendingAskRandomizePoemsOnPoetPages);
@@ -377,6 +407,51 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ isOpen, onClose }) => {
                           )}
                         </button>
                       ))}
+                    </div>
+                  </section>
+
+                  <section
+                    className="settings-section"
+                    aria-label="اندازه امن قلم شعر"
+                  >
+                    <h3 className="settings-section-title">اندازه قلم شعر</h3>
+                    <div className="settings-size-control">
+                      <div className="settings-size-readout">
+                        <span>{formatPersianNumber(pendingPoemFontSize)}٪</span>
+                        <button
+                          type="button"
+                          className="settings-size-reset"
+                          onClick={() =>
+                            setPendingPoemFontSize(DEFAULT_POEM_FONT_SIZE)
+                          }
+                          disabled={
+                            pendingPoemFontSize === DEFAULT_POEM_FONT_SIZE
+                          }
+                        >
+                          بازنشانی
+                        </button>
+                      </div>
+                      <input
+                        className="settings-size-slider"
+                        type="range"
+                        min={POEM_FONT_SIZE_MIN}
+                        max={POEM_FONT_SIZE_MAX}
+                        step={POEM_FONT_SIZE_STEP}
+                        value={pendingPoemFontSize}
+                        onChange={(event) =>
+                          setPendingPoemFontSize(
+                            clampPoemFontSize(event.currentTarget.value),
+                          )
+                        }
+                        aria-label="اندازه قلم شعر"
+                      />
+                      <div className="settings-size-scale" aria-hidden="true">
+                        <span>{formatPersianNumber(POEM_FONT_SIZE_MIN)}٪</span>
+                        <span>
+                          {formatPersianNumber(DEFAULT_POEM_FONT_SIZE)}٪
+                        </span>
+                        <span>{formatPersianNumber(POEM_FONT_SIZE_MAX)}٪</span>
+                      </div>
                     </div>
                   </section>
 

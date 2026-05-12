@@ -9,6 +9,7 @@ const GANJOOR_API_BASE_URL = (
 
 const ECHOLALIA_API_BASE_URL = "https://echolalia.ir/wp-json/wp/v2";
 const ECHOLALIA_POET_ROOT_SLUG = "sher";
+const HIDDEN_ECHOLALIA_POET_SLUGS = new Set(["forough-farrokhzad"]);
 const OUTPUT_PATH = path.join(
   process.cwd(),
   "src",
@@ -465,7 +466,10 @@ const loadEcholaliaPoets = async (entries) => {
   const leafPoets = categories
     .filter((category) => descendantIds.has(category.id))
     .filter((category) => category.count > 0)
-    .filter((category) => (childrenByParent.get(category.id) ?? []).length === 0);
+    .filter((category) => (childrenByParent.get(category.id) ?? []).length === 0)
+    .filter(
+      (category) => !HIDDEN_ECHOLALIA_POET_SLUGS.has(decodeWordPressSlug(category.slug)),
+    );
 
   leafPoets.forEach((category) => {
     const slug = decodeWordPressSlug(category.slug);

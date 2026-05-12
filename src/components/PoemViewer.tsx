@@ -323,6 +323,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     };
 
     const wheelHandler = (event: WheelEvent) => {
+      if (isShareOpen) {
+        return;
+      }
+
       const atBottom = isScrollNearBottom();
       const atTop = isScrollNearTop();
       const deltaY = event.deltaY;
@@ -351,12 +355,20 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     };
 
     const handleTouchStart = (event: TouchEvent) => {
+      if (isShareOpen) {
+        return;
+      }
+
       touchStartY = event.touches[0].clientY;
       touchStartedAtTop = isScrollNearTop();
       touchStartedAtBottom = isScrollNearBottom();
     };
 
     const handleTouchEnd = (event: TouchEvent) => {
+      if (isShareOpen) {
+        return;
+      }
+
       const touch = event.changedTouches[0];
       if (!touch) {
         return;
@@ -398,7 +410,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       viewerElement.removeEventListener("touchend", handleTouchEnd);
       viewerElement.removeEventListener("wheel", wheelHandler);
     };
-  }, [poem.id, isFirst, isLast, handleNext, handlePrevious]);
+  }, [poem.id, isFirst, isLast, handleNext, handlePrevious, isShareOpen]);
 
   const openSource = () => {
     // For custom poems, use the fullUrl directly
@@ -731,6 +743,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isShareOpen) {
+        return;
+      }
+
       const poemText = poemTextRef.current;
       if (!poemText) return;
 
@@ -823,6 +839,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
     handleNext,
     handlePrevious,
     isMouseOverPoemText,
+    isShareOpen,
   ]);
 
   const hasNextRecitation =
@@ -1061,7 +1078,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                   style={{
-                    fontSize: "clamp(1.45rem, 4.2vw, 2.25rem)",
+                    fontSize:
+                      "clamp(1.45rem, var(--poem-title-font-size, 2.25rem), 3.1rem)",
                     lineHeight: 1.18,
                     maxWidth: "100%",
                     marginInline: "auto",

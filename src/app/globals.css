@@ -39,6 +39,27 @@ html {
     --poem-text-max-width: min(96vw, 1560px);
     --poem-verse-pair-max-width: min(94vw, 1720px);
     --poem-verse-line-max-width: min(52ch, 780px);
+    --poem-text-font-size: 1.2rem;
+    --poem-verse-font-size: 1.5rem;
+    --poem-title-font-size: 2.5rem;
+}
+
+:root[data-poem-font-size="compact"] {
+    --poem-text-font-size: 1.05rem;
+    --poem-verse-font-size: 1.3rem;
+    --poem-title-font-size: 2.15rem;
+}
+
+:root[data-poem-font-size="large"] {
+    --poem-text-font-size: 1.35rem;
+    --poem-verse-font-size: 1.68rem;
+    --poem-title-font-size: 2.85rem;
+}
+
+:root[data-poem-font-size="extra"] {
+    --poem-text-font-size: 1.5rem;
+    --poem-verse-font-size: 1.85rem;
+    --poem-title-font-size: 3.1rem;
 }
 
 [data-theme="dark"] {
@@ -622,6 +643,62 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 0.75rem;
+}
+
+.settings-size-control {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.settings-size-readout,
+.settings-size-scale {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.settings-size-readout span {
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgb(var(--foreground));
+}
+
+.settings-size-reset {
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid rgb(var(--border));
+    border-radius: 9999px;
+    background-color: rgb(var(--card));
+    color: rgb(var(--card-foreground));
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8rem;
+    transition:
+        border-color 0.18s ease,
+        color 0.18s ease,
+        opacity 0.18s ease;
+}
+
+.settings-size-reset:hover:not(:disabled) {
+    border-color: rgb(var(--primary));
+    color: rgb(var(--primary));
+}
+
+.settings-size-reset:disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.settings-size-slider {
+    width: 100%;
+    accent-color: rgb(var(--primary));
+    cursor: pointer;
+}
+
+.settings-size-scale {
+    color: rgb(var(--muted-foreground));
+    font-size: 0.75rem;
 }
 
 .settings-font-button {
@@ -1586,6 +1663,33 @@ body:has(.menu-drawer) .sidebar-toggle-button {
     display: none;
 }
 
+.lyrics-share-selection-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    direction: rtl;
+}
+
+.lyrics-share-selection-bar span {
+    color: rgb(var(--foreground) / 0.68);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.lyrics-share-selection-bar button {
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid rgb(var(--border));
+    border-radius: 9999px;
+    background-color: rgb(var(--primary) / 0.12);
+    color: rgb(var(--primary));
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
 .lyrics-share-theme-bar {
     display: flex;
     align-items: center;
@@ -1876,7 +1980,7 @@ body:has(.menu-drawer) .sidebar-toggle-button {
         direction: ltr;
         gap: 0.35rem;
         padding-right: 0.2rem;
-        max-height: calc(94svh - 11.5rem);
+        max-height: calc(94svh - 14rem);
     }
 
     .lyrics-share-lines button {
@@ -1977,7 +2081,7 @@ body:has(.menu-drawer) .sidebar-toggle-button {
     }
 
     .lyrics-share-lines {
-        max-height: calc(96svh - 11rem);
+        max-height: calc(96svh - 13.5rem);
     }
 
     .lyrics-share-preview-frame {

@@ -8,6 +8,11 @@ let poetPoemsCache: Record<string, any> = {};
 const getLocalPoetImageUrl = (poetSlug: PoetSlug) =>
   `/images/poets/${poetSlug}.jpeg`;
 
+const customPoetIds: Record<PoetSlug, number> = {
+  [PoetSlug.RAHMANI]: 101,
+  [PoetSlug.FARROKHZAD]: 102,
+};
+
 // Define fallback paths for local JSON files
 const poetFallbackPaths: Record<string, string> = {
   'rahmani': '/poems/rahmani.json',
@@ -171,7 +176,7 @@ const customApi = {
 
       // Create a complete Poet object
       return createPoet({
-        id: 0,
+        id: customPoetIds[poetSlug],
         name: poetData.poet,
         nickname: "",
         fullUrl: poetData.poetSlug,
@@ -223,7 +228,7 @@ const customApi = {
           try {
             logger.log(`Creating fallback poet info for ${slug}`);
             const fallbackPoet = createPoet({
-              id: 0,
+              id: customPoetIds[slug],
               name: poetNames[slug],
               nickname: "",
               fullUrl: slug,
@@ -281,7 +286,7 @@ const customApi = {
 
     // Validate recitation URL if present
     let recitationUrl = "";
-    if (localPoem.recitation) {
+    if (poetSlug !== PoetSlug.RAHMANI && localPoem.recitation) {
       // Make sure the recitation URL is from an allowed domain
       const allowedDomains = ['https://bayanbox.ir/', 'https://api.ganjoor.net/', 'https://ganjgah.ir/'];
       const isAllowed = allowedDomains.some(domain => localPoem.recitation.startsWith(domain));
@@ -324,10 +329,18 @@ const customApi = {
       ]
       : [];
 
+    const collection =
+      typeof localPoem.collection === "string" && localPoem.collection.trim()
+        ? localPoem.collection.trim()
+        : "";
+    const fullTitle = collection
+      ? `${poetNames[poetSlug]} » ${collection} » ${localPoem.title}`
+      : localPoem.title;
+
     return {
       id: localPoem.id,
       title: localPoem.title,
-      fullTitle: localPoem.title,
+      fullTitle,
       urlSlug: "",
       fullUrl: localPoem.source || "",
       plainText: plainText,

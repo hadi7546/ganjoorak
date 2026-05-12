@@ -30,6 +30,12 @@ interface PoetSourceIndexEntry {
   sourceGroupName?: string | null;
 }
 
+interface LocalPoemSummary {
+  id: number;
+  title: string;
+  collection?: string;
+}
+
 const indexedPoetSources = poetSourceIndex.sourcesBySlug as Record<
   string,
   PoetSourceIndexEntry | undefined
@@ -1206,6 +1212,7 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
   const [poetInfo, setPoetInfo] = useState<Poet | null>(null);
   const [isInfoOpen, setIsInfoOpen] = useState(true);
   const [poemIds, setPoemIds] = useState<number[]>([]);
+  const [poemSummaries, setPoemSummaries] = useState<LocalPoemSummary[]>([]);
   const [poemOrder, setPoemOrder] = useState<number[]>([]);
   const [currentPoemIndex, setCurrentPoemIndex] = useState(0);
   const [currentPoem, setCurrentPoem] = useState<Poem | null>(null);
@@ -1218,6 +1225,7 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
   const poemMapRef = useRef<Record<number, any>>({});
   const poemCacheRef = useRef<Record<number, Poem>>({});
   const poemOrderRef = useRef<number[]>([]);
+  const skipNextPoemOrderEffectRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -1229,6 +1237,7 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
       setPoemError(null);
       setIsInfoOpen(true);
       setPoemIds([]);
+      setPoemSummaries([]);
       setPoemOrder([]);
       poemOrderRef.current = [];
       setCurrentPoem(null);
@@ -1251,16 +1260,26 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
         }
 
         const ids: number[] = [];
+        const summaries: LocalPoemSummary[] = [];
         const map: Record<number, any> = {};
         dataset.poems.forEach((poem: any) => {
           if (poem?.id) {
             map[poem.id] = poem;
             ids.push(poem.id);
+            summaries.push({
+              id: poem.id,
+              title: poem.title || `شعر ${formatPersianNumber(poem.id)}`,
+              collection:
+                typeof poem.collection === "string" && poem.collection.trim()
+                  ? poem.collection.trim()
+                  : undefined,
+            });
           }
         });
 
         poemMapRef.current = map;
         setPoemIds(ids);
+        setPoemSummaries(summaries);
       } catch (err) {
         if (cancelled) return;
         logger.error("Error loading custom poet:", err);
@@ -1338,6 +1357,10 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
     if (shouldAskRandomizeChoice && randomizeChoice === null) {
       return;
     }
+    if (skipNextPoemOrderEffectRef.current) {
+      skipNextPoemOrderEffectRef.current = false;
+      return;
+    }
     if (!poemIds.length) {
       setPoemOrder([]);
       poemOrderRef.current = [];
@@ -1397,6 +1420,23 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
   }, [currentPoemIndex, loadPoemAtIndex]);
 
   const handleRetryPoet = () => setReloadKey((prev) => prev + 1);
+
+  const handleSelectLocalSummary = useCallback(
+    (poemId: number) => {
+      const order = poemSummaries.map((summary) => summary.id);
+      const index = order.indexOf(poemId);
+      if (index < 0) return;
+
+      skipNextPoemOrderEffectRef.current = true;
+      poemOrderRef.current = order;
+      setPoemOrder(order);
+      setPoemError(null);
+      setIsInfoOpen(false);
+      setRandomizeChoice(false);
+      loadPoemAtIndex(index, order);
+    },
+    [loadPoemAtIndex, poemSummaries],
+  );
 
   const handleRandomizeChoice = useCallback(
     (shouldRandomize: boolean, rememberChoice: boolean) => {
@@ -1461,6 +1501,34 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
               <span>{formatPersianNumber(poemIds.length)}</span>
             </div>
           </div>
+          {poemSummaries.length > 0 && (
+            <>
+              <h3 className="poet-info-section-title mt-4">شعرها</h3>
+              <ul className="space-y-2">
+                {poemSummaries.map((summary) => (
+                  <li key={summary.id}>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectLocalSummary(summary.id)}
+                      className="w-full rounded-lg border border-transparent px-3 py-2 text-right text-sm text-neutral-200 transition hover:bg-neutral-800/40"
+                    >
+                      <span className="flex items-center gap-2 font-medium">
+                        <span className="rounded border border-neutral-700/70 px-2 py-0.5 text-xs text-neutral-400">
+                          {formatPersianNumber(summary.id)}
+                        </span>
+                        <span>{summary.title}</span>
+                      </span>
+                      {summary.collection && (
+                        <span className="mt-1 block text-xs text-neutral-500">
+                          {summary.collection}
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
       </PoetInfoDialog>
       <main className="relative flex flex-1 flex-col overflow-hidden">

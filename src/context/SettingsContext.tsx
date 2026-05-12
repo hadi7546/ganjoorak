@@ -11,6 +11,7 @@ import React, {
 import { logger } from "@/utils/logger";
 
 type ThemeOption = "dark" | "light" | "paper";
+type PoemFontSizeOption = number;
 type FontFamilyOption =
   | "vazirmatn"
   | "samim"
@@ -36,6 +37,7 @@ interface SettingsState {
   theme: ThemeOption;
   showLineNumbers: boolean;
   fontFamily: FontFamilyOption;
+  poemFontSize: PoemFontSizeOption;
   poemViewerVisibility: PoemViewerComponentVisibility;
   randomizePoems: boolean;
   askRandomizePoemsOnPoetPages: boolean;
@@ -49,6 +51,7 @@ interface SettingsContextValue {
   toggleLineNumbers: () => void;
   setShowLineNumbers: (show: boolean) => void;
   setFontFamily: (fontFamily: FontFamilyOption) => void;
+  setPoemFontSize: (fontSize: PoemFontSizeOption) => void;
   setPoemViewerVisibility: (
     visibility: Partial<PoemViewerComponentVisibility>,
   ) => void;
@@ -73,6 +76,66 @@ const FONT_STACKS: Record<FontFamilyOption, string> = {
 };
 
 const FONT_OPTIONS = Object.keys(FONT_STACKS) as FontFamilyOption[];
+const POEM_FONT_SIZE_MIN = 85;
+const POEM_FONT_SIZE_MAX = 125;
+const POEM_FONT_SIZE_STEP = 5;
+const DEFAULT_POEM_FONT_SIZE = 100;
+const LEGACY_POEM_FONT_SIZE_VALUES: Record<string, number> = {
+  compact: 90,
+  normal: 100,
+  large: 112,
+  extra: 125,
+};
+
+const clampPoemFontSize = (value: unknown): PoemFontSizeOption => {
+  const rawValue =
+    typeof value === "string" && value in LEGACY_POEM_FONT_SIZE_VALUES
+      ? LEGACY_POEM_FONT_SIZE_VALUES[value]
+      : Number(value);
+
+  if (!Number.isFinite(rawValue)) {
+    return DEFAULT_POEM_FONT_SIZE;
+  }
+
+  const stepped =
+    Math.round(rawValue / POEM_FONT_SIZE_STEP) * POEM_FONT_SIZE_STEP;
+  return Math.min(POEM_FONT_SIZE_MAX, Math.max(POEM_FONT_SIZE_MIN, stepped));
+};
+
+const getPoemFontSizeVars = (fontSize: PoemFontSizeOption) => {
+  const scale = clampPoemFontSize(fontSize) / 100;
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, value));
+
+  return {
+    text: `${clamp(1.2 * scale, 1.05, 1.5).toFixed(3)}rem`,
+    verse: `${clamp(1.5 * scale, 1.3, 1.85).toFixed(3)}rem`,
+    title: `${clamp(2.5 * scale, 2.15, 3.1).toFixed(3)}rem`,
+  };
+};
+
+const applyPoemFontSize = (fontSize: PoemFontSizeOption) => {
+  if (typeof document === "undefined") return;
+
+  const safeFontSize = clampPoemFontSize(fontSize);
+  const variables = getPoemFontSizeVars(safeFontSize);
+  document.documentElement.setAttribute(
+    "data-poem-font-size",
+    String(safeFontSize),
+  );
+  document.documentElement.style.setProperty(
+    "--poem-text-font-size",
+    variables.text,
+  );
+  document.documentElement.style.setProperty(
+    "--poem-verse-font-size",
+    variables.verse,
+  );
+  document.documentElement.style.setProperty(
+    "--poem-title-font-size",
+    variables.title,
+  );
+};
 
 const DEFAULT_POEM_VIEWER_VISIBILITY: PoemViewerComponentVisibility = {
   titleSection: true,
@@ -116,6 +179,7 @@ const DEFAULT_SETTINGS: SettingsState = {
   theme: "dark",
   showLineNumbers: false,
   fontFamily: "vazirmatn",
+  poemFontSize: DEFAULT_POEM_FONT_SIZE,
   poemViewerVisibility: DEFAULT_POEM_VIEWER_VISIBILITY,
   randomizePoems: true,
   askRandomizePoemsOnPoetPages: true,
@@ -156,6 +220,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           typeof parsed.showLineNumbers === "boolean"
             ? parsed.showLineNumbers
             : DEFAULT_SETTINGS.showLineNumbers;
+        const nextPoemFontSize = clampPoemFontSize(parsed.poemFontSize);
         const nextVisibility = {
           ...DEFAULT_POEM_VIEWER_VISIBILITY,
           ...sanitizePoemViewerVisibility(parsed.poemViewerVisibility),
@@ -179,6 +244,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           ...prev,
           theme: nextTheme,
           fontFamily: nextFontFamily,
+          poemFontSize: nextPoemFontSize,
           showLineNumbers: nextShowLineNumbers,
           poemViewerVisibility: nextVisibility,
           randomizePoems: nextRandomizePoems,
@@ -188,6 +254,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
         document.documentElement.setAttribute("data-theme", nextTheme);
         document.documentElement.setAttribute("data-font", nextFontFamily);
+        applyPoemFontSize(nextPoemFontSize);
         window.localStorage.setItem("theme", nextTheme);
       } else {
         const legacyTheme = window.localStorage.getItem("theme");
@@ -215,6 +282,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         "data-font",
         DEFAULT_SETTINGS.fontFamily,
       );
+      applyPoemFontSize(DEFAULT_SETTINGS.poemFontSize);
     } finally {
       setIsHydrated(true);
     }
@@ -236,6 +304,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     document.documentElement.setAttribute("data-font", settings.fontFamily);
   }, [settings.fontFamily]);
 
+  useEffect(() => {
+    applyPoemFontSize(settings.poemFontSize);
+  }, [settings.poemFontSize]);
+
   const setTheme = useCallback((theme: ThemeOption) => {
     setSettings((prev) => ({ ...prev, theme }));
   }, []);
@@ -256,6 +328,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
     setSettings((prev) => ({ ...prev, fontFamily }));
+  }, []);
+
+  const setPoemFontSize = useCallback((fontSize: PoemFontSizeOption) => {
+    setSettings((prev) => ({
+      ...prev,
+      poemFontSize: clampPoemFontSize(fontSize),
+    }));
   }, []);
 
   const setPoemViewerVisibility = useCallback(
@@ -295,6 +374,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       toggleLineNumbers,
       setShowLineNumbers,
       setFontFamily,
+      setPoemFontSize,
       setPoemViewerVisibility,
       setRandomizePoems,
       setAskRandomizePoemsOnPoetPages,
@@ -307,6 +387,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       toggleLineNumbers,
       setShowLineNumbers,
       setFontFamily,
+      setPoemFontSize,
       setPoemViewerVisibility,
       setRandomizePoems,
       setAskRandomizePoemsOnPoetPages,
@@ -329,6 +410,16 @@ export const useSettings = (): SettingsContextValue => {
   return context;
 };
 
-export type { ThemeOption, FontFamilyOption };
+export type { ThemeOption, FontFamilyOption, PoemFontSizeOption };
 export type { PoemViewerComponentVisibility, PoemViewerComponentKey };
-export { FONT_STACKS, FONT_OPTIONS, DEFAULT_POEM_VIEWER_VISIBILITY };
+export {
+  FONT_STACKS,
+  FONT_OPTIONS,
+  POEM_FONT_SIZE_MIN,
+  POEM_FONT_SIZE_MAX,
+  POEM_FONT_SIZE_STEP,
+  DEFAULT_POEM_FONT_SIZE,
+  clampPoemFontSize,
+  applyPoemFontSize,
+  DEFAULT_POEM_VIEWER_VISIBILITY,
+};

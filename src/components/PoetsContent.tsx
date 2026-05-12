@@ -34,11 +34,7 @@ function PoetsList({ poets }: { poets: Poet[] }) {
             ? poet.fullUrl
             : `/${poet.fullUrl}`;
         const poetKey = `${poet.urlSlug || poet.fullUrl || poet.name}-${poet.id}`;
-        const shouldAttachPoetId =
-          poet.source === "ganjoor" && Number.isInteger(poet.id) && poet.id > 0;
-        const href = shouldAttachPoetId
-          ? `${poetPath}${poetPath.includes("?") ? "&" : "?"}poetId=${poet.id}`
-          : poetPath;
+        const href = poetPath;
         const cardContent = (
           <>
             <div className="poet-image-container">

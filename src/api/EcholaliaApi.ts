@@ -6,6 +6,7 @@ import { getIndexedPoetImageUrl } from "@/utils/poetImages";
 
 const ECHOLALIA_API_BASE_URL = "https://echolalia.ir/wp-json/wp/v2";
 const ECHOLALIA_POET_ROOT_SLUG = "sher";
+const HIDDEN_ECHOLALIA_POET_SLUGS = new Set(["forough-farrokhzad"]);
 const API_TIMEOUT_MS = 15000;
 
 interface EcholaliaCategory {
@@ -113,6 +114,12 @@ const mapPostToSummary = (post: EcholaliaPost): EcholaliaPoemSummary => ({
 
 const getPoetImageRoute = (categoryId: number) =>
   `/api/echolalia/poet-image/${categoryId}`;
+
+const isHiddenEcholaliaPoetSlug = (slug: string) =>
+  HIDDEN_ECHOLALIA_POET_SLUGS.has(decodeWordPressSlug(slug));
+
+const isHiddenEcholaliaPoetCategory = (category: EcholaliaCategory) =>
+  isHiddenEcholaliaPoetSlug(category.slug);
 
 const extractMetaContent = (html: string, property: string) => {
   const metaTagPattern = /<meta\s+[^>]*>/gi;
@@ -266,6 +273,7 @@ const echolaliaApi = {
         .filter(
           (category) => (childrenByParent.get(category.id) ?? []).length === 0,
         )
+        .filter((category) => !isHiddenEcholaliaPoetCategory(category))
         .map((category) => {
           const parent = categories.find((item) => item.id === category.parent);
           return mapCategoryToPoet(category, undefined, parent?.name);
@@ -299,6 +307,10 @@ const echolaliaApi = {
       const category = response.data[0];
 
       if (!category || category.count <= 0) {
+        throw new Error("شاعر مورد نظر در اکولالیا پیدا نشد");
+      }
+
+      if (isHiddenEcholaliaPoetCategory(category)) {
         throw new Error("شاعر مورد نظر در اکولالیا پیدا نشد");
       }
 
@@ -495,6 +507,10 @@ const echolaliaApi = {
       },
     );
     const poet = mapCategoryToPoet(poetResponse.data);
+    if (isHiddenEcholaliaPoetSlug(poet.urlSlug)) {
+      throw new Error("شعر مورد نظر در اکولالیا پیدا نشد");
+    }
+
     const title = decodeHtmlEntities(post.title?.rendered ?? "");
     const plainText = htmlToPlainText(post.content?.rendered ?? "");
 
@@ -536,9 +552,20 @@ const echolaliaApi = {
         },
       },
     );
-    return Promise.all(
+    const results = await Promise.allSettled(
       response.data.map((post) => echolaliaApi.getPoemById(post.id)),
     );
+
+    return results
+      .filter((result): result is PromiseFulfilledResult<Poem> => {
+        if (result.status === "fulfilled") {
+          return true;
+        }
+
+        logger.warn("Skipping Echolalia search result:", result.reason);
+        return false;
+      })
+      .map((result) => result.value);
   },
 };
 

@@ -49,6 +49,9 @@ const getPoemText = (target: EventTarget | null) => {
 const getActivePoemText = (root: HTMLElement | null) =>
   root?.querySelector(".poem-text") as HTMLElement | null;
 
+const isShareDialogOpen = () =>
+  Boolean(document.querySelector(".lyrics-share-dialog"));
+
 export default function PoemFeedPager({
   poem,
   nextPoem,
@@ -191,7 +194,7 @@ export default function PoemFeedPager({
   }, []);
 
   const navigate = useCallback((direction: Direction) => {
-    if (isZenLocked || !canNavigate()) return;
+    if (isZenLocked || isShareDialogOpen() || !canNavigate()) return;
 
     resetArm();
     resetPreview();
@@ -206,7 +209,17 @@ export default function PoemFeedPager({
     if (!isFirst) {
       onPrevious();
     }
-  }, [canNavigate, isFirst, isLast, isZenLocked, onNext, onPrevious, resetArm, resetPreview, resetTitleVisibility]);
+  }, [
+    canNavigate,
+    isFirst,
+    isLast,
+    isZenLocked,
+    onNext,
+    onPrevious,
+    resetArm,
+    resetPreview,
+    resetTitleVisibility,
+  ]);
 
   const requestBoundaryNavigation = useCallback((direction: Direction) => {
     if (isZenLocked) return;
@@ -237,6 +250,8 @@ export default function PoemFeedPager({
     };
 
     const handlePoemScroll = (event: Event) => {
+      if (isShareDialogOpen()) return;
+
       const poemText = getPoemText(event.target);
       if (!poemText) return;
 
@@ -251,6 +266,8 @@ export default function PoemFeedPager({
     };
 
     const handleWheel = (event: WheelEvent) => {
+      if (isShareDialogOpen()) return;
+
       const poemText = getPoemText(event.target);
       if (!poemText) return;
 
@@ -279,6 +296,8 @@ export default function PoemFeedPager({
     };
 
     const handleTouchStart = (event: TouchEvent) => {
+      if (isShareDialogOpen()) return;
+
       const poemText = getPoemText(event.target);
       const touch = event.touches[0];
       if (!poemText || !touch) return;
@@ -292,6 +311,8 @@ export default function PoemFeedPager({
     };
 
     const handleTouchEnd = (event: TouchEvent) => {
+      if (isShareDialogOpen()) return;
+
       const poemText = touchPoemTextRef.current;
       const touch = event.changedTouches[0];
       touchPoemTextRef.current = null;
@@ -336,6 +357,8 @@ export default function PoemFeedPager({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (isShareDialogOpen()) return;
+
       if (event.defaultPrevented) return;
       if (event.altKey || event.metaKey || event.ctrlKey) return;
       if (event.code !== "ArrowDown" && event.code !== "ArrowUp") return;
