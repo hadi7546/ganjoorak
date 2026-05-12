@@ -6,13 +6,13 @@ import {
   FaShare,
   FaPause,
   FaPlay,
-  FaStepBackward,
-  FaStepForward,
   FaExternalLinkAlt,
   FaBackward,
   FaForward,
   FaSpinner,
   FaArrowLeft,
+  FaChevronUp,
+  FaChevronDown,
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
@@ -880,6 +880,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const showActionButtons = true;
   const keepPoetProfileVisible =
     isPoetPage && Boolean(onTogglePoetInfo && poem.poet && poem.poetSlug);
+  const canNavigatePrevious = !isFirst;
+  const canNavigateNext = showNext || !isLast;
+  const showNavigationControls =
+    poemViewerVisibility.navigationControls &&
+    (canNavigatePrevious || canNavigateNext);
   const poetPageHref = `/${poem.poetSlug}`;
   if (!poem) return null;
 
@@ -944,6 +949,31 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                     </motion.div>
                 )}
             </AnimatePresence> */}
+
+      {showNavigationControls && (
+        <div className="navigation-controls" aria-label="ناوبری شعر">
+          <button
+            type="button"
+            className="nav-button"
+            onClick={handlePrevious}
+            disabled={!canNavigatePrevious}
+            aria-label="شعر قبلی"
+            title="شعر قبلی"
+          >
+            <FaChevronUp aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="nav-button"
+            onClick={handleNext}
+            disabled={!canNavigateNext}
+            aria-label="شعر بعدی"
+            title="شعر بعدی"
+          >
+            <FaChevronDown aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
       {/* Audio player - show only when a recitation is available */}
       {isAudioPlayerVisible && (

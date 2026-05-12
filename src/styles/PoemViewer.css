@@ -725,18 +725,28 @@
     transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.nav-button:active::before {
+.nav-button:active:not(:disabled)::before {
     transform: scale(1);
     transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.nav-button:hover {
+.nav-button:hover:not(:disabled) {
     background-color: rgb(var(--foreground) / 0.2);
     box-shadow: 0 4px 12px rgb(var(--background) / 0.2);
 }
 
-.nav-button:active {
+.nav-button:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.nav-button:active:not(:disabled) {
     background-color: rgb(var(--foreground) / 0.15);
+}
+
+.nav-button:disabled::before {
+    display: none;
 }
 
 .nav-button.intent::before {
@@ -837,22 +847,7 @@
     }
 
     .navigation-controls {
-        position: fixed;
-        top: auto;
-        left: 50%;
-        right: auto;
-        bottom: calc(5rem + env(safe-area-inset-bottom));
-        transform: translateX(-50%);
-        flex-direction: row;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.35rem 0.75rem;
-        background: rgb(var(--background) / 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius: 9999px;
-        box-shadow: 0 10px 30px rgb(var(--background) / 0.35);
-        z-index: 12;
+        display: none;
     }
 
     .nav-button {
