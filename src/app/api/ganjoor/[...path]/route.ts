@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getGanjoorUpstreamOrigin } from "@/server/ganjoorUpstream";
 
 export const dynamic = "force-dynamic";
 
-const UPSTREAM_URL = "http://api.offline.ganjoor.net";
 const GANJOOR_PROXY_TIMEOUT_MS = 15000;
 
 export async function GET(
@@ -10,7 +10,10 @@ export async function GET(
   { params }: { params: { path: string[] } },
 ) {
   const path = params.path.map(encodeURIComponent).join("/");
-  const upstream = new URL(`/api/ganjoor/${path}`, UPSTREAM_URL);
+  const upstream = new URL(
+    `/api/ganjoor/${path}`,
+    getGanjoorUpstreamOrigin(),
+  );
   upstream.search = request.nextUrl.search;
 
   try {
