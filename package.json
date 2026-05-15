@@ -20,7 +20,7 @@
         "gandom-font": "^0.8.0",
         "mongodb": "^6.14.2",
         "nahid-font": "^0.3.0",
-        "next": "^14.2.24",
+        "next": "^16.2.6",
         "parastoo-font": "^2.0.1",
         "prisma": "^6.5.0",
         "react": "^18.2.0",
