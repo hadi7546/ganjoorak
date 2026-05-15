@@ -27,9 +27,10 @@ const getAxiosErrorSummary = (error: unknown) => {
 
 export async function GET(
   _request: Request,
-  { params }: { params: { categoryId: string } },
+  { params }: { params: Promise<{ categoryId: string }> },
 ) {
-  const categoryId = Number(params.categoryId);
+  const { categoryId: categoryIdParam } = await params;
+  const categoryId = Number(categoryIdParam);
 
   if (!Number.isInteger(categoryId) || categoryId < 1) {
     return redirectToDefaultPoetImage(_request.url);

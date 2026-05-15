@@ -7,9 +7,10 @@ const GANJOOR_PROXY_TIMEOUT_MS = 15000;
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } },
+  { params }: { params: Promise<{ path: string[] }> },
 ) {
-  const path = params.path.map(encodeURIComponent).join("/");
+  const { path: pathSegments } = await params;
+  const path = pathSegments.map(encodeURIComponent).join("/");
   const upstream = new URL(
     `/api/ganjoor/${path}`,
     getGanjoorUpstreamOrigin(),

@@ -3,7 +3,7 @@ import { isValidPoetSlug, poetNames } from "@/types/poet";
 import poetSourceIndex from "@/data/poet-source-index.json";
 
 type Props = {
-  params: { poet: string };
+  params: Promise<{ poet: string }>;
   children: React.ReactNode;
 };
 
@@ -20,7 +20,7 @@ const indexedPoetSources = poetSourceIndex.sourcesBySlug as Record<
 >;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const poetSlug = params.poet;
+  const { poet: poetSlug } = await params;
   const poetName = isValidPoetSlug(poetSlug)
     ? poetNames[poetSlug]
     : indexedPoetSources[poetSlug]?.name || "شاعر ناشناخته";

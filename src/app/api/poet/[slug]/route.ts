@@ -20,10 +20,10 @@ export async function OPTIONS() {
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { slug: string } }
+    { params }: { params: Promise<{ slug: string }> },
 ) {
     try {
-        const poetSlug = params.slug;
+        const { slug: poetSlug } = await params;
         logger.log(`Fetching local poet data for slug: ${poetSlug}`);
 
         try {

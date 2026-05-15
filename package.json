@@ -1,13 +1,13 @@
 {
     "name": "gtok",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "private": true,
     "scripts": {
         "dev": "next dev",
         "prebuild": "node scripts/build-poet-source-index.mjs",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "eslint ."
     },
     "dependencies": {
         "@prisma/client": "^6.5.0",
@@ -19,7 +19,7 @@
         "gandom-font": "^0.8.0",
         "mongodb": "^6.14.2",
         "nahid-font": "^0.3.0",
-        "next": "^14.2.24",
+        "next": "^16.2.6",
         "parastoo-font": "^2.0.1",
         "prisma": "^6.5.0",
         "react": "^18.2.0",
@@ -39,8 +39,8 @@
         "@types/react-dom": "^18.2.19",
         "@vercel/analytics": "^1.5.0",
         "autoprefixer": "^10.4.17",
-        "eslint": "^8.56.0",
-        "eslint-config-next": "14.1.0",
+        "eslint": "^9.0.0",
+        "eslint-config-next": "16.2.6",
         "postcss": "^8.4.35",
         "tailwindcss": "^3.4.1",
         "typescript": "^5.8.2"

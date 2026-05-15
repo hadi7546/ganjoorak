@@ -9,7 +9,6 @@ const ganjoorApiUrl = new URL(GANJOOR_API_BASE_URL);
 const nextConfig = {
 
     reactStrictMode: true,
-    swcMinify: true,
     output: 'standalone',
 
     async rewrites() {
