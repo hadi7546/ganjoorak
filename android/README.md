@@ -47,7 +47,7 @@ Optional Telegram channel post after each release (e.g. [@ganjoorak](https://t.m
 | Secret | Description |
 |--------|-------------|
 | `TELEGRAM_BOT_TOKEN` | Bot token from [@BotFather](https://t.me/BotFather) |
-| `TELEGRAM_CHAT_ID` | Channel chat id or `@username` (defaults to `@ganjoorak` if omitted) |
+| `TELEGRAM_CHAT_ID` | Channel numeric id (default `-1002376189742` for @ganjoorak) or `@username` |
 
 The bot must be a channel **administrator** with **Post messages** enabled.
 

@@ -122,7 +122,6 @@ jobs:
       # Add the bot as an administrator on the channel with "Post messages" permission.
       - name: Send APK to Telegram
         if: success()
-        working-directory: ${{ github.workspace }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -132,28 +131,27 @@ jobs:
             exit 0
           fi
 
-          CHAT_ID="${TELEGRAM_CHAT_ID:-@ganjoorak}"
-          APK="android/app/build/outputs/apk/release/${{ steps.version.outputs.apk_name }}"
+          # Default channel id for @ganjoorak (use --form-string for @-prefixed ids; curl -F treats @ as a file).
+          CHAT_ID="${TELEGRAM_CHAT_ID:--1002376189742}"
+          APK="${GITHUB_WORKSPACE}/android/app/build/outputs/apk/release/${{ steps.version.outputs.apk_name }}"
           RELEASE_URL="${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}"
 
           if [ ! -f "$APK" ]; then
             echo "APK not found at $APK" >&2
+            ls -la "${GITHUB_WORKSPACE}/android/app/build/outputs/apk/release/" || true
             exit 1
           fi
 
-          CAPTION=$(printf '%s\n\n%s\n%s' \
-            "گنجورک Android ${{ steps.version.outputs.name }} (build ${{ github.run_number }})" \
-            "دانلود از گیت‌هاب:" \
-            "$RELEASE_URL")
+          CAPTION="Ganjoorak Android ${{ steps.version.outputs.name }} (build ${{ github.run_number }}) — ${RELEASE_URL}"
 
           RESPONSE=$(curl -sS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
-            -F "chat_id=${CHAT_ID}" \
-            -F "document=@${APK}" \
-            -F "caption=${CAPTION}")
+            --form-string "chat_id=${CHAT_ID}" \
+            --form "document=@${APK};type=application/vnd.android.package-archive;filename=${{ steps.version.outputs.apk_name }}" \
+            --form-string "caption=${CAPTION}")
 
           echo "$RESPONSE"
           if ! echo "$RESPONSE" | grep -q '"ok":true'; then
-            echo "Telegram upload failed. Is the bot an admin of ${CHAT_ID} with Post messages?" >&2
+            echo "Telegram upload failed. Is the bot an admin of the channel with Post messages?" >&2
             exit 1
           fi
-          echo "APK posted to Telegram (${CHAT_ID})."
+          echo "APK posted to Telegram (chat_id=${CHAT_ID})."
