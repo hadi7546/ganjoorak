@@ -6,6 +6,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,49 +54,56 @@ fun FeedScreen(
     val poems = state.poems
     if (poems.isEmpty()) return
 
-    val pagerState = rememberPagerState(
-        initialPage = state.currentIndex.coerceIn(0, poems.lastIndex),
-        pageCount = { poems.size },
-    )
+    val pagerKey = poems.joinToString(",") { it.id.toString() }
 
-    LaunchedEffect(state.currentIndex) {
-        if (pagerState.currentPage != state.currentIndex && state.currentIndex in poems.indices) {
-            pagerState.scrollToPage(state.currentIndex)
-        }
-    }
-
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.settledPage }
-            .distinctUntilChanged()
-            .collect { page ->
-                viewModel.setCurrentIndex(page)
-                if (page >= poems.lastIndex - 1) {
-                    viewModel.maybePrefetch()
-                }
-            }
-    }
-
-    VerticalPager(
-        state = pagerState,
-        modifier = modifier.fillMaxSize(),
-        beyondViewportPageCount = 1,
-        userScrollEnabled = !settings.zenScrollLock,
-    ) { page ->
-        val poem = poems[page]
-        PoemViewerScreen(
-            poem = poem,
-            settings = settings,
-            isFirst = page == 0,
-            isLast = page >= poems.lastIndex,
-            isPreparingNext = state.isFetchingMore && page >= poems.lastIndex,
-            poemRepository = poemRepository,
-            audioPlayer = audioPlayer,
-            onNext = viewModel::goNext,
-            onPrevious = viewModel::goPrevious,
-            onOpenSearch = onOpenSearch,
-            onToggleZenLock = onToggleZenLock,
-            onNavigateToPoets = onNavigateToPoets,
-            isActivePage = page == pagerState.settledPage,
+    key(pagerKey, state.currentIndex) {
+        val safeIndex = state.currentIndex.coerceIn(0, poems.lastIndex)
+        val pagerState = rememberPagerState(
+            initialPage = safeIndex,
+            pageCount = { poems.size },
         )
+
+        LaunchedEffect(safeIndex, poems.size) {
+            if (pagerState.currentPage != safeIndex) {
+                runCatching { pagerState.scrollToPage(safeIndex) }
+            }
+        }
+
+        LaunchedEffect(pagerState, poems.size) {
+            snapshotFlow { pagerState.settledPage }
+                .distinctUntilChanged()
+                .collect { page ->
+                    if (page in poems.indices) {
+                        viewModel.setCurrentIndex(page)
+                        if (page >= poems.lastIndex - 1) {
+                            viewModel.maybePrefetch()
+                        }
+                    }
+                }
+        }
+
+        VerticalPager(
+            state = pagerState,
+            modifier = modifier.fillMaxSize(),
+            beyondViewportPageCount = 1,
+            userScrollEnabled = !settings.zenScrollLock,
+        ) { page ->
+            val poem = poems[page]
+            PoemViewerScreen(
+                poem = poem,
+                settings = settings,
+                isFirst = page == 0,
+                isLast = page >= poems.lastIndex,
+                isPreparingNext = state.isFetchingMore && page >= poems.lastIndex,
+                poemRepository = poemRepository,
+                audioPlayer = audioPlayer,
+                onNext = viewModel::goNext,
+                onPrevious = viewModel::goPrevious,
+                onOpenSearch = onOpenSearch,
+                onToggleZenLock = onToggleZenLock,
+                onNavigateToPoets = onNavigateToPoets,
+                isActivePage = page == pagerState.settledPage,
+            )
+        }
     }
 }
