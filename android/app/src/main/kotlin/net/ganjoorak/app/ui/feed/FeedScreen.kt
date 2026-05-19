@@ -1,0 +1,99 @@
+package net.ganjoorak.app.ui.feed
+
+import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
+import net.ganjoorak.app.audio.PoemAudioPlayer
+import net.ganjoorak.app.data.repository.PoemRepository
+import net.ganjoorak.app.domain.settings.AppSettings
+import net.ganjoorak.app.ui.common.LoadingScreen
+import net.ganjoorak.app.ui.common.ErrorScreen
+import net.ganjoorak.app.ui.feed.dialog.FeedPoetDialog
+import net.ganjoorak.app.ui.poem.PoemViewerScreen
+
+@Composable
+fun FeedScreen(
+    viewModel: FeedViewModel,
+    poemRepository: PoemRepository,
+    settings: AppSettings,
+    audioPlayer: PoemAudioPlayer,
+    onOpenMenu: () -> Unit,
+    onOpenSearch: () -> Unit,
+    onOpenSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    if (state.isLoading && state.poems.isEmpty()) {
+        LoadingScreen(modifier)
+        return
+    }
+
+    if (state.error != null && state.poems.isEmpty()) {
+        ErrorScreen(message = state.error!!, onRetry = viewModel::refreshFeed, modifier = modifier)
+        return
+    }
+
+    if (state.showFeedPoetDialog) {
+        FeedPoetDialog(
+            poets = state.availablePoets,
+            selectedKeys = viewModel.effectiveFollowedKeys(),
+            onSave = viewModel::saveFollowedPoets,
+            onDismiss = { viewModel.setShowFeedDialog(false) },
+        )
+    }
+
+    val poems = state.poems
+    if (poems.isEmpty()) return
+
+    val pagerState = rememberPagerState(
+        initialPage = state.currentIndex.coerceIn(0, poems.lastIndex),
+        pageCount = { poems.size },
+    )
+
+    LaunchedEffect(state.currentIndex) {
+        if (pagerState.currentPage != state.currentIndex && state.currentIndex in poems.indices) {
+            pagerState.scrollToPage(state.currentIndex)
+        }
+    }
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }
+            .distinctUntilChanged()
+            .collect { page ->
+                viewModel.setCurrentIndex(page)
+                if (page >= poems.lastIndex - 1) {
+                    viewModel.maybePrefetch()
+                }
+            }
+    }
+
+    VerticalPager(
+        state = pagerState,
+        modifier = modifier,
+        beyondViewportPageCount = 1,
+        userScrollEnabled = !settings.zenScrollLock,
+    ) { page ->
+        val poem = poems[page]
+        PoemViewerScreen(
+            poem = poem,
+            settings = settings,
+            isFirst = page == 0,
+            isLast = page >= poems.lastIndex,
+            isPreparingNext = state.isFetchingMore && page >= poems.lastIndex,
+            poemRepository = poemRepository,
+            audioPlayer = audioPlayer,
+            onNext = viewModel::goNext,
+            onPrevious = viewModel::goPrevious,
+            onOpenMenu = onOpenMenu,
+            onOpenSearch = onOpenSearch,
+            onOpenSettings = onOpenSettings,
+        )
+    }
+}
