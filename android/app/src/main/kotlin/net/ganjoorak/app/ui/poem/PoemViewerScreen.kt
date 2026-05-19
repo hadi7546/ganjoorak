@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -186,10 +187,11 @@ fun PoemViewerScreen(
                         Spacer(Modifier.height(12.dp))
                         Text(
                             text = poetLine,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                lineHeight = (MaterialTheme.typography.bodyLarge.fontSize.value * 1.55f).sp,
+                            ),
                             color = colors.muted,
                             textAlign = TextAlign.Center,
-                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.4f,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 8.dp),

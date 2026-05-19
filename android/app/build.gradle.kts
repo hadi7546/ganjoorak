@@ -13,8 +13,8 @@ android {
         applicationId = "net.ganjoorak.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 11
-        versionName = "0.1.5"
+        versionCode = 12
+        versionName = "0.1.6"
 
         buildConfigField("String", "GANJOOR_API_BASE_URL", "\"http://api.offline.ganjoor.net\"")
         buildConfigField("String", "ECHOLALIA_API_BASE_URL", "\"https://echolalia.ir/wp-json/wp/v2\"")
@@ -65,6 +65,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -101,4 +107,11 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("androidx.test.ext:junit:1.2.1")
+    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
