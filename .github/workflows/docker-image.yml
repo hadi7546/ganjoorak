@@ -5,6 +5,9 @@ on:
     branches:
       - master
       - docker-image
+    paths-ignore:
+      - "android/**"
+      - ".github/workflows/android-release.yml"
   workflow_dispatch:
 
 permissions:
