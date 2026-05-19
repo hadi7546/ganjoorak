@@ -1,5 +1,6 @@
 package net.ganjoorak.app.ui.feed
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
@@ -12,8 +13,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import net.ganjoorak.app.audio.PoemAudioPlayer
 import net.ganjoorak.app.data.repository.PoemRepository
 import net.ganjoorak.app.domain.settings.AppSettings
-import net.ganjoorak.app.ui.common.LoadingScreen
 import net.ganjoorak.app.ui.common.ErrorScreen
+import net.ganjoorak.app.ui.common.LoadingScreen
 import net.ganjoorak.app.ui.feed.dialog.FeedPoetDialog
 import net.ganjoorak.app.ui.poem.PoemViewerScreen
 
@@ -23,9 +24,9 @@ fun FeedScreen(
     poemRepository: PoemRepository,
     settings: AppSettings,
     audioPlayer: PoemAudioPlayer,
-    onOpenMenu: () -> Unit,
     onOpenSearch: () -> Unit,
-    onOpenSettings: () -> Unit,
+    onToggleZenLock: () -> Unit,
+    onNavigateToPoets: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -76,7 +77,7 @@ fun FeedScreen(
 
     VerticalPager(
         state = pagerState,
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         beyondViewportPageCount = 1,
         userScrollEnabled = !settings.zenScrollLock,
     ) { page ->
@@ -91,9 +92,9 @@ fun FeedScreen(
             audioPlayer = audioPlayer,
             onNext = viewModel::goNext,
             onPrevious = viewModel::goPrevious,
-            onOpenMenu = onOpenMenu,
             onOpenSearch = onOpenSearch,
-            onOpenSettings = onOpenSettings,
+            onToggleZenLock = onToggleZenLock,
+            onNavigateToPoets = onNavigateToPoets,
         )
     }
 }
