@@ -41,21 +41,21 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import kotlinx.coroutines.launch
 import net.ganjoorak.app.data.model.Poem
 import net.ganjoorak.app.domain.settings.AppSettings
 import net.ganjoorak.app.domain.settings.PoemFontFamily
@@ -85,7 +85,6 @@ fun SharePoemSheet(
 ) {
     val context = LocalContext.current
     val colors = LocalGanjoorakColors.current
-    val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
     val allLines = remember(poem.id) {
@@ -98,11 +97,14 @@ fun SharePoemSheet(
     var selectedThemeId by remember { mutableStateOf(ShareThemeId.NIGHT) }
     var selectedLayout by remember { mutableStateOf(ShareImageLayout.SINGLE) }
     var selectedFont by remember(settings.fontFamily) { mutableStateOf(settings.fontFamily) }
-    var previewBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var previewImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    var shareBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var isGenerating by remember { mutableStateOf(false) }
 
     val selectedTheme = SHARE_THEMES.first { it.id == selectedThemeId }
-    val selectedTextLines = selectedLineIndices.sorted().mapNotNull { allLines.getOrNull(it) }
+    val selectedTextLines = remember(selectedLineIndices, allLines) {
+        selectedLineIndices.sorted().mapNotNull { allLines.getOrNull(it) }
+    }
     val poemUrl = remember(poem.id) { buildPoemUrl(poem) }
     val shareText = remember(selectedTextLines, poem.id) {
         buildString {
@@ -116,28 +118,45 @@ fun SharePoemSheet(
 
     LaunchedEffect(
         poem.id,
-        selectedTextLines,
+        selectedLineIndices,
         selectedThemeId,
         selectedLayout,
         selectedFont,
     ) {
         if (selectedTextLines.isEmpty()) {
-            previewBitmap?.recycle()
-            previewBitmap = null
+            shareBitmap?.recycle()
+            shareBitmap = null
+            previewImage = null
             return@LaunchedEffect
         }
         isGenerating = true
-        val bitmap = ShareImageGenerator.generate(
-            context = context,
-            poem = poem,
-            lines = selectedTextLines,
-            theme = selectedTheme,
-            fontFamily = selectedFont,
-            layout = selectedLayout,
-        )
-        previewBitmap?.recycle()
-        previewBitmap = bitmap
-        isGenerating = false
+        try {
+            val bitmap = ShareImageGenerator.generate(
+                context = context.applicationContext,
+                poem = poem,
+                lines = selectedTextLines,
+                theme = selectedTheme,
+                fontFamily = selectedFont,
+                layout = selectedLayout,
+            )
+            shareBitmap?.recycle()
+            shareBitmap = bitmap
+            previewImage = bitmap.asImageBitmap()
+        } catch (_: Exception) {
+            shareBitmap?.recycle()
+            shareBitmap = null
+            previewImage = null
+        } finally {
+            isGenerating = false
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            shareBitmap?.recycle()
+            shareBitmap = null
+            previewImage = null
+        }
     }
 
     ModalBottomSheet(
@@ -242,8 +261,8 @@ fun SharePoemSheet(
             ) {
                 when {
                     isGenerating -> CircularProgressIndicator(color = colors.foreground)
-                    previewBitmap != null -> Image(
-                        bitmap = previewBitmap!!.asImageBitmap(),
+                    previewImage != null -> Image(
+                        bitmap = previewImage!!,
                         contentDescription = "پیش‌نمایش تصویر اشتراک",
                         modifier = Modifier.fillMaxWidth(),
                         contentScale = ContentScale.Fit,
@@ -271,12 +290,10 @@ fun SharePoemSheet(
                 }
                 Button(
                     onClick = {
-                        val bitmap = previewBitmap ?: return@Button
-                        scope.launch {
-                            shareBitmap(context, bitmap, "${poem.title}.png")
-                        }
+                        val bitmap = shareBitmap ?: return@Button
+                        shareBitmap(context, bitmap, poem.id)
                     },
-                    enabled = previewBitmap != null && !isGenerating,
+                    enabled = shareBitmap != null && !isGenerating,
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -307,9 +324,9 @@ fun SharePoemSheet(
     }
 }
 
-private fun shareBitmap(context: Context, bitmap: Bitmap, fileName: String) {
+private fun shareBitmap(context: Context, bitmap: Bitmap, poemId: Int) {
     val dir = File(context.cacheDir, "share").apply { mkdirs() }
-    val file = File(dir, fileName)
+    val file = File(dir, "ganjoorak-poem-$poemId.png")
     FileOutputStream(file).use { out ->
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
     }

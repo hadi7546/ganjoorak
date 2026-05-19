@@ -332,6 +332,8 @@ object ShareImageGenerator {
     }
 
     private fun typefaceFor(context: Context, family: PoemFontFamily): Typeface {
-        return ResourcesCompat.getFont(context, fontResFor(family)) ?: Typeface.DEFAULT
+        return runCatching {
+            ResourcesCompat.getFont(context, fontResFor(family)) ?: Typeface.DEFAULT
+        }.getOrDefault(Typeface.DEFAULT)
     }
 }

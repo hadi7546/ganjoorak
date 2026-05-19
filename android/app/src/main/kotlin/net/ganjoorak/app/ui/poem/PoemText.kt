@@ -1,16 +1,14 @@
 package net.ganjoorak.app.ui.poem
 
-import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.ganjoorak.app.ui.theme.LocalGanjoorakColors
@@ -24,7 +22,7 @@ fun PoemTextContent(
     showLineNumbers: Boolean,
     highlightedVerseOrder: Int,
     modifier: Modifier = Modifier,
-    onLinePositioned: ((lineOrder: Int, yInRoot: Float) -> Unit)? = null,
+    onLinePositioned: ((lineOrder: Int, yInParent: Float) -> Unit)? = null,
 ) {
     val colors = LocalGanjoorakColors.current
     val lines = plainText.lines().filter { it.isNotBlank() }
@@ -69,15 +67,9 @@ fun PoemTextContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .graphicsLayer {
-                                if (dimmed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                    renderEffect = androidx.compose.ui.graphics.BlurEffect(
-                                        radiusX = 2.5f,
-                                        radiusY = 2.5f,
-                                    )
-                                }
                                 alpha = when {
                                     highlighted -> 1f
-                                    dimmed -> 0.55f
+                                    dimmed -> 0.42f
                                     else -> 1f
                                 }
                             }
@@ -91,7 +83,7 @@ fun PoemTextContent(
                             .onGloballyPositioned { coordinates ->
                                 onLinePositioned?.invoke(
                                     lineOrder,
-                                    coordinates.positionInRoot().y,
+                                    coordinates.positionInParent().y,
                                 )
                             },
                     )

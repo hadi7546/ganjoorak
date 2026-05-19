@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Lock
@@ -74,6 +74,7 @@ fun PoemViewerScreen(
     onOpenSearch: () -> Unit,
     onToggleZenLock: () -> Unit,
     onNavigateToPoets: () -> Unit,
+    isActivePage: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalGanjoorakColors.current
@@ -106,7 +107,8 @@ fun PoemViewerScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isActivePage) {
+        if (!isActivePage) return@LaunchedEffect
         while (isActive) {
             audioPlayer.tick()
             delay(250)
@@ -120,7 +122,7 @@ fun PoemViewerScreen(
         val target = (lineY - 180f).coerceAtLeast(0f)
         val delta = target - scrollState.value
         if (kotlin.math.abs(delta) > 8f) {
-            scrollState.scrollBy(delta)
+            runCatching { scrollState.animateScrollBy(delta) }
         }
         lastAutoScrollVerse = highlightedVerse
     }

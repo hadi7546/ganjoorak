@@ -95,6 +95,7 @@ fun FeedScreen(
             onOpenSearch = onOpenSearch,
             onToggleZenLock = onToggleZenLock,
             onNavigateToPoets = onNavigateToPoets,
+            isActivePage = page == pagerState.settledPage,
         )
     }
 }
