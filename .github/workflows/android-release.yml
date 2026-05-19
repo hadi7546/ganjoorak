@@ -117,3 +117,43 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+
+      # Requires repo secrets: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (optional, defaults to @ganjoorak).
+      # Add the bot as an administrator on the channel with "Post messages" permission.
+      - name: Send APK to Telegram
+        if: success()
+        working-directory: ${{ github.workspace }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "TELEGRAM_BOT_TOKEN not configured; skipping Telegram upload."
+            exit 0
+          fi
+
+          CHAT_ID="${TELEGRAM_CHAT_ID:-@ganjoorak}"
+          APK="android/app/build/outputs/apk/release/${{ steps.version.outputs.apk_name }}"
+          RELEASE_URL="${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}"
+
+          if [ ! -f "$APK" ]; then
+            echo "APK not found at $APK" >&2
+            exit 1
+          fi
+
+          CAPTION=$(printf '%s\n\n%s\n%s' \
+            "گنجورک Android ${{ steps.version.outputs.name }} (build ${{ github.run_number }})" \
+            "دانلود از گیت‌هاب:" \
+            "$RELEASE_URL")
+
+          RESPONSE=$(curl -sS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
+            -F "chat_id=${CHAT_ID}" \
+            -F "document=@${APK}" \
+            -F "caption=${CAPTION}")
+
+          echo "$RESPONSE"
+          if ! echo "$RESPONSE" | grep -q '"ok":true'; then
+            echo "Telegram upload failed. Is the bot an admin of ${CHAT_ID} with Post messages?" >&2
+            exit 1
+          fi
+          echo "APK posted to Telegram (${CHAT_ID})."

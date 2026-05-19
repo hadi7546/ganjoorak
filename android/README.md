@@ -42,6 +42,15 @@ Optional repository secrets for Play Store–grade signing (otherwise the workfl
 | `ANDROID_KEY_ALIAS` | Key alias |
 | `ANDROID_KEY_PASSWORD` | Key password |
 
+Optional Telegram channel post after each release (e.g. [@ganjoorak](https://t.me/ganjoorak)):
+
+| Secret | Description |
+|--------|-------------|
+| `TELEGRAM_BOT_TOKEN` | Bot token from [@BotFather](https://t.me/BotFather) |
+| `TELEGRAM_CHAT_ID` | Channel chat id or `@username` (defaults to `@ganjoorak` if omitted) |
+
+The bot must be a channel **administrator** with **Post messages** enabled.
+
 You can also run the workflow manually from the Actions tab (**Android Release** → **Run workflow**).
 
 ## Project structure
