@@ -54,20 +54,25 @@ class FeedViewModel(
     )
 
     val uiState: StateFlow<FeedUiState> = combine(
-        _poems,
-        _currentIndex,
-        _isLoading,
-        _isFetchingMore,
-        _error,
+        combine(_poems, _currentIndex, _isLoading, _isFetchingMore, _error) {
+                poems,
+                index,
+                loading,
+                fetchingMore,
+                error,
+            ->
+            FeedUiState(
+                poems = poems,
+                currentIndex = index,
+                isLoading = loading,
+                isFetchingMore = fetchingMore,
+                error = error,
+            )
+        },
         _availablePoets,
         _showFeedDialog,
-    ) { poems, index, loading, fetchingMore, error, poets, showDialog ->
-        FeedUiState(
-            poems = poems,
-            currentIndex = index,
-            isLoading = loading,
-            isFetchingMore = fetchingMore,
-            error = error,
+    ) { partial, poets, showDialog ->
+        partial.copy(
             availablePoets = poets,
             showFeedPoetDialog = showDialog,
         )
