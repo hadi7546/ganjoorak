@@ -198,28 +198,34 @@ fun PoemViewerScreen(
                 }
             }
 
-            Column(
+            Box(
                 modifier = Modifier
                     .weight(1f)
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = contentBottomPad)
-                    .pointerInput(poem.id, isFirst, isLast) {
-                        detectTapGestures { }
-                    },
+                    .fillMaxWidth(),
             ) {
-                PoemTextContent(
-                    plainText = poem.plainText,
-                    showLineNumbers = settings.showLineNumbers,
-                    highlightedVerseOrder = if (isPlaying && recitation?.inSyncWithText == true) {
-                        highlightedVerse
-                    } else {
-                        -1
-                    },
-                    onLinePositioned = { lineOrder, y ->
-                        linePositions[lineOrder] = y
-                    },
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = contentBottomPad)
+                        .pointerInput(poem.id, isFirst, isLast) {
+                            detectTapGestures { }
+                        },
+                ) {
+                    PoemTextContent(
+                        plainText = poem.plainText,
+                        showLineNumbers = settings.showLineNumbers,
+                        highlightedVerseOrder = if (isPlaying && recitation?.inSyncWithText == true) {
+                            highlightedVerse
+                        } else {
+                            -1
+                        },
+                        onLinePositioned = { lineOrder, y ->
+                            linePositions[lineOrder] = y
+                        },
+                    )
+                }
             }
         }
 

@@ -23,13 +23,17 @@ val LocalPoemTypography = staticCompositionLocalOf {
     PoemTypography(19f, 24f, 40f, FontFamily.Default)
 }
 
-fun fontFamilyFor(option: PoemFontFamily): FontFamily = when (option) {
-    PoemFontFamily.VAZIRMATN -> FontFamily(Font(R.font.vazirmatn))
-    PoemFontFamily.SAMIM -> FontFamily(Font(R.font.samim))
-    PoemFontFamily.SHABNAM -> FontFamily(Font(R.font.shabnam))
-    PoemFontFamily.GANDOM -> FontFamily(Font(R.font.gandom))
-    else -> FontFamily(Font(R.font.vazirmatn))
-}
+private val defaultPoemFont by lazy { FontFamily(Font(R.font.vazirmatn)) }
+
+fun fontFamilyFor(option: PoemFontFamily): FontFamily = runCatching {
+    when (option) {
+        PoemFontFamily.VAZIRMATN -> FontFamily(Font(R.font.vazirmatn))
+        PoemFontFamily.SAMIM -> FontFamily(Font(R.font.samim))
+        PoemFontFamily.SHABNAM -> FontFamily(Font(R.font.shabnam))
+        PoemFontFamily.GANDOM -> FontFamily(Font(R.font.gandom))
+        else -> defaultPoemFont
+    }
+}.getOrElse { FontFamily.SansSerif }
 
 fun poemTypography(fontFamily: PoemFontFamily, poemFontSize: Int): PoemTypography {
     val scale = AppSettings.clampFontSize(poemFontSize) / 100f

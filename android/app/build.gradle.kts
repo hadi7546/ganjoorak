@@ -13,8 +13,8 @@ android {
         applicationId = "net.ganjoorak.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "0.1.4"
+        versionCode = 11
+        versionName = "0.1.5"
 
         buildConfigField("String", "GANJOOR_API_BASE_URL", "\"http://api.offline.ganjoor.net\"")
         buildConfigField("String", "ECHOLALIA_API_BASE_URL", "\"https://echolalia.ir/wp-json/wp/v2\"")
@@ -34,7 +34,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
+            // Minify breaks kotlinx-serialization/Retrofit at runtime on some devices; keep off until rules are verified.
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
