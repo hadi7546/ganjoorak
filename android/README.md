@@ -29,6 +29,21 @@ cd android
 
 Open the `android/` folder in Android Studio for emulator/device runs.
 
+## CI releases
+
+Pushes to `master` that change `android/**` trigger [`.github/workflows/android-release.yml`](../.github/workflows/android-release.yml), which builds a signed release APK and publishes a GitHub Release (tag `android-v{version}-build{N}`).
+
+Optional repository secrets for Play Store–grade signing (otherwise the workflow uses the debug keystore):
+
+| Secret | Description |
+|--------|-------------|
+| `ANDROID_KEYSTORE_BASE64` | Base64-encoded `.jks` / `.keystore` file |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
+| `ANDROID_KEY_ALIAS` | Key alias |
+| `ANDROID_KEY_PASSWORD` | Key password |
+
+You can also run the workflow manually from the Actions tab (**Android Release** → **Run workflow**).
+
 ## Project structure
 
 ```
