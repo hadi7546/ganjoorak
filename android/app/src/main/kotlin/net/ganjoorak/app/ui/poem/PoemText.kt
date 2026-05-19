@@ -1,5 +1,6 @@
 package net.ganjoorak.app.ui.poem
 
+import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -7,6 +8,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.ganjoorak.app.ui.theme.LocalGanjoorakColors
@@ -20,22 +24,33 @@ fun PoemTextContent(
     showLineNumbers: Boolean,
     highlightedVerseOrder: Int,
     modifier: Modifier = Modifier,
+    onLinePositioned: ((lineOrder: Int, yInRoot: Float) -> Unit)? = null,
 ) {
     val colors = LocalGanjoorakColors.current
     val lines = plainText.lines().filter { it.isNotBlank() }
-    val verses = chunkLines(lines, 2)
+    val highlightActive = highlightedVerseOrder > 0
 
     Column(modifier = modifier.fillMaxWidth()) {
-        verses.forEachIndexed { index, pair ->
-            val verseOrder = index + 1
-            val highlighted = highlightedVerseOrder == verseOrder
+        var globalLineIndex = 0
+        val verses = chunkLines(lines, 2)
+
+        verses.forEach { pair ->
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 6.dp),
             ) {
-                pair.forEachIndexed { lineIndex, line ->
-                    val lineNumber = verseOrder * 2 - (if (pair.size == 2) 1 - lineIndex else 0)
+                pair.forEachIndexed { lineIndexInPair, line ->
+                    globalLineIndex++
+                    val lineOrder = globalLineIndex
+                    val highlighted = highlightActive && highlightedVerseOrder == lineOrder
+                    val dimmed = highlightActive && !highlighted
+
+                    val lineNumber = when {
+                        pair.size == 2 -> lineOrder * 2 - (1 - lineIndexInPair)
+                        else -> lineOrder
+                    }
+
                     Text(
                         text = buildString {
                             if (showLineNumbers) {
@@ -45,17 +60,40 @@ fun PoemTextContent(
                             append(line.trim())
                         },
                         style = if (pair.size == 2) poemVerseStyle() else poemTextStyle(),
-                        color = if (highlighted) colors.foreground else colors.foreground.copy(alpha = 0.92f),
+                        color = when {
+                            highlighted -> colors.foreground
+                            dimmed -> colors.foreground.copy(alpha = 0.38f)
+                            else -> colors.foreground.copy(alpha = 0.92f)
+                        },
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .graphicsLayer {
+                                if (dimmed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    renderEffect = androidx.compose.ui.graphics.BlurEffect(
+                                        radiusX = 2.5f,
+                                        radiusY = 2.5f,
+                                    )
+                                }
+                                alpha = when {
+                                    highlighted -> 1f
+                                    dimmed -> 0.55f
+                                    else -> 1f
+                                }
+                            }
                             .then(
                                 if (highlighted) {
-                                    Modifier.padding(horizontal = 8.dp)
+                                    Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                 } else {
                                     Modifier
                                 },
-                            ),
+                            )
+                            .onGloballyPositioned { coordinates ->
+                                onLinePositioned?.invoke(
+                                    lineOrder,
+                                    coordinates.positionInRoot().y,
+                                )
+                            },
                     )
                 }
             }
