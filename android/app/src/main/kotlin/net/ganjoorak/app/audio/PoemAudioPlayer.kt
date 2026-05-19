@@ -1,6 +1,7 @@
 package net.ganjoorak.app.audio
 
 import android.content.Context
+import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -11,7 +12,8 @@ import net.ganjoorak.app.data.model.PoemRecitation
 import net.ganjoorak.app.data.model.VerseSync
 
 class PoemAudioPlayer(context: Context) {
-    private val player = ExoPlayer.Builder(context).build()
+    private val appContext = context.applicationContext
+    private var player: ExoPlayer? = null
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
@@ -30,19 +32,27 @@ class PoemAudioPlayer(context: Context) {
 
     private var verseSync: List<VerseSync> = emptyList()
 
-    init {
-        player.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _isPlaying.value = isPlaying
-            }
+    private fun playerOrNull(): ExoPlayer? {
+        if (player != null) return player
+        return runCatching {
+            ExoPlayer.Builder(appContext).build().also { exo ->
+                exo.addListener(object : Player.Listener {
+                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        _isPlaying.value = isPlaying
+                    }
 
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                _isLoading.value = playbackState == Player.STATE_BUFFERING
-                if (playbackState == Player.STATE_READY) {
-                    _durationSec.value = player.duration.coerceAtLeast(0) / 1000f
-                }
+                    override fun onPlaybackStateChanged(playbackState: Int) {
+                        _isLoading.value = playbackState == Player.STATE_BUFFERING
+                        if (playbackState == Player.STATE_READY) {
+                            _durationSec.value = exo.duration.coerceAtLeast(0) / 1000f
+                        }
+                    }
+                })
+                player = exo
             }
-        })
+        }.onFailure { error ->
+            Log.e(TAG, "ExoPlayer init failed", error)
+        }.getOrNull()
     }
 
     fun setVerseSync(sync: List<VerseSync>) {
@@ -52,23 +62,27 @@ class PoemAudioPlayer(context: Context) {
 
     fun play(recitation: PoemRecitation) {
         if (recitation.mp3Url.isBlank()) return
-        player.setMediaItem(MediaItem.fromUri(recitation.mp3Url))
-        player.prepare()
-        player.play()
+        val exo = playerOrNull() ?: return
+        exo.setMediaItem(MediaItem.fromUri(recitation.mp3Url))
+        exo.prepare()
+        exo.play()
     }
 
     fun toggle() {
-        if (player.isPlaying) player.pause() else player.play()
+        val exo = playerOrNull() ?: return
+        if (exo.isPlaying) exo.pause() else exo.play()
     }
 
     fun pause() {
-        player.pause()
+        player?.pause()
+        _isPlaying.value = false
     }
 
     fun seekTo(ratio: Float) {
-        val duration = player.duration
+        val exo = player ?: return
+        val duration = exo.duration
         if (duration > 0) {
-            player.seekTo((duration * ratio).toLong())
+            exo.seekTo((duration * ratio).toLong())
         }
     }
 
@@ -85,16 +99,18 @@ class PoemAudioPlayer(context: Context) {
     }
 
     fun tick() {
-        _currentTimeSec.value = player.currentPosition / 1000f
+        val exo = player ?: return
+        _currentTimeSec.value = exo.currentPosition / 1000f
         updateHighlight()
     }
 
     private fun updateHighlight() {
-        if (!_isPlaying.value || verseSync.isEmpty()) {
+        val exo = player
+        if (exo == null || !_isPlaying.value || verseSync.isEmpty()) {
             _highlightedVerse.value = -1
             return
         }
-        val currentMs = (player.currentPosition).toLong()
+        val currentMs = exo.currentPosition
         var order = -1
         if (currentMs <= 2000) {
             order = 1
@@ -119,6 +135,11 @@ class PoemAudioPlayer(context: Context) {
     }
 
     fun release() {
-        player.release()
+        player?.release()
+        player = null
+    }
+
+    companion object {
+        private const val TAG = "PoemAudioPlayer"
     }
 }

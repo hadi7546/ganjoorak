@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
       val settings by container.settingsRepository.settings.collectAsStateWithLifecycle(
         initialValue = net.ganjoorak.app.domain.settings.AppSettings(),
       )
-      val player = remember { audioPlayer!! }
+      val player = remember { checkNotNull(audioPlayer) }
 
       GanjoorakTheme(
         theme = settings.theme,
