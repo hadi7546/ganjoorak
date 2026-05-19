@@ -54,17 +54,17 @@ fun FeedScreen(
     val poems = state.poems
     if (poems.isEmpty()) return
 
-    val pagerKey = poems.joinToString(",") { it.id.toString() }
+    val feedSessionKey = poems.first().id
 
-    key(pagerKey, state.currentIndex) {
+    key(feedSessionKey) {
         val safeIndex = state.currentIndex.coerceIn(0, poems.lastIndex)
         val pagerState = rememberPagerState(
             initialPage = safeIndex,
             pageCount = { poems.size },
         )
 
-        LaunchedEffect(safeIndex, poems.size) {
-            if (pagerState.currentPage != safeIndex) {
+        LaunchedEffect(safeIndex) {
+            if (pagerState.currentPage != safeIndex && safeIndex in poems.indices) {
                 runCatching { pagerState.scrollToPage(safeIndex) }
             }
         }
@@ -82,19 +82,13 @@ fun FeedScreen(
                 }
         }
 
-        VerticalPager(
-            state = pagerState,
-            modifier = modifier.fillMaxSize(),
-            beyondViewportPageCount = 1,
-            userScrollEnabled = !settings.zenScrollLock,
-        ) { page ->
-            val poem = poems[page]
+        if (poems.size == 1) {
             PoemViewerScreen(
-                poem = poem,
+                poem = poems[0],
                 settings = settings,
-                isFirst = page == 0,
-                isLast = page >= poems.lastIndex,
-                isPreparingNext = state.isFetchingMore && page >= poems.lastIndex,
+                isFirst = true,
+                isLast = true,
+                isPreparingNext = state.isFetchingMore,
                 poemRepository = poemRepository,
                 audioPlayer = audioPlayer,
                 onNext = viewModel::goNext,
@@ -102,8 +96,34 @@ fun FeedScreen(
                 onOpenSearch = onOpenSearch,
                 onToggleZenLock = onToggleZenLock,
                 onNavigateToPoets = onNavigateToPoets,
-                isActivePage = page == pagerState.settledPage,
+                isActivePage = true,
+                modifier = modifier.fillMaxSize(),
             )
+        } else {
+            VerticalPager(
+                state = pagerState,
+                modifier = modifier.fillMaxSize(),
+                beyondViewportPageCount = 1,
+                userScrollEnabled = !settings.zenScrollLock,
+            ) { page ->
+                val poem = poems[page]
+                PoemViewerScreen(
+                    poem = poem,
+                    settings = settings,
+                    isFirst = page == 0,
+                    isLast = page >= poems.lastIndex,
+                    isPreparingNext = state.isFetchingMore && page >= poems.lastIndex,
+                    poemRepository = poemRepository,
+                    audioPlayer = audioPlayer,
+                    onNext = viewModel::goNext,
+                    onPrevious = viewModel::goPrevious,
+                    onOpenSearch = onOpenSearch,
+                    onToggleZenLock = onToggleZenLock,
+                    onNavigateToPoets = onNavigateToPoets,
+                    isActivePage = page == pagerState.settledPage,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
     }
 }

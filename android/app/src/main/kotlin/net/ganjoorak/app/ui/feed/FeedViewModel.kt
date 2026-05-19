@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -120,7 +121,11 @@ class FeedViewModel(
                 if (version != feedVersion) return@launch
                 _poems.value = listOf(first)
                 _isLoading.value = false
-                prefetchMore(version, INITIAL_COUNT - 1)
+                // Let the first poem render before growing the pager (avoids pager reset crash).
+                delay(800)
+                if (version == feedVersion) {
+                    prefetchMore(version, INITIAL_COUNT - 1)
+                }
             }.onFailure {
                 if (version == feedVersion) {
                     _error.value = "متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید."
