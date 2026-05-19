@@ -35,14 +35,26 @@ jobs:
           cache: gradle
 
       - name: Set up Android SDK
+        shell: bash
         run: |
-          yes | sdkmanager --licenses >/dev/null
-          sdkmanager --install \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
-          echo "sdk.dir=${ANDROID_HOME}" >> local.properties
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          # Do not set ANDROID_HOME from env.* here — that context is empty and breaks sdkmanager.
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -maxdepth 3 -type f -name sdkmanager 2>/dev/null | sort -V | tail -1)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "sdkmanager not found under $SDK_ROOT/cmdline-tools" >&2
+            exit 1
+          fi
+          CMDLINE_BIN="$(dirname "$SDKMANAGER")"
+          export ANDROID_HOME="$SDK_ROOT"
+          export ANDROID_SDK_ROOT="$SDK_ROOT"
+          export PATH="$CMDLINE_BIN:$SDK_ROOT/platform-tools:$PATH"
+          echo "Using ANDROID_HOME=$ANDROID_HOME"
+          echo "sdkmanager=$(command -v sdkmanager)"
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+          echo "sdk.dir=$ANDROID_HOME" >> local.properties
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
 
       - name: Read app version
         id: version
