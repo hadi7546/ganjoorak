@@ -1,12 +1,6 @@
 package net.ganjoorak.app.ui.poem
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,6 +8,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import net.ganjoorak.app.audio.PoemAudioPlayer
 import net.ganjoorak.app.data.model.Poem
 import net.ganjoorak.app.data.repository.PoemRepository
@@ -21,7 +16,6 @@ import net.ganjoorak.app.domain.settings.AppSettings
 import net.ganjoorak.app.ui.common.ErrorScreen
 import net.ganjoorak.app.ui.common.LoadingScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PoemDetailScreen(
     poemId: Int,
@@ -29,6 +23,9 @@ fun PoemDetailScreen(
     poemRepository: PoemRepository,
     audioPlayer: PoemAudioPlayer,
     onBack: () -> Unit,
+    onOpenSearch: () -> Unit,
+    onToggleZenLock: () -> Unit,
+    onNavigateToPoets: () -> Unit,
 ) {
     var poem by remember { mutableStateOf<Poem?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -44,38 +41,26 @@ fun PoemDetailScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "بازگشت")
-                    }
-                },
-            )
-        },
-    ) { _ ->
-        when {
-            error != null -> ErrorScreen(
-                message = error!!,
-                onRetry = { reloadToken++ },
-            )
-            poem == null -> LoadingScreen()
-            else -> PoemViewerScreen(
-                poem = poem!!,
-                settings = settings,
-                isFirst = true,
-                isLast = true,
-                isPreparingNext = false,
-                poemRepository = poemRepository,
-                audioPlayer = audioPlayer,
-                onNext = {},
-                onPrevious = {},
-                onOpenMenu = {},
-                onOpenSearch = {},
-                onOpenSettings = {},
-            )
-        }
+    when {
+        error != null -> ErrorScreen(
+            message = error!!,
+            onRetry = { reloadToken++ },
+        )
+        poem == null -> LoadingScreen()
+        else -> PoemViewerScreen(
+            poem = poem!!,
+            settings = settings,
+            isFirst = true,
+            isLast = true,
+            isPreparingNext = false,
+            poemRepository = poemRepository,
+            audioPlayer = audioPlayer,
+            onNext = {},
+            onPrevious = {},
+            onOpenSearch = onOpenSearch,
+            onToggleZenLock = onToggleZenLock,
+            onNavigateToPoets = onNavigateToPoets,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
