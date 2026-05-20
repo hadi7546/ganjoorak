@@ -13,8 +13,8 @@ android {
         applicationId = "net.ganjoorak.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "0.1.7"
+        versionCode = 14
+        versionName = "0.1.8"
 
         buildConfigField("String", "GANJOOR_API_BASE_URL", "\"http://api.offline.ganjoor.net\"")
         buildConfigField("String", "ECHOLALIA_API_BASE_URL", "\"https://echolalia.ir/wp-json/wp/v2\"")

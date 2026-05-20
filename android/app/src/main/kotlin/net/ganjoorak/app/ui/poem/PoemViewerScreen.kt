@@ -2,6 +2,7 @@ package net.ganjoorak.app.ui.poem
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,6 +52,7 @@ import net.ganjoorak.app.audio.PoemAudioPlayer
 import net.ganjoorak.app.data.model.Poem
 import net.ganjoorak.app.data.repository.PoemRepository
 import net.ganjoorak.app.domain.settings.AppSettings
+import net.ganjoorak.app.share.shareableLinesFrom
 import net.ganjoorak.app.ui.theme.LocalGanjoorakColors
 import net.ganjoorak.app.ui.theme.poemTitleStyle
 
@@ -85,7 +87,11 @@ fun PoemViewerScreen(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val linePositions = remember { mutableStateMapOf<Int, Float>() }
-    var showShareSheet by remember { mutableStateOf(false) }
+    var shareMode by remember { mutableStateOf(false) }
+    val allShareLines = remember(poem.id) { shareableLinesFrom(poem) }
+    var selectedLineIndices by remember(poem.id) {
+        mutableStateOf(allShareLines.indices.take(minOf(4, allShareLines.size)).toSet())
+    }
     var recitationIndex by remember(poem.id) { mutableIntStateOf(0) }
     var lastAutoScrollVerse by remember(poem.id) { mutableIntStateOf(-1) }
     val recitation = poem.recitations.getOrNull(recitationIndex)
@@ -99,10 +105,24 @@ fun PoemViewerScreen(
     val duration by audioPlayer.durationSec.collectAsStateWithLifecycle()
     val highlightedVerse by audioPlayer.highlightedVerse.collectAsStateWithLifecycle()
 
+    fun enterShareMode() {
+        audioPlayer.pause()
+        selectedLineIndices = allShareLines.indices.take(minOf(4, allShareLines.size)).toSet()
+        shareMode = true
+    }
+
+    fun exitShareMode() {
+        shareMode = false
+    }
+
     LaunchedEffect(poem.id) {
         audioPlayer.pause()
         recitationIndex = 0
+        shareMode = false
+        selectedLineIndices = allShareLines.indices.take(minOf(4, allShareLines.size)).toSet()
     }
+
+    BackHandler(enabled = shareMode) { exitShareMode() }
 
     LaunchedEffect(recitation?.id) {
         if (recitation?.inSyncWithText == true) {
@@ -162,7 +182,23 @@ fun PoemViewerScreen(
             .fillMaxSize()
             .background(colors.background),
     ) {
-        if (visibility.titleSection) {
+        if (shareMode) {
+            ShareModeHeader(
+                poemTitle = poem.title,
+                selectedCount = selectedLineIndices.size,
+                totalLines = allShareLines.size,
+                onClose = { exitShareMode() },
+                onToggleSelectAll = {
+                    selectedLineIndices = if (selectedLineIndices.size == allShareLines.size) {
+                        emptySet()
+                    } else {
+                        allShareLines.indices.toSet()
+                    }
+                },
+                allSelected = allShareLines.isNotEmpty() &&
+                    selectedLineIndices.size == allShareLines.size,
+            )
+        } else if (visibility.titleSection) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -219,7 +255,8 @@ fun PoemViewerScreen(
                     FloatingCircleButton(
                         icon = Icons.Default.Share,
                         contentDescription = "اشتراک",
-                        onClick = { showShareSheet = true },
+                        onClick = { if (shareMode) exitShareMode() else enterShareMode() },
+                        active = shareMode,
                     )
                     Spacer(Modifier.height(SideButtonGap))
                     FloatingCircleButton(
@@ -251,13 +288,24 @@ fun PoemViewerScreen(
                     PoemTextContent(
                         plainText = poem.plainText,
                         showLineNumbers = settings.showLineNumbers,
-                        highlightedVerseOrder = if (isPlaying && recitation?.inSyncWithText == true) {
+                        highlightedVerseOrder = if (
+                            !shareMode && isPlaying && recitation?.inSyncWithText == true
+                        ) {
                             highlightedVerse
                         } else {
                             -1
                         },
                         onLinePositioned = { lineOrder, y ->
                             linePositions[lineOrder] = y
+                        },
+                        shareSelectMode = shareMode,
+                        selectedLineIndices = selectedLineIndices,
+                        onShareLineToggle = { index ->
+                            selectedLineIndices = if (index in selectedLineIndices) {
+                                selectedLineIndices - index
+                            } else {
+                                selectedLineIndices + index
+                            }
                         },
                     )
                     Spacer(Modifier.height(24.dp))
@@ -289,7 +337,15 @@ fun PoemViewerScreen(
             }
         }
 
-        if (visibility.actionButtons && poem.poet.isNotBlank()) {
+        if (shareMode) {
+            ShareSelectionBar(
+                poem = poem,
+                settings = settings,
+                selectedLineIndices = selectedLineIndices,
+                allLines = allShareLines,
+                onDismiss = { exitShareMode() },
+            )
+        } else if (visibility.actionButtons && poem.poet.isNotBlank()) {
             PoetProfileCard(
                 poetName = poem.poetNickname.ifBlank { poem.poet },
                 imageUrl = poem.poetImageUrl,
@@ -298,7 +354,7 @@ fun PoemViewerScreen(
             )
         }
 
-        if (hasAudio) {
+        if (!shareMode && hasAudio) {
             HorizontalDivider(color = colors.border.copy(alpha = 0.35f))
             AudioPlayerBar(
                 recitation = recitation,
@@ -337,13 +393,5 @@ fun PoemViewerScreen(
                 )
             }
         }
-    }
-
-    if (showShareSheet) {
-        SharePoemSheet(
-            poem = poem,
-            settings = settings,
-            onDismiss = { showShareSheet = false },
-        )
     }
 }
