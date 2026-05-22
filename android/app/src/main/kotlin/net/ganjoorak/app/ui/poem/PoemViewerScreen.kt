@@ -56,8 +56,8 @@ import net.ganjoorak.app.share.shareableLinesFrom
 import net.ganjoorak.app.ui.theme.LocalGanjoorakColors
 import net.ganjoorak.app.ui.theme.poemTitleStyle
 
-private val SideRailWidth = 52.dp
-private val SideButtonGap = 10.dp
+private val SideRailWidth = 64.dp
+private val SideButtonGap = 8.dp
 private val PoemMaxWidth = 520.dp
 
 private fun poemSourceUrl(poem: Poem): String {
@@ -248,8 +248,7 @@ fun PoemViewerScreen(
                     modifier = Modifier
                         .width(SideRailWidth)
                         .fillMaxHeight()
-                        .padding(vertical = 12.dp),
-                    verticalArrangement = Arrangement.Center,
+                        .padding(vertical = 10.dp, horizontal = 4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     FloatingCircleButton(
@@ -268,6 +267,15 @@ fun PoemViewerScreen(
                             )
                         },
                     )
+                    Spacer(Modifier.weight(1f))
+                    if (!shareMode && poem.poet.isNotBlank()) {
+                        PoetProfileCard(
+                            poetName = poem.poetNickname.ifBlank { poem.poet },
+                            imageUrl = poem.poetImageUrl,
+                            onClick = onNavigateToPoets,
+                            compact = true,
+                        )
+                    }
                 }
             }
 
@@ -345,16 +353,7 @@ fun PoemViewerScreen(
                 allLines = allShareLines,
                 onDismiss = { exitShareMode() },
             )
-        } else if (visibility.actionButtons && poem.poet.isNotBlank()) {
-            PoetProfileCard(
-                poetName = poem.poetNickname.ifBlank { poem.poet },
-                imageUrl = poem.poetImageUrl,
-                onClick = onNavigateToPoets,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            )
-        }
-
-        if (!shareMode && hasAudio) {
+        } else if (hasAudio) {
             HorizontalDivider(color = colors.border.copy(alpha = 0.35f))
             AudioPlayerBar(
                 recitation = recitation,

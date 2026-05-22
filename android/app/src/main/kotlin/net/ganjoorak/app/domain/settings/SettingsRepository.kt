@@ -26,7 +26,7 @@ class SettingsRepository(private val context: Context) {
             showLineNumbers = prefs[Keys.SHOW_LINE_NUMBERS] ?: false,
             fontFamily = prefs[Keys.FONT_FAMILY]?.let { runCatching { PoemFontFamily.valueOf(it) }.getOrNull() }
                 ?: PoemFontFamily.VAZIRMATN,
-            poemFontSize = AppSettings.clampFontSize(prefs[Keys.POEM_FONT_SIZE] ?: 100),
+            poemFontSize = AppSettings.clampFontSize(prefs[Keys.POEM_FONT_SIZE] ?: 90),
             poemViewerVisibility = decodeVisibility(prefs[Keys.VISIBILITY_JSON]),
             randomizePoems = prefs[Keys.RANDOMIZE_POEMS] ?: true,
             askRandomizePoemsOnPoetPages = prefs[Keys.ASK_RANDOMIZE] ?: true,
@@ -43,7 +43,7 @@ class SettingsRepository(private val context: Context) {
                 showLineNumbers = prefs[Keys.SHOW_LINE_NUMBERS] ?: false,
                 fontFamily = prefs[Keys.FONT_FAMILY]?.let { runCatching { PoemFontFamily.valueOf(it) }.getOrNull() }
                     ?: PoemFontFamily.VAZIRMATN,
-                poemFontSize = AppSettings.clampFontSize(prefs[Keys.POEM_FONT_SIZE] ?: 100),
+                poemFontSize = AppSettings.clampFontSize(prefs[Keys.POEM_FONT_SIZE] ?: 90),
                 poemViewerVisibility = decodeVisibility(prefs[Keys.VISIBILITY_JSON]),
                 randomizePoems = prefs[Keys.RANDOMIZE_POEMS] ?: true,
                 askRandomizePoemsOnPoetPages = prefs[Keys.ASK_RANDOMIZE] ?: true,

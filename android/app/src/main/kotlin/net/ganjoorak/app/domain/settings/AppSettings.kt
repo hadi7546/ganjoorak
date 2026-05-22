@@ -29,7 +29,7 @@ data class AppSettings(
     val theme: AppTheme = AppTheme.DARK,
     val showLineNumbers: Boolean = false,
     val fontFamily: PoemFontFamily = PoemFontFamily.VAZIRMATN,
-    val poemFontSize: Int = 100,
+    val poemFontSize: Int = 90,
     val poemViewerVisibility: PoemViewerVisibility = PoemViewerVisibility(),
     val randomizePoems: Boolean = true,
     val askRandomizePoemsOnPoetPages: Boolean = true,

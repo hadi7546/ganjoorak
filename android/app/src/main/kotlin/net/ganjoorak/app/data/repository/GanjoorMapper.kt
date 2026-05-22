@@ -1,6 +1,8 @@
 package net.ganjoorak.app.data.repository
 
 import net.ganjoorak.app.BuildConfig
+import net.ganjoorak.app.data.model.Century
+import net.ganjoorak.app.data.model.GanjoorCenturyDto
 import net.ganjoorak.app.data.model.GanjoorPoemDto
 import net.ganjoorak.app.data.model.GanjoorRecitationDto
 import net.ganjoorak.app.data.model.GanjoorSearchResultDto
@@ -105,5 +107,12 @@ fun net.ganjoorak.app.data.model.GanjoorPoetDto.toPoet(): Poet {
         imageUrl = "$baseUrl/api/ganjoor/poet/image/$slug.gif",
         source = PoemSource.GANJOOR,
         sourceGroupName = "شاعران کهن",
+        pinOrder = pinOrder,
     )
 }
+
+fun GanjoorCenturyDto.toCentury(): Century = Century(
+    id = id,
+    name = name,
+    poets = poets.map { it.toPoet() },
+)
