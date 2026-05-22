@@ -7,7 +7,7 @@ import '@/styles/Poets.css';
 import { logger } from '@/utils/logger';
 import { getStaticGanjoorCenturies, getStaticPoetsBySource } from '@/data/static-poets';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 async function getCenturies(): Promise<Century[]> {
     try {
