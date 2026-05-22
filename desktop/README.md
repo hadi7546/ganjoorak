@@ -32,6 +32,8 @@ npm run build           # runs prepare:next + tauri build
 
 Artifacts land under `src-tauri/target/release/bundle/` (`.deb` and `.AppImage`).
 
+Release builds intentionally omit heavy web-only assets (local `public/audios/`, unused video GIFs) and use unoptimized Next images so the embedded server stays smaller. The bundle still includes a Node runtime and WebKit shell, so expect tens of MB—not a few MB like a minimal native UI.
+
 ## CI
 
 Pushes to `master` that touch `desktop/**` trigger [`.github/workflows/desktop-release.yml`](../.github/workflows/desktop-release.yml), which builds Linux packages and publishes a GitHub Release.
