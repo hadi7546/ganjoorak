@@ -50,3 +50,37 @@ export interface GanjoorPoemSearchResult {
   bookTitle: string | null;
   bookUrl: string | null;
 }
+
+export interface GanjoorGeoLocation {
+  id: number;
+  name: string | null;
+  latitude: number;
+  longitude: number;
+  machineGenerated?: boolean;
+}
+
+export interface GanjoorQuotedPoem {
+  id: string;
+  poemId: number;
+  relatedPoemId: number | null;
+  cachedRelatedPoemPoetName: string | null;
+  cachedRelatedPoemFullTitle: string | null;
+  cachedRelatedPoemFullUrl: string | null;
+  coupletVerse1: string | null;
+  coupletVerse2: string | null;
+  poem?: {
+    id: number;
+    title?: string;
+    fullTitle?: string;
+    fullUrl?: string;
+    plainText?: string;
+  } | null;
+}
+
+export interface PoemGeoDateTag {
+  id: number;
+  poemId: number;
+  coupletIndex: number;
+  locationId: number | null;
+  location: GanjoorGeoLocation | null;
+}

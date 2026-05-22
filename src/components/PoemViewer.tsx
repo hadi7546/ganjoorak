@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaShare,
+  FaHeart,
+  FaRegHeart,
   FaPause,
   FaPlay,
   FaExternalLinkAlt,
@@ -27,6 +29,8 @@ import GlobalSearchDialog from "@/components/GlobalSearchDialog";
 import SharePoemDialog from "@/components/SharePoemDialog";
 import { useSettings } from "@/context/SettingsContext";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
+import { usePoemLibrary } from "@/hooks/usePoemLibrary";
+import RelatedPoems from "@/components/RelatedPoems";
 import { logger } from "@/utils/logger";
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
@@ -97,6 +101,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   const showTitleSection = poemViewerVisibility.titleSection;
   const showTitleBreadcrumbs = poemViewerVisibility.titleBreadcrumbs;
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
+  const { isFavorite, toggleFavorite } = usePoemLibrary(poem);
   const fullTitleParts = poem.fullTitle
     ? poem.fullTitle.split(" » ").filter((part) => part.trim())
     : [];
@@ -1195,6 +1200,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                 ))
               )}
             </div>
+            <RelatedPoems poemId={poem.id} source={poem.source} />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -1204,6 +1210,16 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
         <div
           className={`action-buttons${keepPoetProfileVisible ? " action-buttons--profile-persistent" : ""}${showActionButtons ? "" : " is-hidden"}`}
         >
+          <button
+            type="button"
+            className={`action-button poem-favorite-button${isFavorite ? " is-active" : ""}`}
+            onClick={toggleFavorite}
+            title={isFavorite ? "حذف از ذخیره‌ها" : "ذخیره شعر"}
+            aria-pressed={isFavorite}
+            aria-label={isFavorite ? "حذف از ذخیره‌ها" : "ذخیره شعر"}
+          >
+            {isFavorite ? <FaHeart /> : <FaRegHeart />}
+          </button>
           <button
             className="action-button"
             onClick={() => setIsShareOpen(true)}

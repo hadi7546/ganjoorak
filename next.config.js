@@ -6,11 +6,13 @@ const GANJOOR_API_BASE_URL =
 const ganjoorApiUrl = new URL(GANJOOR_API_BASE_URL);
 const isDesktopBuild = process.env.DESKTOP_BUILD === '1';
 
+const isVercel = Boolean(process.env.VERCEL);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 
     reactStrictMode: true,
-    output: 'standalone',
+    ...(isVercel ? {} : { output: 'standalone' }),
 
     async rewrites() {
         const ganjoorApiBaseUrl = GANJOOR_API_BASE_URL.replace(/\/+$/, '');

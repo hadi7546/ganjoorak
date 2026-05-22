@@ -1,0 +1,228 @@
+.poem-library-page {
+  min-height: 100vh;
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
+}
+
+.poem-library-shell {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 5.5rem 1.25rem 2rem;
+}
+
+.poem-library-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.poem-library-header p {
+  margin-top: 0.5rem;
+  color: rgb(var(--foreground) / 0.65);
+  line-height: 1.8;
+}
+
+.poem-library-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.poem-library-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--foreground) / 0.12);
+  background: rgb(var(--foreground) / 0.04);
+}
+
+.poem-library-tabs button.active {
+  background: rgb(var(--foreground) / 0.14);
+  border-color: rgb(var(--foreground) / 0.24);
+}
+
+.poem-library-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.poem-library-actions button,
+.poem-library-remove {
+  border: 0;
+  background: transparent;
+  color: rgb(var(--foreground) / 0.7);
+}
+
+.poem-library-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.poem-library-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: start;
+  border: 1px solid rgb(var(--foreground) / 0.1);
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  background: rgb(var(--foreground) / 0.03);
+}
+
+.poem-library-link {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.poem-library-link strong {
+  font-size: 1rem;
+}
+
+.poem-library-link span,
+.poem-library-link time {
+  font-size: 0.82rem;
+  color: rgb(var(--foreground) / 0.62);
+}
+
+.poem-library-link p {
+  margin-top: 0.2rem;
+  line-height: 1.7;
+  color: rgb(var(--foreground) / 0.82);
+}
+
+.poem-library-empty {
+  padding: 2rem 0;
+  text-align: center;
+  color: rgb(var(--foreground) / 0.62);
+  line-height: 1.8;
+}
+
+.related-poems,
+.poet-search-panel,
+.poet-geo-section {
+  width: 100%;
+  max-width: min(92vw, 760px);
+  margin: 1.5rem auto 0;
+  padding: 0 0.25rem;
+}
+
+.related-poems-title,
+.poet-info-section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.related-poems-list,
+.poet-search-results,
+.poet-geo-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.related-poems-link,
+.poet-search-result-link {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgb(var(--foreground) / 0.1);
+  background: rgb(var(--foreground) / 0.04);
+}
+
+.related-poems-link span,
+.poet-search-result-link span,
+.poet-search-status,
+.poet-geo-status {
+  font-size: 0.82rem;
+  color: rgb(var(--foreground) / 0.62);
+}
+
+.poet-search-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.poet-search-form input {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--foreground) / 0.14);
+  background: rgb(var(--foreground) / 0.04);
+  padding: 0 1rem;
+  color: inherit;
+}
+
+.poet-geo-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.poet-geo-map {
+  width: 100%;
+  height: 14rem;
+  margin-top: 0.85rem;
+  border: 0;
+  border-radius: 1rem;
+}
+
+.daily-poem-banner {
+  position: fixed;
+  top: calc(1rem + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 35;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: rgb(var(--background) / 0.88);
+  border: 1px solid rgb(var(--foreground) / 0.12);
+  backdrop-filter: blur(10px);
+  font-size: 0.85rem;
+}
+
+.pwa-install-banner {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 1205;
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  background: rgb(var(--background) / 0.95);
+  border: 1px solid rgb(var(--foreground) / 0.14);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.28);
+}
+
+.pwa-install-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pwa-install-actions button {
+  flex: 1;
+  min-height: 2.5rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgb(var(--foreground) / 0.14);
+}
+
+.pwa-install-actions button.primary {
+  background: rgb(var(--foreground) / 0.14);
+}
+
+.poem-favorite-button.is-active {
+  color: #f87171;
+}

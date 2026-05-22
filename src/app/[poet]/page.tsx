@@ -8,6 +8,8 @@ import LoadingScreen from "@/components/LoadingScreen";
 import ErrorScreen from "@/components/ErrorScreen";
 import AppNotFound from "@/app/not-found";
 import PoetInfoDialog from "@/components/PoetInfoDialog";
+import PoetSearchPanel from "@/components/PoetSearchPanel";
+import PoetGeoMap from "@/components/PoetGeoMap";
 import ganjoorApi from "@/api/GanjoorApi";
 import customApi from "@/api/CustomApi";
 import echolaliaApi, { type EcholaliaPoemSummary } from "@/api/EcholaliaApi";
@@ -697,6 +699,15 @@ function GanjoorPoetPage({ slug, poetId }: { slug: string; poetId?: number }) {
           <PoetDetails poet={catalog.poet} />
         </section>
         <section className="poet-info-section">
+          <PoetGeoMap
+            poet={catalog.poet}
+            rootCategoryId={catalog.category.id}
+          />
+        </section>
+        <section className="poet-info-section">
+          <PoetSearchPanel poet={catalog.poet} />
+        </section>
+        <section className="poet-info-section">
           <h3 className="poet-info-section-title">مجموعه‌ها</h3>
           {topLevelCategories.length > 0 && selectedCategoryId === null && (
             <p className="mb-3 text-xs leading-6 text-neutral-500">
@@ -1038,6 +1049,9 @@ function EcholaliaPoetPage({ poetSlug }: { poetSlug: string }) {
       >
         <section className="poet-info-section">
           <PoetDetails poet={poet} />
+        </section>
+        <section className="poet-info-section">
+          <PoetSearchPanel poet={poet} />
         </section>
         <section className="poet-info-section">
           <h3 className="poet-info-section-title">شعرها</h3>
@@ -1493,6 +1507,9 @@ function CustomPoetPage({ poetSlug }: { poetSlug: PoetSlug }) {
       >
         <section className="poet-info-section">
           <PoetDetails poet={poetInfo} />
+        </section>
+        <section className="poet-info-section">
+          <PoetSearchPanel poet={poetInfo} />
         </section>
         <section className="poet-info-section">
           <div className="rounded-lg border border-neutral-800/60 bg-neutral-900/50 px-4 py-3 text-sm text-neutral-300">

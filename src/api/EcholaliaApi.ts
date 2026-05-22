@@ -541,6 +541,50 @@ const echolaliaApi = {
     return echolaliaApi.getPoemById(poem.id);
   },
 
+  async searchPoemsByPoetSlug(
+    slug: string,
+    query: string,
+  ): Promise<
+    Array<{
+      id: number;
+      title: string;
+      excerpt: string;
+      collection: string | null;
+    }>
+  > {
+    const normalizedQuery = query.trim();
+    if (normalizedQuery.length < 2) {
+      return [];
+    }
+
+    const poet = await echolaliaApi.getPoetBySlug(slug);
+    const response = await echolaliaHttp.get<EcholaliaPost[]>(
+      `${ECHOLALIA_API_BASE_URL}/posts`,
+      {
+        params: {
+          search: normalizedQuery,
+          categories: poet.rootCatId,
+          per_page: 12,
+          _fields: "id,date,slug,link,title,content,excerpt,categories",
+        },
+      },
+    );
+
+    return response.data.map((post) => {
+      const title = decodeHtmlEntities(post.title?.rendered ?? "");
+      const plainText = htmlToPlainText(post.content?.rendered ?? "");
+      return {
+        id: post.id,
+        title,
+        excerpt:
+          decodeHtmlEntities(post.excerpt?.rendered ?? "") ||
+          plainText.split("\n").map((line) => line.trim()).find(Boolean) ||
+          title,
+        collection: null,
+      };
+    });
+  },
+
   async searchPoems(query: string): Promise<Poem[]> {
     const response = await echolaliaHttp.get<EcholaliaPost[]>(
       `${ECHOLALIA_API_BASE_URL}/posts`,

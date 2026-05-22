@@ -11,7 +11,8 @@ import { Poem } from '@/types/poem';
 import { Poet, isValidPoetSlug } from '@/types/poet';
 import { useSettings } from '@/context/SettingsContext';
 import { logger } from '@/utils/logger';
-import { FaRandom, FaSearch, FaTimes } from 'react-icons/fa';
+import Link from 'next/link';
+import { FaRandom, FaSearch, FaTimes, FaSun } from 'react-icons/fa';
 import poetSourceIndex from '@/data/poet-source-index.json';
 
 const INITIAL_POEMS_COUNT = 12;
@@ -722,6 +723,10 @@ export default function Home() {
 
     return (
         <main className="h-screen overflow-hidden">
+            <Link href="/today" className="daily-poem-banner">
+                <FaSun aria-hidden="true" />
+                شعر روز
+            </Link>
             {isFeedDialogOpen && (
                 <FeedPoetDialog
                     poets={availablePoets}
