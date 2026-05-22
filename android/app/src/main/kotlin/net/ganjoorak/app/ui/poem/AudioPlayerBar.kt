@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -51,102 +52,86 @@ fun AudioPlayerBar(
         modifier = modifier
             .fillMaxWidth()
             .background(colors.card.copy(alpha = 0.96f))
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            IconButton(
+                onClick = onPreviousRecitation,
+                enabled = recitationIndex > 0,
+                modifier = Modifier.size(32.dp),
             ) {
-                IconButton(
-                    onClick = onPreviousRecitation,
-                    enabled = recitationIndex > 0,
-                    modifier = Modifier.size(36.dp),
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "خوانش قبلی",
-                        tint = colors.foreground,
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "خوانش قبلی",
+                    tint = colors.foreground,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+            IconButton(
+                onClick = onTogglePlay,
+                modifier = Modifier.size(36.dp),
+            ) {
+                when {
+                    isLoading -> CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = colors.foreground,
+                        strokeWidth = 2.dp,
                     )
-                }
-                IconButton(
-                    onClick = onTogglePlay,
-                    modifier = Modifier.size(44.dp),
-                ) {
-                    when {
-                        isLoading -> CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = colors.foreground,
-                            strokeWidth = 2.dp,
-                        )
-                        isPlaying -> Icon(
-                            Icons.Default.Pause,
-                            contentDescription = "توقف",
-                            tint = colors.foreground,
-                        )
-                        else -> Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = "پخش",
-                            tint = colors.foreground,
-                        )
-                    }
-                }
-                IconButton(
-                    onClick = onNextRecitation,
-                    enabled = recitationIndex < recitationCount - 1,
-                    modifier = Modifier.size(36.dp),
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "خوانش بعدی",
+                    isPlaying -> Icon(
+                        Icons.Default.Pause,
+                        contentDescription = "توقف",
                         tint = colors.foreground,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    else -> Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = "پخش",
+                        tint = colors.foreground,
+                        modifier = Modifier.size(24.dp),
                     )
                 }
             }
-            Text(
-                text = "${currentTimeSec.toPersianTime()} / ${durationSec.toPersianTime()}",
-                style = MaterialTheme.typography.labelMedium,
-                color = colors.muted,
-            )
+            IconButton(
+                onClick = onNextRecitation,
+                enabled = recitationIndex < recitationCount - 1,
+                modifier = Modifier.size(32.dp),
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = "خوانش بعدی",
+                    tint = colors.foreground,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = recitation.audioArtist.ifBlank { recitation.audioTitle },
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colors.foreground,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = "${currentTimeSec.toPersianTime()} / ${durationSec.toPersianTime()}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colors.muted,
+                )
+            }
         }
 
         LinearProgressIndicator(
             progress = { progress.coerceIn(0f, 1f) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 6.dp),
+                .padding(top = 4.dp)
+                .height(3.dp),
             color = colors.foreground,
             trackColor = colors.border,
         )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = recitation.audioArtist.ifBlank { "خوانش" },
-                style = MaterialTheme.typography.labelMedium,
-                color = colors.muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                text = recitation.audioTitle,
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.muted.copy(alpha = 0.85f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(start = 8.dp),
-            )
-        }
     }
 }

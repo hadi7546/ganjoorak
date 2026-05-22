@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.ganjoorak.app.data.api.EcholaliaApi
 import net.ganjoorak.app.data.api.GanjoorApi
+import net.ganjoorak.app.data.model.Century
 import net.ganjoorak.app.data.model.CustomPoetBundleDto
 import net.ganjoorak.app.data.model.EcholaliaPostDto
 import net.ganjoorak.app.data.model.Poem
@@ -36,6 +37,9 @@ class PoemRepository(
 
     suspend fun getPoets(): List<Poet> =
         ganjoorApi.getPoets().map { it.toPoet() }
+
+    suspend fun getCenturies(): List<Century> =
+        ganjoorApi.getCenturies().map { it.toCentury() }
 
     suspend fun searchPoems(term: String): List<PoemSearchResult> {
         val normalized = term.trim()

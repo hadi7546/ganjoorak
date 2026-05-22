@@ -40,9 +40,9 @@ fun poemTypography(fontFamily: PoemFontFamily, poemFontSize: Int): PoemTypograph
     fun clamp(value: Float, min: Float, max: Float) = (value * scale).coerceIn(min, max)
     val family = fontFamilyFor(fontFamily)
     return PoemTypography(
-        textSize = clamp(19.2f, 16.8f, 24f),
-        verseSize = clamp(24f, 20.8f, 29.6f),
-        titleSize = clamp(40f, 34.4f, 49.6f),
+        textSize = clamp(17.6f, 15.2f, 22f),
+        verseSize = clamp(21.6f, 18.4f, 26.4f),
+        titleSize = clamp(32f, 27.2f, 40f),
         fontFamily = family,
     )
 }

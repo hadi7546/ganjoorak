@@ -169,6 +169,7 @@ data class Poet(
     val imageUrl: String,
     val source: PoemSource,
     val sourceGroupName: String? = null,
+    val pinOrder: Int = 0,
 )
 
 data class Century(
