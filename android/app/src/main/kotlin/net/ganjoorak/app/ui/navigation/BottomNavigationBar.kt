@@ -12,7 +12,15 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import net.ganjoorak.app.R
 import net.ganjoorak.app.ui.theme.LocalGanjoorakColors
+
+private val NavFontFamily = FontFamily(Font(R.font.vazirmatn))
 
 enum class MainTab(
     val route: String,
@@ -34,8 +42,14 @@ fun GanjoorakBottomBar(
     val colors = LocalGanjoorakColors.current
     val selected = when {
         settingsSheetOpen -> MainTab.SETTINGS
+        currentRoute?.startsWith(Routes.POET_PREFIX) == true -> null
         else -> MainTab.entries.find { it.route == currentRoute && it != MainTab.SETTINGS } ?: MainTab.FEED
     }
+    val navLabelStyle = TextStyle(
+        fontFamily = NavFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+    )
 
     NavigationBar(
         containerColor = colors.card,
@@ -46,7 +60,7 @@ fun GanjoorakBottomBar(
                 selected = selected == tab,
                 onClick = { onTabSelected(tab) },
                 icon = { Icon(tab.icon, contentDescription = tab.label) },
-                label = { Text(tab.label) },
+                label = { Text(tab.label, style = navLabelStyle) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = colors.foreground,
                     selectedTextColor = colors.foreground,

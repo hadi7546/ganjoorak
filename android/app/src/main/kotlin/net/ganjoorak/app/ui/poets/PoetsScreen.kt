@@ -44,6 +44,7 @@ import net.ganjoorak.app.data.model.PoemSource
 import net.ganjoorak.app.data.model.Poet
 import net.ganjoorak.app.data.repository.PoemRepository
 import net.ganjoorak.app.ui.theme.LocalGanjoorakColors
+import net.ganjoorak.app.util.PoetKeys
 
 private const val ALL_FILTER_ID = "all"
 private val FALLBACK_FEATURED_SLUGS = listOf(
@@ -59,6 +60,7 @@ private data class PoetFilterOption(
 @Composable
 fun PoetsScreen(
     poemRepository: PoemRepository,
+    onPoetClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var loading by remember { mutableStateOf(true) }
@@ -145,7 +147,10 @@ fun PoetsScreen(
                             title = "شاعران محبوب",
                             defaultExpanded = true,
                         ) {
-                            PoetsGrid(poets = featuredPoets.sortedBy { it.nickname ?: it.name })
+                            PoetsGrid(
+                                poets = featuredPoets.sortedBy { it.nickname ?: it.name },
+                                onPoetClick = onPoetClick,
+                            )
                         }
                     }
 
@@ -164,6 +169,7 @@ fun PoetsScreen(
                             FilterablePoetsGrid(
                                 poets = modernAll,
                                 filters = modernFilters,
+                                onPoetClick = onPoetClick,
                             )
                         }
                     }
@@ -183,6 +189,7 @@ fun PoetsScreen(
                             FilterablePoetsGrid(
                                 poets = classicPoets.sortedBy { it.nickname ?: it.name },
                                 filters = classicFilters,
+                                onPoetClick = onPoetClick,
                             )
                         }
                     }
@@ -260,6 +267,7 @@ private fun PoetsCategorySection(
 private fun FilterablePoetsGrid(
     poets: List<Poet>,
     filters: List<PoetFilterOption>,
+    onPoetClick: (String) -> Unit,
 ) {
     var activeFilter by remember(poets, filters) { mutableStateOf(ALL_FILTER_ID) }
     val colors = LocalGanjoorakColors.current
@@ -301,11 +309,14 @@ private fun FilterablePoetsGrid(
         if (selected != null) poets.filter(selected.matches) else poets
     }
 
-    PoetsGrid(poets = visiblePoets)
+    PoetsGrid(poets = visiblePoets, onPoetClick = onPoetClick)
 }
 
 @Composable
-private fun PoetsGrid(poets: List<Poet>) {
+private fun PoetsGrid(
+    poets: List<Poet>,
+    onPoetClick: (String) -> Unit,
+) {
     val columns = 3
     Column(
         modifier = Modifier
@@ -321,6 +332,7 @@ private fun PoetsGrid(poets: List<Poet>) {
                 rowPoets.forEach { poet ->
                     PoetGridCard(
                         poet = poet,
+                        onClick = { onPoetClick(PoetKeys.key(poet)) },
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -335,6 +347,7 @@ private fun PoetsGrid(poets: List<Poet>) {
 @Composable
 private fun PoetGridCard(
     poet: Poet,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalGanjoorakColors.current
@@ -345,7 +358,7 @@ private fun PoetGridCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(colors.foreground.copy(alpha = 0.08f))
-            .clickable { }
+            .clickable(onClick = onClick)
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

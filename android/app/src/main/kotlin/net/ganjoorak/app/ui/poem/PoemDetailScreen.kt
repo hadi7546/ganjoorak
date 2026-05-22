@@ -15,6 +15,7 @@ import net.ganjoorak.app.data.repository.PoemRepository
 import net.ganjoorak.app.domain.settings.AppSettings
 import net.ganjoorak.app.ui.common.ErrorScreen
 import net.ganjoorak.app.ui.common.LoadingScreen
+import net.ganjoorak.app.util.poemPoetKey
 
 @Composable
 fun PoemDetailScreen(
@@ -23,9 +24,7 @@ fun PoemDetailScreen(
     poemRepository: PoemRepository,
     audioPlayer: PoemAudioPlayer,
     onBack: () -> Unit,
-    onOpenSearch: () -> Unit,
-    onToggleZenLock: () -> Unit,
-    onNavigateToPoets: () -> Unit,
+    onNavigateToPoet: (String) -> Unit,
 ) {
     var poem by remember { mutableStateOf<Poem?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -57,9 +56,7 @@ fun PoemDetailScreen(
             audioPlayer = audioPlayer,
             onNext = {},
             onPrevious = {},
-            onOpenSearch = onOpenSearch,
-            onToggleZenLock = onToggleZenLock,
-            onNavigateToPoets = onNavigateToPoets,
+            onNavigateToPoet = { onNavigateToPoet(poemPoetKey(poem!!)) },
             modifier = Modifier.fillMaxSize(),
         )
     }
