@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   FaBars,
@@ -15,6 +15,7 @@ import {
   FaSearch,
   FaBookmark,
   FaSun,
+  FaChevronDown,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -32,6 +33,25 @@ interface MenuProps {
   onToggleZenLock?: () => void;
 }
 
+type MenuLinkItem = {
+  kind: "link";
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  showBadge?: boolean;
+  onClick?: () => void;
+};
+
+type MenuButtonItem = {
+  kind: "button";
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  ariaPressed?: boolean;
+};
+
+type MenuItem = MenuLinkItem | MenuButtonItem;
+
 const Menu: React.FC<MenuProps> = ({
   isOpen,
   onClose,
@@ -39,35 +59,71 @@ const Menu: React.FC<MenuProps> = ({
   onUpdatesViewed,
   onOpenSettings,
   onOpenFeed,
-  onOpenFeedLabel = "شاعران صفحه اصلی",
+  onOpenFeedLabel = "شاعران فید",
   isZenLocked = false,
   onToggleZenLock,
 }) => {
   const router = useRouter();
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
 
-  const menuItems = useMemo(
+  const primaryItems = useMemo<MenuLinkItem[]>(
     () => [
-      { href: "/", icon: <FaHome />, label: "صفحه اصلی" },
-      { href: "/poets", icon: <FaUsers />, label: "شاعران" },
-      { href: "/today", icon: <FaSun />, label: "شعر روز" },
-      { href: "/saved", icon: <FaBookmark />, label: "نشان‌شده‌ها" },
-      { href: "/faq", icon: <FaQuestionCircle />, label: "پرسش‌های متداول" },
+      { kind: "link", href: "/", icon: <FaHome />, label: "صفحه اصلی" },
+      { kind: "link", href: "/poets", icon: <FaUsers />, label: "شاعران" },
+      { kind: "link", href: "/saved", icon: <FaBookmark />, label: "نشان‌شده‌ها" },
+    ],
+    [],
+  );
+
+  const moreItems = useMemo<MenuItem[]>(() => {
+    const items: MenuItem[] = [
+      { kind: "link", href: "/today", icon: <FaSun />, label: "شعر روز" },
+      { kind: "link", href: "/faq", icon: <FaQuestionCircle />, label: "راهنما" },
       {
+        kind: "link",
         href: "/updates",
         icon: <FaBell />,
-        label: "بروزرسانی‌ها",
+        label: "تازه‌ها",
         showBadge: hasNewUpdates,
         onClick: () => onUpdatesViewed?.(),
       },
-    ],
-    [hasNewUpdates, onUpdatesViewed],
-  );
+    ];
+
+    if (onOpenFeed) {
+      items.push({
+        kind: "button",
+        icon: <FaBookOpen />,
+        label: onOpenFeedLabel,
+        onClick: () => {
+          onOpenFeed();
+          onClose();
+        },
+      });
+    } else {
+      items.push({
+        kind: "link",
+        href: "/?feed=1",
+        icon: <FaBookOpen />,
+        label: "شاعران فید",
+      });
+    }
+
+    return items;
+  }, [hasNewUpdates, onClose, onOpenFeed, onOpenFeedLabel, onUpdatesViewed]);
 
   useEffect(() => {
-    menuItems.forEach((item) => {
-      router.prefetch(item.href);
+    if (!isOpen) {
+      setIsMoreOpen(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    [...primaryItems, ...moreItems].forEach((item) => {
+      if (item.kind === "link") {
+        router.prefetch(item.href);
+      }
     });
-  }, [menuItems, router]);
+  }, [moreItems, primaryItems, router]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -88,6 +144,42 @@ const Menu: React.FC<MenuProps> = ({
     };
   }, [isOpen, onClose]);
 
+  const renderItem = (item: MenuItem) => {
+    if (item.kind === "button") {
+      return (
+        <li key={item.label}>
+          <button
+            type="button"
+            className="menu-link menu-link-button"
+            onClick={item.onClick}
+            aria-pressed={item.ariaPressed}
+          >
+            <span className="menu-link-icon">{item.icon}</span>
+            <span className="menu-item-text">{item.label}</span>
+          </button>
+        </li>
+      );
+    }
+
+    return (
+      <li key={item.href}>
+        <Link
+          href={item.href}
+          prefetch
+          className="menu-link"
+          onClick={() => {
+            item.onClick?.();
+            onClose();
+          }}
+        >
+          <span className="menu-link-icon">{item.icon}</span>
+          <span className="menu-item-text">{item.label}</span>
+          {item.showBadge && <span className="menu-badge" />}
+        </Link>
+      </li>
+    );
+  };
+
   return (
     <>
       <style>{`
@@ -96,6 +188,52 @@ const Menu: React.FC<MenuProps> = ({
           opacity: 0 !important;
           pointer-events: none !important;
           transform: translateX(0.35rem) scale(0.96) !important;
+        }
+
+        .menu-primary-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.45rem;
+        }
+
+        .menu-primary-grid .menu-link {
+          min-height: 3.1rem;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.35rem;
+          text-align: center;
+          padding: 0.75rem 0.5rem !important;
+        }
+
+        .menu-primary-grid .menu-item-text {
+          font-size: 0.88rem !important;
+        }
+
+        .menu-more-toggle {
+          width: 100%;
+          min-height: 2.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+          padding: 0.65rem 0.9rem;
+          border-radius: 0.95rem;
+          border: 1px solid rgb(var(--foreground) / 0.1);
+          background: rgb(var(--foreground) / 0.04);
+          color: inherit;
+        }
+
+        .menu-more-toggle .menu-chevron {
+          transition: transform 0.2s ease;
+        }
+
+        .menu-more-toggle[aria-expanded="true"] .menu-chevron {
+          transform: rotate(180deg);
+        }
+
+        .menu-settings-link {
+          margin-top: 0.35rem;
         }
 
         @media (max-width: 640px) {
@@ -125,7 +263,7 @@ const Menu: React.FC<MenuProps> = ({
             right: 0.75rem !important;
             bottom: calc(0.75rem + env(safe-area-inset-bottom)) !important;
             width: auto !important;
-            max-height: min(78dvh, 34rem);
+            max-height: min(62dvh, 28rem);
             overflow: hidden;
             padding: 0.75rem !important;
             border-radius: 1.5rem 1.5rem 1.25rem 1.25rem !important;
@@ -145,32 +283,32 @@ const Menu: React.FC<MenuProps> = ({
           }
 
           .menu-drawer nav {
-            max-height: calc(min(78dvh, 34rem) - 2rem);
+            max-height: calc(min(62dvh, 28rem) - 2rem);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
           }
 
           .menu-link {
-            min-height: 3.25rem;
-            padding: 0.85rem 1rem !important;
-            border-radius: 1rem !important;
+            min-height: 2.85rem;
+            padding: 0.7rem 0.9rem !important;
+            border-radius: 0.95rem !important;
             background: rgb(var(--foreground) / 0.035);
           }
 
           .menu-drawer li + li {
-            margin-top: 0.35rem;
+            margin-top: 0.3rem;
           }
 
           .menu-link-icon {
-            width: 1.5rem;
-            min-width: 1.5rem;
+            width: 1.35rem;
+            min-width: 1.35rem;
             display: inline-flex;
             justify-content: center;
             opacity: 0.82;
           }
 
           .menu-item-text {
-            font-size: 1rem !important;
+            font-size: 0.95rem !important;
             letter-spacing: 0 !important;
           }
         }
@@ -210,66 +348,41 @@ const Menu: React.FC<MenuProps> = ({
                           {isZenLocked ? <FaLock /> : <FaLockOpen />}
                         </span>
                         <span className="menu-item-text">
-                          {isZenLocked ? "باز کردن قفل شعر" : "قفل روی همین شعر"}
+                          {isZenLocked ? "باز کردن قفل" : "قفل روی همین شعر"}
                         </span>
                       </button>
                     </li>
                   )}
-                  {menuItems.map((item) => (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        prefetch
-                        className="menu-link"
-                        onClick={() => {
-                          item.onClick?.();
-                          onClose();
-                        }}
-                      >
-                        <span className="menu-link-icon">{item.icon}</span>
-                        <span className="menu-item-text">{item.label}</span>
-                        {item.showBadge && <span className="menu-badge" />}
-                      </Link>
-                    </li>
-                  ))}
-                  {onOpenFeed && (
-                    <li>
-                      <button
-                        type="button"
-                        className="menu-link menu-link-button"
-                        onClick={() => {
-                          onOpenFeed();
-                          onClose();
-                        }}
-                      >
-                        <span className="menu-link-icon">
-                          <FaBookOpen />
-                        </span>
-                        <span className="menu-item-text">{onOpenFeedLabel}</span>
-                      </button>
-                    </li>
-                  )}
-                  {!onOpenFeed && (
-                    <li>
-                      <Link
-                        href="/?feed=1"
-                        prefetch
-                        className="menu-link"
-                        onClick={onClose}
-                      >
-                        <span className="menu-link-icon">
-                          <FaBookOpen />
-                        </span>
-                        <span className="menu-item-text">شاعرهای صفحه اصلی</span>
-                      </Link>
-                    </li>
-                  )}
+
                   <li>
+                    <ul className="menu-primary-grid">
+                      {primaryItems.map((item) => renderItem(item))}
+                    </ul>
+                  </li>
+
+                  <li>
+                    <button
+                      type="button"
+                      className="menu-more-toggle"
+                      aria-expanded={isMoreOpen}
+                      onClick={() => setIsMoreOpen((value) => !value)}
+                    >
+                      <span>بیشتر</span>
+                      <span className="menu-chevron" aria-hidden="true">
+                        <FaChevronDown />
+                      </span>
+                    </button>
+                  </li>
+
+                  {isMoreOpen && moreItems.map((item) => renderItem(item))}
+
+                  <li className="menu-settings-link">
                     <button
                       type="button"
                       className="menu-link menu-link-button"
                       onClick={() => {
                         onOpenSettings();
+                        onClose();
                       }}
                     >
                       <span className="menu-link-icon">
