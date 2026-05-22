@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Builds the root Next.js app as standalone output and stages it for Tauri resources.
- * Optionally bundles a Node.js binary for Linux when BUNDLE_NODE=1 (CI).
+ * Bundles a Node.js binary on Linux for self-contained desktop installs.
  */
 import { spawnSync } from "node:child_process";
 import {
@@ -11,6 +11,8 @@ import {
   existsSync,
   chmodSync,
   createWriteStream,
+  readdirSync,
+  statSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,8 +56,62 @@ function copyStandalone() {
   cpSync(standaloneSrc, standaloneDest, { recursive: true });
   mkdirSync(join(standaloneDest, ".next"), { recursive: true });
   cpSync(staticSrc, join(standaloneDest, ".next", "static"), { recursive: true });
-  cpSync(publicSrc, join(standaloneDest, "public"), { recursive: true });
+  copyDesktopPublic(publicSrc, join(standaloneDest, "public"));
   console.log(`Staged Next standalone at ${standaloneDest}`);
+}
+
+/** Skip bulky promo/media trees not needed for the poem feed desktop shell. */
+const DESKTOP_PUBLIC_DIRS = ["fonts", "poems", "images"];
+const DESKTOP_PUBLIC_FILES = [
+  "manifest.json",
+  "favicon.ico",
+  "apple-touch-icon.png",
+  "icon-192.png",
+  "icon-192-maskable.png",
+  "icon-512.png",
+  "icon-512-maskable.png",
+];
+
+function copyDesktopPublic(publicSrc, publicDest) {
+  mkdirSync(publicDest, { recursive: true });
+
+  for (const dir of DESKTOP_PUBLIC_DIRS) {
+    const from = join(publicSrc, dir);
+    if (existsSync(from)) {
+      cpSync(from, join(publicDest, dir), { recursive: true });
+    }
+  }
+
+  for (const file of DESKTOP_PUBLIC_FILES) {
+    const from = join(publicSrc, file);
+    if (existsSync(from)) {
+      cpSync(from, join(publicDest, file));
+    }
+  }
+
+  const skipped = ["audios", "videos"]
+    .filter((name) => existsSync(join(publicSrc, name)))
+    .map((name) => {
+      const bytes = directorySize(join(publicSrc, name));
+      return `${name} (~${formatMegabytes(bytes)})`;
+    });
+
+  if (skipped.length > 0) {
+    console.log(`Desktop bundle: omitted public/${skipped.join(", public/")}`);
+  }
+}
+
+function directorySize(root) {
+  let total = 0;
+  for (const entry of readdirSync(root, { withFileTypes: true })) {
+    const path = join(root, entry.name);
+    total += entry.isDirectory() ? directorySize(path) : statSync(path).size;
+  }
+  return total;
+}
+
+function formatMegabytes(bytes) {
+  return `${(bytes / (1024 * 1024)).toFixed(0)} MB`;
 }
 
 function copyShell() {
