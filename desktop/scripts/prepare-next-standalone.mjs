@@ -11,6 +11,8 @@ import {
   existsSync,
   chmodSync,
   createWriteStream,
+  readdirSync,
+  statSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,8 +56,67 @@ function copyStandalone() {
   cpSync(standaloneSrc, standaloneDest, { recursive: true });
   mkdirSync(join(standaloneDest, ".next"), { recursive: true });
   cpSync(staticSrc, join(standaloneDest, ".next", "static"), { recursive: true });
-  cpSync(publicSrc, join(standaloneDest, "public"), { recursive: true });
+  copyPublicForDesktop(publicSrc, join(standaloneDest, "public"));
   console.log(`Staged Next standalone at ${standaloneDest}`);
+}
+
+/** Desktop bundles only assets the app references (saves ~130MB vs full public/). */
+function copyPublicForDesktop(publicSrc, dest) {
+  rmSync(dest, { recursive: true, force: true });
+  mkdirSync(dest, { recursive: true });
+
+  const skipDirs = new Set(["audios"]);
+
+  for (const entry of readdirSync(publicSrc, { withFileTypes: true })) {
+    const srcPath = join(publicSrc, entry.name);
+    const destPath = join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      if (skipDirs.has(entry.name)) {
+        console.log(`Skipping public/${entry.name}/ (not used in desktop build)`);
+        continue;
+      }
+      if (entry.name === "videos") {
+        mkdirSync(destPath, { recursive: true });
+        for (const file of readdirSync(srcPath)) {
+          if (!file.endsWith(".mp4")) {
+            console.log(`Skipping public/videos/${file} (desktop keeps .mp4 only)`);
+            continue;
+          }
+          cpSync(join(srcPath, file), join(destPath, file));
+        }
+        continue;
+      }
+      cpSync(srcPath, destPath, { recursive: true });
+      continue;
+    }
+
+    if (entry.isFile()) {
+      cpSync(srcPath, destPath);
+    }
+  }
+
+  const sizeMb = (dirSize(dest) / (1024 * 1024)).toFixed(1);
+  console.log(`Staged slim public/ for desktop (${sizeMb} MB) at ${dest}`);
+}
+
+function dirSize(root) {
+  let total = 0;
+  for (const entry of readdirSync(root, { withFileTypes: true })) {
+    const path = join(root, entry.name);
+    total += entry.isDirectory() ? dirSize(path) : statSync(path).size;
+  }
+  return total;
+}
+
+/** next/image with unoptimized still traces sharp into standalone (~17MB). */
+function pruneDesktopImageTooling(standaloneRoot) {
+  for (const rel of ["node_modules/@img", "node_modules/sharp"]) {
+    const target = join(standaloneRoot, rel);
+    if (!existsSync(target)) continue;
+    rmSync(target, { recursive: true, force: true });
+    console.log(`Pruned ${rel} from desktop standalone`);
+  }
 }
 
 function copyShell() {
@@ -104,12 +165,14 @@ async function main() {
   run("npm", ["run", "build"], {
     cwd: repoRoot,
     env: {
+      DESKTOP_BUILD: "1",
       GANJOOR_API_BASE_URL,
       NEXT_PUBLIC_GANJOOR_API_BASE_URL: GANJOOR_API_BASE_URL,
     },
   });
 
   copyStandalone();
+  pruneDesktopImageTooling(standaloneDest);
   copyShell();
 
   if (process.platform === "linux") {

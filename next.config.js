@@ -4,6 +4,7 @@ const GANJOOR_API_BASE_URL =
     'http://api.offline.ganjoor.net';
 
 const ganjoorApiUrl = new URL(GANJOOR_API_BASE_URL);
+const isDesktopBuild = process.env.DESKTOP_BUILD === '1';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -27,6 +28,8 @@ const nextConfig = {
     },
 
     images: {
+        // Desktop embeds Next standalone; skip sharp (~17MB) — WebView loads remote poet images.
+        unoptimized: isDesktopBuild,
         remotePatterns: [
             {
                 protocol: ganjoorApiUrl.protocol.replace(':', ''),
