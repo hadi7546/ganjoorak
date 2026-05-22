@@ -10,24 +10,28 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import net.ganjoorak.app.audio.PoemAudioPlayer
 import net.ganjoorak.app.data.repository.PoemRepository
 import net.ganjoorak.app.domain.settings.AppSettings
 import net.ganjoorak.app.ui.common.ErrorScreen
 import net.ganjoorak.app.ui.common.LoadingScreen
-import net.ganjoorak.app.ui.feed.dialog.FeedPoetDialog
 import net.ganjoorak.app.ui.poem.PoemViewerScreen
 import net.ganjoorak.app.util.poemPoetKey
 
 @Composable
-fun FeedScreen(
-    viewModel: FeedViewModel,
+fun PoetFeedScreen(
+    poetKey: String,
     poemRepository: PoemRepository,
     settings: AppSettings,
     audioPlayer: PoemAudioPlayer,
-    onNavigateToPoet: (String) -> Unit,
+    onNavigateToSamePoet: (String) -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: PoetFeedViewModel = viewModel(
+        factory = PoetFeedViewModel.Factory(poemRepository, poetKey),
+        key = poetKey,
+    ),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -41,19 +45,10 @@ fun FeedScreen(
         return
     }
 
-    if (state.showFeedPoetDialog) {
-        FeedPoetDialog(
-            poets = state.availablePoets,
-            selectedKeys = viewModel.effectiveFollowedKeys(),
-            onSave = viewModel::saveFollowedPoets,
-            onDismiss = { viewModel.setShowFeedDialog(false) },
-        )
-    }
-
     val poems = state.poems
     if (poems.isEmpty()) return
 
-    val feedSessionKey = poems.first().id
+    val feedSessionKey = "$poetKey-${poems.first().id}"
 
     key(feedSessionKey) {
         val safeIndex = state.currentIndex.coerceIn(0, poems.lastIndex)
@@ -81,6 +76,10 @@ fun FeedScreen(
                 }
         }
 
+        val navigateToPoet: (net.ganjoorak.app.data.model.Poem) -> Unit = { poem ->
+            onNavigateToSamePoet(poemPoetKey(poem))
+        }
+
         if (poems.size == 1) {
             PoemViewerScreen(
                 poem = poems[0],
@@ -92,7 +91,7 @@ fun FeedScreen(
                 audioPlayer = audioPlayer,
                 onNext = viewModel::goNext,
                 onPrevious = viewModel::goPrevious,
-                onNavigateToPoet = { onNavigateToPoet(poemPoetKey(poems[0])) },
+                onNavigateToPoet = { navigateToPoet(poems[0]) },
                 isActivePage = true,
                 modifier = modifier.fillMaxSize(),
             )
@@ -114,7 +113,7 @@ fun FeedScreen(
                     audioPlayer = audioPlayer,
                     onNext = viewModel::goNext,
                     onPrevious = viewModel::goPrevious,
-                    onNavigateToPoet = { onNavigateToPoet(poemPoetKey(poem)) },
+                    onNavigateToPoet = { navigateToPoet(poem) },
                     isActivePage = page == pagerState.settledPage,
                     modifier = Modifier.fillMaxSize(),
                 )

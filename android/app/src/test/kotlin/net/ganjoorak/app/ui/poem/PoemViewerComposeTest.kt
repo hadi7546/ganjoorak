@@ -64,9 +64,7 @@ class PoemViewerComposeTest {
                     audioPlayer = audio,
                     onNext = {},
                     onPrevious = {},
-                    onOpenSearch = {},
-                    onToggleZenLock = {},
-                    onNavigateToPoets = {},
+                    onNavigateToPoet = {},
                     isActivePage = true,
                 )
             }

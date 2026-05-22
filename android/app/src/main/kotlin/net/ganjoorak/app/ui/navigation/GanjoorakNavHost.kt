@@ -25,17 +25,23 @@ import net.ganjoorak.app.di.AppContainer
 import net.ganjoorak.app.domain.settings.AppSettings
 import net.ganjoorak.app.ui.feed.FeedScreen
 import net.ganjoorak.app.ui.feed.FeedViewModel
+import net.ganjoorak.app.ui.feed.PoetFeedScreen
 import net.ganjoorak.app.ui.poem.PoemDetailScreen
 import net.ganjoorak.app.ui.poets.PoetsScreen
 import net.ganjoorak.app.ui.search.SearchScreen
 import net.ganjoorak.app.ui.settings.SettingsSheet
+import net.ganjoorak.app.util.PoetKeys
 
 object Routes {
     const val FEED = "feed"
     const val POETS = "poets"
     const val SEARCH = "search"
     const val POEM = "poem/{poemId}"
+    const val POET = "poet/{source}/{slug}"
+    const val POET_PREFIX = "poet/"
+
     fun poem(id: Int) = "poem/$id"
+    fun poet(source: String, slug: String) = "poet/$source/$slug"
 }
 
 @Composable
@@ -59,7 +65,20 @@ fun GanjoorakNavHost(
         factory = FeedViewModel.Factory(container.poemRepository, container.settingsRepository),
     )
 
-    val showBottomBar = currentRoute?.startsWith("poem/") != true
+    val showBottomBar = currentRoute?.startsWith("poem/") != true &&
+        currentRoute?.startsWith(Routes.POET_PREFIX) != true
+
+    fun navigateToPoet(poetKey: String) {
+        val parsed = PoetKeys.parse(poetKey)
+        val sourceName = when (parsed.source) {
+            net.ganjoorak.app.data.model.PoemSource.GANJOOR -> "ganjoor"
+            net.ganjoorak.app.data.model.PoemSource.CUSTOM -> "custom"
+            net.ganjoorak.app.data.model.PoemSource.ECHOLALIA -> "echolalia"
+        }
+        navController.navigate(Routes.poet(sourceName, parsed.slug)) {
+            launchSingleTop = true
+        }
+    }
 
     fun navigateToTab(tab: MainTab) {
         if (tab == MainTab.SETTINGS) {
@@ -98,20 +117,13 @@ fun GanjoorakNavHost(
                     poemRepository = container.poemRepository,
                     settings = settings,
                     audioPlayer = audioPlayer,
-                    onOpenSearch = { navigateToTab(MainTab.SEARCH) },
-                    onToggleZenLock = {
-                        scope.launch {
-                            container.settingsRepository.update {
-                                it.copy(zenScrollLock = !it.zenScrollLock)
-                            }
-                        }
-                    },
-                    onNavigateToPoets = { navigateToTab(MainTab.POETS) },
+                    onNavigateToPoet = ::navigateToPoet,
                 )
             }
             composable(Routes.POETS) {
                 PoetsScreen(
                     poemRepository = container.poemRepository,
+                    onPoetClick = ::navigateToPoet,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -120,6 +132,25 @@ fun GanjoorakNavHost(
                     poemRepository = container.poemRepository,
                     onBack = { navigateToTab(MainTab.FEED) },
                     onPoemClick = { id -> navController.navigate(Routes.poem(id)) },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            composable(
+                route = Routes.POET,
+                arguments = listOf(
+                    navArgument("source") { type = NavType.StringType },
+                    navArgument("slug") { type = NavType.StringType },
+                ),
+            ) { entry ->
+                val source = entry.arguments?.getString("source").orEmpty()
+                val slug = entry.arguments?.getString("slug").orEmpty()
+                val poetKey = "$source:$slug"
+                PoetFeedScreen(
+                    poetKey = poetKey,
+                    poemRepository = container.poemRepository,
+                    settings = settings,
+                    audioPlayer = audioPlayer,
+                    onNavigateToSamePoet = ::navigateToPoet,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -134,15 +165,7 @@ fun GanjoorakNavHost(
                     poemRepository = container.poemRepository,
                     audioPlayer = audioPlayer,
                     onBack = { navController.popBackStack() },
-                    onOpenSearch = { navigateToTab(MainTab.SEARCH) },
-                    onToggleZenLock = {
-                        scope.launch {
-                            container.settingsRepository.update {
-                                it.copy(zenScrollLock = !it.zenScrollLock)
-                            }
-                        }
-                    },
-                    onNavigateToPoets = { navigateToTab(MainTab.POETS) },
+                    onNavigateToPoet = ::navigateToPoet,
                 )
             }
         }

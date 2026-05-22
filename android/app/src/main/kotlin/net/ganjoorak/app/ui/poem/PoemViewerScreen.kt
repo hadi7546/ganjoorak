@@ -3,6 +3,9 @@ package net.ganjoorak.app.ui.poem
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,9 +25,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -55,10 +56,12 @@ import net.ganjoorak.app.domain.settings.AppSettings
 import net.ganjoorak.app.share.shareableLinesFrom
 import net.ganjoorak.app.ui.theme.LocalGanjoorakColors
 import net.ganjoorak.app.ui.theme.poemTitleStyle
+import net.ganjoorak.app.util.poemPoetKey
 
 private val SideRailWidth = 64.dp
 private val SideButtonGap = 8.dp
 private val PoemMaxWidth = 520.dp
+private val TitleHideScrollThreshold = 56
 
 private fun poemSourceUrl(poem: Poem): String {
     if (poem.isCustom && poem.fullUrl.startsWith("http")) return poem.fullUrl
@@ -77,9 +80,7 @@ fun PoemViewerScreen(
     audioPlayer: PoemAudioPlayer,
     onNext: () -> Unit,
     onPrevious: () -> Unit,
-    onOpenSearch: () -> Unit,
-    onToggleZenLock: () -> Unit,
-    onNavigateToPoets: () -> Unit,
+    onNavigateToPoet: (String) -> Unit,
     isActivePage: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
@@ -104,6 +105,10 @@ fun PoemViewerScreen(
     val currentTime by audioPlayer.currentTimeSec.collectAsStateWithLifecycle()
     val duration by audioPlayer.durationSec.collectAsStateWithLifecycle()
     val highlightedVerse by audioPlayer.highlightedVerse.collectAsStateWithLifecycle()
+
+    val hideTitleOnScroll by remember {
+        derivedStateOf { scrollState.value > TitleHideScrollThreshold }
+    }
 
     fun enterShareMode() {
         audioPlayer.pause()
@@ -198,42 +203,48 @@ fun PoemViewerScreen(
                 allSelected = allShareLines.isNotEmpty() &&
                     selectedLineIndices.size == allShareLines.size,
             )
-        } else if (visibility.titleSection) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                colors.background,
-                                colors.background.copy(alpha = 0.88f),
-                                colors.background.copy(alpha = 0f),
-                            ),
-                        ),
-                    )
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+        } else {
+            AnimatedVisibility(
+                visible = visibility.titleSection && !hideTitleOnScroll,
+                enter = fadeIn(),
+                exit = fadeOut(),
             ) {
-                Text(
-                    text = poem.title,
-                    style = poemTitleStyle(),
-                    color = colors.foreground.copy(alpha = 0.95f),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                if (poetLine.isNotBlank()) {
-                    Spacer(Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    colors.background,
+                                    colors.background.copy(alpha = 0.88f),
+                                    colors.background.copy(alpha = 0f),
+                                ),
+                            ),
+                        )
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
                     Text(
-                        text = poetLine,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            lineHeight = (MaterialTheme.typography.bodyLarge.fontSize.value * 1.55f).sp,
-                        ),
-                        color = colors.muted,
+                        text = poem.title,
+                        style = poemTitleStyle(),
+                        color = colors.foreground.copy(alpha = 0.95f),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
+                        modifier = Modifier.fillMaxWidth(),
                     )
+                    if (poetLine.isNotBlank()) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = poetLine,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                lineHeight = (MaterialTheme.typography.bodyLarge.fontSize.value * 1.55f).sp,
+                            ),
+                            color = colors.muted,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
+                        )
+                    }
                 }
             }
         }
@@ -249,15 +260,9 @@ fun PoemViewerScreen(
                         .width(SideRailWidth)
                         .fillMaxHeight()
                         .padding(vertical = 10.dp, horizontal = 4.dp),
+                    verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    FloatingCircleButton(
-                        icon = Icons.Default.Share,
-                        contentDescription = "اشتراک",
-                        onClick = { if (shareMode) exitShareMode() else enterShareMode() },
-                        active = shareMode,
-                    )
-                    Spacer(Modifier.height(SideButtonGap))
                     FloatingCircleButton(
                         icon = Icons.AutoMirrored.Filled.OpenInNew,
                         contentDescription = "مشاهده منبع",
@@ -267,15 +272,6 @@ fun PoemViewerScreen(
                             )
                         },
                     )
-                    Spacer(Modifier.weight(1f))
-                    if (!shareMode && poem.poet.isNotBlank()) {
-                        PoetProfileCard(
-                            poetName = poem.poetNickname.ifBlank { poem.poet },
-                            imageUrl = poem.poetImageUrl,
-                            onClick = onNavigateToPoets,
-                            compact = true,
-                        )
-                    }
                 }
             }
 
@@ -325,22 +321,27 @@ fun PoemViewerScreen(
                     modifier = Modifier
                         .width(SideRailWidth)
                         .fillMaxHeight()
-                        .padding(vertical = 12.dp),
-                    verticalArrangement = Arrangement.Center,
+                        .padding(vertical = 10.dp, horizontal = 4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    FloatingCircleButton(
-                        icon = if (settings.zenScrollLock) Icons.Default.Lock else Icons.Default.LockOpen,
-                        contentDescription = "قفل ورق‌زدن",
-                        onClick = onToggleZenLock,
-                        active = settings.zenScrollLock,
-                    )
-                    Spacer(Modifier.height(SideButtonGap))
-                    FloatingCircleButton(
-                        icon = Icons.Default.Search,
-                        contentDescription = "جستجو",
-                        onClick = onOpenSearch,
-                    )
+                    Spacer(Modifier.weight(1f))
+                    if (!shareMode) {
+                        FloatingCircleButton(
+                            icon = Icons.Default.Share,
+                            contentDescription = "اشتراک",
+                            onClick = { enterShareMode() },
+                            active = shareMode,
+                        )
+                        if (poem.poet.isNotBlank()) {
+                            Spacer(Modifier.height(SideButtonGap))
+                            PoetProfileCard(
+                                poetName = poem.poetNickname.ifBlank { poem.poet },
+                                imageUrl = poem.poetImageUrl,
+                                onClick = { onNavigateToPoet(poemPoetKey(poem)) },
+                                compact = true,
+                            )
+                        }
+                    }
                 }
             }
         }
