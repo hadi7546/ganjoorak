@@ -521,6 +521,7 @@ const main = async () => {
   } catch (error) {
     console.warn("Could not refresh poet source index; keeping existing file.");
     console.warn(error instanceof Error ? error.message : error);
+    process.exitCode = 0;
   }
 };
 

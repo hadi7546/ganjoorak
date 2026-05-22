@@ -7,6 +7,9 @@ import type {
   GanjoorPoetCatalog,
   GanjoorCategoryReference,
   GanjoorPoemSearchResult,
+  GanjoorQuotedPoem,
+  GanjoorGeoLocation,
+  PoemGeoDateTag,
 } from "@/types/ganjoor";
 import { logger } from "@/utils/logger";
 import { getIndexedPoetImageUrl } from "@/utils/poetImages";
@@ -250,7 +253,11 @@ const ganjoorApi = {
 
   async searchPoems(
     term: string,
-    { pageSize = 12, pageNumber = 1 }: { pageSize?: number; pageNumber?: number } = {},
+    {
+      pageSize = 12,
+      pageNumber = 1,
+      poetId,
+    }: { pageSize?: number; pageNumber?: number; poetId?: number } = {},
   ): Promise<GanjoorPoemSearchResult[]> {
     const normalizedTerm = term.trim();
     if (normalizedTerm.length < 2) {
@@ -266,6 +273,7 @@ const ganjoorApi = {
             term: normalizedTerm,
             PageNumber: pageNumber,
             PageSize: pageSize,
+            ...(poetId && poetId > 0 ? { poetId } : {}),
           },
           headers: {
             Accept: "application/json",
@@ -563,6 +571,157 @@ const ganjoorApi = {
   async getPoemIdByUrl(url: string): Promise<number> {
     const poem = await this.getPoemByUrl(url);
     return poem.id;
+  },
+
+  async getQuotedPoems(
+    poemId: number,
+    { itemsCount = 8 }: { itemsCount?: number } = {},
+  ): Promise<GanjoorQuotedPoem[]> {
+    try {
+      if (!Number.isInteger(poemId) || poemId < 1) {
+        return [];
+      }
+
+      const response = await ganjoorHttp.get(
+        `${API_BASE_URL}/api/ganjoor/poem/${poemId}/quoteds`,
+        {
+          timeout: API_TIMEOUT_MS,
+          params: {
+            itemsCount,
+            published: true,
+            chosenForMainList: true,
+          },
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return Array.isArray(response.data)
+        ? response.data.map((item: any) => ({
+            id: String(item?.id ?? ""),
+            poemId: item?.poemId ?? poemId,
+            relatedPoemId: item?.relatedPoemId ?? null,
+            cachedRelatedPoemPoetName: item?.cachedRelatedPoemPoetName ?? null,
+            cachedRelatedPoemFullTitle: item?.cachedRelatedPoemFullTitle ?? null,
+            cachedRelatedPoemFullUrl: item?.cachedRelatedPoemFullUrl ?? null,
+            coupletVerse1: item?.coupletVerse1 ?? null,
+            coupletVerse2: item?.coupletVerse2 ?? null,
+            poem: item?.poem ?? null,
+          }))
+        : [];
+    } catch (error) {
+      logger.error("Error fetching quoted poems:", error);
+      return [];
+    }
+  },
+
+  async getCategoryGeoTags(categoryId: number): Promise<PoemGeoDateTag[]> {
+    try {
+      if (!Number.isInteger(categoryId) || categoryId < 1) {
+        return [];
+      }
+
+      const response = await ganjoorHttp.get(
+        `${API_BASE_URL}/api/ganjoor/cat/${categoryId}/geotag`,
+        {
+          timeout: API_TIMEOUT_MS,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return Array.isArray(response.data)
+        ? response.data
+            .map((tag: any) => ({
+              id: tag?.id ?? 0,
+              poemId: tag?.poemId ?? 0,
+              coupletIndex: tag?.coupletIndex ?? 0,
+              locationId: tag?.locationId ?? null,
+              location: tag?.location
+                ? {
+                    id: tag.location.id ?? 0,
+                    name: tag.location.name ?? null,
+                    latitude: Number(tag.location.latitude) || 0,
+                    longitude: Number(tag.location.longitude) || 0,
+                    machineGenerated: Boolean(tag.location.machineGenerated),
+                  }
+                : null,
+            }))
+            .filter((tag) => tag.location)
+        : [];
+    } catch (error) {
+      logger.error("Error fetching category geo tags:", error);
+      return [];
+    }
+  },
+
+  collectPoemIdsFromCategory(category: GanjoorCategory): number[] {
+    const poemIds = (category.poems ?? []).map((poem) => poem.id).filter((id) => id > 0);
+    const childIds = (category.children ?? []).flatMap((child) =>
+      ganjoorApi.collectPoemIdsFromCategory(child),
+    );
+    return [...poemIds, ...childIds];
+  },
+
+  uniqueGeoLocations(
+    tags: PoemGeoDateTag[],
+    poet?: Poet,
+  ): GanjoorGeoLocation[] {
+    const locations = new Map<number, GanjoorGeoLocation>();
+
+    tags.forEach((tag) => {
+      if (tag.location?.id) {
+        locations.set(tag.location.id, tag.location);
+      }
+    });
+
+    const addPlace = (
+      name: string | null,
+      latitude: number | null,
+      longitude: number | null,
+      id: number,
+    ) => {
+      if (
+        !name ||
+        latitude === null ||
+        longitude === null ||
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)
+      ) {
+        return;
+      }
+
+      if (!locations.has(id)) {
+        locations.set(id, {
+          id,
+          name,
+          latitude,
+          longitude,
+          machineGenerated: false,
+        });
+      }
+    };
+
+    if (poet) {
+      addPlace(
+        poet.birthPlace,
+        poet.birthPlaceLatitude,
+        poet.birthPlaceLongitude,
+        -1,
+      );
+      addPlace(
+        poet.deathPlace,
+        poet.deathPlaceLatitude,
+        poet.deathPlaceLongitude,
+        -2,
+      );
+    }
+
+    return Array.from(locations.values());
   },
 
   async getRecitationVerses(recitationId: number): Promise<VerseSync[]> {

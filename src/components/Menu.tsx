@@ -13,6 +13,8 @@ import {
   FaLock,
   FaLockOpen,
   FaSearch,
+  FaBookmark,
+  FaSun,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -47,6 +49,8 @@ const Menu: React.FC<MenuProps> = ({
     () => [
       { href: "/", icon: <FaHome />, label: "صفحه اصلی" },
       { href: "/poets", icon: <FaUsers />, label: "شاعران" },
+      { href: "/today", icon: <FaSun />, label: "شعر روز" },
+      { href: "/saved", icon: <FaBookmark />, label: "نشان‌شده‌ها" },
       { href: "/faq", icon: <FaQuestionCircle />, label: "پرسش‌های متداول" },
       {
         href: "/updates",

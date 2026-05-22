@@ -1,0 +1,7 @@
+{
+  "build": {
+    "env": {
+      "SKIP_POET_IMAGE_DOWNLOAD": "1"
+    }
+  }
+}

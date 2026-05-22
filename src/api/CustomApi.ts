@@ -272,6 +272,63 @@ const customApi = {
     }
   },
 
+  async searchPoemsInPoet(
+    poetSlug: PoetSlug,
+    query: string,
+  ): Promise<
+    Array<{
+      id: number;
+      title: string;
+      excerpt: string;
+      collection: string | null;
+    }>
+  > {
+    const normalizedQuery = query
+      .trim()
+      .replace(/[ي]/g, "ی")
+      .replace(/[ك]/g, "ک")
+      .replace(/\s+/g, " ")
+      .toLowerCase();
+
+    if (normalizedQuery.length < 2) {
+      return [];
+    }
+
+    const poetData = await customApi._getPoetData(poetSlug);
+    const poems = Array.isArray(poetData.poems) ? poetData.poems : [];
+
+    return poems
+      .filter((poem: any) => {
+        const haystack = [
+          poem?.title,
+          poem?.collection,
+          poem?.text,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .replace(/[ي]/g, "ی")
+          .replace(/[ك]/g, "ک")
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+
+        return haystack.includes(normalizedQuery);
+      })
+      .slice(0, 12)
+      .map((poem: any) => ({
+        id: poem.id,
+        title: poem.title || `شعر ${poem.id}`,
+        excerpt:
+          String(poem.text || "")
+            .split("\n")
+            .map((line: string) => line.trim())
+            .find(Boolean) || poem.title || "",
+        collection:
+          typeof poem.collection === "string" && poem.collection.trim()
+            ? poem.collection.trim()
+            : null,
+      }));
+  },
+
   /**
    * Map the local poem format to the Poem type used in the app
    */

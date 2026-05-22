@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
+import "@/styles/PoemLibrary.css";
 import "./mobile-polish.css";
 import "./mobile-floating-controls.css";
 import "./mobile-modal-polish.css";
 import "./mobile-minimal-feed.css";
 import { SettingsProvider } from "@/context/SettingsContext";
 import RouteTransition from "@/components/RouteTransition";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import "samim-font/dist/font-face.css";
 import "tanha-font/dist/font-face.css";
 import "shabnam-font/dist/font-face.css";
@@ -17,9 +20,19 @@ import "sahel-font/dist/font-face.css";
 import "vazir-code-font/dist/font-face.css";
 import "nahid-font/dist/font-face.css";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://ganjoorak.ir");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "گنجورک",
   description: "راحت‌تر شعر بخوانیم و شعر گوش دهیم.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "گنجورک",
+  },
 
   openGraph: {
     siteName: "گنجورک",
@@ -70,6 +83,8 @@ export default function RootLayout({
       data-poem-font-size="100"
     >
       <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0a0a0a" />
         <script
           dangerouslySetInnerHTML={{
             __html:
@@ -80,6 +95,8 @@ export default function RootLayout({
       <body>
         <SettingsProvider>
           <RouteTransition>{children}</RouteTransition>
+          <PwaInstallPrompt />
+          <ServiceWorkerRegistration />
         </SettingsProvider>
         <Analytics />
         <SpeedInsights />
