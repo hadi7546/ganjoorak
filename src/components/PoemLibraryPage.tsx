@@ -75,8 +75,9 @@ const PoemLibraryPage = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { hasNewUpdates, markAsRead } = useUpdateNotification();
 
-  const favorites = useMemo(() => readFavorites(), [refreshKey]);
-  const history = useMemo(() => readHistory(), [refreshKey]);
+  void refreshKey;
+  const favorites = readFavorites();
+  const history = readHistory();
 
   const refresh = () => setRefreshKey((value) => value + 1);
 
