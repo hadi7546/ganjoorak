@@ -19,7 +19,9 @@ const API_TIMEOUT_MS = 15000;
 const SERVER_API_BASE_URL =
   process.env.GANJOOR_API_BASE_URL ||
   process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL ||
-  "http://api.offline.ganjoor.net";
+  (process.env.VERCEL
+    ? "https://api.ganjoor.net"
+    : "http://api.offline.ganjoor.net");
 
 const BROWSER_API_BASE_URL =
   process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL || "";
@@ -40,6 +42,18 @@ const getAudioProxyUrl = (url?: string) =>
 
 // Cache for poet data
 const poetCache: Record<string, Poet | undefined> = {};
+const poetsListCache: { poets: Poet[] | null; expiresAt: number } = {
+  poets: null,
+  expiresAt: 0,
+};
+const POETS_LIST_CACHE_TTL_MS = 5 * 60 * 1000;
+
+const searchResultsCache = new Map<
+  string,
+  { results: GanjoorPoemSearchResult[]; expiresAt: number }
+>();
+const SEARCH_RESULTS_CACHE_TTL_MS = 60 * 1000;
+
 const poetCatalogCache: Record<string, GanjoorPoetCatalog | undefined> = {};
 const poetCatalogPromiseCache: Record<
   string,
@@ -215,6 +229,11 @@ const ganjoorApi = {
   },
 
   async getPoets(): Promise<Poet[]> {
+    const now = Date.now();
+    if (poetsListCache.poets && poetsListCache.expiresAt > now) {
+      return poetsListCache.poets;
+    }
+
     const response = await ganjoorHttp.get(`${API_BASE_URL}/api/ganjoor/poets`, {
       timeout: API_TIMEOUT_MS,
       headers: {
@@ -223,7 +242,7 @@ const ganjoorApi = {
       },
     });
 
-    return response.data.map((poet: any) => ({
+    const poets = response.data.map((poet: any) => ({
       id: poet.id,
       name: poet.name,
       description: poet.description,
@@ -249,6 +268,10 @@ const ganjoorApi = {
       source: "ganjoor",
       sourceGroupName: "شاعران کهن",
     }));
+
+    poetsListCache.poets = poets;
+    poetsListCache.expiresAt = now + POETS_LIST_CACHE_TTL_MS;
+    return poets;
   },
 
   async searchPoems(
@@ -262,6 +285,18 @@ const ganjoorApi = {
     const normalizedTerm = term.trim();
     if (normalizedTerm.length < 2) {
       return [];
+    }
+
+    const cacheKey = [
+      normalizedTerm.toLowerCase(),
+      pageNumber,
+      pageSize,
+      poetId ?? 0,
+    ].join("|");
+    const now = Date.now();
+    const cached = searchResultsCache.get(cacheKey);
+    if (cached && cached.expiresAt > now) {
+      return cached.results;
     }
 
     try {
@@ -282,9 +317,16 @@ const ganjoorApi = {
         },
       );
 
-      return Array.isArray(response.data)
+      const results = Array.isArray(response.data)
         ? response.data.map((poem: any) => helpers.mapPoemSearchResult(poem))
         : [];
+
+      searchResultsCache.set(cacheKey, {
+        results,
+        expiresAt: now + SEARCH_RESULTS_CACHE_TTL_MS,
+      });
+
+      return results;
     } catch (error) {
       logger.error("Error searching poems:", error);
       throw new Error("متأسفانه در جستجوی شعرها مشکلی پیش آمد");

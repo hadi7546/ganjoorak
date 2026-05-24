@@ -1,7 +1,11 @@
 {
   "build": {
     "env": {
+      "GANJOOR_API_BASE_URL": "https://api.ganjoor.net",
       "SKIP_POET_IMAGE_DOWNLOAD": "1"
     }
+  },
+  "env": {
+    "GANJOOR_API_BASE_URL": "https://api.ganjoor.net"
   }
 }

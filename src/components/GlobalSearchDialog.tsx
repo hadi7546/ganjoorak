@@ -310,6 +310,32 @@ const emptyState: SearchState = {
   books: [],
 };
 
+let cachedSearchPoets: Poet[] | null = null;
+let cachedSearchPoetsPromise: Promise<Poet[]> | null = null;
+
+const loadAllPoetsForSearch = async (): Promise<Poet[]> => {
+  if (cachedSearchPoets) {
+    return cachedSearchPoets;
+  }
+
+  if (!cachedSearchPoetsPromise) {
+    cachedSearchPoetsPromise = Promise.all([
+      ganjoorApi.getPoets(),
+      customApi.getPoets(),
+      echolaliaApi.getPoets(),
+    ])
+      .then(([ganjoorPoets, customPoets, echolaliaPoets]) => {
+        cachedSearchPoets = [...ganjoorPoets, ...customPoets, ...echolaliaPoets];
+        return cachedSearchPoets;
+      })
+      .finally(() => {
+        cachedSearchPoetsPromise = null;
+      });
+  }
+
+  return cachedSearchPoetsPromise;
+};
+
 const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
   isOpen,
   onClose,
@@ -344,13 +370,9 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
 
     const loadPoets = async () => {
       try {
-        const [ganjoorPoets, customPoets, echolaliaPoets] = await Promise.all([
-          ganjoorApi.getPoets(),
-          customApi.getPoets(),
-          echolaliaApi.getPoets(),
-        ]);
+        const poets = await loadAllPoetsForSearch();
         if (!cancelled) {
-          setAllPoets([...ganjoorPoets, ...customPoets, ...echolaliaPoets]);
+          setAllPoets(poets);
           setHasLoadedPoets(true);
         }
       } catch (loadError) {
@@ -396,6 +418,7 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
         const shouldSearchPoems = filter === "all" || filter === "poems";
         const shouldSearchBooks = filter === "all" || filter === "books";
         const shouldSearchPoets = filter === "all" || filter === "poets";
+        const shouldLoadGanjoorBookCatalogs = filter === "books";
 
         const matchingPoets = shouldSearchPoets
           ? allPoets
@@ -429,7 +452,7 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
             ? searchLocalPoemsAndBooks(normalizedQuery)
             : Promise.resolve({ poems: [], books: [] }),
           shouldSearchPoems ? searchEcholaliaPoems(query) : Promise.resolve([]),
-          shouldSearchBooks
+          shouldLoadGanjoorBookCatalogs
             ? searchGanjoorBooks(normalizedQuery, allPoets)
             : Promise.resolve([]),
         ]);

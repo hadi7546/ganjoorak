@@ -1,7 +1,7 @@
 const GANJOOR_API_BASE_URL =
     process.env.GANJOOR_API_BASE_URL ||
     process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL ||
-    'http://api.offline.ganjoor.net';
+    (process.env.VERCEL ? 'https://api.ganjoor.net' : 'http://api.offline.ganjoor.net');
 
 const ganjoorApiUrl = new URL(GANJOOR_API_BASE_URL);
 const isDesktopBuild = process.env.DESKTOP_BUILD === '1';
