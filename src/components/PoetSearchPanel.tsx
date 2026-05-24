@@ -10,6 +10,7 @@ import type { GanjoorPoemSearchResult } from "@/types/ganjoor";
 import type { Poet } from "@/types/poet";
 import { PoetSlug, isValidPoetSlug } from "@/types/poet";
 import { logger } from "@/utils/logger";
+import { normalizeSearchText } from "@/utils/searchText";
 
 interface LocalPoemSearchResult {
   id: number;
@@ -30,14 +31,6 @@ interface PoetSearchPanelProps {
     text?: string;
   }>;
 }
-
-const normalizeSearchText = (value: string) =>
-  value
-    .trim()
-    .replace(/[ي]/g, "ی")
-    .replace(/[ك]/g, "ک")
-    .replace(/\s+/g, " ")
-    .toLowerCase();
 
 const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) => {
   const [query, setQuery] = useState("");

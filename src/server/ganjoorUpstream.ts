@@ -1,11 +1,11 @@
 const OFFLINE_GANJOOR_API_ORIGIN = "http://api.offline.ganjoor.net";
 const PRODUCTION_GANJOOR_API_ORIGIN = "https://api.ganjoor.net";
 
-/** Default upstream when env vars are unset (offline for desktop; production on Vercel). */
+/** Production API by default; offline only for desktop builds. */
 export function getDefaultGanjoorApiBaseUrl(): string {
-  return process.env.VERCEL
-    ? PRODUCTION_GANJOOR_API_ORIGIN
-    : OFFLINE_GANJOOR_API_ORIGIN;
+  return process.env.DESKTOP_BUILD === "1"
+    ? OFFLINE_GANJOOR_API_ORIGIN
+    : PRODUCTION_GANJOOR_API_ORIGIN;
 }
 
 /**

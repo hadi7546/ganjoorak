@@ -18,6 +18,7 @@ import type { GanjoorCategory, GanjoorPoemSearchResult } from "@/types/ganjoor";
 import type { Poet } from "@/types/poet";
 import { PoetSlug } from "@/types/poet";
 import { logger } from "@/utils/logger";
+import { normalizeSearchText } from "@/utils/searchText";
 
 type SearchFilter = "all" | "poets" | "poems" | "books";
 
@@ -56,14 +57,6 @@ const SEARCH_FILTERS: Array<{ value: SearchFilter; label: string }> = [
   { value: "poems", label: "شعرها" },
   { value: "books", label: "دفترها" },
 ];
-
-const normalizeSearchText = (value: string) =>
-  value
-    .trim()
-    .replace(/[ي]/g, "ی")
-    .replace(/[ك]/g, "ک")
-    .replace(/\s+/g, " ")
-    .toLowerCase();
 
 const getPoetHref = (poet: Poet) => {
   if (/^https?:\/\//.test(poet.fullUrl)) {
@@ -310,32 +303,6 @@ const emptyState: SearchState = {
   books: [],
 };
 
-let cachedSearchPoets: Poet[] | null = null;
-let cachedSearchPoetsPromise: Promise<Poet[]> | null = null;
-
-const loadAllPoetsForSearch = async (): Promise<Poet[]> => {
-  if (cachedSearchPoets) {
-    return cachedSearchPoets;
-  }
-
-  if (!cachedSearchPoetsPromise) {
-    cachedSearchPoetsPromise = Promise.all([
-      ganjoorApi.getPoets(),
-      customApi.getPoets(),
-      echolaliaApi.getPoets(),
-    ])
-      .then(([ganjoorPoets, customPoets, echolaliaPoets]) => {
-        cachedSearchPoets = [...ganjoorPoets, ...customPoets, ...echolaliaPoets];
-        return cachedSearchPoets;
-      })
-      .finally(() => {
-        cachedSearchPoetsPromise = null;
-      });
-  }
-
-  return cachedSearchPoetsPromise;
-};
-
 const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
   isOpen,
   onClose,
@@ -370,9 +337,13 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
 
     const loadPoets = async () => {
       try {
-        const poets = await loadAllPoetsForSearch();
+        const [ganjoorPoets, customPoets, echolaliaPoets] = await Promise.all([
+          ganjoorApi.getPoets(),
+          customApi.getPoets(),
+          echolaliaApi.getPoets(),
+        ]);
         if (!cancelled) {
-          setAllPoets(poets);
+          setAllPoets([...ganjoorPoets, ...customPoets, ...echolaliaPoets]);
           setHasLoadedPoets(true);
         }
       } catch (loadError) {
@@ -418,7 +389,6 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
         const shouldSearchPoems = filter === "all" || filter === "poems";
         const shouldSearchBooks = filter === "all" || filter === "books";
         const shouldSearchPoets = filter === "all" || filter === "poets";
-        const shouldLoadGanjoorBookCatalogs = filter === "books";
 
         const matchingPoets = shouldSearchPoets
           ? allPoets
@@ -452,7 +422,7 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
             ? searchLocalPoemsAndBooks(normalizedQuery)
             : Promise.resolve({ poems: [], books: [] }),
           shouldSearchPoems ? searchEcholaliaPoems(query) : Promise.resolve([]),
-          shouldLoadGanjoorBookCatalogs
+          shouldSearchBooks
             ? searchGanjoorBooks(normalizedQuery, allPoets)
             : Promise.resolve([]),
         ]);

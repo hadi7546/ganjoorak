@@ -13,15 +13,23 @@ import type {
 } from "@/types/ganjoor";
 import { logger } from "@/utils/logger";
 import { getIndexedPoetImageUrl } from "@/utils/poetImages";
+import {
+  findLikelyNumberedPoemCategories,
+  searchGanjoorCatalogPoems,
+} from "@/utils/ganjoorCatalogSearch";
+import {
+  getSearchTermVariants,
+  parsePoemNumberQuery,
+} from "@/utils/searchText";
 
 const API_TIMEOUT_MS = 15000;
 
 const SERVER_API_BASE_URL =
   process.env.GANJOOR_API_BASE_URL ||
   process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL ||
-  (process.env.VERCEL
-    ? "https://api.ganjoor.net"
-    : "http://api.offline.ganjoor.net");
+  (process.env.DESKTOP_BUILD === "1"
+    ? "http://api.offline.ganjoor.net"
+    : "https://api.ganjoor.net");
 
 const BROWSER_API_BASE_URL =
   process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL || "";
@@ -42,23 +50,13 @@ const getAudioProxyUrl = (url?: string) =>
 
 // Cache for poet data
 const poetCache: Record<string, Poet | undefined> = {};
-const poetsListCache: { poets: Poet[] | null; expiresAt: number } = {
-  poets: null,
-  expiresAt: 0,
-};
-const POETS_LIST_CACHE_TTL_MS = 5 * 60 * 1000;
-
-const searchResultsCache = new Map<
-  string,
-  { results: GanjoorPoemSearchResult[]; expiresAt: number }
->();
-const SEARCH_RESULTS_CACHE_TTL_MS = 60 * 1000;
-
 const poetCatalogCache: Record<string, GanjoorPoetCatalog | undefined> = {};
 const poetCatalogPromiseCache: Record<
   string,
   Promise<GanjoorPoetCatalog> | undefined
 > = {};
+const categoryPoemsCache: Record<number, GanjoorPoemSummary[] | undefined> =
+  {};
 
 const cachePoetCatalog = (catalog: GanjoorPoetCatalog, aliases: string[] = []) => {
   const keys = [
@@ -229,11 +227,6 @@ const ganjoorApi = {
   },
 
   async getPoets(): Promise<Poet[]> {
-    const now = Date.now();
-    if (poetsListCache.poets && poetsListCache.expiresAt > now) {
-      return poetsListCache.poets;
-    }
-
     const response = await ganjoorHttp.get(`${API_BASE_URL}/api/ganjoor/poets`, {
       timeout: API_TIMEOUT_MS,
       headers: {
@@ -242,7 +235,7 @@ const ganjoorApi = {
       },
     });
 
-    const poets = response.data.map((poet: any) => ({
+    return response.data.map((poet: any) => ({
       id: poet.id,
       name: poet.name,
       description: poet.description,
@@ -268,10 +261,6 @@ const ganjoorApi = {
       source: "ganjoor",
       sourceGroupName: "شاعران کهن",
     }));
-
-    poetsListCache.poets = poets;
-    poetsListCache.expiresAt = now + POETS_LIST_CACHE_TTL_MS;
-    return poets;
   },
 
   async searchPoems(
@@ -280,56 +269,209 @@ const ganjoorApi = {
       pageSize = 12,
       pageNumber = 1,
       poetId,
-    }: { pageSize?: number; pageNumber?: number; poetId?: number } = {},
+      poetSlug,
+    }: {
+      pageSize?: number;
+      pageNumber?: number;
+      poetId?: number;
+      poetSlug?: string;
+    } = {},
   ): Promise<GanjoorPoemSearchResult[]> {
     const normalizedTerm = term.trim();
     if (normalizedTerm.length < 2) {
       return [];
     }
 
-    const cacheKey = [
-      normalizedTerm.toLowerCase(),
-      pageNumber,
+    const apiResults = await ganjoorApi.searchPoemsFromApi(normalizedTerm, {
       pageSize,
-      poetId ?? 0,
-    ].join("|");
-    const now = Date.now();
-    const cached = searchResultsCache.get(cacheKey);
-    if (cached && cached.expiresAt > now) {
-      return cached.results;
+      pageNumber,
+      poetId,
+    });
+    const catalogResults = await ganjoorApi.searchPoemsFromCatalog(
+      normalizedTerm,
+      { pageSize, poetId, poetSlug },
+    );
+
+    const merged = new Map<number, GanjoorPoemSearchResult>();
+    [...apiResults, ...catalogResults].forEach((poem) => {
+      if (poem.id > 0) {
+        merged.set(poem.id, poem);
+      }
+    });
+    return Array.from(merged.values()).slice(0, pageSize);
+  },
+
+  async searchPoemsFromApi(
+    term: string,
+    {
+      pageSize = 12,
+      pageNumber = 1,
+      poetId,
+    }: { pageSize?: number; pageNumber?: number; poetId?: number } = {},
+  ): Promise<GanjoorPoemSearchResult[]> {
+    const merged = new Map<number, GanjoorPoemSearchResult>();
+
+    for (const variant of getSearchTermVariants(term)) {
+      try {
+        const response = await ganjoorHttp.get(
+          `${API_BASE_URL}/api/ganjoor/poems/search`,
+          {
+            timeout: API_TIMEOUT_MS,
+            params: {
+              term: variant,
+              PageNumber: pageNumber,
+              PageSize: pageSize,
+              ...(poetId && poetId > 0 ? { poetId } : {}),
+            },
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (Array.isArray(response.data)) {
+          response.data.forEach((poem: any) => {
+            const mapped = helpers.mapPoemSearchResult(poem);
+            if (mapped.id > 0) {
+              merged.set(mapped.id, mapped);
+            }
+          });
+        }
+      } catch (error) {
+        logger.error("Error searching poems via API:", error);
+      }
+
+      if (merged.size >= pageSize) {
+        break;
+      }
+    }
+
+    return Array.from(merged.values()).slice(0, pageSize);
+  },
+
+  async searchPoemsFromCatalog(
+    term: string,
+    {
+      pageSize = 12,
+      poetId,
+      poetSlug,
+    }: { pageSize?: number; poetId?: number; poetSlug?: string } = {},
+  ): Promise<GanjoorPoemSearchResult[]> {
+    const parsedNumber = parsePoemNumberQuery(term);
+    const shouldSearchPinnedPoets =
+      !poetId && (parsedNumber !== null || /غزل|شماره|قصیده|رباعی/.test(term));
+
+    if (poetId && poetSlug) {
+      return ganjoorApi.searchPoetCatalogPoems(poetSlug, poetId, term, pageSize);
+    }
+
+    if (!shouldSearchPinnedPoets) {
+      return [];
     }
 
     try {
-      const response = await ganjoorHttp.get(
-        `${API_BASE_URL}/api/ganjoor/poems/search`,
-        {
-          timeout: API_TIMEOUT_MS,
-          params: {
-            term: normalizedTerm,
-            PageNumber: pageNumber,
-            PageSize: pageSize,
-            ...(poetId && poetId > 0 ? { poetId } : {}),
-          },
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        },
+      const poets = await ganjoorApi.getPoets();
+      const candidates = poets
+        .filter((poet) => poet.published)
+        .sort((a, b) => (a.pinOrder ?? 999) - (b.pinOrder ?? 999))
+        .slice(0, 8);
+
+      const batches = await Promise.all(
+        candidates.map((poet) =>
+          ganjoorApi
+            .searchPoetCatalogPoems(
+              poet.urlSlug,
+              poet.id,
+              term,
+              Math.max(3, Math.ceil(pageSize / 3)),
+            )
+            .catch(() => [] as GanjoorPoemSearchResult[]),
+        ),
       );
 
-      const results = Array.isArray(response.data)
-        ? response.data.map((poem: any) => helpers.mapPoemSearchResult(poem))
-        : [];
-
-      searchResultsCache.set(cacheKey, {
-        results,
-        expiresAt: now + SEARCH_RESULTS_CACHE_TTL_MS,
+      const merged = new Map<number, GanjoorPoemSearchResult>();
+      batches.flat().forEach((poem) => {
+        if (poem.id > 0) {
+          merged.set(poem.id, poem);
+        }
       });
-
-      return results;
+      return Array.from(merged.values()).slice(0, pageSize);
     } catch (error) {
-      logger.error("Error searching poems:", error);
-      throw new Error("متأسفانه در جستجوی شعرها مشکلی پیش آمد");
+      logger.error("Error searching pinned poet catalogs:", error);
+      return [];
+    }
+  },
+
+  async searchPoetCatalogPoems(
+    poetSlug: string,
+    poetId: number,
+    term: string,
+    pageSize = 12,
+  ): Promise<GanjoorPoemSearchResult[]> {
+    try {
+      const catalog = await ganjoorApi.getPoetCatalog(poetSlug, poetId);
+      const poemsByCategoryId: Record<number, GanjoorPoemSummary[]> = {};
+      const categoriesToLoad = new Set<number>();
+
+      const rememberPoems = (
+        categoryId: number,
+        poems: GanjoorPoemSummary[],
+      ) => {
+        if (poems.length > 0) {
+          poemsByCategoryId[categoryId] = poems;
+          categoryPoemsCache[categoryId] = poems;
+        }
+      };
+
+      const walk = (category: GanjoorCategory) => {
+        rememberPoems(category.id, category.poems ?? []);
+        (category.children ?? []).forEach(walk);
+      };
+      walk(catalog.category);
+
+      const parsedNumber = parsePoemNumberQuery(term);
+      if (parsedNumber) {
+        findLikelyNumberedPoemCategories(catalog, parsedNumber).forEach(
+          (category) => {
+            if (!poemsByCategoryId[category.id]?.length) {
+              categoriesToLoad.add(category.id);
+            }
+          },
+        );
+      } else if (/غزل|شماره|قصیده|رباعی|قطعه/.test(term)) {
+        const walkForLoads = (category: GanjoorCategory) => {
+          if (
+            /غزل|قصیده|رباعی|قطعه|مثنوی/.test(category.title) &&
+            !poemsByCategoryId[category.id]?.length
+          ) {
+            categoriesToLoad.add(category.id);
+          }
+          (category.children ?? []).forEach(walkForLoads);
+        };
+        walkForLoads(catalog.category);
+      }
+
+      await Promise.all(
+        Array.from(categoriesToLoad).map(async (categoryId) => {
+          if (categoryPoemsCache[categoryId]?.length) {
+            poemsByCategoryId[categoryId] = categoryPoemsCache[categoryId]!;
+            return;
+          }
+          const category = await ganjoorApi.getCategoryWithPoems(categoryId);
+          rememberPoems(categoryId, category.poems ?? []);
+        }),
+      );
+
+      return searchGanjoorCatalogPoems(
+        catalog,
+        poemsByCategoryId,
+        term,
+        pageSize,
+      );
+    } catch (error) {
+      logger.error("Error searching poet catalog:", error);
+      return [];
     }
   },
 
