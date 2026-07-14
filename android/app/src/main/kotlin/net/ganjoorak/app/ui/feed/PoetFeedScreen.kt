@@ -17,6 +17,7 @@ import net.ganjoorak.app.data.repository.PoemRepository
 import net.ganjoorak.app.domain.settings.AppSettings
 import net.ganjoorak.app.ui.common.ErrorScreen
 import net.ganjoorak.app.ui.common.LoadingScreen
+import net.ganjoorak.app.ui.common.LocalAudioBarVisible
 import net.ganjoorak.app.ui.poem.PoemViewerScreen
 import net.ganjoorak.app.util.poemPoetKey
 
@@ -34,6 +35,7 @@ fun PoetFeedScreen(
     ),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val audioBarVisible = LocalAudioBarVisible.current
 
     if (state.isLoading && state.poems.isEmpty()) {
         LoadingScreen(modifier)
@@ -93,6 +95,8 @@ fun PoetFeedScreen(
                 onPrevious = viewModel::goPrevious,
                 onNavigateToPoet = { navigateToPoet(poems[0]) },
                 isActivePage = true,
+                nextPoemTitle = null,
+                onAudioBarVisibilityChanged = { audioBarVisible.value = it },
                 modifier = modifier.fillMaxSize(),
             )
         } else {
@@ -115,6 +119,12 @@ fun PoetFeedScreen(
                     onPrevious = viewModel::goPrevious,
                     onNavigateToPoet = { navigateToPoet(poem) },
                     isActivePage = page == pagerState.settledPage,
+                    nextPoemTitle = poems.getOrNull(page + 1)?.title,
+                    onAudioBarVisibilityChanged = { visible ->
+                        if (page == pagerState.settledPage) {
+                            audioBarVisible.value = visible
+                        }
+                    },
                     modifier = Modifier.fillMaxSize(),
                 )
             }
