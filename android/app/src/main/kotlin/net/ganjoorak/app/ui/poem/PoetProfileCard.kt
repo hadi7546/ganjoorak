@@ -1,14 +1,12 @@
 package net.ganjoorak.app.ui.poem
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +26,7 @@ fun PoetProfileCard(
     imageUrl: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    compact: Boolean = false,
+    compact: Boolean = true,
 ) {
     val colors = LocalGanjoorakColors.current
     val imageSize = if (compact) 48.dp else 56.dp
@@ -36,11 +34,8 @@ fun PoetProfileCard(
     Column(
         modifier = modifier
             .widthIn(max = 72.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(colors.secondary.copy(alpha = 0.55f))
-            .border(1.dp, colors.border.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 6.dp, vertical = 8.dp),
+            .padding(horizontal = 2.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AsyncImage(
@@ -49,7 +44,7 @@ fun PoetProfileCard(
             modifier = Modifier
                 .size(imageSize)
                 .clip(CircleShape)
-                .background(colors.border.copy(alpha = 0.35f)),
+                .background(colors.foreground.copy(alpha = 0.12f)),
             contentScale = ContentScale.Crop,
         )
         Text(
@@ -59,7 +54,7 @@ fun PoetProfileCard(
             } else {
                 MaterialTheme.typography.labelMedium
             },
-            color = colors.foreground,
+            color = colors.foreground.copy(alpha = 0.85f),
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,

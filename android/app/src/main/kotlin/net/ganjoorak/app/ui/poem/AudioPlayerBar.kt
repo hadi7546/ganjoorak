@@ -51,8 +51,9 @@ fun AudioPlayerBar(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(colors.card.copy(alpha = 0.96f))
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .background(colors.background.copy(alpha = 0.92f))
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .padding(bottom = 4.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

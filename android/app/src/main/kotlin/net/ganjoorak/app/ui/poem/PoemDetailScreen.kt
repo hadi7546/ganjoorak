@@ -15,6 +15,7 @@ import net.ganjoorak.app.data.repository.PoemRepository
 import net.ganjoorak.app.domain.settings.AppSettings
 import net.ganjoorak.app.ui.common.ErrorScreen
 import net.ganjoorak.app.ui.common.LoadingScreen
+import net.ganjoorak.app.ui.common.LocalAudioBarVisible
 import net.ganjoorak.app.util.poemPoetKey
 
 @Composable
@@ -29,6 +30,7 @@ fun PoemDetailScreen(
     var poem by remember { mutableStateOf<Poem?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var reloadToken by remember { mutableIntStateOf(0) }
+    val audioBarVisible = LocalAudioBarVisible.current
 
     LaunchedEffect(poemId, reloadToken) {
         error = null
@@ -57,6 +59,7 @@ fun PoemDetailScreen(
             onNext = {},
             onPrevious = {},
             onNavigateToPoet = { onNavigateToPoet(poemPoetKey(poem!!)) },
+            onAudioBarVisibilityChanged = { audioBarVisible.value = it },
             modifier = Modifier.fillMaxSize(),
         )
     }
