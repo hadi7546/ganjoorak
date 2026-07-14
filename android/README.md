@@ -5,6 +5,7 @@ Kotlin Jetpack Compose Android client for the [Ganjoorak](https://github.com) we
 ## Features
 
 - **Home feed** — vertical poem pager with prefetch (like the web `PoemFeedPager`)
+- **Website-like chrome** — floating menu / search / zen-lock buttons and bottom-sheet menu (no bottom nav)
 - **Themes** — dark, light, and paper color schemes matching the web CSS variables
 - **Fonts** — Vazirmatn, Samim, Shabnam, Gandom (bundled TTF); more can be added under `app/src/main/res/font/`
 - **Settings** — font size slider (85–125%), line numbers, UI visibility toggles, zen scroll lock, followed poets
