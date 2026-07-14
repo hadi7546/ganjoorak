@@ -16,6 +16,7 @@ import net.ganjoorak.app.data.repository.PoemRepository
 import net.ganjoorak.app.domain.settings.AppSettings
 import net.ganjoorak.app.ui.common.ErrorScreen
 import net.ganjoorak.app.ui.common.LoadingScreen
+import net.ganjoorak.app.ui.common.LocalAudioBarVisible
 import net.ganjoorak.app.ui.feed.dialog.FeedPoetDialog
 import net.ganjoorak.app.ui.poem.PoemViewerScreen
 import net.ganjoorak.app.util.poemPoetKey
@@ -30,6 +31,7 @@ fun FeedScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val audioBarVisible = LocalAudioBarVisible.current
 
     if (state.isLoading && state.poems.isEmpty()) {
         LoadingScreen(modifier)
@@ -94,6 +96,8 @@ fun FeedScreen(
                 onPrevious = viewModel::goPrevious,
                 onNavigateToPoet = { onNavigateToPoet(poemPoetKey(poems[0])) },
                 isActivePage = true,
+                nextPoemTitle = null,
+                onAudioBarVisibilityChanged = { audioBarVisible.value = it },
                 modifier = modifier.fillMaxSize(),
             )
         } else {
@@ -104,6 +108,7 @@ fun FeedScreen(
                 userScrollEnabled = !settings.zenScrollLock,
             ) { page ->
                 val poem = poems[page]
+                val nextTitle = poems.getOrNull(page + 1)?.title
                 PoemViewerScreen(
                     poem = poem,
                     settings = settings,
@@ -116,6 +121,12 @@ fun FeedScreen(
                     onPrevious = viewModel::goPrevious,
                     onNavigateToPoet = { onNavigateToPoet(poemPoetKey(poem)) },
                     isActivePage = page == pagerState.settledPage,
+                    nextPoemTitle = nextTitle,
+                    onAudioBarVisibilityChanged = { visible ->
+                        if (page == pagerState.settledPage) {
+                            audioBarVisible.value = visible
+                        }
+                    },
                     modifier = Modifier.fillMaxSize(),
                 )
             }
