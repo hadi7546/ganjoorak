@@ -4,6 +4,7 @@ const GANJOOR_API_BASE_URL =
     'http://api.offline.ganjoor.net';
 
 const ganjoorApiUrl = new URL(GANJOOR_API_BASE_URL);
+const isDesktopBuild = process.env.DESKTOP_BUILD === '1';
 
 const isVercel = Boolean(process.env.VERCEL);
 
@@ -29,6 +30,8 @@ const nextConfig = {
     },
 
     images: {
+        // Used by the desktop app when it embeds a standalone Next build.
+        unoptimized: isDesktopBuild,
         remotePatterns: [
             {
                 protocol: ganjoorApiUrl.protocol.replace(':', ''),
