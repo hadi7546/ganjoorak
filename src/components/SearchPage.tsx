@@ -874,7 +874,9 @@ const SearchPage = () => {
       if (`${window.location.pathname}${window.location.search}` !== href) {
         // Native history integrates with Next's useSearchParams and skips the
         // server round-trip router.replace would make on every keystroke.
-        window.history.replaceState(window.history.state, "", href);
+        // The state must be null: passing Next's own history state makes the
+        // patched replaceState treat this as an internal call and ignore it.
+        window.history.replaceState(null, "", href);
       }
     },
     [],

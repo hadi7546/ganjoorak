@@ -1099,6 +1099,13 @@
   font-size: 0.82rem;
 }
 
+/* `.modern-scrollbar` flips direction to ltr for vertical bars; the strip and
+   the poet list must stay rtl so the first item sits on the reading edge. */
+.search-page .search-strip-list,
+.search-page .search-poet-list {
+  direction: rtl;
+}
+
 .search-strip-list {
   display: flex;
   gap: 0.65rem;
