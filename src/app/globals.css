@@ -377,7 +377,7 @@ body {
 
 .menu-section-title {
     margin: 0 0 0.4rem;
-    padding: 0 0.8rem;
+    padding: 0 1rem;
     font-size: 0.72rem;
     font-weight: 600;
     color: rgb(var(--muted-foreground));
@@ -407,7 +407,7 @@ body {
     gap: 0.8rem;
     width: 100%;
     min-height: 2.85rem;
-    padding: 0.55rem 0.8rem;
+    padding: 0.55rem 1rem 0.55rem 0.8rem;
     border: none;
     border-radius: 0.8rem;
     background-color: transparent;
@@ -450,9 +450,9 @@ body {
 .menu-link.is-active::before {
     content: "";
     position: absolute;
-    right: 0;
-    top: 26%;
-    bottom: 26%;
+    right: 0.35rem;
+    top: 28%;
+    bottom: 28%;
     width: 3px;
     border-radius: 9999px;
     background-color: rgb(var(--primary));
