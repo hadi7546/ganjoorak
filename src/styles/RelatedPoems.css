@@ -237,6 +237,13 @@
   }
 }
 
+@media (max-width: 768px) {
+  /* Let the last card scroll clear of the fixed bottom-left action stack. */
+  .related-poems {
+    padding-bottom: 9rem;
+  }
+}
+
 @media (max-width: 480px) {
   .related-poems {
     max-width: 100%;

@@ -644,7 +644,7 @@ export default function PoemFeedPager({
 
           .poem-feed-pager .poem-content--has-eyebrow .poem-text,
           .poem-feed-pager .poem-content--has-eyebrow.poem-content--centered .poem-text {
-            padding-top: calc(clamp(10.75rem, 30vh, 13rem) + env(safe-area-inset-top)) !important;
+            padding-top: calc(clamp(9.75rem, 26vh, 11.25rem) + env(safe-area-inset-top)) !important;
           }
 
           .poem-feed-pager .title-section {
@@ -685,7 +685,7 @@ export default function PoemFeedPager({
 
           .poem-feed-pager .poem-content--has-eyebrow .poem-text,
           .poem-feed-pager .poem-content--has-eyebrow.poem-content--centered .poem-text {
-            padding-top: calc(clamp(10.25rem, 30vh, 12.25rem) + env(safe-area-inset-top)) !important;
+            padding-top: calc(clamp(9.25rem, 26vh, 10.75rem) + env(safe-area-inset-top)) !important;
           }
 
           .poem-feed-pager .title-section {
