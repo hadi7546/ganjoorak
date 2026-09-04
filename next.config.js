@@ -30,7 +30,7 @@ const nextConfig = {
     },
 
     images: {
-        // Desktop embeds Next standalone; skip sharp (~17MB) — WebView loads remote poet images.
+        // Used by the desktop app when it embeds a standalone Next build.
         unoptimized: isDesktopBuild,
         remotePatterns: [
             {
