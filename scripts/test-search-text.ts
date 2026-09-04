@@ -4,7 +4,7 @@ import {
   getVerseSnippet,
   normalizeSearchText,
   parseSearchIntent,
-} from "../src/utils/searchText.ts";
+} from "../src/utils/searchText";
 
 const hafez = {
   id: 2,

@@ -149,7 +149,7 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [localResults, poet.id, poet.source, poetSlug, query]);
+  }, [localResults, poet.id, poet.name, poet.nickname, poet.source, poetSlug, query]);
 
   const getHref = (poem: GanjoorPoemSearchResult | LocalPoemSearchResult) => {
     if ("fullUrl" in poem) {

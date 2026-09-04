@@ -2,10 +2,10 @@ import type { Poet } from "@/types/poet";
 
 export const MIN_SEARCH_QUERY_LENGTH = 2;
 
-const DIACRITICS_PATTERN = /[\u064B-\u065F\u0670\u06D6-\u06ED]/g;
+const DIACRITICS_PATTERN = /[\u064B-\u065F\u0670\u06D6-\u06ED]/;
 const INVISIBLE_PATTERN =
-  /[\u200c\u200d\u200e\u200f\u202a-\u202e\u2066-\u2069]/g;
-const TATWEEL_AND_HAMZA_PATTERN = /[ـء]/g;
+  /[\u200c\u200d\u200e\u200f\u202a-\u202e\u2066-\u2069]/;
+const TATWEEL_AND_HAMZA_PATTERN = /[ـء]/;
 const PERSIAN_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
 const ARABIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
 
@@ -43,19 +43,45 @@ const replaceDigits = (value: string, digits: string) =>
     String(digits.indexOf(digit)),
   );
 
+const normalizeSearchChar = (char: string) => {
+  if (!char) {
+    return "";
+  }
+  if (
+    INVISIBLE_PATTERN.test(char) ||
+    DIACRITICS_PATTERN.test(char) ||
+    TATWEEL_AND_HAMZA_PATTERN.test(char)
+  ) {
+    return "";
+  }
+  if (/\s/.test(char)) {
+    return " ";
+  }
+
+  let mapped = char.normalize("NFC").toLowerCase();
+  mapped = mapped.replace(/ي/g, "ی").replace(/ى/g, "ی");
+  mapped = mapped.replace(/ك/g, "ک");
+  mapped = mapped.replace(/ة/g, "ه").replace(/ۀ/g, "ه");
+  mapped = mapped.replace(/ؤ/g, "و").replace(/ۆ/g, "و");
+  mapped = mapped.replace(/[أإآٱ]/g, "ا");
+  mapped = replaceDigits(mapped, PERSIAN_DIGITS);
+  mapped = replaceDigits(mapped, ARABIC_DIGITS);
+  return mapped;
+};
+
 export const normalizeSearchText = (value: string) => {
-  let text = value.normalize("NFC").trim().toLowerCase();
-  text = text.replace(INVISIBLE_PATTERN, "");
-  text = text.replace(DIACRITICS_PATTERN, "");
-  text = text.replace(TATWEEL_AND_HAMZA_PATTERN, "");
-  text = text.replace(/ي/g, "ی").replace(/ى/g, "ی");
-  text = text.replace(/ك/g, "ک");
-  text = text.replace(/ة/g, "ه").replace(/ۀ/g, "ه");
-  text = text.replace(/ؤ/g, "و").replace(/ۆ/g, "و");
-  text = text.replace(/[أإآٱ]/g, "ا");
-  text = replaceDigits(text, PERSIAN_DIGITS);
-  text = replaceDigits(text, ARABIC_DIGITS);
-  return text.replace(/\s+/g, " ").trim();
+  const chars: string[] = [];
+  for (const char of value.normalize("NFC")) {
+    const mapped = normalizeSearchChar(char);
+    if (!mapped) {
+      continue;
+    }
+    if (mapped === " " && chars[chars.length - 1] === " ") {
+      continue;
+    }
+    chars.push(mapped);
+  }
+  return chars.join("").trim();
 };
 
 const buildNormalizedMapping = (original: string) => {
@@ -63,14 +89,26 @@ const buildNormalizedMapping = (original: string) => {
   const indexMap: number[] = [];
 
   for (let index = 0; index < original.length; index += 1) {
-    const mapped = normalizeSearchText(original[index]);
+    const mapped = normalizeSearchChar(original[index]);
     if (!mapped) {
+      continue;
+    }
+    if (mapped === " " && normalizedChars[normalizedChars.length - 1] === " ") {
       continue;
     }
     for (const char of mapped) {
       normalizedChars.push(char);
       indexMap.push(index);
     }
+  }
+
+  while (normalizedChars[0] === " ") {
+    normalizedChars.shift();
+    indexMap.shift();
+  }
+  while (normalizedChars[normalizedChars.length - 1] === " ") {
+    normalizedChars.pop();
+    indexMap.pop();
   }
 
   return {
