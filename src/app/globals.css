@@ -1588,6 +1588,22 @@ body:has(.menu-drawer) .sidebar-toggle-button {
     color: rgb(var(--destructive));
 }
 
+.global-search-all-results {
+    display: block;
+    margin: 0.85rem 0 0.15rem;
+    padding: 0.8rem 0.9rem;
+    text-align: center;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(var(--foreground) / 0.12);
+    color: rgb(var(--foreground) / 0.88);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.global-search-all-results:hover {
+    background-color: rgb(var(--foreground) / 0.06);
+}
+
 .poet-info-panel {
     width: min(100%, 900px);
 }

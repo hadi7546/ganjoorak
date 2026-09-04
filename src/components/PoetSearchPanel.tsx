@@ -10,6 +10,10 @@ import type { GanjoorPoemSearchResult } from "@/types/ganjoor";
 import type { Poet } from "@/types/poet";
 import { PoetSlug, isValidPoetSlug } from "@/types/poet";
 import { logger } from "@/utils/logger";
+import {
+  MIN_SEARCH_QUERY_LENGTH,
+  normalizeSearchText,
+} from "@/utils/searchText";
 
 interface LocalPoemSearchResult {
   id: number;
@@ -31,14 +35,6 @@ interface PoetSearchPanelProps {
   }>;
 }
 
-const normalizeSearchText = (value: string) =>
-  value
-    .trim()
-    .replace(/[ي]/g, "ی")
-    .replace(/[ك]/g, "ک")
-    .replace(/\s+/g, " ")
-    .toLowerCase();
-
 const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<
@@ -51,7 +47,7 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
 
   const localResults = useMemo(() => {
     const normalizedQuery = normalizeSearchText(query);
-    if (normalizedQuery.length < 2) {
+    if (normalizedQuery.length < MIN_SEARCH_QUERY_LENGTH) {
       return [];
     }
 
@@ -82,7 +78,7 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
 
   useEffect(() => {
     const normalizedQuery = normalizeSearchText(query);
-    if (normalizedQuery.length < 2) {
+    if (normalizedQuery.length < MIN_SEARCH_QUERY_LENGTH) {
       setResults([]);
       setLoading(false);
       return;
@@ -98,10 +94,11 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
           [];
 
         if (poet.source === "ganjoor" || !poet.source) {
-          remoteResults = await ganjoorApi.searchPoems(normalizedQuery, {
+          const page = await ganjoorApi.searchPoems(normalizedQuery, {
             poetId: poet.id,
             pageSize: 12,
           });
+          remoteResults = page.items;
         } else if (poet.source === "echolalia") {
           const poems = await echolaliaApi.searchPoemsByPoetSlug(
             poetSlug,
@@ -191,7 +188,7 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
         )}
       </form>
       {loading && <p className="poet-search-status">در حال جستجو...</p>}
-      {!loading && query.trim().length >= 2 && results.length === 0 && (
+      {!loading && query.trim().length >= MIN_SEARCH_QUERY_LENGTH && results.length === 0 && (
         <p className="poet-search-status">نتیجه‌ای پیدا نشد.</p>
       )}
       {results.length > 0 && (

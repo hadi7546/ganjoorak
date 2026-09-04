@@ -585,13 +585,16 @@ const echolaliaApi = {
     });
   },
 
-  async searchPoems(query: string): Promise<Poem[]> {
+  async searchPoems(
+    query: string,
+    { pageSize = 8 }: { pageSize?: number } = {},
+  ): Promise<Poem[]> {
     const response = await echolaliaHttp.get<EcholaliaPost[]>(
       `${ECHOLALIA_API_BASE_URL}/posts`,
       {
         params: {
           search: query,
-          per_page: 8,
+          per_page: pageSize,
           _fields: "id,date,slug,link,title,content,excerpt,categories",
         },
       },
