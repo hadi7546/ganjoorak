@@ -12,7 +12,7 @@ let poetPoemsCache: Record<string, any> = {};
 const getLocalPoetImageUrl = (poetSlug: PoetSlug) =>
   `/images/poets/${poetSlug}.jpeg`;
 
-const customPoetIds: Record<PoetSlug, number> = {
+export const customPoetIds: Record<PoetSlug, number> = {
   [PoetSlug.RAHMANI]: 101,
   [PoetSlug.FARROKHZAD]: 102,
 };

@@ -45,6 +45,16 @@ export interface EcholaliaPoemSummary {
   date: string;
 }
 
+export interface EcholaliaSearchPost {
+  id: number;
+  title: string;
+  slug: string;
+  link: string;
+  plainText: string;
+  excerpt: string;
+  categoryIds: number[];
+}
+
 const echolaliaHttp = axios.create({
   proxy: false,
   timeout: API_TIMEOUT_MS,
@@ -111,6 +121,24 @@ const mapPostToSummary = (post: EcholaliaPost): EcholaliaPoemSummary => ({
   link: post.link,
   date: post.date,
 });
+
+const mapPostToSearchPost = (post: EcholaliaPost): EcholaliaSearchPost => {
+  const title = decodeHtmlEntities(post.title?.rendered ?? "");
+  const plainText = htmlToPlainText(post.content?.rendered ?? "");
+  const excerpt =
+    htmlToPlainText(post.excerpt?.rendered ?? "").split("\n")[0] ||
+    plainText.split("\n")[0] ||
+    title;
+  return {
+    id: post.id,
+    title,
+    slug: post.slug,
+    link: post.link,
+    plainText,
+    excerpt,
+    categoryIds: Array.isArray(post.categories) ? post.categories : [],
+  };
+};
 
 const getPoetImageRoute = (categoryId: number) =>
   `/api/echolalia/poet-image/${categoryId}`;
@@ -541,9 +569,45 @@ const echolaliaApi = {
     return echolaliaApi.getPoemById(poem.id);
   },
 
+  /**
+   * Single-request search that returns the post text as-is (no per-result
+   * follow-up requests). Callers resolve poets from `categoryIds` themselves.
+   */
+  async searchPosts(
+    query: string,
+    {
+      pageSize = 12,
+      categoryId,
+      signal,
+    }: { pageSize?: number; categoryId?: number; signal?: AbortSignal } = {},
+  ): Promise<EcholaliaSearchPost[]> {
+    const normalizedQuery = query.trim();
+    if (normalizedQuery.length < 2) {
+      return [];
+    }
+
+    const response = await echolaliaHttp.get<EcholaliaPost[]>(
+      `${ECHOLALIA_API_BASE_URL}/posts`,
+      {
+        signal,
+        params: {
+          search: normalizedQuery,
+          per_page: pageSize,
+          ...(categoryId && categoryId > 0 ? { categories: categoryId } : {}),
+          _fields: "id,slug,link,title,content,excerpt,categories",
+        },
+      },
+    );
+
+    return (Array.isArray(response.data) ? response.data : []).map(
+      mapPostToSearchPost,
+    );
+  },
+
   async searchPoemsByPoetSlug(
     slug: string,
     query: string,
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<
     Array<{
       id: number;
@@ -561,6 +625,7 @@ const echolaliaApi = {
     const response = await echolaliaHttp.get<EcholaliaPost[]>(
       `${ECHOLALIA_API_BASE_URL}/posts`,
       {
+        signal,
         params: {
           search: normalizedQuery,
           categories: poet.rootCatId,
@@ -587,11 +652,12 @@ const echolaliaApi = {
 
   async searchPoems(
     query: string,
-    { pageSize = 8 }: { pageSize?: number } = {},
+    { pageSize = 8, signal }: { pageSize?: number; signal?: AbortSignal } = {},
   ): Promise<Poem[]> {
     const response = await echolaliaHttp.get<EcholaliaPost[]>(
       `${ECHOLALIA_API_BASE_URL}/posts`,
       {
+        signal,
         params: {
           search: query,
           per_page: pageSize,

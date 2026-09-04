@@ -299,10 +299,31 @@ export const getVerseSnippet = (
     };
   }
 
-  const matchIndex =
-    needle.length >= MIN_SEARCH_QUERY_LENGTH
-      ? lines.findIndex((line) => normalizeSearchText(line).includes(needle))
-      : -1;
+  const canMatch = needle.length >= MIN_SEARCH_QUERY_LENGTH;
+  const normalizedLines = canMatch ? lines.map(normalizeSearchText) : [];
+  let matchIndex = canMatch
+    ? normalizedLines.findIndex((line) => line.includes(needle))
+    : -1;
+  let highlightNeedle = needle;
+
+  // Multi-word queries are usually matched word-by-word by the backend, so
+  // the whole phrase may never appear in one verse. Fall back to the verse
+  // containing the longest query word and highlight that instead.
+  if (matchIndex < 0 && canMatch && needle.includes(" ")) {
+    const words = needle
+      .split(" ")
+      .filter((word) => word.length >= MIN_SEARCH_QUERY_LENGTH)
+      .sort((left, right) => right.length - left.length);
+    for (const word of words) {
+      const wordIndex = normalizedLines.findIndex((line) => line.includes(word));
+      if (wordIndex >= 0) {
+        matchIndex = wordIndex;
+        highlightNeedle = word;
+        break;
+      }
+    }
+  }
+
   const index = matchIndex >= 0 ? matchIndex : 0;
   const matchLine = lines[index];
   const nextLine = lines[index + 1] ?? null;
@@ -312,9 +333,8 @@ export const getVerseSnippet = (
     matchLine,
     contextLine: nextLine ?? previousLine,
     contextPosition: nextLine ? "after" : previousLine ? "before" : null,
-    highlight: needle
-      ? findNormalizedMatchRange(matchLine, needle)
-      : null,
+    highlight:
+      matchIndex >= 0 ? findNormalizedMatchRange(matchLine, highlightNeedle) : null,
   };
 };
 

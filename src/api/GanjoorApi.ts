@@ -42,6 +42,7 @@ const getAudioProxyUrl = (url?: string) =>
 
 // Cache for poet data
 const poetCache: Record<string, Poet | undefined> = {};
+let poetsListPromise: Promise<Poet[]> | null = null;
 const poetCatalogCache: Record<string, GanjoorPoetCatalog | undefined> = {};
 const poetCatalogPromiseCache: Record<
   string,
@@ -296,6 +297,18 @@ const ganjoorApi = {
   },
 
   async getPoets(): Promise<Poet[]> {
+    // The catalog is requested by several screens (home feed, search, dialogs);
+    // share one in-flight/completed request per session instead of refetching.
+    if (!poetsListPromise) {
+      poetsListPromise = ganjoorApi.fetchPoets().catch((error) => {
+        poetsListPromise = null;
+        throw error;
+      });
+    }
+    return poetsListPromise;
+  },
+
+  async fetchPoets(): Promise<Poet[]> {
     const response = await ganjoorHttp.get(`${API_BASE_URL}/api/ganjoor/poets`, {
       timeout: API_TIMEOUT_MS,
       headers: {
@@ -339,11 +352,13 @@ const ganjoorApi = {
       pageNumber = 1,
       poetId,
       catId,
+      signal,
     }: {
       pageSize?: number;
       pageNumber?: number;
       poetId?: number;
       catId?: number;
+      signal?: AbortSignal;
     } = {},
   ): Promise<GanjoorPoemSearchPage> {
     const normalizedTerm = term.trim();
@@ -359,6 +374,7 @@ const ganjoorApi = {
         `${API_BASE_URL}/api/ganjoor/poems/search`,
         {
           timeout: API_TIMEOUT_MS,
+          signal,
           params: {
             term: normalizedTerm,
             PageNumber: pageNumber,
@@ -387,6 +403,9 @@ const ganjoorApi = {
         ),
       };
     } catch (error) {
+      if (axios.isCancel(error) || signal?.aborted) {
+        throw error;
+      }
       logger.error("Error searching poems:", error);
       throw new Error("متأسفانه در جستجوی شعرها مشکلی پیش آمد");
     }
