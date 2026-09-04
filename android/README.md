@@ -1,6 +1,6 @@
 # Ganjoorak Android (گنجورک)
 
-Kotlin Jetpack Compose Android client for the [Ganjoorak](https://github.com) web app — Persian poetry feed with Material 3 UI, themes, fonts, audio recitations, and verse sync.
+Kotlin Jetpack Compose Android client for the [Ganjoorak](https://github.com/hadi7546/ganjoorak) web app — Persian poetry feed with Material 3 UI, themes, fonts, audio recitations, and verse sync.
 
 ## Features
 
@@ -32,7 +32,7 @@ Open the `android/` folder in Android Studio for emulator/device runs.
 
 ## CI releases
 
-Pushes to `master` that change `android/**` trigger [`.github/workflows/android-release.yml`](../.github/workflows/android-release.yml), which builds a signed release APK and publishes a GitHub Release (tag `android-v{version}-build{N}`).
+Pushes to `master`/`main` that change `android/**` trigger [`.github/workflows/android-release.yml`](../.github/workflows/android-release.yml), which builds a signed release APK and publishes a GitHub Release (tag `android-v{version}-build{N}`).
 
 Optional repository secrets for Play Store–grade signing (otherwise the workflow uses the debug keystore):
 

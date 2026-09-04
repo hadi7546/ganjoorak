@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - main
     paths:
       - "desktop/**"
       - ".github/workflows/desktop-release.yml"
@@ -31,6 +32,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checkout Ganjoorak web
+        uses: actions/checkout@v4
+        with:
+          repository: hadi7546/ganjoorak
+          path: ganjoorak-web
+
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
@@ -51,8 +58,8 @@ jobs:
           node-version: "20"
           cache: npm
           cache-dependency-path: |
-            package-lock.json
             desktop/package-lock.json
+            ganjoorak-web/package-lock.json
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
@@ -77,6 +84,8 @@ jobs:
           echo "tag=desktop-v${VERSION}-build${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
       - name: Build Linux packages
+        env:
+          GANJOORAK_WEB_DIR: ${{ github.workspace }}/ganjoorak-web
         run: npm run build
 
       - name: Collect artifacts

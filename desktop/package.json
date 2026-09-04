@@ -5,9 +5,10 @@
   "description": "Ganjoorak desktop app (Tauri)",
   "scripts": {
     "dev": "tauri dev",
+    "dev:web": "node scripts/dev-web.mjs",
     "build": "tauri build",
     "prepare:next": "node scripts/prepare-next-standalone.mjs",
-    "prepare:icons": "tauri icon ../public/icon-512.png"
+    "prepare:icons": "tauri icon src-tauri/icons/icon.png"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2"

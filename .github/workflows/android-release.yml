@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - main
     paths:
       - "android/**"
       - ".github/workflows/android-release.yml"

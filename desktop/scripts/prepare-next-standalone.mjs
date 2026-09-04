@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
- * Builds the root Next.js app as standalone output and stages it for Tauri resources.
+ * Builds the Ganjoorak Next.js app as standalone output and stages it for Tauri resources.
  * Optionally bundles a Node.js binary for Linux when BUNDLE_NODE=1 (CI).
+ *
+ * The web app lives in a separate repo. Set GANJOORAK_WEB_DIR, or clone
+ * hadi7546/ganjoorak as a sibling named `ganjoorak` (CI uses `ganjoorak-web/`).
  */
 import { spawnSync } from "node:child_process";
 import {
@@ -17,10 +20,11 @@ import {
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { pipeline } from "node:stream/promises";
+import { resolveWebDir } from "./resolve-web-dir.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const desktopDir = join(__dirname, "..");
-const repoRoot = join(desktopDir, "..");
+const repoRoot = resolveWebDir();
 const tauriDir = join(desktopDir, "src-tauri");
 const standaloneDest = join(tauriDir, "next-standalone");
 const shellDest = join(desktopDir, "dist-shell");
