@@ -19,6 +19,7 @@ import {
   FaChevronDown,
   FaExclamationCircle,
   FaFeatherAlt,
+  FaHistory,
   FaRedoAlt,
   FaSearch,
   FaTimes,
@@ -28,9 +29,8 @@ import SettingsDialog from "@/components/SettingsDialog";
 import GlobalSearchDialog from "@/components/GlobalSearchDialog";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
 import ganjoorApi from "@/api/GanjoorApi";
-import customApi from "@/api/CustomApi";
 import echolaliaApi from "@/api/EcholaliaApi";
-import { PoetSlug } from "@/types/poet";
+import type { PoetSlug } from "@/types/poet";
 import type {
   GanjoorPagingHeaders,
   GanjoorPoemSearchResult,
@@ -48,7 +48,20 @@ import {
 } from "@/utils/poetDirectory";
 import { LruCache, createSessionCache } from "@/utils/searchCache";
 import {
+  getLocalSearchIndex,
+  loadLocalSearchIndex,
+  searchLocalIndex,
+  type IndexedLocalPoem,
+} from "@/utils/localSearchIndex";
+import {
+  clearRecentSearches,
+  forgetRecentSearch,
+  readRecentSearches,
+  rememberRecentSearch,
+} from "@/utils/recentSearches";
+import {
   MIN_SEARCH_QUERY_LENGTH,
+  formatPersianNumber,
   getVerseSnippet,
   normalizeSearchText,
   parseSearchIntent,
@@ -126,7 +139,16 @@ const SOURCE_LABELS: Record<PoemLibrarySource, string> = {
   custom: "محلی",
   echolalia: "اکولالیا",
 };
-const SUGGESTIONS = ["عشق", "رخ یار", "بهار", "جدایی", "می", "دوست", "وطن", "مرگ"];
+const EXAMPLE_QUERIES = [
+  "رخ یار",
+  "عشق",
+  "شعر حافظ درمورد عشق",
+  "باران",
+  "تنهایی",
+  "مولانا درمورد جدایی",
+];
+const MAX_RESTORED_HITS = 60;
+const SCROLL_STORAGE_KEY = "ganjoorak:search-scroll:v1";
 
 const emptyPaging: GanjoorPagingHeaders = {
   totalCount: 0,
@@ -144,16 +166,40 @@ const idleGanjoor: GanjoorSection = {
 };
 const idleList: ListSection = { status: "idle", hits: [] };
 
-const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
-const formatPersianNumber = (value: number) =>
-  persianNumberFormatter.format(value);
-
 const firstPageCache = new LruCache<CachedFirstPage>(40);
 const pageCache = new LruCache<CachedGanjoorPage>(80);
+// De-duplicates the sentinel-triggered load and the eager N+1 prefetch.
+const inflightPages = new Map<string, Promise<CachedGanjoorPage>>();
 const sessionFirstPageCache = createSessionCache<CachedFirstPage>(
   "ganjoorak:search-results:v1",
   8,
 );
+
+interface StoredScroll {
+  key: string;
+  y: number;
+}
+
+const readStoredScroll = (): StoredScroll | null => {
+  try {
+    const raw = window.sessionStorage.getItem(SCROLL_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as StoredScroll) : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredScroll = (value: StoredScroll | null) => {
+  try {
+    if (value) {
+      window.sessionStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(value));
+    } else {
+      window.sessionStorage.removeItem(SCROLL_STORAGE_KEY);
+    }
+  } catch {
+    // Ignore storage failures; scroll restoration is best-effort.
+  }
+};
 
 const isAbortError = (error: unknown, signal?: AbortSignal) =>
   Boolean(signal?.aborted) ||
@@ -200,68 +246,44 @@ const mapGanjoorHit = (
   snippet: getVerseSnippet(poem.plainText || poem.poemSummary || "", term),
 });
 
-const searchLocalPoems = async (
+const mapLocalHit = (poem: IndexedLocalPoem, term: string): SearchHit => ({
+  key: `custom:${poem.slug}:${poem.id}`,
+  id: poem.id,
+  title: poem.title,
+  poetName: poem.poetName,
+  poetSlug: poem.slug,
+  source: "custom",
+  href: getPoemHref({
+    id: poem.id,
+    source: "custom",
+    poetSlug: poem.slug,
+    fullUrl: "",
+  }),
+  collection: poem.collection,
+  avatarUrl: `/images/poets/${poem.slug}.jpeg`,
+  snippet: getVerseSnippet(poem.text, term),
+});
+
+/**
+ * Synchronous once the index is warm (it is preloaded on mount), so local
+ * results appear in the same frame as the keystroke commit.
+ */
+const searchLocalPoems = (
   term: string,
   poet: DirectoryPoet | null,
-): Promise<SearchHit[]> => {
+): SearchHit[] | Promise<SearchHit[]> => {
   const normalizedQuery = normalizeSearchText(term);
   if (normalizedQuery.length < MIN_SEARCH_QUERY_LENGTH) {
     return [];
   }
+  const slug = poet ? (poet.urlSlug as PoetSlug) : null;
+  const run = (poems: IndexedLocalPoem[]) =>
+    searchLocalIndex(poems, normalizedQuery, slug).map((poem) =>
+      mapLocalHit(poem, term),
+    );
 
-  const slugs = poet
-    ? Object.values(PoetSlug).filter((slug) => slug === poet.urlSlug)
-    : Object.values(PoetSlug);
-
-  const datasets = await Promise.allSettled(
-    slugs.map(async (slug) => ({
-      slug,
-      data: await customApi._getPoetData(slug),
-    })),
-  );
-
-  const hits: SearchHit[] = [];
-  datasets.forEach((result) => {
-    if (result.status !== "fulfilled") {
-      return;
-    }
-
-    const { slug, data } = result.value;
-    const poetName = data?.poet || slug;
-    (data?.poems ?? []).forEach((poem: any) => {
-      const collection =
-        typeof poem?.collection === "string" && poem.collection.trim()
-          ? poem.collection.trim()
-          : null;
-      const plainText = String(poem?.text ?? "");
-      const haystack = normalizeSearchText(
-        [poem?.title, plainText, collection, poetName].filter(Boolean).join(" "),
-      );
-      if (!haystack.includes(normalizedQuery)) {
-        return;
-      }
-
-      hits.push({
-        key: `custom:${slug}:${poem.id}`,
-        id: poem.id,
-        title: poem.title || `شعر ${poem.id}`,
-        poetName,
-        poetSlug: slug,
-        source: "custom",
-        href: getPoemHref({
-          id: poem.id,
-          source: "custom",
-          poetSlug: slug,
-          fullUrl: "",
-        }),
-        collection,
-        avatarUrl: `/images/poets/${slug}.jpeg`,
-        snippet: getVerseSnippet(plainText, term),
-      });
-    });
-  });
-
-  return hits;
+  const ready = getLocalSearchIndex();
+  return ready ? run(ready) : loadLocalSearchIndex().then(run);
 };
 
 const searchEcholaliaPoems = async (
@@ -488,7 +510,7 @@ const SkeletonCard = ({ compact = false }: { compact?: boolean }) => (
   </li>
 );
 
-const PoetCombobox = ({
+const PoetCombobox = memo(function PoetCombobox({
   poets,
   value,
   onChange,
@@ -496,7 +518,7 @@ const PoetCombobox = ({
   poets: DirectoryPoet[];
   value: DirectoryPoet | null;
   onChange: (poet: DirectoryPoet | null) => void;
-}) => {
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -700,7 +722,31 @@ const PoetCombobox = ({
       )}
     </div>
   );
-};
+});
+
+const SourceSegmentedControl = memo(function SourceSegmentedControl({
+  value,
+  onChange,
+}: {
+  value: SourceFilter;
+  onChange: (value: SourceFilter) => void;
+}) {
+  return (
+    <div className="search-segmented" role="group" aria-label="منبع">
+      {SOURCE_FILTERS.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          className={`search-segment${value === option.value ? " is-active" : ""}`}
+          aria-pressed={value === option.value}
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+});
 
 const SearchPage = () => {
   const searchParams = useSearchParams();
@@ -723,6 +769,7 @@ const SearchPage = () => {
   const [loadMoreError, setLoadMoreError] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
   const [isCompact, setIsCompact] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -738,6 +785,7 @@ const SearchPage = () => {
   const lastCommittedRef = useRef(urlQuery);
   const bypassCacheRef = useRef(false);
   const loadingMoreRef = useRef(false);
+  const restoreScrollRef = useRef<number | null>(null);
   const ganjoorRef = useRef(ganjoor);
   ganjoorRef.current = ganjoor;
 
@@ -754,8 +802,11 @@ const SearchPage = () => {
   planRef.current = plan;
 
   // Instant static directory first; Ganjoor nicknames merge in when ready.
+  // The local poem index is warmed at the same time so typing hits it in sync.
   useEffect(() => {
     setDirectory(getPoetDirectory());
+    setRecentSearches(readRecentSearches());
+    void loadLocalSearchIndex();
     let cancelled = false;
     loadPoetDirectory().then((next) => {
       if (!cancelled) {
@@ -841,6 +892,23 @@ const SearchPage = () => {
     [updateParams],
   );
 
+  const rememberQuery = useCallback((value: string) => {
+    if (normalizeSearchText(value).length >= MIN_SEARCH_QUERY_LENGTH) {
+      setRecentSearches(rememberRecentSearch(value));
+    }
+  }, []);
+
+  // Deliberate searches (Enter, chips, opening a poem) become "recent"; the
+  // intermediate states of typing do not.
+  const submitQuery = useCallback(
+    (value: string) => {
+      setDraft(value);
+      commitDraft(value);
+      rememberQuery(value);
+    },
+    [commitDraft, rememberQuery],
+  );
+
   // Back/forward, chips and the modal push a query into the URL; mirror it.
   useEffect(() => {
     if (urlQuery !== lastCommittedRef.current) {
@@ -898,6 +966,13 @@ const SearchPage = () => {
       setEcholalia(
         cached.echolalia ? { status: "done", hits: cached.echolalia } : idleList,
       );
+      // Coming back from a poem: the list is restored in this same commit, so
+      // the saved offset is valid again once React has painted it.
+      const stored = readStoredScroll();
+      if (stored && stored.key === currentPlan.key && stored.y > 0) {
+        restoreScrollRef.current = stored.y;
+      }
+      writeStoredScroll(null);
     };
 
     const run = async () => {
@@ -982,11 +1057,18 @@ const SearchPage = () => {
             })
         : Promise.resolve(null);
 
-      const localTask: Promise<SearchHit[] | null> = currentPlan.includeLocal
-        ? searchLocalPoems(
-            currentPlan.term,
-            currentPlan.poet?.source === "custom" ? currentPlan.poet : null,
-          )
+      let localTask: Promise<SearchHit[] | null> = Promise.resolve(null);
+      if (currentPlan.includeLocal) {
+        const localResult = searchLocalPoems(
+          currentPlan.term,
+          currentPlan.poet?.source === "custom" ? currentPlan.poet : null,
+        );
+        if (Array.isArray(localResult)) {
+          // Warm index: resolve synchronously so local hits paint with the query.
+          setLocal({ status: "done", hits: localResult });
+          localTask = Promise.resolve(localResult);
+        } else {
+          localTask = localResult
             .then((hits) => {
               if (isCurrent()) {
                 setLocal({ status: "done", hits });
@@ -999,8 +1081,9 @@ const SearchPage = () => {
                 setLocal({ status: "error", hits: [] });
               }
               return null;
-            })
-        : Promise.resolve(null);
+            });
+        }
+      }
 
       const echolaliaTask: Promise<SearchHit[] | null> = currentPlan.includeEcholalia
         ? searchEcholaliaPoems(
@@ -1057,6 +1140,43 @@ const SearchPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan.key, plan.shouldSearch, retryToken]);
 
+  /** Cached, in-flight-shared fetch of one Ganjoor page for the current plan. */
+  const fetchGanjoorPage = useCallback(
+    (currentPlan: SearchPlan, pageNumber: number, signal?: AbortSignal) => {
+      const cacheKey = `${currentPlan.key}|${pageNumber}`;
+      const cached = pageCache.get(cacheKey);
+      if (cached) {
+        return Promise.resolve(cached);
+      }
+      const inflight = inflightPages.get(cacheKey);
+      if (inflight) {
+        return inflight;
+      }
+      const request = ganjoorApi
+        .searchPoems(currentPlan.term, {
+          pageNumber,
+          pageSize: PAGE_SIZE,
+          poetId:
+            currentPlan.poet?.source === "ganjoor" ? currentPlan.poet.id : undefined,
+          signal,
+        })
+        .then((response) => {
+          const page: CachedGanjoorPage = {
+            hits: response.items.map((poem) => mapGanjoorHit(poem, currentPlan.term)),
+            paging: response.paging,
+          };
+          pageCache.set(cacheKey, page);
+          return page;
+        })
+        .finally(() => {
+          inflightPages.delete(cacheKey);
+        });
+      inflightPages.set(cacheKey, request);
+      return request;
+    },
+    [],
+  );
+
   const loadMore = useCallback(async () => {
     const currentPlan = planRef.current;
     const state = ganjoorRef.current;
@@ -1070,7 +1190,6 @@ const SearchPage = () => {
     }
 
     const pageNumber = state.paging.currentPage + 1;
-    const cacheKey = `${currentPlan.key}|${pageNumber}`;
     const requestId = requestIdRef.current;
     const signal = controllerRef.current?.signal;
     loadingMoreRef.current = true;
@@ -1078,25 +1197,10 @@ const SearchPage = () => {
     setLoadMoreError(false);
 
     try {
-      let page = pageCache.get(cacheKey);
-      if (!page) {
-        const response = await ganjoorApi.searchPoems(currentPlan.term, {
-          pageNumber,
-          pageSize: PAGE_SIZE,
-          poetId:
-            currentPlan.poet?.source === "ganjoor" ? currentPlan.poet.id : undefined,
-          signal,
-        });
-        page = {
-          hits: response.items.map((poem) => mapGanjoorHit(poem, currentPlan.term)),
-          paging: response.paging,
-        };
-        pageCache.set(cacheKey, page);
-      }
+      const nextPage = await fetchGanjoorPage(currentPlan, pageNumber, signal);
       if (requestIdRef.current !== requestId) {
         return;
       }
-      const nextPage = page;
       setGanjoor((previous) => ({
         status: "done",
         hits: dedupeHits([...previous.hits, ...nextPage.hits]),
@@ -1114,10 +1218,65 @@ const SearchPage = () => {
         setIsLoadingMore(false);
       }
     }
-  }, []);
+  }, [fetchGanjoorPage]);
 
   const canLoadMore =
     plan.includeGanjoor && ganjoor.status === "done" && ganjoor.paging.hasNextPage;
+
+  // Prefetch page N+1 as soon as page N is on screen so the sentinel hit is
+  // served from cache. Failures are silent; loadMore surfaces them if needed.
+  useEffect(() => {
+    if (!canLoadMore) {
+      return;
+    }
+    const signal = controllerRef.current?.signal;
+    fetchGanjoorPage(planRef.current, ganjoor.paging.currentPage + 1, signal).catch(
+      () => undefined,
+    );
+  }, [canLoadMore, fetchGanjoorPage, ganjoor.paging.currentPage]);
+
+  // Scroll restoration after cached results were applied (back navigation).
+  useEffect(() => {
+    const target = restoreScrollRef.current;
+    if (target === null || ganjoor.status === "loading") {
+      return;
+    }
+    restoreScrollRef.current = null;
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: target, behavior: "auto" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [ganjoor.status, ganjoor.hits.length, local.status, echolalia.status]);
+
+  /**
+   * Snapshot what is on screen (up to a few pages) plus the scroll offset so
+   * returning from a poem is instant and lands where the user left off.
+   */
+  const persistForBackNavigation = useCallback(() => {
+    const currentPlan = planRef.current;
+    const state = ganjoorRef.current;
+    if (!currentPlan.shouldSearch) {
+      return;
+    }
+    const cached = firstPageCache.get(currentPlan.key);
+    if (cached) {
+      const restored: CachedFirstPage = {
+        ...cached,
+        ganjoor:
+          currentPlan.includeGanjoor && state.status === "done"
+            ? { hits: state.hits.slice(0, MAX_RESTORED_HITS), paging: state.paging }
+            : cached.ganjoor,
+      };
+      sessionFirstPageCache.set(currentPlan.key, restored);
+      firstPageCache.set(currentPlan.key, restored);
+    }
+    writeStoredScroll({ key: currentPlan.key, y: Math.round(window.scrollY) });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("pagehide", persistForBackNavigation);
+    return () => window.removeEventListener("pagehide", persistForBackNavigation);
+  }, [persistForBackNavigation]);
 
   useEffect(() => {
     const node = loadMoreSentinelRef.current;
@@ -1234,6 +1393,20 @@ const SearchPage = () => {
     const smart = buildPlan(urlQuery, sourceFilter, selectedPoet, false, directory);
     return smart.rewritten || smart.poetFromIntent;
   }, [directory, exact, selectedPoet, shouldSearch, sourceFilter, urlQuery]);
+  const isBusy = shouldSearch && (primaryLoading || modernLoading || isLoadingMore);
+
+  const handleSourceChange = useCallback(
+    (value: SourceFilter) => updateParams({ source: value }),
+    [updateParams],
+  );
+  const handlePoetChange = useCallback(
+    (poet: DirectoryPoet | null) => updateParams({ poet: poet ? poet.key : null }),
+    [updateParams],
+  );
+  const handleResultClick = useCallback(() => {
+    persistForBackNavigation();
+    rememberQuery(urlQuery);
+  }, [persistForBackNavigation, rememberQuery, urlQuery]);
 
   return (
     <div className="search-page" dir="rtl">
@@ -1258,12 +1431,10 @@ const SearchPage = () => {
         onClose={() => setIsSearchOpen(false)}
       />
 
-      <main className="search-page-shell">
+      <main className={`search-page-shell${shouldSearch ? " has-query" : ""}`}>
         <header className="search-page-header">
-          <h1>جستجو</h1>
-          <p>
-            واژه، مصرع یا نام شاعر را بنویسید؛ مثلاً «شعر حافظ درمورد عشق».
-          </p>
+          <h1>جستجو در شعر</h1>
+          <p>واژه، مصرع یا نام شاعر را بنویسید؛ مثلاً «شعر حافظ درمورد عشق».</p>
         </header>
 
         <div ref={stickySentinelRef} className="search-sticky-sentinel" aria-hidden="true" />
@@ -1273,7 +1444,7 @@ const SearchPage = () => {
             role="search"
             onSubmit={(event) => {
               event.preventDefault();
-              commitDraft(draft);
+              submitQuery(draft);
               inputRef.current?.blur();
             }}
           >
@@ -1282,6 +1453,7 @@ const SearchPage = () => {
               <input
                 ref={inputRef}
                 type="search"
+                dir="rtl"
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={handleInputKeyDown}
@@ -1289,6 +1461,7 @@ const SearchPage = () => {
                 aria-label="جستجوی شعر"
                 autoComplete="off"
                 enterKeyHint="search"
+                inputMode="search"
                 spellCheck={false}
               />
               {(primaryLoading || isLoadingMore) && shouldSearch && (
@@ -1317,68 +1490,155 @@ const SearchPage = () => {
               جستجو
             </button>
           </form>
-        </div>
-
-        <div className="search-filters">
-          <div className="search-source-filters" role="group" aria-label="منبع">
-            {SOURCE_FILTERS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`search-chip${sourceFilter === option.value ? " is-active" : ""}`}
-                aria-pressed={sourceFilter === option.value}
-                onClick={() => updateParams({ source: option.value })}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-          <PoetCombobox
-            poets={directory}
-            value={selectedPoet}
-            onChange={(poet) => updateParams({ poet: poet ? poet.key : null })}
+          <span
+            className={`search-progress${isBusy ? " is-active" : ""}`}
+            role="progressbar"
+            aria-hidden={!isBusy}
+            aria-label="در حال بارگذاری"
           />
         </div>
 
+        <div className="search-filters">
+          <SourceSegmentedControl value={sourceFilter} onChange={handleSourceChange} />
+          <PoetCombobox poets={directory} value={selectedPoet} onChange={handlePoetChange} />
+        </div>
+
         {!shouldSearch && (
-          <section className="search-suggestions" aria-label="پیشنهادها">
-            <p>چند پیشنهاد برای شروع:</p>
-            <div className="search-suggestion-chips">
-              {SUGGESTIONS.map((suggestion) => (
-                <button
-                  key={suggestion}
-                  type="button"
-                  className="search-chip search-chip-suggestion"
-                  onClick={() => {
-                    setDraft(suggestion);
-                    commitDraft(suggestion);
-                  }}
-                >
-                  {suggestion}
-                </button>
-              ))}
+          <section className="search-start" aria-label="شروع جستجو">
+            {recentSearches.length > 0 && (
+              <div className="search-start-group">
+                <div className="search-start-heading">
+                  <h2>
+                    <FaHistory aria-hidden="true" />
+                    جستجوهای اخیر
+                  </h2>
+                  <button
+                    type="button"
+                    className="search-text-button"
+                    onClick={() => setRecentSearches(clearRecentSearches())}
+                  >
+                    پاک کردن
+                  </button>
+                </div>
+                <ul className="search-chip-row">
+                  {recentSearches.map((item) => (
+                    <li key={item} className="search-chip search-chip-recent">
+                      <button
+                        type="button"
+                        className="search-chip-recent-label"
+                        onClick={() => submitQuery(item)}
+                      >
+                        {item}
+                      </button>
+                      <button
+                        type="button"
+                        className="search-chip-remove"
+                        aria-label={`حذف «${item}» از جستجوهای اخیر`}
+                        onClick={() => setRecentSearches(forgetRecentSearch(item))}
+                      >
+                        <FaTimes aria-hidden="true" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="search-start-group">
+              <div className="search-start-heading">
+                <h2>
+                  <FaFeatherAlt aria-hidden="true" />
+                  چند پیشنهاد
+                </h2>
+              </div>
+              <ul className="search-chip-row">
+                {EXAMPLE_QUERIES.map((example) => (
+                  <li key={example}>
+                    <button
+                      type="button"
+                      className="search-chip search-chip-suggestion"
+                      onClick={() => submitQuery(example)}
+                    >
+                      {example}
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
+
+            <ul className="search-hints" aria-label="راهنمای جستجو">
+              <li>
+                <strong>عبارت</strong>
+                <span>یک واژه یا بخشی از مصرع؛ مثل «رخ یار»</span>
+              </li>
+              <li>
+                <strong>شاعر</strong>
+                <span>نام شاعر را کنار عبارت بنویسید؛ مثل «حافظ عشق»</span>
+              </li>
+              <li>
+                <strong>درمورد …</strong>
+                <span>موضوع را با «درمورد» مشخص کنید؛ مثل «مولانا درمورد جدایی»</span>
+              </li>
+            </ul>
           </section>
         )}
 
         {showIntentLine && (
-          <p className="search-intent">
-            <span>
-              جستجو برای «{plan.term}»
-              {plan.poetFromIntent && poetLabel ? ` با فیلتر ${poetLabel}` : ""}
+          <div className="search-intent" aria-label="برداشت از جستجو">
+            <span className="search-intent-label">برداشت ما:</span>
+            {plan.poetFromIntent && plan.poet && (
+              <span className="search-intent-chip">
+                <PoetAvatar
+                  src={plan.poet.imageUrl}
+                  name={getDirectoryPoetDisplayName(plan.poet)}
+                  size={20}
+                />
+                <span>
+                  <small>شاعر</small>
+                  {poetLabel}
+                </span>
+                <button
+                  type="button"
+                  className="search-chip-remove"
+                  aria-label={`حذف فیلتر شاعر ${poetLabel}`}
+                  onClick={() => updateParams({ exact: true })}
+                >
+                  <FaTimes aria-hidden="true" />
+                </button>
+              </span>
+            )}
+            <span className="search-intent-chip">
+              <span>
+                <small>موضوع</small>
+                {plan.term}
+              </span>
             </span>
-            <button type="button" onClick={() => updateParams({ exact: true })}>
-              جستجوی دقیق عبارت
+            <button
+              type="button"
+              className="search-text-button"
+              onClick={() => updateParams({ exact: true })}
+            >
+              جستجوی عین عبارت
             </button>
-          </p>
+          </div>
         )}
         {exact && shouldSearch && wouldRewrite && (
-          <p className="search-intent">
-            <span>جستجوی دقیق «{plan.normalizedQuery}»</span>
-            <button type="button" onClick={() => updateParams({ exact: false })}>
+          <div className="search-intent" aria-label="برداشت از جستجو">
+            <span className="search-intent-label">جستجوی دقیق:</span>
+            <span className="search-intent-chip">
+              <span>
+                <small>عبارت</small>
+                {plan.normalizedQuery}
+              </span>
+            </span>
+            <button
+              type="button"
+              className="search-text-button"
+              onClick={() => updateParams({ exact: false })}
+            >
               جستجوی هوشمند
             </button>
-          </p>
+          </div>
         )}
 
         {shouldSearch && showStrip && !(modernDone && modernHits.length === 0 && !echolaliaFailed) && (
@@ -1401,7 +1661,7 @@ const SearchPage = () => {
                 )}
               </span>
             </header>
-            <ul className="search-strip-list modern-scrollbar">
+            <ul className="search-strip-list modern-scrollbar" onClickCapture={handleResultClick}>
               {modernHits.slice(0, STRIP_LIMIT).map((hit, index) => (
                 <ResultCard key={hit.key} hit={hit} delayIndex={index} compact />
               ))}
@@ -1516,6 +1776,7 @@ const SearchPage = () => {
             ref={listRef}
             className={`search-results${primaryStale ? " is-stale" : ""}`}
             onKeyDown={handleListKeyDown}
+            onClickCapture={handleResultClick}
             aria-busy={primaryLoading}
           >
             {showSkeleton &&

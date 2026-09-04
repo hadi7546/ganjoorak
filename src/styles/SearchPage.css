@@ -25,17 +25,41 @@
 .search-page-shell {
   max-width: 42rem;
   margin: 0 auto;
-  padding: 4.75rem 1.25rem 4rem;
+  padding: 4.75rem 1.25rem calc(4rem + env(safe-area-inset-bottom));
+}
+
+.search-page-header {
+  position: relative;
+  text-align: center;
+  padding-top: 1.25rem;
+}
+
+/* Soft glow behind the hero so the search field reads as the page's focus. */
+.search-page-header::before {
+  content: "";
+  position: absolute;
+  inset: -3rem 10% auto;
+  height: 14rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(var(--primary) / 0.1),
+    rgb(var(--primary) / 0)
+  );
+  pointer-events: none;
+  z-index: -1;
 }
 
 .search-page-header h1 {
-  font-size: clamp(1.7rem, 4vw, 2.1rem);
+  font-size: clamp(1.9rem, 5vw, 2.5rem);
   font-weight: 800;
   letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
 .search-page-header p {
-  margin-top: 0.45rem;
+  margin: 0.55rem auto 0;
+  max-width: 30rem;
   color: var(--search-muted);
   line-height: 1.9;
   font-size: 0.95rem;
@@ -45,7 +69,7 @@
 
 .search-sticky-sentinel {
   height: 1px;
-  margin-top: 1.1rem;
+  margin-top: 1.4rem;
 }
 
 .search-bar {
@@ -62,10 +86,61 @@
 
 .search-bar.is-compact {
   padding-top: calc(0.5rem + env(safe-area-inset-top));
-  background: rgb(var(--background) / 0.86);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  backdrop-filter: blur(14px) saturate(1.2);
+  background: rgb(var(--background) / 0.82);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
   box-shadow: 0 1px 0 var(--search-border);
+}
+
+/* Slim indeterminate bar along the bottom edge of the sticky search bar. */
+.search-progress {
+  position: absolute;
+  inset-inline: 1.25rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.search-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    rgb(var(--primary) / 0),
+    rgb(var(--primary) / 0.9),
+    rgb(var(--primary) / 0)
+  );
+  transform: translateX(-100%);
+}
+
+.search-progress.is-active {
+  opacity: 1;
+}
+
+.search-progress.is-active::after {
+  animation: search-progress 1.1s ease-in-out infinite;
+}
+
+@keyframes search-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(350%);
+  }
+}
+
+.search-bar.is-compact .search-progress {
+  bottom: -1px;
+  inset-inline: 0;
+  border-radius: 0;
 }
 
 .search-bar-form {
@@ -80,11 +155,11 @@
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  min-height: 3.4rem;
-  padding: 0 1.1rem;
+  min-height: 3.6rem;
+  padding: 0 1.2rem;
   border: 1px solid var(--search-border);
   border-radius: 999px;
-  background: var(--search-surface);
+  background: rgb(var(--card));
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
   transition:
     border-color 0.18s ease,
@@ -129,8 +204,12 @@
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 1.08rem;
+  font-size: 1.12rem;
   line-height: 1.6;
+}
+
+.search-bar.is-compact .search-bar-field input {
+  font-size: 1rem;
 }
 
 .search-bar-field input::placeholder {
@@ -194,7 +273,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  min-height: 3.4rem;
+  min-height: 3.6rem;
   padding: 0 1.35rem;
   border-radius: 999px;
   border: 1px solid transparent;
@@ -234,11 +313,14 @@
 .search-bar-submit:focus-visible,
 .search-button:focus-visible,
 .search-chip:focus-visible,
+.search-chip-recent-label:focus-visible,
+.search-chip-remove:focus-visible,
+.search-segment:focus-visible,
+.search-text-button:focus-visible,
 .search-poet-trigger:focus-visible,
 .search-poet-clear:focus-visible,
 .search-card-link:focus-visible,
-.search-inline-retry:focus-visible,
-.search-intent button:focus-visible {
+.search-inline-retry:focus-visible {
   outline: 2px solid rgb(var(--primary) / 0.7);
   outline-offset: 2px;
 }
@@ -291,16 +373,80 @@
   margin: 0.9rem 0 0;
 }
 
-.search-source-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+/* Segmented source control */
+.search-segmented {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0.15rem;
+  padding: 0.2rem;
+  border: 1px solid var(--search-border);
+  border-radius: 999px;
+  background: var(--search-surface);
 }
 
-.search-source-filters .search-chip {
-  min-height: 2.5rem;
-  padding: 0 0.9rem;
+.search-segment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.15rem;
+  padding: 0 0.95rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--search-muted);
+  font: inherit;
   font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.search-segment:hover {
+  color: rgb(var(--foreground));
+}
+
+.search-segment.is-active {
+  background: rgb(var(--card));
+  color: rgb(var(--foreground));
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.08),
+    inset 0 0 0 1px var(--search-border);
+}
+
+[data-theme="dark"] .search-segment.is-active {
+  background: rgb(var(--foreground) / 0.12);
+  box-shadow: none;
+}
+
+[data-theme="paper"] .search-segment.is-active {
+  background: rgb(var(--accent) / 0.7);
+}
+
+/* Small inline text action (clear recents, exact search…) */
+.search-text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  padding: 0 0.3rem;
+  border: 0;
+  background: transparent;
+  color: rgb(var(--primary));
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--primary) / 0.35);
+  text-underline-offset: 0.22em;
+  border-radius: 0.4rem;
+}
+
+.search-text-button:hover {
+  text-decoration-color: rgb(var(--primary));
 }
 
 /* --- Poet combobox ----------------------------------------------------- */
@@ -542,46 +688,194 @@
   height: 0.75rem;
 }
 
-/* --- Suggestions, intent, meta ---------------------------------------- */
+/* --- Start state: recents, examples, hints ---------------------------- */
 
-.search-suggestions {
-  margin-top: 1.75rem;
+.search-start {
+  display: grid;
+  gap: 1.6rem;
+  margin-top: 2rem;
+  animation: search-fade-up 0.3s ease-out both;
 }
 
-.search-suggestions p {
-  margin-bottom: 0.7rem;
+@keyframes search-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.search-start-group {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.search-start-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.search-start-heading h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   color: var(--search-muted);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 700;
 }
 
-.search-suggestion-chips {
+.search-start-heading h2 svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  color: var(--search-faint);
+}
+
+.search-chip-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .search-chip-suggestion {
   padding: 0 1.1rem;
-  font-size: 1rem;
+  font-size: 0.98rem;
 }
+
+/* Recent-search chip: label button + remove button sharing one pill. */
+.search-chip-recent {
+  padding: 0 0.35rem 0 0.35rem;
+  gap: 0;
+  cursor: default;
+}
+
+.search-chip-recent-label {
+  min-height: 2.6rem;
+  padding: 0 0.6rem 0 0.35rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.98rem;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+.search-chip-remove {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--search-faint);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.search-chip-remove svg {
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+.search-chip-remove:hover {
+  background: rgb(var(--foreground) / 0.1);
+  color: rgb(var(--foreground));
+}
+
+.search-hints {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-hints li {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--search-border);
+  border-radius: 0.95rem;
+  background: var(--search-surface);
+  line-height: 1.75;
+}
+
+.search-hints strong {
+  color: rgb(var(--foreground));
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.search-hints span {
+  color: var(--search-muted);
+  font-size: 0.82rem;
+}
+
+/* --- Intent chips, meta ------------------------------------------------- */
 
 .search-intent {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem 0.9rem;
-  margin: 0.95rem 0 0;
-  padding: 0.65rem 0.95rem;
-  border-radius: 0.9rem;
-  border: 1px dashed rgb(var(--primary) / 0.3);
-  background: rgb(var(--primary) / 0.05);
+  gap: 0.45rem 0.55rem;
+  margin: 1rem 0 0;
   color: rgb(var(--foreground) / 0.82);
-  font-size: 0.9rem;
-  line-height: 1.8;
+  font-size: 0.88rem;
+  line-height: 1.7;
 }
 
-.search-intent button,
+.search-intent-label {
+  color: var(--search-faint);
+  font-size: 0.82rem;
+}
+
+.search-intent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.15rem;
+  padding: 0.2rem 0.55rem 0.2rem 0.35rem;
+  border: 1px solid rgb(var(--primary) / 0.28);
+  border-radius: 999px;
+  background: rgb(var(--primary) / 0.07);
+}
+
+.search-intent-chip > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.search-intent-chip small {
+  color: var(--search-faint);
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.search-intent-chip .search-chip-remove {
+  margin-inline-start: -0.1rem;
+}
+
+.search-intent .search-text-button {
+  margin-inline-start: auto;
+}
+
 .search-inline-retry {
   display: inline-flex;
   align-items: center;
@@ -1047,21 +1341,50 @@
   }
 
   .search-bar-field {
-    min-height: 3.2rem;
+    min-height: 3.3rem;
+  }
+
+  .search-bar-field input {
+    font-size: 1.05rem;
+  }
+
+  .search-page-header {
+    padding-top: 0.5rem;
   }
 
   .search-filters {
-    flex-direction: column;
-    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .search-segmented {
+    flex: 1 1 100%;
+  }
+
+  .search-segment {
+    flex: 1 1 0;
+    min-height: 2.35rem;
+    padding: 0 0.5rem;
   }
 
   .search-poet-filter {
-    flex: 1 1 auto;
+    flex: 1 1 100%;
     min-width: 0;
+  }
+
+  .search-poet-trigger {
+    min-height: 2.75rem;
   }
 
   .search-poet-popover {
     width: 100%;
+  }
+
+  .search-hints {
+    grid-template-columns: 1fr;
+  }
+
+  .search-intent .search-text-button {
+    margin-inline-start: 0;
   }
 
   .search-strip {
@@ -1087,6 +1410,7 @@
   .search-bar-field,
   .search-card,
   .search-chip,
+  .search-segment,
   .search-results,
   .search-meta {
     transition: none;
@@ -1101,8 +1425,16 @@
     background: rgb(var(--foreground) / 0.08);
   }
 
-  .search-poet-popover {
+  .search-poet-popover,
+  .search-start {
     animation: none;
+  }
+
+  .search-progress.is-active::after {
+    animation: none;
+    transform: none;
+    width: 100%;
+    opacity: 0.5;
   }
 
   .search-bar-spinner {
