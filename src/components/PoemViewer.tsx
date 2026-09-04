@@ -51,6 +51,8 @@ interface PoemViewerProps {
   onTogglePoetInfo?: () => void;
   onOpenFeed?: () => void;
   onOpenFeedLabel?: string;
+  /** Small chip rendered in-flow above the poem title (e.g. the daily-poem link). */
+  titleEyebrow?: React.ReactNode;
 }
 
 const PoemViewer: React.FC<PoemViewerProps> = ({
@@ -66,6 +68,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   onTogglePoetInfo,
   onOpenFeed,
   onOpenFeedLabel,
+  titleEyebrow,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -866,10 +869,12 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
   ]
     .filter(Boolean)
     .join(" ");
+  const hasTitleEyebrow = showTitleSection && Boolean(titleEyebrow);
   const poemContentClassName = [
     "poem-content",
     !showTitleSection ? "poem-content--centered" : "",
     isMinimalPoemView ? "poem-content--minimal" : "",
+    hasTitleEyebrow ? "poem-content--has-eyebrow" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -1097,16 +1102,17 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
             transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
           >
             {showTitleSection && (
-              <motion.div
-                className="title-section"
-                style={{
-                  width: "100%",
-                  maxWidth: "min(92vw, 760px)",
-                  marginInline: "auto",
-                  paddingInline: "12px",
-                  boxSizing: "border-box",
-                }}
-              >
+              <motion.div className="title-section">
+                {hasTitleEyebrow && (
+                  <motion.div
+                    className="poem-eyebrow"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {titleEyebrow}
+                  </motion.div>
+                )}
                 <motion.h2
                   className="poem-title"
                   initial={{ opacity: 0, y: -20 }}
@@ -1199,8 +1205,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                   </motion.div>
                 ))
               )}
+              <RelatedPoems poemId={poem.id} source={poem.source} />
             </div>
-            <RelatedPoems poemId={poem.id} source={poem.source} />
           </motion.div>
         </AnimatePresence>
       </div>

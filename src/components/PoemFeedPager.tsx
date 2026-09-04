@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { FaLock, FaLockOpen, FaSpinner } from "react-icons/fa";
 import PoemViewer from "@/components/PoemViewer";
 import type { Poem } from "@/types/poem";
@@ -32,6 +32,7 @@ interface PoemFeedPagerProps {
   onTogglePoetInfo?: () => void;
   onOpenFeed?: () => void;
   onOpenFeedLabel?: string;
+  titleEyebrow?: ReactNode;
 }
 
 const isScrollable = (element: HTMLElement) => element.scrollHeight > element.clientHeight + 4;
@@ -66,6 +67,7 @@ export default function PoemFeedPager({
   onTogglePoetInfo,
   onOpenFeed,
   onOpenFeedLabel,
+  titleEyebrow,
 }: PoemFeedPagerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef(0);
@@ -640,9 +642,18 @@ export default function PoemFeedPager({
             padding-top: 4.25rem !important;
           }
 
+          .poem-feed-pager .poem-content--has-eyebrow .poem-text,
+          .poem-feed-pager .poem-content--has-eyebrow.poem-content--centered .poem-text {
+            padding-top: calc(clamp(10.75rem, 30vh, 13rem) + env(safe-area-inset-top)) !important;
+          }
+
           .poem-feed-pager .title-section {
             max-height: 9.75rem;
             overflow: hidden;
+          }
+
+          .poem-feed-pager .poem-content--has-eyebrow .title-section {
+            max-height: 12.25rem;
           }
 
           .poem-feed-viewer .poem-text {
@@ -672,8 +683,17 @@ export default function PoemFeedPager({
             padding-top: 4rem !important;
           }
 
+          .poem-feed-pager .poem-content--has-eyebrow .poem-text,
+          .poem-feed-pager .poem-content--has-eyebrow.poem-content--centered .poem-text {
+            padding-top: calc(clamp(10.25rem, 30vh, 12.25rem) + env(safe-area-inset-top)) !important;
+          }
+
           .poem-feed-pager .title-section {
             max-height: 9rem;
+          }
+
+          .poem-feed-pager .poem-content--has-eyebrow .title-section {
+            max-height: 11.5rem;
           }
         }
       `}</style>
@@ -690,6 +710,7 @@ export default function PoemFeedPager({
           onTogglePoetInfo={onTogglePoetInfo}
           onOpenFeed={onOpenFeed}
           onOpenFeedLabel={onOpenFeedLabel}
+          titleEyebrow={titleEyebrow}
         />
       </div>
       {(nextPoem || isPreparingNextPoem) && (

@@ -80,8 +80,14 @@ export interface GanjoorQuotedPoem {
   cachedRelatedPoemPoetName: string | null;
   cachedRelatedPoemFullTitle: string | null;
   cachedRelatedPoemFullUrl: string | null;
+  cachedRelatedPoemPoetUrl: string | null;
+  cachedRelatedPoemPoetImage: string | null;
+  /** Couplet in the current poem that quotes / is quoted. */
   coupletVerse1: string | null;
   coupletVerse2: string | null;
+  /** Matching couplet inside the related poem. */
+  relatedCoupletVerse1: string | null;
+  relatedCoupletVerse2: string | null;
   poem?: {
     id: number;
     title?: string;

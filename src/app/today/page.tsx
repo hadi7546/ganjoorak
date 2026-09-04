@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
+import { FaSun } from "react-icons/fa";
 import PoemFeedPager from "@/components/PoemFeedPager";
 import LoadingScreen from "@/components/LoadingScreen";
 import ErrorScreen from "@/components/ErrorScreen";
@@ -10,7 +10,10 @@ import SettingsDialog from "@/components/SettingsDialog";
 import GlobalSearchDialog from "@/components/GlobalSearchDialog";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
 import type { Poem } from "@/types/poem";
-import { getDailyPoemDateKey } from "@/utils/dailyPoem";
+import {
+  formatDailyPoemDateLabel,
+  getDailyPoemDateKey,
+} from "@/utils/dailyPoem";
 import { logger } from "@/utils/logger";
 
 const DAILY_POEM_CACHE_KEY = "ganjoorak:daily-poem:v1";
@@ -115,9 +118,6 @@ export default function TodayPage() {
 
   return (
     <main className="h-screen overflow-hidden">
-      <Link href="/today" className="daily-poem-banner">
-        شعر روز · {getDailyPoemDateKey()}
-      </Link>
       <MenuButton onClick={() => setIsMenuOpen(true)} hasNotification={hasNewUpdates} />
       <SearchButton onClick={() => setIsSearchOpen(true)} />
       <Menu
@@ -145,6 +145,15 @@ export default function TodayPage() {
         isLast={true}
         onNext={() => {}}
         onPrevious={() => {}}
+        titleEyebrow={
+          <span className="poem-eyebrow-chip">
+            <FaSun aria-hidden="true" />
+            شعر روز
+            <span className="poem-eyebrow-chip-date">
+              {formatDailyPoemDateLabel()}
+            </span>
+          </span>
+        }
       />
     </main>
   );
