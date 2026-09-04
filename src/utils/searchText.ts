@@ -340,3 +340,9 @@ export const getVerseSnippet = (
 
 export const isSearchQueryLongEnough = (value: string) =>
   normalizeSearchText(value).length >= MIN_SEARCH_QUERY_LENGTH;
+
+const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
+
+/** Formats a count with Persian digits and the Persian thousands separator. */
+export const formatPersianNumber = (value: number) =>
+  persianNumberFormatter.format(value);
