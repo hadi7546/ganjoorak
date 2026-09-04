@@ -201,6 +201,22 @@ const writeStoredScroll = (value: StoredScroll | null) => {
   }
 };
 
+// Only restore scroll when the user came back through history, never when
+// they type the same query again later.
+let lastPopstateAt = 0;
+if (typeof window !== "undefined") {
+  window.addEventListener("popstate", () => {
+    lastPopstateAt = Date.now();
+  });
+}
+const arrivedViaHistory = () => {
+  if (Date.now() - lastPopstateAt < 3000) {
+    return true;
+  }
+  const [navigation] = performance.getEntriesByType?.("navigation") ?? [];
+  return (navigation as PerformanceNavigationTiming | undefined)?.type === "back_forward";
+};
+
 const isAbortError = (error: unknown, signal?: AbortSignal) =>
   Boolean(signal?.aborted) ||
   (typeof error === "object" &&
@@ -971,10 +987,11 @@ const SearchPage = () => {
       // Coming back from a poem: the list is restored in this same commit, so
       // the saved offset is valid again once React has painted it.
       const stored = readStoredScroll();
-      if (stored && stored.key === currentPlan.key && stored.y > 0) {
+      if (stored && stored.key === currentPlan.key && stored.y > 0 && arrivedViaHistory()) {
         restoreScrollRef.current = stored.y;
+      } else if (stored) {
+        writeStoredScroll(null);
       }
-      writeStoredScroll(null);
     };
 
     const run = async () => {
@@ -1244,10 +1261,16 @@ const SearchPage = () => {
       return;
     }
     restoreScrollRef.current = null;
-    const frame = window.requestAnimationFrame(() => {
-      window.scrollTo({ top: target, behavior: "auto" });
-    });
-    return () => window.cancelAnimationFrame(frame);
+    writeStoredScroll(null);
+    const apply = () => window.scrollTo({ top: target, behavior: "auto" });
+    window.requestAnimationFrame(apply);
+    // The route transition swaps page DOM for a couple of hundred ms and can
+    // knock the window back to the top; re-assert once if that happened.
+    window.setTimeout(() => {
+      if (window.scrollY < 8 && listRef.current?.isConnected) {
+        apply();
+      }
+    }, 280);
   }, [ganjoor.status, ganjoor.hits.length, local.status, echolalia.status]);
 
   /**
