@@ -1,24 +1,37 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   FaBars,
-  FaBookOpen,
-  FaHome,
-  FaQuestionCircle,
   FaBell,
-  FaUsers,
-  FaSlidersH,
+  FaBookOpen,
+  FaBookmark,
+  FaChevronLeft,
+  FaHome,
   FaLock,
   FaLockOpen,
+  FaMinus,
+  FaMoon,
+  FaPlus,
+  FaQuestionCircle,
+  FaRegNewspaper,
   FaSearch,
-  FaBookmark,
+  FaSlidersH,
   FaSun,
-  FaChevronDown,
+  FaTimes,
+  FaUsers,
 } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import {
+  POEM_FONT_SIZE_MAX,
+  POEM_FONT_SIZE_MIN,
+  POEM_FONT_SIZE_STEP,
+  useSettings,
+  type ThemeOption,
+} from "@/context/SettingsContext";
 
 interface MenuProps {
   isOpen: boolean;
@@ -38,7 +51,7 @@ type MenuLinkItem = {
   href: string;
   icon: React.ReactNode;
   label: string;
-  showBadge?: boolean;
+  badge?: string;
   onClick?: () => void;
 };
 
@@ -52,6 +65,27 @@ type MenuButtonItem = {
 
 type MenuItem = MenuLinkItem | MenuButtonItem;
 
+const THEME_OPTIONS: Array<{
+  value: ThemeOption;
+  label: string;
+  icon: React.ReactNode;
+}> = [
+  { value: "dark", label: "تاریک", icon: <FaMoon aria-hidden="true" /> },
+  { value: "light", label: "روشن", icon: <FaSun aria-hidden="true" /> },
+  { value: "paper", label: "کاغذی", icon: <FaRegNewspaper aria-hidden="true" /> },
+];
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+const persianNumber = new Intl.NumberFormat("fa-IR");
+
+const isRouteActive = (pathname: string | null, href: string) => {
+  if (!pathname || href.includes("?")) return false;
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+};
+
 const Menu: React.FC<MenuProps> = ({
   isOpen,
   onClose,
@@ -59,33 +93,43 @@ const Menu: React.FC<MenuProps> = ({
   onUpdatesViewed,
   onOpenSettings,
   onOpenFeed,
-  onOpenFeedLabel = "شاعران فید",
+  onOpenFeedLabel = "شاعران صفحه اصلی",
   isZenLocked = false,
   onToggleZenLock,
 }) => {
   const router = useRouter();
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const pathname = usePathname();
+  const reduceMotion = useReducedMotion();
+  const { settings, setTheme, setPoemFontSize } = useSettings();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const lastPathnameRef = useRef(pathname);
 
   const primaryItems = useMemo<MenuLinkItem[]>(
     () => [
       { kind: "link", href: "/", icon: <FaHome />, label: "صفحه اصلی" },
+      { kind: "link", href: "/search", icon: <FaSearch />, label: "جستجو" },
       { kind: "link", href: "/poets", icon: <FaUsers />, label: "شاعران" },
       { kind: "link", href: "/saved", icon: <FaBookmark />, label: "نشان‌شده‌ها" },
-      { kind: "link", href: "/search", icon: <FaSearch />, label: "جستجو" },
+      { kind: "link", href: "/today", icon: <FaSun />, label: "شعر روز" },
     ],
     [],
   );
 
-  const moreItems = useMemo<MenuItem[]>(() => {
+  const secondaryItems = useMemo<MenuItem[]>(() => {
     const items: MenuItem[] = [
-      { kind: "link", href: "/today", icon: <FaSun />, label: "شعر روز" },
-      { kind: "link", href: "/faq", icon: <FaQuestionCircle />, label: "راهنما" },
+      {
+        kind: "link",
+        href: "/faq",
+        icon: <FaQuestionCircle />,
+        label: "پرسش‌های متداول",
+      },
       {
         kind: "link",
         href: "/updates",
         icon: <FaBell />,
-        label: "تازه‌ها",
-        showBadge: hasNewUpdates,
+        label: "بروزرسانی‌ها",
+        badge: hasNewUpdates ? "جدید" : undefined,
         onClick: () => onUpdatesViewed?.(),
       },
     ];
@@ -105,45 +149,110 @@ const Menu: React.FC<MenuProps> = ({
         kind: "link",
         href: "/?feed=1",
         icon: <FaBookOpen />,
-        label: "شاعران فید",
+        label: "شاعران صفحه اصلی",
+      });
+    }
+
+    if (onToggleZenLock) {
+      items.push({
+        kind: "button",
+        icon: isZenLocked ? <FaLock /> : <FaLockOpen />,
+        label: isZenLocked ? "باز کردن قفل شعر" : "قفل روی همین شعر",
+        onClick: onToggleZenLock,
+        ariaPressed: isZenLocked,
       });
     }
 
     return items;
-  }, [hasNewUpdates, onClose, onOpenFeed, onOpenFeedLabel, onUpdatesViewed]);
+  }, [
+    hasNewUpdates,
+    isZenLocked,
+    onClose,
+    onOpenFeed,
+    onOpenFeedLabel,
+    onToggleZenLock,
+    onUpdatesViewed,
+  ]);
 
   useEffect(() => {
-    if (!isOpen) {
-      setIsMoreOpen(false);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    [...primaryItems, ...moreItems].forEach((item) => {
+    [...primaryItems, ...secondaryItems].forEach((item) => {
       if (item.kind === "link") {
         router.prefetch(item.href);
       }
     });
-  }, [moreItems, primaryItems, router]);
+  }, [primaryItems, router, secondaryItems]);
 
+  // Close when the route changes underneath the drawer (back/forward, in-page navigation).
+  useEffect(() => {
+    if (lastPathnameRef.current === pathname) return;
+    lastPathnameRef.current = pathname;
+    if (isOpen) onClose();
+  }, [isOpen, onClose, pathname]);
+
+  // Scroll lock, Escape, focus trap and focus restoration while open.
   useEffect(() => {
     if (!isOpen) return;
 
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const body = document.body;
+    const previousOverflow = body.style.overflow;
+    body.style.overflow = "hidden";
+
+    const focusFrame = window.requestAnimationFrame(() => {
+      closeButtonRef.current?.focus({ preventScroll: true });
+    });
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        event.preventDefault();
         onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+      ).filter((element) => element.offsetParent !== null);
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      const isInside = active instanceof Node && panel.contains(active);
+
+      if (event.shiftKey) {
+        if (!isInside || active === first) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (!isInside || active === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener("keydown", handleKeyDown);
+      body.style.overflow = previousOverflow;
+      previouslyFocused?.focus?.({ preventScroll: true });
     };
   }, [isOpen, onClose]);
+
+  const handleFontSizeStep = useCallback(
+    (direction: 1 | -1) => {
+      setPoemFontSize(settings.poemFontSize + direction * POEM_FONT_SIZE_STEP);
+    },
+    [setPoemFontSize, settings.poemFontSize],
+  );
 
   const renderItem = (item: MenuItem) => {
     if (item.kind === "button") {
@@ -151,254 +260,205 @@ const Menu: React.FC<MenuProps> = ({
         <li key={item.label}>
           <button
             type="button"
-            className="menu-link menu-link-button"
+            className="menu-link"
             onClick={item.onClick}
             aria-pressed={item.ariaPressed}
           >
-            <span className="menu-link-icon">{item.icon}</span>
-            <span className="menu-item-text">{item.label}</span>
+            <span className="menu-link-icon" aria-hidden="true">
+              {item.icon}
+            </span>
+            <span className="menu-link-label">{item.label}</span>
           </button>
         </li>
       );
     }
+
+    const active = isRouteActive(pathname, item.href);
 
     return (
       <li key={item.href}>
         <Link
           href={item.href}
           prefetch
-          className="menu-link"
+          className={`menu-link${active ? " is-active" : ""}`}
+          aria-current={active ? "page" : undefined}
           onClick={() => {
             item.onClick?.();
             onClose();
           }}
         >
-          <span className="menu-link-icon">{item.icon}</span>
-          <span className="menu-item-text">{item.label}</span>
-          {item.showBadge && <span className="menu-badge" />}
+          <span className="menu-link-icon" aria-hidden="true">
+            {item.icon}
+          </span>
+          <span className="menu-link-label">{item.label}</span>
+          {item.badge && <span className="menu-link-badge">{item.badge}</span>}
         </Link>
       </li>
     );
   };
 
+  const drawerMotion = reduceMotion
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0.15 },
+      }
+    : {
+        initial: { x: "100%" },
+        animate: { x: 0 },
+        exit: { x: "100%" },
+        transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] },
+      };
+
+  const canDecreaseFont = settings.poemFontSize > POEM_FONT_SIZE_MIN;
+  const canIncreaseFont = settings.poemFontSize < POEM_FONT_SIZE_MAX;
+
   return (
-    <>
-      <style>{`
-        body:has(.menu-drawer) .poem-feed-lock-button,
-        body:has(.menu-drawer) .sidebar-toggle-button {
-          opacity: 0 !important;
-          pointer-events: none !important;
-          transform: translateX(0.35rem) scale(0.96) !important;
-        }
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            key="menu-backdrop"
+            className="menu-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0.15 : 0.22 }}
+            onClick={onClose}
+            aria-hidden="true"
+          />
 
-        .menu-primary-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 0.45rem;
-        }
+          <motion.div
+            key="menu-drawer"
+            ref={panelRef}
+            className="menu-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="menu-drawer-title"
+            id="main-menu"
+            {...drawerMotion}
+          >
+            <header className="menu-drawer-header">
+              <div className="menu-brand">
+                <Image
+                  src="/icon-192.png"
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="menu-brand-logo"
+                  priority
+                />
+                <div className="menu-brand-text">
+                  <span id="menu-drawer-title" className="menu-brand-title">
+                    گنجورک
+                  </span>
+                  <span className="menu-brand-subtitle">
+                    راحت‌تر شعر بخوانیم و شعر گوش دهیم
+                  </span>
+                </div>
+              </div>
+              <button
+                ref={closeButtonRef}
+                type="button"
+                className="menu-close"
+                onClick={onClose}
+                aria-label="بستن منو"
+              >
+                <FaTimes aria-hidden="true" />
+              </button>
+            </header>
 
-        .menu-primary-grid .menu-link {
-          min-height: 3.1rem;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 0.35rem;
-          text-align: center;
-          padding: 0.75rem 0.5rem !important;
-        }
-
-        .menu-primary-grid .menu-item-text {
-          font-size: 0.88rem !important;
-        }
-
-        .menu-more-toggle {
-          width: 100%;
-          min-height: 2.75rem;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 0.5rem;
-          padding: 0.65rem 0.9rem;
-          border-radius: 0.95rem;
-          border: 1px solid rgb(var(--foreground) / 0.1);
-          background: rgb(var(--foreground) / 0.04);
-          color: inherit;
-        }
-
-        .menu-more-toggle .menu-chevron {
-          transition: transform 0.2s ease;
-        }
-
-        .menu-more-toggle[aria-expanded="true"] .menu-chevron {
-          transform: rotate(180deg);
-        }
-
-        .menu-settings-link {
-          margin-top: 0.35rem;
-        }
-
-        @media (max-width: 640px) {
-          .menu-button {
-            top: auto !important;
-            right: 1rem !important;
-            bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
-          }
-
-          .global-search-button {
-            top: auto !important;
-            right: 1rem !important;
-            bottom: calc(4.25rem + env(safe-area-inset-bottom)) !important;
-          }
-
-          .menu-backdrop {
-            z-index: 1090 !important;
-            background: rgb(0 0 0 / 0.46) !important;
-            -webkit-backdrop-filter: blur(4px);
-            backdrop-filter: blur(4px);
-          }
-
-          .menu-drawer {
-            z-index: 1100 !important;
-            top: auto !important;
-            left: 0.75rem !important;
-            right: 0.75rem !important;
-            bottom: calc(0.75rem + env(safe-area-inset-bottom)) !important;
-            width: auto !important;
-            max-height: min(62dvh, 28rem);
-            overflow: hidden;
-            padding: 0.75rem !important;
-            border-radius: 1.5rem 1.5rem 1.25rem 1.25rem !important;
-            background: rgb(var(--background) / 0.92) !important;
-            border: 1px solid rgb(var(--foreground) / 0.1);
-            box-shadow: 0 24px 60px rgb(0 0 0 / 0.42) !important;
-          }
-
-          .menu-drawer::before {
-            content: "";
-            display: block;
-            width: 2.75rem;
-            height: 0.25rem;
-            border-radius: 999px;
-            background: rgb(var(--foreground) / 0.22);
-            margin: 0.2rem auto 0.85rem;
-          }
-
-          .menu-drawer nav {
-            max-height: calc(min(62dvh, 28rem) - 2rem);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-          }
-
-          .menu-link {
-            min-height: 2.85rem;
-            padding: 0.7rem 0.9rem !important;
-            border-radius: 0.95rem !important;
-            background: rgb(var(--foreground) / 0.035);
-          }
-
-          .menu-drawer li + li {
-            margin-top: 0.3rem;
-          }
-
-          .menu-link-icon {
-            width: 1.35rem;
-            min-width: 1.35rem;
-            display: inline-flex;
-            justify-content: center;
-            opacity: 0.82;
-          }
-
-          .menu-item-text {
-            font-size: 0.95rem !important;
-            letter-spacing: 0 !important;
-          }
-        }
-      `}</style>
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={onClose}
-              className="menu-backdrop fixed inset-0 bg-black bg-opacity-30 z-40"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98, y: 28 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: 28 }}
-              transition={{ type: "spring", duration: 0.32, bounce: 0.16 }}
-              className="menu-drawer fixed top-16 right-4 w-72 rounded-2xl p-4 shadow-2xl z-[1201]"
-              role="dialog"
-              aria-modal="true"
-              aria-label="منوی اصلی"
-            >
-              <nav>
-                <ul className="space-y-1">
-                  {onToggleZenLock && (
-                    <li>
-                      <button
-                        type="button"
-                        className="menu-link menu-link-button"
-                        onClick={onToggleZenLock}
-                        aria-pressed={isZenLocked}
-                      >
-                        <span className="menu-link-icon">
-                          {isZenLocked ? <FaLock /> : <FaLockOpen />}
-                        </span>
-                        <span className="menu-item-text">
-                          {isZenLocked ? "باز کردن قفل" : "قفل روی همین شعر"}
-                        </span>
-                      </button>
-                    </li>
-                  )}
-
-                  <li>
-                    <ul className="menu-primary-grid">
-                      {primaryItems.map((item) => renderItem(item))}
-                    </ul>
-                  </li>
-
-                  <li>
-                    <button
-                      type="button"
-                      className="menu-more-toggle"
-                      aria-expanded={isMoreOpen}
-                      onClick={() => setIsMoreOpen((value) => !value)}
-                    >
-                      <span>بیشتر</span>
-                      <span className="menu-chevron" aria-hidden="true">
-                        <FaChevronDown />
-                      </span>
-                    </button>
-                  </li>
-
-                  {isMoreOpen && moreItems.map((item) => renderItem(item))}
-
-                  <li className="menu-settings-link">
-                    <button
-                      type="button"
-                      className="menu-link menu-link-button"
-                      onClick={() => {
-                        onOpenSettings();
-                        onClose();
-                      }}
-                    >
-                      <span className="menu-link-icon">
-                        <FaSlidersH />
-                      </span>
-                      <span className="menu-item-text">تنظیمات</span>
-                    </button>
-                  </li>
+            <nav className="menu-drawer-body" aria-label="منوی اصلی">
+              <section className="menu-section">
+                <ul className="menu-list">
+                  {primaryItems.map((item) => renderItem(item))}
                 </ul>
-              </nav>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+              </section>
+
+              <section className="menu-section" aria-labelledby="menu-section-more">
+                <h2 id="menu-section-more" className="menu-section-title">
+                  بیشتر
+                </h2>
+                <ul className="menu-list">
+                  {secondaryItems.map((item) => renderItem(item))}
+                </ul>
+              </section>
+            </nav>
+
+            <footer className="menu-drawer-footer">
+              <div
+                className="menu-theme-switch"
+                role="radiogroup"
+                aria-label="پوستهٔ نمایش"
+              >
+                {THEME_OPTIONS.map((option) => {
+                  const active = settings.theme === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      className={`menu-theme-option${active ? " is-active" : ""}`}
+                      onClick={() => setTheme(option.value)}
+                    >
+                      <span className="menu-theme-option-icon">{option.icon}</span>
+                      <span>{option.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="menu-footer-row">
+                <button
+                  type="button"
+                  className="menu-settings-button"
+                  onClick={() => {
+                    onOpenSettings();
+                    onClose();
+                  }}
+                >
+                  <span className="menu-link-icon" aria-hidden="true">
+                    <FaSlidersH />
+                  </span>
+                  <span className="menu-link-label">تنظیمات</span>
+                  <span className="menu-settings-chevron" aria-hidden="true">
+                    <FaChevronLeft />
+                  </span>
+                </button>
+
+                <div
+                  className="menu-font-stepper"
+                  role="group"
+                  aria-label="اندازهٔ متن شعر"
+                >
+                  <button
+                    type="button"
+                    onClick={() => handleFontSizeStep(-1)}
+                    disabled={!canDecreaseFont}
+                    aria-label="کوچک‌تر کردن متن"
+                  >
+                    <FaMinus aria-hidden="true" />
+                  </button>
+                  <span className="menu-font-stepper-value" aria-live="polite">
+                    {persianNumber.format(settings.poemFontSize)}٪
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleFontSizeStep(1)}
+                    disabled={!canIncreaseFont}
+                    aria-label="بزرگ‌تر کردن متن"
+                  >
+                    <FaPlus aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            </footer>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -406,10 +466,12 @@ export function MenuButton({
   onClick,
   hasNotification = false,
   isHidden = false,
+  isOpen,
 }: {
   onClick: () => void;
   hasNotification?: boolean;
   isHidden?: boolean;
+  isOpen?: boolean;
 }) {
   return (
     <button
@@ -423,9 +485,12 @@ export function MenuButton({
       ]
         .filter(Boolean)
         .join(" ")}
-      aria-label="Open menu"
+      aria-label="منو"
+      aria-haspopup="dialog"
+      aria-controls="main-menu"
+      aria-expanded={isOpen}
     >
-      <FaBars size={16} />
+      <FaBars size={16} aria-hidden="true" />
       {hasNotification && (
         <span className="menu-button-indicator" aria-hidden="true" />
       )}
@@ -454,7 +519,7 @@ export function SearchButton({
         .join(" ")}
       aria-label="جستجو"
     >
-      <FaSearch size={15} />
+      <FaSearch size={15} aria-hidden="true" />
     </button>
   );
 }
