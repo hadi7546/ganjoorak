@@ -1818,10 +1818,6 @@ body:has(.menu-drawer) .sidebar-toggle-button {
     overflow: hidden;
 }
 
-.route-transition-shell {
-    min-height: 100vh;
-}
-
 .route-progress {
     position: fixed;
     inset-inline: 0;

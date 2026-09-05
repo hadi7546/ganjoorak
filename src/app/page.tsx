@@ -421,6 +421,7 @@ export default function Home() {
     const fetchMorePromiseRef = useRef<Promise<Poem[]> | null>(null);
     const pendingNavigationIndexRef = useRef<number | null>(null);
     const loadedPoetsRef = useRef(false);
+    const hydratedFollowedKeysRef = useRef<string | null>(null);
 
     useEffect(() => {
         poemsRef.current = poems;
@@ -664,8 +665,19 @@ export default function Home() {
             return;
         }
 
+        const previousSignature = hydratedFollowedKeysRef.current;
+        hydratedFollowedKeysRef.current = followedKeySignature;
+        const followedPoetsChanged =
+            previousSignature !== null &&
+            previousSignature !== followedKeySignature;
+
+        if (poems.length > 0 && !followedPoetsChanged) {
+            setLoading(false);
+            return;
+        }
+
         fetchInitialPoems();
-    }, [areSettingsHydrated, fetchInitialPoems, followedKeySignature]);
+    }, [areSettingsHydrated, fetchInitialPoems, followedKeySignature, poems.length]);
 
     useEffect(() => {
         const shouldFetchMore =
@@ -713,7 +725,7 @@ export default function Home() {
         setCurrentPoemIndex((prevIndex) => Math.max(prevIndex - 1, 0));
     }, []);
 
-    if (!areSettingsHydrated || (!currentPoem && !error)) {
+    if (!currentPoem && !error) {
         return <LoadingScreen />;
     }
 

@@ -78,7 +78,6 @@ export default function PoemPage() {
 
     const handleNext = async () => {
         try {
-            setLoading(true);
             const poetSlug = params?.poet as string;
             const poet = isValidPoetSlug(poetSlug)
                 ? (poetSlug as PoetSlug)
@@ -90,11 +89,10 @@ export default function PoemPage() {
         } catch (err) {
             logger.error('Error loading next poem:', err);
             setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر بعدی');
-            setLoading(false);
         }
     };
 
-    if (loading) {
+    if (loading && !poem) {
         return <LoadingScreen />;
     }
 
