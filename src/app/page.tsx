@@ -407,7 +407,7 @@ export default function Home() {
         isHydrated: areSettingsHydrated,
         setFollowedPoetKeys,
     } = useSettings();
-    const [poems, setPoems] = useState<Poem[]>(() => readCachedFeedPoems());
+    const [poems, setPoems] = useState<Poem[]>([]);
     const [availablePoets, setAvailablePoets] = useState<Poet[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -422,6 +422,13 @@ export default function Home() {
     const pendingNavigationIndexRef = useRef<number | null>(null);
     const loadedPoetsRef = useRef(false);
     const hydratedFollowedKeysRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        const cachedPoems = readCachedFeedPoems();
+        if (cachedPoems.length > 0) {
+            setPoems((current) => (current.length > 0 ? current : cachedPoems));
+        }
+    }, []);
 
     useEffect(() => {
         poemsRef.current = poems;

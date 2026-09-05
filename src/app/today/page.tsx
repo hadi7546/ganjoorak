@@ -51,9 +51,7 @@ const writeCachedDailyPoem = (cache: DailyPoemCache) => {
 };
 
 export default function TodayPage() {
-  const [poem, setPoem] = useState<Poem | null>(
-    () => readCachedDailyPoem()?.poem ?? null,
-  );
+  const [poem, setPoem] = useState<Poem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
