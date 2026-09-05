@@ -58,17 +58,15 @@ export default function PoemPage() {
 
     const handleNext = async () => {
         try {
-            setLoading(true);
             const newPoem = await ganjoorApi.getRandomPoem();
             router.push(`/poem/${newPoem.id}`);
         } catch (err) {
             logger.error('Error loading next poem:', err);
             setError(err instanceof Error ? err.message : 'خطا در بارگیری شعر بعدی');
-            setLoading(false);
         }
     };
 
-    if (loading) {
+    if (loading && !poem) {
         return <LoadingScreen />;
     }
 

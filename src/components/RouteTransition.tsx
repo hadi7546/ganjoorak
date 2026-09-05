@@ -81,19 +81,7 @@ export default function RouteTransition({ children }: { children: ReactNode }) {
           />
         )}
       </AnimatePresence>
-
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.div
-          key={pathname}
-          className="route-transition-shell"
-          initial={{ opacity: 0.92 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0.92 }}
-          transition={{ duration: 0.16, ease: "easeOut" }}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
+      {children}
     </>
   );
 }

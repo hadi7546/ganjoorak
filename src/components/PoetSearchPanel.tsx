@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import ganjoorApi from "@/api/GanjoorApi";
@@ -25,17 +25,68 @@ interface LocalPoemSearchResult {
   source: "custom" | "echolalia";
 }
 
+type LocalPoemSummary = {
+  id: number;
+  title: string;
+  collection?: string;
+  text?: string;
+};
+
 interface PoetSearchPanelProps {
   poet: Poet;
-  localSummaries?: Array<{
-    id: number;
-    title: string;
-    collection?: string;
-    text?: string;
-  }>;
+  localSummaries?: LocalPoemSummary[];
 }
 
-const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) => {
+const EMPTY_LOCAL_SUMMARIES: LocalPoemSummary[] = [];
+
+const normalizeSearchText = (value: string) =>
+  value
+    .trim()
+    .replace(/[ي]/g, "ی")
+    .replace(/[ك]/g, "ک")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+
+const getLocalResults = (
+  query: string,
+  poet: Poet,
+  poetSlug: string,
+  localSummaries: LocalPoemSummary[],
+): LocalPoemSearchResult[] => {
+  const normalizedQuery = normalizeSearchText(query);
+  if (normalizedQuery.length < 2) {
+    return [];
+  }
+
+  return localSummaries
+    .filter((poem) => {
+      const haystack = normalizeSearchText(
+        [poem.title, poem.collection, poem.text].filter(Boolean).join(" "),
+      );
+      return haystack.includes(normalizedQuery);
+    })
+    .slice(0, 12)
+    .map(
+      (poem): LocalPoemSearchResult => ({
+        id: poem.id,
+        title: poem.title,
+        poetName: poet.nickname || poet.name,
+        poetSlug,
+        excerpt:
+          (poem.text || "")
+            .split("\n")
+            .map((line) => line.trim())
+            .find(Boolean) || poem.title,
+        collection: poem.collection || null,
+        source: poet.source === "echolalia" ? "echolalia" : "custom",
+      }),
+    );
+};
+
+const PoetSearchPanel = ({
+  poet,
+  localSummaries = EMPTY_LOCAL_SUMMARIES,
+}: PoetSearchPanelProps) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<
     Array<GanjoorPoemSearchResult | LocalPoemSearchResult>
@@ -44,42 +95,14 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
   const requestIdRef = useRef(0);
 
   const poetSlug = poet.urlSlug;
-
-  const localResults = useMemo(() => {
-    const normalizedQuery = normalizeSearchText(query);
-    if (normalizedQuery.length < MIN_SEARCH_QUERY_LENGTH) {
-      return [];
-    }
-
-    return localSummaries
-      .filter((poem) => {
-        const haystack = normalizeSearchText(
-          [poem.title, poem.collection, poem.text].filter(Boolean).join(" "),
-        );
-        return haystack.includes(normalizedQuery);
-      })
-      .slice(0, 12)
-      .map(
-        (poem): LocalPoemSearchResult => ({
-          id: poem.id,
-          title: poem.title,
-          poetName: poet.nickname || poet.name,
-          poetSlug,
-          excerpt:
-            (poem.text || "")
-              .split("\n")
-              .map((line) => line.trim())
-              .find(Boolean) || poem.title,
-          collection: poem.collection || null,
-          source: poet.source === "echolalia" ? "echolalia" : "custom",
-        }),
-      );
-  }, [localSummaries, poet.name, poet.nickname, poet.source, poetSlug, query]);
+  const poetRef = useRef(poet);
+  poetRef.current = poet;
 
   useEffect(() => {
+    const currentPoet = poetRef.current;
     const normalizedQuery = normalizeSearchText(query);
-    if (normalizedQuery.length < MIN_SEARCH_QUERY_LENGTH) {
-      setResults([]);
+    if (normalizedQuery.length < 2) {
+      setResults((current) => (current.length === 0 ? current : []));
       setLoading(false);
       return;
     }
@@ -88,18 +111,23 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
     requestIdRef.current = requestId;
     const timeout = window.setTimeout(async () => {
       setLoading(true);
+      const localResults = getLocalResults(
+        query,
+        currentPoet,
+        poetSlug,
+        localSummaries,
+      );
 
       try {
         let remoteResults: Array<GanjoorPoemSearchResult | LocalPoemSearchResult> =
           [];
 
-        if (poet.source === "ganjoor" || !poet.source) {
-          const page = await ganjoorApi.searchPoems(normalizedQuery, {
-            poetId: poet.id,
+        if (currentPoet.source === "ganjoor" || !currentPoet.source) {
+          remoteResults = await ganjoorApi.searchPoems(normalizedQuery, {
+            poetId: currentPoet.id,
             pageSize: 12,
           });
-          remoteResults = page.items;
-        } else if (poet.source === "echolalia") {
+        } else if (currentPoet.source === "echolalia") {
           const poems = await echolaliaApi.searchPoemsByPoetSlug(
             poetSlug,
             normalizedQuery,
@@ -107,7 +135,7 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
           remoteResults = poems.map((poem) => ({
             id: poem.id,
             title: poem.title,
-            poetName: poet.nickname || poet.name,
+            poetName: currentPoet.nickname || currentPoet.name,
             poetSlug,
             excerpt: poem.excerpt,
             collection: poem.collection,
@@ -121,7 +149,7 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
           remoteResults = poems.map((poem) => ({
             id: poem.id,
             title: poem.title,
-            poetName: poet.nickname || poet.name,
+            poetName: currentPoet.nickname || currentPoet.name,
             poetSlug,
             excerpt: poem.excerpt,
             collection: poem.collection,
@@ -149,7 +177,7 @@ const PoetSearchPanel = ({ poet, localSummaries = [] }: PoetSearchPanelProps) =>
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [localResults, poet.id, poet.name, poet.nickname, poet.source, poetSlug, query]);
+  }, [localSummaries, poet.id, poet.source, poetSlug, query]);
 
   const getHref = (poem: GanjoorPoemSearchResult | LocalPoemSearchResult) => {
     if ("fullUrl" in poem) {
