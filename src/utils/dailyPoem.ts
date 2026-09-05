@@ -8,6 +8,19 @@ export const getDailyPoemDateKey = (date = new Date()) => {
   return `${year}-${month}-${day}`;
 };
 
+/** Human-readable Persian (Jalali) date for today's poem, e.g. «۱۴ شهریور». */
+export const formatDailyPoemDateLabel = (date = new Date()) => {
+  try {
+    return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+      timeZone: "Asia/Tehran",
+      day: "numeric",
+      month: "long",
+    }).format(date);
+  } catch {
+    return getDailyPoemDateKey(date);
+  }
+};
+
 export const hashString = (value: string) => {
   let hash = 2166136261;
 

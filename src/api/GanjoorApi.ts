@@ -726,8 +726,13 @@ const ganjoorApi = {
             cachedRelatedPoemPoetName: item?.cachedRelatedPoemPoetName ?? null,
             cachedRelatedPoemFullTitle: item?.cachedRelatedPoemFullTitle ?? null,
             cachedRelatedPoemFullUrl: item?.cachedRelatedPoemFullUrl ?? null,
+            cachedRelatedPoemPoetUrl: item?.cachedRelatedPoemPoetUrl ?? null,
+            cachedRelatedPoemPoetImage:
+              item?.cachedRelatedPoemPoetImage ?? null,
             coupletVerse1: item?.coupletVerse1 ?? null,
             coupletVerse2: item?.coupletVerse2 ?? null,
+            relatedCoupletVerse1: item?.relatedCoupletVerse1 ?? null,
+            relatedCoupletVerse2: item?.relatedCoupletVerse2 ?? null,
             poem: item?.poem ?? null,
           }))
         : [];

@@ -619,8 +619,7 @@ body {
 
 /* While the drawer is open, tuck away the floating page controls it would overlap. */
 body:has(.menu-drawer) .menu-button,
-body:has(.menu-drawer) .global-search-button,
-body:has(.menu-drawer) .daily-poem-banner {
+body:has(.menu-drawer) .global-search-button {
     opacity: 0 !important;
     pointer-events: none !important;
 }
