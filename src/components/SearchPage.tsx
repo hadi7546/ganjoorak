@@ -13,7 +13,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   FaCheck,
   FaChevronDown,
@@ -461,13 +461,12 @@ const ResultCard = memo(function ResultCard({
   delayIndex: number;
   compact?: boolean;
 }) {
-  const reduceMotion = useReducedMotion();
   const { snippet } = hit;
 
   return (
     <motion.li
       className={compact ? "search-card search-card-compact" : "search-card"}
-      initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.24,
