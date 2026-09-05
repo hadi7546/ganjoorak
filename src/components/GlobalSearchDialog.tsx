@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   FaArrowLeft,
@@ -18,6 +19,10 @@ import type { GanjoorCategory, GanjoorPoemSearchResult } from "@/types/ganjoor";
 import type { Poet } from "@/types/poet";
 import { PoetSlug } from "@/types/poet";
 import { logger } from "@/utils/logger";
+import {
+  MIN_SEARCH_QUERY_LENGTH,
+  normalizeSearchText,
+} from "@/utils/searchText";
 
 type SearchFilter = "all" | "poets" | "poems" | "books";
 
@@ -56,14 +61,6 @@ const SEARCH_FILTERS: Array<{ value: SearchFilter; label: string }> = [
   { value: "poems", label: "شعرها" },
   { value: "books", label: "دفترها" },
 ];
-
-const normalizeSearchText = (value: string) =>
-  value
-    .trim()
-    .replace(/[ي]/g, "ی")
-    .replace(/[ك]/g, "ک")
-    .replace(/\s+/g, " ")
-    .toLowerCase();
 
 const getPoetHref = (poet: Poet) => {
   if (/^https?:\/\//.test(poet.fullUrl)) {
@@ -323,8 +320,18 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
   const [allPoets, setAllPoets] = useState<Poet[]>([]);
   const [hasLoadedPoets, setHasLoadedPoets] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const normalizedQuery = useMemo(() => normalizeSearchText(query), [query]);
-  const shouldSearch = normalizedQuery.length >= 2;
+  const shouldSearch = normalizedQuery.length >= MIN_SEARCH_QUERY_LENGTH;
+
+  const goToFullSearch = () => {
+    const trimmed = query.trim();
+    if (normalizeSearchText(trimmed).length < MIN_SEARCH_QUERY_LENGTH) {
+      return;
+    }
+    onClose();
+    router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+  };
 
   useEffect(() => {
     if (!isOpen) {
@@ -423,7 +430,7 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
 
         const [remotePoems, localResults, echolaliaPoems, ganjoorBookResults] = await Promise.all([
           shouldSearchPoems || shouldSearchBooks
-            ? ganjoorApi.searchPoems(query, { pageSize: 14 })
+            ? ganjoorApi.searchPoems(query, { pageSize: 14 }).then((page) => page.items)
             : Promise.resolve([]),
           shouldSearchPoems || shouldSearchBooks
             ? searchLocalPoemsAndBooks(normalizedQuery)
@@ -520,11 +527,17 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
                 </button>
               </header>
 
-              <div className="global-search-input-wrap">
+              <form
+                className="global-search-input-wrap"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  goToFullSearch();
+                }}
+              >
                 <FaSearch aria-hidden="true" />
                 <input
                   ref={inputRef}
-                  type="text"
+                  type="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="نام شاعر، شعر یا دفتر..."
@@ -543,7 +556,7 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
                     <FaTimes />
                   </button>
                 )}
-              </div>
+              </form>
 
               <div className="global-search-filters">
                 {SEARCH_FILTERS.map((option) => (
@@ -648,6 +661,16 @@ const GlobalSearchDialog: React.FC<GlobalSearchDialogProps> = ({
                       </Link>
                     ))}
                   </SearchSection>
+                )}
+
+                {shouldSearch && (
+                  <Link
+                    href={`/search?q=${encodeURIComponent(query.trim())}`}
+                    className="global-search-all-results"
+                    onClick={onClose}
+                  >
+                    مشاهده همه نتایج
+                  </Link>
                 )}
               </div>
             </motion.div>

@@ -10,6 +10,10 @@ import type { GanjoorPoemSearchResult } from "@/types/ganjoor";
 import type { Poet } from "@/types/poet";
 import { PoetSlug, isValidPoetSlug } from "@/types/poet";
 import { logger } from "@/utils/logger";
+import {
+  MIN_SEARCH_QUERY_LENGTH,
+  normalizeSearchText,
+} from "@/utils/searchText";
 
 interface LocalPoemSearchResult {
   id: number;
@@ -212,7 +216,7 @@ const PoetSearchPanel = ({
         )}
       </form>
       {loading && <p className="poet-search-status">در حال جستجو...</p>}
-      {!loading && query.trim().length >= 2 && results.length === 0 && (
+      {!loading && query.trim().length >= MIN_SEARCH_QUERY_LENGTH && results.length === 0 && (
         <p className="poet-search-status">نتیجه‌ای پیدا نشد.</p>
       )}
       {results.length > 0 && (

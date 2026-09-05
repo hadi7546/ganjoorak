@@ -98,8 +98,16 @@
 }
 
 .title-section {
+    /* Horizontal inset keeps the header clear of the fixed top-right controls
+       (menu / search / zen-lock, 2.5rem wide at right: 1rem) on desktop. */
+    --poem-header-inline-inset: 12px;
+    --poem-header-max-width: min(92vw, 760px);
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--poem-header-max-width);
+    margin-inline: auto;
     text-align: center;
-    padding: 2rem 1rem;
+    padding: calc(2rem + env(safe-area-inset-top)) var(--poem-header-inline-inset) 2rem;
     direction: rtl;
     background: linear-gradient(to bottom,
             rgb(var(--background) / 0.92),
@@ -126,6 +134,81 @@
     opacity: 0;
     transform: translateY(-1rem);
     pointer-events: none;
+}
+
+@media (min-width: 769px) {
+    .title-section {
+        --poem-header-inline-inset: 1rem;
+        /* 2 × (1rem edge + 2.5rem button + 1rem breathing room) */
+        --poem-header-max-width: min(100% - 9rem, 760px);
+    }
+}
+
+/* In-flow chip above the title (e.g. «شعر روز»). Lives inside the header so it
+   can never overlap the poem text. */
+.poem-eyebrow {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    pointer-events: auto;
+}
+
+.poem-eyebrow-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 1.85rem;
+    max-width: 100%;
+    padding: 0.2rem 0.8rem;
+    border-radius: 9999px;
+    border: 1px solid rgb(var(--foreground) / 0.14);
+    background: rgb(var(--card) / 0.7);
+    color: rgb(var(--foreground) / 0.82);
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease;
+}
+
+.poem-eyebrow-chip svg {
+    flex: 0 0 auto;
+    width: 0.8rem;
+    height: 0.8rem;
+    color: rgb(var(--foreground) / 0.6);
+}
+
+a.poem-eyebrow-chip:hover {
+    background: rgb(var(--foreground) / 0.1);
+    border-color: rgb(var(--foreground) / 0.26);
+    color: rgb(var(--foreground));
+}
+
+a.poem-eyebrow-chip:focus-visible {
+    outline: 2px solid rgb(var(--ring) / 0.7);
+    outline-offset: 2px;
+}
+
+.poem-eyebrow-chip-date {
+    color: rgb(var(--foreground) / 0.58);
+    font-variant-numeric: tabular-nums;
+}
+
+.poem-eyebrow-chip-date::before {
+    content: "·";
+    margin-inline-end: 0.4rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .poem-eyebrow-chip {
+        transition: none;
+    }
 }
 
 .poem-title {
@@ -204,7 +287,7 @@
     align-items: center;
     flex: 1 1 auto;
     min-height: 0;
-    padding: clamp(10rem, 20vh, 13rem) clamp(1.5rem, 6vw, 3.75rem) calc(var(--audio-player-height) + var(--audio-player-clearance) + env(safe-area-inset-bottom));
+    padding: calc(clamp(10rem, 20vh, 13rem) + env(safe-area-inset-top)) clamp(1.5rem, 6vw, 3.75rem) calc(var(--audio-player-height) + var(--audio-player-clearance) + env(safe-area-inset-bottom));
     font-weight: 400;
     overflow-y: auto;
     scrollbar-width: thin;
@@ -217,6 +300,11 @@
     -ms-overflow-style: auto;
     overscroll-behavior-y: contain;
     scroll-behavior: auto;
+}
+
+/* Reserve room for the eyebrow chip so the verses start below the header. */
+.poem-content--has-eyebrow .poem-text {
+    padding-top: calc(clamp(10rem, 20vh, 13rem) + 2.6rem + env(safe-area-inset-top));
 }
 
 .poem-text::-webkit-scrollbar {
@@ -470,11 +558,12 @@
     }
 
     .poem-content.poem-content--centered .poem-text {
-        padding: 7.5rem 0.5rem calc(var(--audio-player-height) + 4.5rem + env(safe-area-inset-bottom));
+        padding: calc(7.5rem + env(safe-area-inset-top)) 0.5rem calc(var(--audio-player-height) + 4.5rem + env(safe-area-inset-bottom));
     }
 
     .title-section {
-        padding: 1rem 0.75rem;
+        --poem-header-inline-inset: 0.75rem;
+        padding: calc(1rem + env(safe-area-inset-top)) var(--poem-header-inline-inset) 1rem;
         background: linear-gradient(to bottom,
                 rgb(var(--background) / 0.94),
                 rgb(var(--background) / 0.74),
@@ -501,8 +590,16 @@
     .poem-text {
         font-size: 1.1rem;
         line-height: 1.9;
-        padding: 7.5rem 0.5rem calc(var(--audio-player-height) + 4.5rem + env(safe-area-inset-bottom));
+        padding: calc(7.5rem + env(safe-area-inset-top)) 0.5rem calc(var(--audio-player-height) + 4.5rem + env(safe-area-inset-bottom));
         height: auto;
+    }
+
+    .poem-content--has-eyebrow .poem-text {
+        padding-top: calc(9.75rem + env(safe-area-inset-top));
+    }
+
+    .poem-eyebrow {
+        margin-bottom: 0.5rem;
     }
 
     .verse-pair {
@@ -609,7 +706,8 @@
     }
 
     .title-section {
-        padding: 0.85rem 0.6rem;
+        --poem-header-inline-inset: 0.6rem;
+        padding: calc(0.85rem + env(safe-area-inset-top)) var(--poem-header-inline-inset) 0.85rem;
     }
 
     .poet-line {
@@ -619,8 +717,12 @@
     .poem-text {
         font-size: 1rem;
         line-height: 1.8;
-        padding: 6.5rem 0.5rem calc(var(--audio-player-height) + 4rem + env(safe-area-inset-bottom));
+        padding: calc(6.5rem + env(safe-area-inset-top)) 0.5rem calc(var(--audio-player-height) + 4rem + env(safe-area-inset-bottom));
         height: auto;
+    }
+
+    .poem-content--has-eyebrow .poem-text {
+        padding-top: calc(8.75rem + env(safe-area-inset-top));
     }
 
     .verse-line {

@@ -742,10 +742,6 @@ export default function Home() {
 
     return (
         <main className="h-screen overflow-hidden">
-            <Link href="/today" className="daily-poem-banner">
-                <FaSun aria-hidden="true" />
-                شعر روز
-            </Link>
             {isFeedDialogOpen && (
                 <FeedPoetDialog
                     poets={availablePoets}
@@ -769,6 +765,17 @@ export default function Home() {
                     onNext={handleNext}
                     onPrevious={handlePrevious}
                     onOpenFeed={() => setIsFeedDialogOpen(true)}
+                    titleEyebrow={
+                        <Link
+                            href="/today"
+                            className="poem-eyebrow-chip"
+                            title="شعر روز"
+                            aria-label="رفتن به شعر روز"
+                        >
+                            <FaSun aria-hidden="true" />
+                            شعر روز
+                        </Link>
+                    }
                 />
             )}
         </main>

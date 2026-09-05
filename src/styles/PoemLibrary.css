@@ -101,7 +101,6 @@
   line-height: 1.8;
 }
 
-.related-poems,
 .poet-search-panel,
 .poet-geo-section {
   width: 100%;
@@ -110,21 +109,18 @@
   padding: 0 0.25rem;
 }
 
-.related-poems-title,
 .poet-info-section-title {
   font-size: 0.95rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
 }
 
-.related-poems-list,
 .poet-search-results,
 .poet-geo-list {
   display: grid;
   gap: 0.65rem;
 }
 
-.related-poems-link,
 .poet-search-result-link {
   display: grid;
   gap: 0.2rem;
@@ -134,7 +130,6 @@
   background: rgb(var(--foreground) / 0.04);
 }
 
-.related-poems-link span,
 .poet-search-result-link span,
 .poet-search-status,
 .poet-geo-status {
@@ -173,23 +168,6 @@
   margin-top: 0.85rem;
   border: 0;
   border-radius: 1rem;
-}
-
-.daily-poem-banner {
-  position: fixed;
-  top: calc(1rem + env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 35;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 0.9rem;
-  border-radius: 999px;
-  background: rgb(var(--background) / 0.88);
-  border: 1px solid rgb(var(--foreground) / 0.12);
-  backdrop-filter: blur(10px);
-  font-size: 0.85rem;
 }
 
 .pwa-install-banner {
