@@ -51,6 +51,20 @@ export interface GanjoorPoemSearchResult {
   bookUrl: string | null;
 }
 
+export interface GanjoorPagingHeaders {
+  totalCount: number;
+  pageSize: number;
+  currentPage: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+export interface GanjoorPoemSearchPage {
+  items: GanjoorPoemSearchResult[];
+  paging: GanjoorPagingHeaders;
+}
+
 export interface GanjoorGeoLocation {
   id: number;
   name: string | null;

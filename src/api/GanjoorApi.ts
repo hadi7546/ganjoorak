@@ -7,6 +7,8 @@ import type {
   GanjoorPoetCatalog,
   GanjoorCategoryReference,
   GanjoorPoemSearchResult,
+  GanjoorPoemSearchPage,
+  GanjoorPagingHeaders,
   GanjoorQuotedPoem,
   GanjoorGeoLocation,
   PoemGeoDateTag,
@@ -40,6 +42,7 @@ const getAudioProxyUrl = (url?: string) =>
 
 // Cache for poet data
 const poetCache: Record<string, Poet | undefined> = {};
+let poetsListPromise: Promise<Poet[]> | null = null;
 const poetCatalogCache: Record<string, GanjoorPoetCatalog | undefined> = {};
 const poetCatalogPromiseCache: Record<
   string,
@@ -60,6 +63,85 @@ const cachePoetCatalog = (catalog: GanjoorPoetCatalog, aliases: string[] = []) =
 
 const getCachedPoetCatalog = (keys: string[]) =>
   keys.map((key) => poetCatalogCache[key]).find(Boolean);
+
+const emptyPaging = (
+  pageNumber: number,
+  pageSize: number,
+): GanjoorPagingHeaders => ({
+  totalCount: 0,
+  pageSize,
+  currentPage: pageNumber,
+  totalPages: 0,
+  hasPreviousPage: pageNumber > 1,
+  hasNextPage: false,
+});
+
+const readHeaderValue = (headers: unknown, name: string): string | undefined => {
+  if (!headers || typeof headers !== "object") {
+    return undefined;
+  }
+
+  const record = headers as {
+    get?: (key: string) => string | undefined;
+    [key: string]: unknown;
+  };
+
+  if (typeof record.get === "function") {
+    return record.get(name) ?? record.get(name.toLowerCase()) ?? undefined;
+  }
+
+  const value =
+    record[name] ??
+    record[name.toLowerCase()] ??
+    record["Paging-Headers"];
+  return typeof value === "string" ? value : undefined;
+};
+
+const parsePagingHeaders = (
+  headers: unknown,
+  pageNumber: number,
+  pageSize: number,
+  itemCount: number,
+): GanjoorPagingHeaders => {
+  const raw = readHeaderValue(headers, "paging-headers");
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as Partial<GanjoorPagingHeaders>;
+      const totalCount = Number(parsed.totalCount) || 0;
+      const resolvedPageSize = Number(parsed.pageSize) || pageSize;
+      const currentPage = Number(parsed.currentPage) || pageNumber;
+      const totalPages = Number(parsed.totalPages) || 0;
+      return {
+        totalCount,
+        pageSize: resolvedPageSize,
+        currentPage,
+        totalPages,
+        hasPreviousPage:
+          typeof parsed.hasPreviousPage === "boolean"
+            ? parsed.hasPreviousPage
+            : currentPage > 1,
+        hasNextPage:
+          typeof parsed.hasNextPage === "boolean"
+            ? parsed.hasNextPage
+            : currentPage < totalPages,
+      };
+    } catch (error) {
+      logger.error("Failed to parse paging-headers:", error);
+    }
+  }
+
+  const inferredHasNext = itemCount >= pageSize;
+  return {
+    totalCount: inferredHasNext
+      ? pageNumber * pageSize + 1
+      : (pageNumber - 1) * pageSize + itemCount,
+    pageSize,
+    currentPage: pageNumber,
+    totalPages: inferredHasNext ? pageNumber + 1 : pageNumber,
+    hasPreviousPage: pageNumber > 1,
+    hasNextPage: inferredHasNext,
+  };
+};
 
 const helpers = {
   getPoetName: (fullTitle: string): string => {
@@ -215,6 +297,18 @@ const ganjoorApi = {
   },
 
   async getPoets(): Promise<Poet[]> {
+    // The catalog is requested by several screens (home feed, search, dialogs);
+    // share one in-flight/completed request per session instead of refetching.
+    if (!poetsListPromise) {
+      poetsListPromise = ganjoorApi.fetchPoets().catch((error) => {
+        poetsListPromise = null;
+        throw error;
+      });
+    }
+    return poetsListPromise;
+  },
+
+  async fetchPoets(): Promise<Poet[]> {
     const response = await ganjoorHttp.get(`${API_BASE_URL}/api/ganjoor/poets`, {
       timeout: API_TIMEOUT_MS,
       headers: {
@@ -257,11 +351,22 @@ const ganjoorApi = {
       pageSize = 12,
       pageNumber = 1,
       poetId,
-    }: { pageSize?: number; pageNumber?: number; poetId?: number } = {},
-  ): Promise<GanjoorPoemSearchResult[]> {
+      catId,
+      signal,
+    }: {
+      pageSize?: number;
+      pageNumber?: number;
+      poetId?: number;
+      catId?: number;
+      signal?: AbortSignal;
+    } = {},
+  ): Promise<GanjoorPoemSearchPage> {
     const normalizedTerm = term.trim();
     if (normalizedTerm.length < 2) {
-      return [];
+      return {
+        items: [],
+        paging: emptyPaging(pageNumber, pageSize),
+      };
     }
 
     try {
@@ -269,11 +374,13 @@ const ganjoorApi = {
         `${API_BASE_URL}/api/ganjoor/poems/search`,
         {
           timeout: API_TIMEOUT_MS,
+          signal,
           params: {
             term: normalizedTerm,
             PageNumber: pageNumber,
             PageSize: pageSize,
             ...(poetId && poetId > 0 ? { poetId } : {}),
+            ...(catId && catId > 0 ? { catId } : {}),
           },
           headers: {
             Accept: "application/json",
@@ -282,10 +389,23 @@ const ganjoorApi = {
         },
       );
 
-      return Array.isArray(response.data)
+      const items = Array.isArray(response.data)
         ? response.data.map((poem: any) => helpers.mapPoemSearchResult(poem))
         : [];
+
+      return {
+        items,
+        paging: parsePagingHeaders(
+          response.headers,
+          pageNumber,
+          pageSize,
+          items.length,
+        ),
+      };
     } catch (error) {
+      if (axios.isCancel(error) || signal?.aborted) {
+        throw error;
+      }
       logger.error("Error searching poems:", error);
       throw new Error("متأسفانه در جستجوی شعرها مشکلی پیش آمد");
     }

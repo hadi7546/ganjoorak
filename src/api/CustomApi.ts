@@ -1,6 +1,10 @@
 import type { Poem, PoemRecitation } from "@/types/poem";
 import { PoetSlug, poetNames, createPoet, Poet } from "@/types/poet";
 import { logger } from "@/utils/logger";
+import {
+  MIN_SEARCH_QUERY_LENGTH,
+  normalizeSearchText,
+} from "@/utils/searchText";
 
 // Cache for poets' poems
 let poetPoemsCache: Record<string, any> = {};
@@ -8,7 +12,7 @@ let poetPoemsCache: Record<string, any> = {};
 const getLocalPoetImageUrl = (poetSlug: PoetSlug) =>
   `/images/poets/${poetSlug}.jpeg`;
 
-const customPoetIds: Record<PoetSlug, number> = {
+export const customPoetIds: Record<PoetSlug, number> = {
   [PoetSlug.RAHMANI]: 101,
   [PoetSlug.FARROKHZAD]: 102,
 };
@@ -283,14 +287,9 @@ const customApi = {
       collection: string | null;
     }>
   > {
-    const normalizedQuery = query
-      .trim()
-      .replace(/[ي]/g, "ی")
-      .replace(/[ك]/g, "ک")
-      .replace(/\s+/g, " ")
-      .toLowerCase();
+    const normalizedQuery = normalizeSearchText(query);
 
-    if (normalizedQuery.length < 2) {
+    if (normalizedQuery.length < MIN_SEARCH_QUERY_LENGTH) {
       return [];
     }
 
@@ -305,13 +304,10 @@ const customApi = {
           poem?.text,
         ]
           .filter(Boolean)
-          .join(" ")
-          .replace(/[ي]/g, "ی")
-          .replace(/[ك]/g, "ک")
-          .replace(/\s+/g, " ")
-          .toLowerCase();
+          .join(" ");
+        const haystackNormalized = normalizeSearchText(haystack);
 
-        return haystack.includes(normalizedQuery);
+        return haystackNormalized.includes(normalizedQuery);
       })
       .slice(0, 12)
       .map((poem: any) => ({
