@@ -39,14 +39,6 @@ interface PoetSearchPanelProps {
 
 const EMPTY_LOCAL_SUMMARIES: LocalPoemSummary[] = [];
 
-const normalizeSearchText = (value: string) =>
-  value
-    .trim()
-    .replace(/[ي]/g, "ی")
-    .replace(/[ك]/g, "ک")
-    .replace(/\s+/g, " ")
-    .toLowerCase();
-
 const getLocalResults = (
   query: string,
   poet: Poet,
@@ -54,7 +46,7 @@ const getLocalResults = (
   localSummaries: LocalPoemSummary[],
 ): LocalPoemSearchResult[] => {
   const normalizedQuery = normalizeSearchText(query);
-  if (normalizedQuery.length < 2) {
+  if (normalizedQuery.length < MIN_SEARCH_QUERY_LENGTH) {
     return [];
   }
 
@@ -101,7 +93,7 @@ const PoetSearchPanel = ({
   useEffect(() => {
     const currentPoet = poetRef.current;
     const normalizedQuery = normalizeSearchText(query);
-    if (normalizedQuery.length < 2) {
+    if (normalizedQuery.length < MIN_SEARCH_QUERY_LENGTH) {
       setResults((current) => (current.length === 0 ? current : []));
       setLoading(false);
       return;
@@ -123,10 +115,11 @@ const PoetSearchPanel = ({
           [];
 
         if (currentPoet.source === "ganjoor" || !currentPoet.source) {
-          remoteResults = await ganjoorApi.searchPoems(normalizedQuery, {
+          const page = await ganjoorApi.searchPoems(normalizedQuery, {
             poetId: currentPoet.id,
             pageSize: 12,
           });
+          remoteResults = page.items;
         } else if (currentPoet.source === "echolalia") {
           const poems = await echolaliaApi.searchPoemsByPoetSlug(
             poetSlug,
