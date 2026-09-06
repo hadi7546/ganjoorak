@@ -11,8 +11,7 @@ import { Poem } from '@/types/poem';
 import { Poet, isValidPoetSlug } from '@/types/poet';
 import { useSettings } from '@/context/SettingsContext';
 import { logger } from '@/utils/logger';
-import Link from 'next/link';
-import { FaRandom, FaSearch, FaTimes, FaSun } from 'react-icons/fa';
+import { FaRandom, FaSearch, FaTimes } from 'react-icons/fa';
 import poetSourceIndex from '@/data/poet-source-index.json';
 
 const INITIAL_POEMS_COUNT = 12;
@@ -765,17 +764,6 @@ export default function Home() {
                     onNext={handleNext}
                     onPrevious={handlePrevious}
                     onOpenFeed={() => setIsFeedDialogOpen(true)}
-                    titleEyebrow={
-                        <Link
-                            href="/today"
-                            className="poem-eyebrow-chip"
-                            title="شعر روز"
-                            aria-label="رفتن به شعر روز"
-                        >
-                            <FaSun aria-hidden="true" />
-                            شعر روز
-                        </Link>
-                    }
                 />
             )}
         </main>
