@@ -30,7 +30,6 @@ import SharePoemDialog from "@/components/SharePoemDialog";
 import { useSettings } from "@/context/SettingsContext";
 import { useUpdateNotification } from "@/hooks/useUpdateNotification";
 import { usePoemLibrary } from "@/hooks/usePoemLibrary";
-import RelatedPoems from "@/components/RelatedPoems";
 import { logger } from "@/utils/logger";
 
 const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
@@ -1205,7 +1204,6 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
                   </motion.div>
                 ))
               )}
-              <RelatedPoems poemId={poem.id} source={poem.source} />
             </div>
           </motion.div>
         </AnimatePresence>
