@@ -1067,15 +1067,22 @@
   display: grid;
   gap: 0.15rem;
   margin-top: 0.35rem;
+  min-width: 0;
 }
 
 .search-card-couplet {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.1rem 1rem;
+  min-width: 0;
   color: rgb(var(--foreground) / 0.92);
   font-size: 1.02rem;
   line-height: 2;
+}
+
+.search-card-couplet > span {
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .search-card-verse-line {
