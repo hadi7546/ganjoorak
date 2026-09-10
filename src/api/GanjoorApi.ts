@@ -9,6 +9,9 @@ import type {
   GanjoorPoemSearchResult,
   GanjoorPoemSearchPage,
   GanjoorPagingHeaders,
+  GanjoorSemanticSearchResponse,
+  GanjoorSemanticSearchResult,
+  GanjoorSemanticVerse,
   GanjoorQuotedPoem,
   GanjoorGeoLocation,
   PoemGeoDateTag,
@@ -17,6 +20,8 @@ import { logger } from "@/utils/logger";
 import { getIndexedPoetImageUrl } from "@/utils/poetImages";
 
 const API_TIMEOUT_MS = 15000;
+const SEMANTIC_SEARCH_TIMEOUT_MS = 30000;
+const SEMANTIC_SEARCH_MAX_TOP_K = 50;
 
 const SERVER_API_BASE_URL =
   process.env.GANJOOR_API_BASE_URL ||
@@ -200,6 +205,37 @@ const helpers = {
       sumUpSubsGeoLocations: category?.sumUpSubsGeoLocations ?? false,
       mapName: category?.mapName ?? null,
       rImageId: category?.rImageId ?? null,
+    };
+  },
+  mapSemanticVerse: (verse: any): GanjoorSemanticVerse => ({
+    vOrder: Number(verse?.vOrder) || 0,
+    position: typeof verse?.position === "string" ? verse.position : "",
+    text: verse?.text ?? "",
+  }),
+  mapSemanticSearchResult: (poem: any): GanjoorSemanticSearchResult => {
+    const fullTitle = poem?.fullTitle ?? "";
+    const fullUrl = poem?.fullUrl ?? "";
+    const fullTitleParts = fullTitle
+      .split(" » ")
+      .map((part: string) => part.trim())
+      .filter(Boolean);
+
+    return {
+      poemId: poem?.poemId ?? poem?.id ?? 0,
+      title: poem?.title ?? "",
+      fullTitle,
+      fullUrl,
+      poemSummary: poem?.poemSummary ?? null,
+      verses: Array.isArray(poem?.verses)
+        ? poem.verses.map((verse: any) => helpers.mapSemanticVerse(verse))
+        : [],
+      score: Number(poem?.score) || 0,
+      poetName: fullTitleParts[0] || helpers.getPoetName(fullTitle),
+      poetSlug: helpers.getPoetSlug(fullUrl),
+      bookTitle:
+        fullTitleParts.length > 2
+          ? fullTitleParts.slice(1, -1).join(" » ")
+          : null,
     };
   },
   mapPoemSearchResult: (poem: any): GanjoorPoemSearchResult => {
@@ -408,6 +444,81 @@ const ganjoorApi = {
       }
       logger.error("Error searching poems:", error);
       throw new Error("متأسفانه در جستجوی شعرها مشکلی پیش آمد");
+    }
+  },
+
+  async searchPoemsSemantic(
+    query: string,
+    {
+      topK = 10,
+      poetId,
+      catId,
+      disableScopeDetection = false,
+      signal,
+    }: {
+      topK?: number;
+      poetId?: number;
+      catId?: number;
+      disableScopeDetection?: boolean;
+      signal?: AbortSignal;
+    } = {},
+  ): Promise<GanjoorSemanticSearchResponse> {
+    const normalizedQuery = query.trim();
+    if (normalizedQuery.length < 2) {
+      return {
+        query: normalizedQuery,
+        results: [],
+        detectedPoetName: null,
+        detectedCategoryName: null,
+      };
+    }
+
+    const resolvedTopK =
+      Number.isFinite(topK) && topK > 0 && topK <= SEMANTIC_SEARCH_MAX_TOP_K
+        ? Math.floor(topK)
+        : 10;
+
+    try {
+      const response = await ganjoorHttp.post(
+        `${API_BASE_URL}/api/ganjoor/search/semantic`,
+        {
+          query: normalizedQuery,
+          topK: resolvedTopK,
+          disableScopeDetection: Boolean(disableScopeDetection),
+          ...(poetId && poetId > 0 ? { poetId } : {}),
+          ...(catId && catId > 0 ? { catId } : {}),
+        },
+        {
+          timeout: SEMANTIC_SEARCH_TIMEOUT_MS,
+          signal,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const payload = response.data ?? {};
+      const results = Array.isArray(payload.results)
+        ? payload.results.map((poem: any) => helpers.mapSemanticSearchResult(poem))
+        : [];
+
+      return {
+        query: payload.query ?? normalizedQuery,
+        results,
+        detectedPoetName: payload.detectedPoetName ?? null,
+        detectedCategoryName: payload.detectedCategoryName ?? null,
+      };
+    } catch (error) {
+      if (axios.isCancel(error) || signal?.aborted) {
+        throw error;
+      }
+      if (axios.isAxiosError(error) && error.response?.status === 503) {
+        logger.error("Semantic search unavailable:", error);
+        throw new Error("در حال حاضر جستجوی معنایی در دسترس نیست");
+      }
+      logger.error("Error in semantic poem search:", error);
+      throw new Error("متأسفانه در جستجوی معنایی مشکلی پیش آمد");
     }
   },
 

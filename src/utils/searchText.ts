@@ -346,3 +346,50 @@ const persianNumberFormatter = new Intl.NumberFormat("fa-IR");
 /** Formats a count with Persian digits and the Persian thousands separator. */
 export const formatPersianNumber = (value: number) =>
   persianNumberFormatter.format(value);
+
+export type SemanticVerseRef = {
+  position: string;
+  text: string;
+};
+
+export type SemanticCouplet = {
+  key: string;
+  right: string | null;
+  left: string | null;
+  text: string | null;
+};
+
+/**
+ * Pair Right+Left hemistichs the same way ganjoor.net's semantic widget does,
+ * so result cards can render a couplet instead of a flat verse list.
+ */
+export const pairSemanticVerses = (
+  verses: SemanticVerseRef[],
+): SemanticCouplet[] => {
+  const couplets: SemanticCouplet[] = [];
+  let index = 0;
+
+  while (index < verses.length) {
+    const verse = verses[index];
+    const next = verses[index + 1];
+    if (verse.position === "Right" && next?.position === "Left") {
+      couplets.push({
+        key: `couplet-${index}`,
+        right: verse.text,
+        left: next.text,
+        text: null,
+      });
+      index += 2;
+    } else {
+      couplets.push({
+        key: `verse-${index}`,
+        right: null,
+        left: null,
+        text: verse.text,
+      });
+      index += 1;
+    }
+  }
+
+  return couplets;
+};
