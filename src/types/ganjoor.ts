@@ -65,6 +65,32 @@ export interface GanjoorPoemSearchPage {
   paging: GanjoorPagingHeaders;
 }
 
+export interface GanjoorSemanticVerse {
+  vOrder: number;
+  position: string;
+  text: string;
+}
+
+export interface GanjoorSemanticSearchResult {
+  poemId: number;
+  title: string;
+  fullTitle: string;
+  fullUrl: string;
+  poemSummary: string | null;
+  verses: GanjoorSemanticVerse[];
+  score: number;
+  poetName: string;
+  poetSlug: string;
+  bookTitle: string | null;
+}
+
+export interface GanjoorSemanticSearchResponse {
+  query: string;
+  results: GanjoorSemanticSearchResult[];
+  detectedPoetName: string | null;
+  detectedCategoryName: string | null;
+}
+
 export interface GanjoorGeoLocation {
   id: number;
   name: string | null;

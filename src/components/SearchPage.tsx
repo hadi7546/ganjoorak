@@ -34,6 +34,8 @@ import type { PoetSlug } from "@/types/poet";
 import type {
   GanjoorPagingHeaders,
   GanjoorPoemSearchResult,
+  GanjoorSemanticSearchResult,
+  GanjoorSemanticVerse,
 } from "@/types/ganjoor";
 import { getPoemHref, type PoemLibrarySource } from "@/utils/poemLibrary";
 import { getIndexedPoetImageUrl } from "@/utils/poetImages";
@@ -64,6 +66,7 @@ import {
   formatPersianNumber,
   getVerseSnippet,
   normalizeSearchText,
+  pairSemanticVerses,
   parseSearchIntent,
   type VerseSnippet,
 } from "@/utils/searchText";
@@ -71,6 +74,7 @@ import { logger } from "@/utils/logger";
 import "@/styles/SearchPage.css";
 
 type SourceFilter = "all" | PoemLibrarySource;
+type SearchMode = "keyword" | "semantic";
 type SectionStatus = "idle" | "loading" | "done" | "error";
 
 interface SearchHit {
@@ -84,6 +88,7 @@ interface SearchHit {
   collection: string | null;
   avatarUrl: string | null;
   snippet: VerseSnippet;
+  verses?: GanjoorSemanticVerse[];
 }
 
 interface GanjoorSection {
@@ -98,10 +103,17 @@ interface ListSection {
   hits: SearchHit[];
 }
 
+interface CachedSemanticPage {
+  hits: SearchHit[];
+  detectedPoetName: string | null;
+  detectedCategoryName: string | null;
+}
+
 interface CachedFirstPage {
   ganjoor: Pick<GanjoorSection, "hits" | "paging"> | null;
   local: SearchHit[] | null;
   echolalia: SearchHit[] | null;
+  semantic: CachedSemanticPage | null;
 }
 
 interface CachedGanjoorPage {
@@ -117,14 +129,19 @@ interface SearchPlan {
   poet: DirectoryPoet | null;
   poetFromIntent: boolean;
   rewritten: boolean;
+  mode: SearchMode;
+  disableScopeDetection: boolean;
   includeGanjoor: boolean;
   includeLocal: boolean;
   includeEcholalia: boolean;
+  includeSemantic: boolean;
 }
 
 const PAGE_SIZE = 20;
 const ECHOLALIA_PAGE_SIZE = 12;
+const SEMANTIC_TOP_K = 10;
 const DEBOUNCE_MS = 250;
+const SEMANTIC_DEBOUNCE_MS = 700;
 const DIRECTORY_WAIT_MS = 600;
 const STRIP_LIMIT = 12;
 
@@ -133,6 +150,10 @@ const SOURCE_FILTERS: Array<{ value: SourceFilter; label: string }> = [
   { value: "ganjoor", label: "گنجور" },
   { value: "echolalia", label: "اکولالیا" },
   { value: "custom", label: "محلی" },
+];
+const SEARCH_MODES: Array<{ value: SearchMode; label: string }> = [
+  { value: "keyword", label: "متنی" },
+  { value: "semantic", label: "معنایی" },
 ];
 const SOURCE_LABELS: Record<PoemLibrarySource, string> = {
   ganjoor: "گنجور",
@@ -146,6 +167,12 @@ const EXAMPLE_QUERIES = [
   "باران",
   "تنهایی",
   "مولانا درمورد جدایی",
+];
+const EXAMPLE_SEMANTIC_QUERIES = [
+  "شعری در مورد بی‌وفایی دنیا",
+  "غم دوری یار",
+  "شعر حافظ در مورد عشق",
+  "شکوه از روزگار",
 ];
 const MAX_RESTORED_HITS = 60;
 const SCROLL_STORAGE_KEY = "ganjoorak:search-scroll:v1";
@@ -171,7 +198,7 @@ const pageCache = new LruCache<CachedGanjoorPage>(80);
 // De-duplicates the sentinel-triggered load and the eager N+1 prefetch.
 const inflightPages = new Map<string, Promise<CachedGanjoorPage>>();
 const sessionFirstPageCache = createSessionCache<CachedFirstPage>(
-  "ganjoorak:search-results:v1",
+  "ganjoorak:search-results:v2",
   8,
 );
 
@@ -262,6 +289,31 @@ const mapGanjoorHit = (
   snippet: getVerseSnippet(poem.plainText || poem.poemSummary || "", term),
 });
 
+const mapSemanticHit = (
+  poem: GanjoorSemanticSearchResult,
+  term: string,
+): SearchHit => ({
+  key: `semantic:${poem.poemId}`,
+  id: poem.poemId,
+  title: poem.title,
+  poetName: poem.poetName,
+  poetSlug: poem.poetSlug,
+  source: "ganjoor",
+  href: getPoemHref({
+    id: poem.poemId,
+    source: "ganjoor",
+    poetSlug: poem.poetSlug,
+    fullUrl: poem.fullUrl,
+  }),
+  collection: poem.bookTitle,
+  avatarUrl: getIndexedPoetImageUrl("ganjoor", poem.poetSlug),
+  snippet: getVerseSnippet(
+    poem.verses.map((verse) => verse.text).join("\n") || poem.poemSummary || "",
+    term,
+  ),
+  verses: poem.verses,
+});
+
 const mapLocalHit = (poem: IndexedLocalPoem, term: string): SearchHit => ({
   key: `custom:${poem.slug}:${poem.id}`,
   id: poem.id,
@@ -350,14 +402,17 @@ const buildPlan = (
   explicitPoet: DirectoryPoet | null,
   exact: boolean,
   directory: DirectoryPoet[],
+  mode: SearchMode,
+  disableScopeDetection: boolean,
 ): SearchPlan => {
   const normalizedQuery = normalizeSearchText(query);
   const shouldSearch = normalizedQuery.length >= MIN_SEARCH_QUERY_LENGTH;
+  const isSemantic = mode === "semantic";
 
-  let term = normalizedQuery;
+  let term = isSemantic ? query.trim() : normalizedQuery;
   let poet = explicitPoet;
   let poetFromIntent = false;
-  if (shouldSearch && !exact) {
+  if (shouldSearch && !exact && !isSemantic) {
     const intent = parseSearchIntent(query, explicitPoet ? [] : directory);
     term = intent.term;
     if (!explicitPoet && intent.poet) {
@@ -370,27 +425,33 @@ const buildPlan = (
     (sourceFilter === "all" || sourceFilter === source) &&
     (!poet || poet.source === source);
 
-  const includeGanjoor = allows("ganjoor");
-  const includeLocal = allows("custom");
-  const includeEcholalia = allows("echolalia");
+  const includeSemantic = isSemantic && (!poet || poet.source === "ganjoor");
+  const includeGanjoor = !isSemantic && allows("ganjoor");
+  const includeLocal = !isSemantic && allows("custom");
+  const includeEcholalia = !isSemantic && allows("echolalia");
 
   return {
     key: [
+      isSemantic ? "s" : "k",
       term,
       poet ? poet.key : "",
       includeGanjoor ? "g" : "",
       includeLocal ? "l" : "",
       includeEcholalia ? "e" : "",
+      includeSemantic && disableScopeDetection ? "global" : "",
     ].join("|"),
     shouldSearch,
     term,
     normalizedQuery,
     poet,
     poetFromIntent,
-    rewritten: term !== normalizedQuery,
+    rewritten: !isSemantic && term !== normalizedQuery,
+    mode,
+    disableScopeDetection: isSemantic && disableScopeDetection,
     includeGanjoor,
     includeLocal,
     includeEcholalia,
+    includeSemantic,
   };
 };
 
@@ -462,6 +523,7 @@ const ResultCard = memo(function ResultCard({
   compact?: boolean;
 }) {
   const { snippet } = hit;
+  const couplets = hit.verses?.length ? pairSemanticVerses(hit.verses) : null;
 
   return (
     <motion.li
@@ -493,13 +555,32 @@ const ResultCard = memo(function ResultCard({
           </span>
         </span>
         <span className="search-card-title">{hit.title}</span>
-        {snippet.matchLine && (
-          <span className="search-card-match">
-            <HighlightedText text={snippet.matchLine} highlight={snippet.highlight} />
+        {couplets ? (
+          <span className="search-card-verses">
+            {couplets.map((couplet) =>
+              couplet.text ? (
+                <span key={couplet.key} className="search-card-verse-line">
+                  {couplet.text}
+                </span>
+              ) : (
+                <span key={couplet.key} className="search-card-couplet">
+                  <span>{couplet.right}</span>
+                  <span>{couplet.left}</span>
+                </span>
+              ),
+            )}
           </span>
-        )}
-        {!compact && snippet.contextLine && (
-          <span className="search-card-context">{snippet.contextLine}</span>
+        ) : (
+          <>
+            {snippet.matchLine && (
+              <span className="search-card-match">
+                <HighlightedText text={snippet.matchLine} highlight={snippet.highlight} />
+              </span>
+            )}
+            {!compact && snippet.contextLine && (
+              <span className="search-card-context">{snippet.contextLine}</span>
+            )}
+          </>
         )}
       </Link>
     </motion.li>
@@ -763,12 +844,39 @@ const SourceSegmentedControl = memo(function SourceSegmentedControl({
   );
 });
 
+const SearchModeControl = memo(function SearchModeControl({
+  value,
+  onChange,
+}: {
+  value: SearchMode;
+  onChange: (value: SearchMode) => void;
+}) {
+  return (
+    <div className="search-segmented" role="group" aria-label="شیوه جستجو">
+      {SEARCH_MODES.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          className={`search-segment${value === option.value ? " is-active" : ""}`}
+          aria-pressed={value === option.value}
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+});
+
 const SearchPage = () => {
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q") ?? "";
   const urlSource = searchParams.get("source");
   const urlPoetKey = searchParams.get("poet");
   const exact = searchParams.get("exact") === "1";
+  const searchMode: SearchMode =
+    searchParams.get("mode") === "semantic" ? "semantic" : "keyword";
+  const disableScopeDetection = searchParams.get("global") === "1";
   const sourceFilter: SourceFilter = SOURCE_FILTERS.some(
     (option) => option.value === urlSource,
   )
@@ -780,6 +888,11 @@ const SearchPage = () => {
   const [ganjoor, setGanjoor] = useState<GanjoorSection>(idleGanjoor);
   const [local, setLocal] = useState<ListSection>(idleList);
   const [echolalia, setEcholalia] = useState<ListSection>(idleList);
+  const [semantic, setSemantic] = useState<ListSection>(idleList);
+  const [semanticScope, setSemanticScope] = useState<{
+    poet: string | null;
+    category: string | null;
+  }>({ poet: null, category: null });
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
@@ -803,6 +916,10 @@ const SearchPage = () => {
   const restoreScrollRef = useRef<number | null>(null);
   const ganjoorRef = useRef(ganjoor);
   ganjoorRef.current = ganjoor;
+  const semanticRef = useRef(semantic);
+  semanticRef.current = semantic;
+  const semanticScopeRef = useRef(semanticScope);
+  semanticScopeRef.current = semanticScope;
 
   const selectedPoet = useMemo(
     () => findDirectoryPoet(urlPoetKey, directory),
@@ -810,8 +927,17 @@ const SearchPage = () => {
   );
 
   const plan = useMemo(
-    () => buildPlan(urlQuery, sourceFilter, selectedPoet, exact, directory),
-    [directory, exact, selectedPoet, sourceFilter, urlQuery],
+    () =>
+      buildPlan(
+        urlQuery,
+        sourceFilter,
+        selectedPoet,
+        exact,
+        directory,
+        searchMode,
+        disableScopeDetection,
+      ),
+    [directory, disableScopeDetection, exact, searchMode, selectedPoet, sourceFilter, urlQuery],
   );
   const planRef = useRef(plan);
   planRef.current = plan;
@@ -865,6 +991,8 @@ const SearchPage = () => {
       source?: SourceFilter;
       poet?: string | null;
       exact?: boolean;
+      mode?: SearchMode;
+      global?: boolean;
     }) => {
       const current = new URLSearchParams(window.location.search);
       const params = new URLSearchParams();
@@ -873,17 +1001,27 @@ const SearchPage = () => {
       const poet = next.poet === undefined ? current.get("poet") : next.poet;
       const exactFlag =
         next.exact === undefined ? current.get("exact") === "1" : next.exact;
+      const mode: SearchMode =
+        next.mode ?? (current.get("mode") === "semantic" ? "semantic" : "keyword");
+      const globalFlag =
+        next.global === undefined ? current.get("global") === "1" : next.global;
       if (query) {
         params.set("q", query);
       }
-      if (source && source !== "all") {
+      if (mode === "semantic") {
+        params.set("mode", "semantic");
+      }
+      if (source && source !== "all" && mode !== "semantic") {
         params.set("source", source);
       }
       if (poet) {
         params.set("poet", poet);
       }
-      if (exactFlag && query) {
+      if (exactFlag && query && mode !== "semantic") {
         params.set("exact", "1");
+      }
+      if (globalFlag && query && mode === "semantic") {
+        params.set("global", "1");
       }
       const href = params.toString() ? `/search?${params.toString()}` : "/search";
       if (`${window.location.pathname}${window.location.search}` !== href) {
@@ -942,14 +1080,14 @@ const SearchPage = () => {
     debounceRef.current = window.setTimeout(() => {
       debounceRef.current = null;
       commitDraft(draft);
-    }, DEBOUNCE_MS);
+    }, searchMode === "semantic" ? SEMANTIC_DEBOUNCE_MS : DEBOUNCE_MS);
     return () => {
       if (debounceRef.current) {
         window.clearTimeout(debounceRef.current);
         debounceRef.current = null;
       }
     };
-  }, [commitDraft, draft]);
+  }, [commitDraft, draft, searchMode]);
 
   useEffect(() => {
     const currentPlan = planRef.current;
@@ -967,6 +1105,8 @@ const SearchPage = () => {
       setGanjoor(idleGanjoor);
       setLocal(idleList);
       setEcholalia(idleList);
+      setSemantic(idleList);
+      setSemanticScope({ poet: null, category: null });
       return;
     }
 
@@ -983,6 +1123,17 @@ const SearchPage = () => {
       setEcholalia(
         cached.echolalia ? { status: "done", hits: cached.echolalia } : idleList,
       );
+      setSemantic(
+        cached.semantic ? { status: "done", hits: cached.semantic.hits } : idleList,
+      );
+      setSemanticScope(
+        cached.semantic
+          ? {
+              poet: cached.semantic.detectedPoetName,
+              category: cached.semantic.detectedCategoryName,
+            }
+          : { poet: null, category: null },
+      );
       // Coming back from a poem: the list is restored in this same commit, so
       // the saved offset is valid again once React has painted it.
       const stored = readStoredScroll();
@@ -995,6 +1146,7 @@ const SearchPage = () => {
 
     const run = async () => {
       if (
+        !currentPlan.includeSemantic &&
         !isPoetDirectoryEnriched() &&
         currentPlan.normalizedQuery.includes(" ")
       ) {
@@ -1010,6 +1162,8 @@ const SearchPage = () => {
           findDirectoryPoet(urlPoetKey, getPoetDirectory()),
           exact,
           getPoetDirectory(),
+          searchMode,
+          disableScopeDetection,
         );
         if (refreshed.key !== currentPlan.key) {
           // The directory state update re-runs this effect with the new plan.
@@ -1044,6 +1198,14 @@ const SearchPage = () => {
           ? { ...previous, status: "loading" }
           : idleList,
       );
+      setSemantic((previous) =>
+        currentPlan.includeSemantic
+          ? { ...previous, status: "loading" }
+          : idleList,
+      );
+      if (!currentPlan.includeSemantic) {
+        setSemanticScope({ poet: null, category: null });
+      }
 
       const poetId =
         currentPlan.poet?.source === "ganjoor" ? currentPlan.poet.id : undefined;
@@ -1125,10 +1287,46 @@ const SearchPage = () => {
             })
         : Promise.resolve(null);
 
-      const [ganjoorResult, localResult, echolaliaResult] = await Promise.all([
+      const semanticTask: Promise<CachedSemanticPage | null> = currentPlan.includeSemantic
+        ? ganjoorApi
+            .searchPoemsSemantic(currentPlan.term, {
+              topK: SEMANTIC_TOP_K,
+              poetId,
+              disableScopeDetection: currentPlan.disableScopeDetection,
+              signal,
+            })
+            .then((page) => {
+              const result: CachedSemanticPage = {
+                hits: dedupeHits(
+                  page.results.map((poem) => mapSemanticHit(poem, currentPlan.term)),
+                ),
+                detectedPoetName: page.detectedPoetName,
+                detectedCategoryName: page.detectedCategoryName,
+              };
+              if (isCurrent()) {
+                setSemantic({ status: "done", hits: result.hits });
+                setSemanticScope({
+                  poet: result.detectedPoetName,
+                  category: result.detectedCategoryName,
+                });
+              }
+              return result;
+            })
+            .catch((error) => {
+              if (!isAbortError(error, signal) && isCurrent()) {
+                logger.error("Semantic search failed:", error);
+                setSemantic({ status: "error", hits: [] });
+                setSemanticScope({ poet: null, category: null });
+              }
+              return null;
+            })
+        : Promise.resolve(null);
+
+      const [ganjoorResult, localResult, echolaliaResult, semanticResult] = await Promise.all([
         ganjoorTask,
         localTask,
         echolaliaTask,
+        semanticTask,
       ]);
       if (!isCurrent()) {
         return;
@@ -1137,12 +1335,14 @@ const SearchPage = () => {
       const complete =
         (!currentPlan.includeGanjoor || ganjoorResult !== null) &&
         (!currentPlan.includeLocal || localResult !== null) &&
-        (!currentPlan.includeEcholalia || echolaliaResult !== null);
+        (!currentPlan.includeEcholalia || echolaliaResult !== null) &&
+        (!currentPlan.includeSemantic || semanticResult !== null);
       if (complete) {
         const cached: CachedFirstPage = {
           ganjoor: ganjoorResult,
           local: localResult,
           echolalia: echolaliaResult,
+          semantic: semanticResult,
         };
         firstPageCache.set(currentPlan.key, cached);
         sessionFirstPageCache.set(currentPlan.key, cached);
@@ -1270,7 +1470,7 @@ const SearchPage = () => {
         apply();
       }
     }, 280);
-  }, [ganjoor.status, ganjoor.hits.length, local.status, echolalia.status]);
+  }, [ganjoor.status, ganjoor.hits.length, local.status, echolalia.status, semantic.status, semantic.hits.length]);
 
   /**
    * Snapshot what is on screen (up to a few pages) plus the scroll offset so
@@ -1290,6 +1490,14 @@ const SearchPage = () => {
           currentPlan.includeGanjoor && state.status === "done"
             ? { hits: state.hits.slice(0, MAX_RESTORED_HITS), paging: state.paging }
             : cached.ganjoor,
+        semantic:
+          currentPlan.includeSemantic && semanticRef.current.status === "done"
+            ? {
+                hits: semanticRef.current.hits.slice(0, MAX_RESTORED_HITS),
+                detectedPoetName: semanticScopeRef.current.poet,
+                detectedCategoryName: semanticScopeRef.current.category,
+              }
+            : cached.semantic,
       };
       sessionFirstPageCache.set(currentPlan.key, restored);
       firstPageCache.set(currentPlan.key, restored);
@@ -1371,7 +1579,11 @@ const SearchPage = () => {
   };
 
   const shouldSearch = plan.shouldSearch;
-  const primary: "ganjoor" | "modern" = plan.includeGanjoor ? "ganjoor" : "modern";
+  const primary: "ganjoor" | "modern" | "semantic" = plan.includeSemantic
+    ? "semantic"
+    : plan.includeGanjoor
+      ? "ganjoor"
+      : "modern";
   const showStrip =
     plan.includeGanjoor && (plan.includeLocal || plan.includeEcholalia);
   const modernHits = useMemo(
@@ -1386,14 +1598,30 @@ const SearchPage = () => {
     (!plan.includeEcholalia || echolalia.status !== "loading");
   const echolaliaFailed = plan.includeEcholalia && echolalia.status === "error";
 
-  const primaryHits = primary === "ganjoor" ? ganjoor.hits : modernHits;
+  const primaryHits =
+    primary === "semantic"
+      ? semantic.hits
+      : primary === "ganjoor"
+        ? ganjoor.hits
+        : modernHits;
   const primaryLoading =
-    primary === "ganjoor" ? ganjoor.status === "loading" : modernLoading;
+    primary === "semantic"
+      ? semantic.status === "loading"
+      : primary === "ganjoor"
+        ? ganjoor.status === "loading"
+        : modernLoading;
   const primaryError =
-    primary === "ganjoor"
-      ? ganjoor.status === "error"
-      : modernDone && modernHits.length === 0 && echolaliaFailed;
-  const primaryDone = primary === "ganjoor" ? ganjoor.status === "done" : modernDone;
+    primary === "semantic"
+      ? semantic.status === "error"
+      : primary === "ganjoor"
+        ? ganjoor.status === "error"
+        : modernDone && modernHits.length === 0 && echolaliaFailed;
+  const primaryDone =
+    primary === "semantic"
+      ? semantic.status === "done"
+      : primary === "ganjoor"
+        ? ganjoor.status === "done"
+        : modernDone;
   const primaryStale = primaryLoading && primaryHits.length > 0;
   const showSkeleton = shouldSearch && primaryLoading && primaryHits.length === 0;
   const showEmpty =
@@ -1406,22 +1634,59 @@ const SearchPage = () => {
   const totalCount =
     primary === "ganjoor"
       ? Math.max(ganjoor.paging.totalCount, ganjoor.hits.length)
-      : modernHits.length;
+      : primaryHits.length;
   const poetLabel = plan.poet ? getDirectoryPoetDisplayName(plan.poet) : null;
   const showIntentLine =
-    shouldSearch && !exact && (plan.rewritten || plan.poetFromIntent);
+    shouldSearch &&
+    !exact &&
+    plan.mode !== "semantic" &&
+    (plan.rewritten || plan.poetFromIntent);
+  const detectedScopeLabel = [semanticScope.poet, semanticScope.category]
+    .filter(Boolean)
+    .join(" » ");
   const wouldRewrite = useMemo(() => {
-    if (!exact || !shouldSearch) {
+    if (!exact || !shouldSearch || searchMode === "semantic") {
       return false;
     }
-    const smart = buildPlan(urlQuery, sourceFilter, selectedPoet, false, directory);
+    const smart = buildPlan(
+      urlQuery,
+      sourceFilter,
+      selectedPoet,
+      false,
+      directory,
+      "keyword",
+      false,
+    );
     return smart.rewritten || smart.poetFromIntent;
-  }, [directory, exact, selectedPoet, shouldSearch, sourceFilter, urlQuery]);
-  const isBusy = shouldSearch && (primaryLoading || modernLoading || isLoadingMore);
+  }, [directory, exact, searchMode, selectedPoet, shouldSearch, sourceFilter, urlQuery]);
+  const isBusy =
+    shouldSearch && (primaryLoading || modernLoading || isLoadingMore);
+  const poetFilterOptions =
+    searchMode === "semantic"
+      ? directory.filter((poet) => poet.source === "ganjoor")
+      : directory;
+  const exampleQueries =
+    searchMode === "semantic" ? EXAMPLE_SEMANTIC_QUERIES : EXAMPLE_QUERIES;
 
   const handleSourceChange = useCallback(
     (value: SourceFilter) => updateParams({ source: value }),
     [updateParams],
+  );
+  const handleModeChange = useCallback(
+    (value: SearchMode) => {
+      const nextPoet =
+        value === "semantic" && selectedPoet && selectedPoet.source !== "ganjoor"
+          ? null
+          : undefined;
+      updateParams({
+        mode: value,
+        source: value === "semantic" ? "all" : undefined,
+        poet: nextPoet,
+        exact: value === "semantic" ? false : undefined,
+        global: value === "keyword" ? false : undefined,
+      });
+    },
+    [selectedPoet, updateParams],
   );
   const handlePoetChange = useCallback(
     (poet: DirectoryPoet | null) => updateParams({ poet: poet ? poet.key : null }),
@@ -1457,8 +1722,12 @@ const SearchPage = () => {
 
       <main className={`search-page-shell${shouldSearch ? " has-query" : ""}`}>
         <header className="search-page-header">
-          <h1>جستجو در شعر</h1>
-          <p>واژه، مصرع یا نام شاعر را بنویسید؛ مثلاً «شعر حافظ درمورد عشق».</p>
+          <h1>{searchMode === "semantic" ? "جستجوی معنایی" : "جستجو در شعر"}</h1>
+          <p>
+            {searchMode === "semantic"
+              ? "موضوع یا حس شعر را بنویسید؛ مثلاً «شعری در مورد بی‌وفایی دنیا»."
+              : "واژه، مصرع یا نام شاعر را بنویسید؛ مثلاً «شعر حافظ درمورد عشق»."}
+          </p>
         </header>
 
         <div ref={stickySentinelRef} className="search-sticky-sentinel" aria-hidden="true" />
@@ -1481,7 +1750,11 @@ const SearchPage = () => {
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={handleInputKeyDown}
-                placeholder="واژه، مصرع یا نام شاعر…"
+                placeholder={
+                  searchMode === "semantic"
+                    ? "موضوع یا توصیف شعر…"
+                    : "واژه، مصرع یا نام شاعر…"
+                }
                 aria-label="جستجوی شعر"
                 autoComplete="off"
                 enterKeyHint="search"
@@ -1523,8 +1796,17 @@ const SearchPage = () => {
         </div>
 
         <div className="search-filters">
-          <SourceSegmentedControl value={sourceFilter} onChange={handleSourceChange} />
-          <PoetCombobox poets={directory} value={selectedPoet} onChange={handlePoetChange} />
+          <div className="search-filter-modes">
+            <SearchModeControl value={searchMode} onChange={handleModeChange} />
+            {searchMode !== "semantic" && (
+              <SourceSegmentedControl value={sourceFilter} onChange={handleSourceChange} />
+            )}
+          </div>
+          <PoetCombobox
+            poets={poetFilterOptions}
+            value={selectedPoet}
+            onChange={handlePoetChange}
+          />
         </div>
 
         {!shouldSearch && (
@@ -1576,7 +1858,7 @@ const SearchPage = () => {
                 </h2>
               </div>
               <ul className="search-chip-row">
-                {EXAMPLE_QUERIES.map((example) => (
+                {exampleQueries.map((example) => (
                   <li key={example}>
                     <button
                       type="button"
@@ -1591,18 +1873,37 @@ const SearchPage = () => {
             </div>
 
             <ul className="search-hints" aria-label="راهنمای جستجو">
-              <li>
-                <strong>عبارت</strong>
-                <span>یک واژه یا بخشی از مصرع؛ مثل «رخ یار»</span>
-              </li>
-              <li>
-                <strong>شاعر</strong>
-                <span>نام شاعر را کنار عبارت بنویسید؛ مثل «حافظ عشق»</span>
-              </li>
-              <li>
-                <strong>درمورد …</strong>
-                <span>موضوع را با «درمورد» مشخص کنید؛ مثل «مولانا درمورد جدایی»</span>
-              </li>
+              {searchMode === "semantic" ? (
+                <>
+                  <li>
+                    <strong>موضوع</strong>
+                    <span>معنی را بنویسید، نه لزوماً واژه‌های شعر؛ مثل «بی‌وفایی دنیا»</span>
+                  </li>
+                  <li>
+                    <strong>شاعر</strong>
+                    <span>نام شاعر را در عبارت بیاورید؛ مثل «شعر حافظ در مورد عشق»</span>
+                  </li>
+                  <li>
+                    <strong>متنی</strong>
+                    <span>اگر مصرع را می‌دانید، جستجوی متنی را انتخاب کنید</span>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <strong>عبارت</strong>
+                    <span>یک واژه یا بخشی از مصرع؛ مثل «رخ یار»</span>
+                  </li>
+                  <li>
+                    <strong>شاعر</strong>
+                    <span>نام شاعر را کنار عبارت بنویسید؛ مثل «حافظ عشق»</span>
+                  </li>
+                  <li>
+                    <strong>درمورد …</strong>
+                    <span>موضوع را با «درمورد» مشخص کنید؛ مثل «مولانا درمورد جدایی»</span>
+                  </li>
+                </>
+              )}
             </ul>
           </section>
         )}
@@ -1664,6 +1965,38 @@ const SearchPage = () => {
             </button>
           </div>
         )}
+        {shouldSearch &&
+          plan.includeSemantic &&
+          semantic.status === "done" &&
+          detectedScopeLabel &&
+          !plan.disableScopeDetection &&
+          !plan.poet && (
+          <div className="search-intent" aria-label="محدوده جستجوی معنایی">
+            <span className="search-intent-label">نتایج محدود به:</span>
+            <span className="search-intent-chip">
+              <span>{detectedScopeLabel}</span>
+            </span>
+            <button
+              type="button"
+              className="search-text-button"
+              onClick={() => updateParams({ global: true })}
+            >
+              جستجوی سراسری
+            </button>
+          </div>
+        )}
+        {shouldSearch && plan.includeSemantic && plan.disableScopeDetection && (
+          <div className="search-intent" aria-label="محدوده جستجوی معنایی">
+            <span className="search-intent-label">جستجوی سراسری</span>
+            <button
+              type="button"
+              className="search-text-button"
+              onClick={() => updateParams({ global: false })}
+            >
+              تشخیص محدوده از عبارت
+            </button>
+          </div>
+        )}
 
         {shouldSearch && showStrip && !(modernDone && modernHits.length === 0 && !echolaliaFailed) && (
           <section className="search-strip" aria-label="شعر معاصر">
@@ -1717,6 +2050,7 @@ const SearchPage = () => {
             <strong>{formatPersianNumber(totalCount)}</strong> نتیجه برای «{plan.term}»
             {poetLabel ? ` در اشعار ${poetLabel}` : ""}
             {primary === "ganjoor" && sourceFilter === "all" ? " در گنجور" : ""}
+            {primary === "semantic" ? " با جستجوی معنایی" : ""}
           </p>
         )}
         {shouldSearch && primary === "modern" && echolaliaFailed && modernHits.length > 0 && (
@@ -1744,7 +2078,9 @@ const SearchPage = () => {
             <FaExclamationCircle aria-hidden="true" />
             <h2>جستجو کامل نشد</h2>
             <p>
-              {primary === "ganjoor"
+              {primary === "semantic"
+                ? "ارتباط با جستجوی معنایی برقرار نشد. لطفاً دوباره تلاش کنید."
+                : primary === "ganjoor"
                 ? "ارتباط با گنجور برقرار نشد. لطفاً دوباره تلاش کنید."
                 : "اکولالیا پاسخ نداد. لطفاً دوباره تلاش کنید."}
             </p>
@@ -1759,11 +2095,18 @@ const SearchPage = () => {
           <div className="search-state search-state-empty">
             <FaFeatherAlt aria-hidden="true" />
             <h2>چیزی پیدا نشد</h2>
-            <p>برای «{plan.term}» نتیجه‌ای در {sourceFilter === "all" ? "هیچ منبعی" : SOURCE_LABELS[sourceFilter]} نبود.</p>
+            <p>برای «{plan.term}» نتیجه‌ای در {searchMode === "semantic" ? "جستجوی معنایی" : sourceFilter === "all" ? "هیچ منبعی" : SOURCE_LABELS[sourceFilter]} نبود.</p>
             <ul>
-              <li>کلمات کمتری بنویسید یا فقط یک واژهٔ کلیدی را جستجو کنید.</li>
+              <li>
+                {searchMode === "semantic"
+                  ? "موضوع را کمی کلی‌تر بنویسید؛ مثلاً «غم دوری» به‌جای یک جملهٔ بلند."
+                  : "کلمات کمتری بنویسید یا فقط یک واژهٔ کلیدی را جستجو کنید."}
+              </li>
               <li>املای واژه‌ها را بررسی کنید؛ «ی» و «ک» فارسی و عربی یکسان شمرده می‌شوند.</li>
               {plan.poet && <li>فیلتر شاعر را بردارید تا در همهٔ شاعران جستجو شود.</li>}
+              {searchMode === "semantic" && (
+                <li>اگر مصرع را می‌دانید، به جستجوی متنی بروید.</li>
+              )}
             </ul>
             <div className="search-state-actions">
               {plan.poet && (
@@ -1779,7 +2122,17 @@ const SearchPage = () => {
                   حذف فیلتر {poetLabel}
                 </button>
               )}
-              {SOURCE_FILTERS.filter(
+              {searchMode === "semantic" && (
+                <button
+                  type="button"
+                  className="search-chip"
+                  onClick={() => updateParams({ mode: "keyword" })}
+                >
+                  جستجوی متنی
+                </button>
+              )}
+              {searchMode !== "semantic" &&
+                SOURCE_FILTERS.filter(
                 (option) => option.value !== sourceFilter && option.value !== "all",
               ).map((option) => (
                 <button

@@ -3,6 +3,7 @@ import {
   findNormalizedMatchRange,
   getVerseSnippet,
   normalizeSearchText,
+  pairSemanticVerses,
   parseSearchIntent,
 } from "../src/utils/searchText";
 
@@ -62,5 +63,15 @@ assert.equal(
 const range = findNormalizedMatchRange("رخِ يار در نظر است", "رخ یار");
 assert.ok(range);
 assert.equal("رخِ يار در نظر است".slice(range!.start, range!.end).includes("رخ"), true);
+
+const couplets = pairSemanticVerses([
+  { position: "Right", text: "آدم خاکی‌ چه‌ گر بس‌ با فَر است‌" },
+  { position: "Left", text: "گر وفایش‌ نیست‌ خاکش‌ بر سر است‌" },
+  { position: "Paragraph", text: "خواجه بوالفتح شیخ گفت" },
+]);
+assert.equal(couplets.length, 2);
+assert.equal(couplets[0].right?.includes("خاکی"), true);
+assert.equal(couplets[0].left?.includes("وفا"), true);
+assert.equal(couplets[1].text, "خواجه بوالفتح شیخ گفت");
 
 console.log("searchText tests passed");

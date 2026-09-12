@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "جستجو",
-  description: "جستجو در اشعار گنجور، شاعران محلی و اکولالیا.",
+  description:
+    "جستجوی متنی و معنایی در اشعار گنجور، شاعران محلی و اکولالیا.",
 };
 
 export default function SearchLayout({

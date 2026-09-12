@@ -19,6 +19,10 @@ const nextConfig = {
 
         return [
             {
+                source: '/api/ganjoor/search/semantic',
+                destination: 'https://ganjgah.ir/api/ganjoor/search/semantic',
+            },
+            {
                 source: '/api/ganjoor/:path*',
                 destination: `${ganjoorApiBaseUrl}/api/ganjoor/:path*`,
             },
@@ -42,6 +46,12 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'api.ganjoor.net',
+                port: '',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'ganjgah.ir',
                 port: '',
                 pathname: '/**',
             },
