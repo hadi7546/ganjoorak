@@ -13,6 +13,10 @@ import { useSettings } from '@/context/SettingsContext';
 import { logger } from '@/utils/logger';
 import { FaRandom, FaSearch, FaTimes } from 'react-icons/fa';
 import poetSourceIndex from '@/data/poet-source-index.json';
+import InterestChipsRail from '@/components/InterestChipsRail';
+import InterestPickerDialog from '@/components/InterestPickerDialog';
+import { getInterestByKey } from '@/data/interests';
+import { fetchInterestPoem, primeInterestPool } from '@/utils/interestFeed';
 
 const INITIAL_POEMS_COUNT = 12;
 const PREFETCH_THRESHOLD = 5;
@@ -24,32 +28,42 @@ const FEED_CACHE_LIMIT = 8;
 type CachedFeed = {
     poems: Poem[];
     savedAt: number;
+    interestKey?: string | null;
 };
 
-const readCachedFeedPoems = () => {
+const readCachedFeed = () => {
+    const empty = { poems: [] as Poem[], interestKey: '' };
+
     if (typeof window === 'undefined') {
-        return [] as Poem[];
+        return empty;
     }
 
     try {
         const rawCache = window.localStorage.getItem(FEED_CACHE_KEY);
         if (!rawCache) {
-            return [] as Poem[];
+            return empty;
         }
 
         const parsed = JSON.parse(rawCache) as Partial<CachedFeed>;
         if (!Array.isArray(parsed.poems)) {
-            return [] as Poem[];
+            return empty;
         }
 
-        return parsed.poems.filter((poem): poem is Poem => Boolean(poem?.id && poem?.plainText));
+        return {
+            poems: parsed.poems.filter((poem): poem is Poem => Boolean(poem?.id && poem?.plainText)),
+            interestKey: typeof parsed.interestKey === 'string' ? parsed.interestKey : '',
+        };
     } catch (error) {
         logger.error('Failed to read cached feed poems:', error);
-        return [] as Poem[];
+        return empty;
     }
 };
 
-const writeCachedFeedPoems = (poems: Poem[], currentIndex: number) => {
+const writeCachedFeedPoems = (
+    poems: Poem[],
+    currentIndex: number,
+    interestKey: string,
+) => {
     if (typeof window === 'undefined' || poems.length === 0) {
         return;
     }
@@ -63,7 +77,11 @@ const writeCachedFeedPoems = (poems: Poem[], currentIndex: number) => {
 
         window.localStorage.setItem(
             FEED_CACHE_KEY,
-            JSON.stringify({ poems: orderedPoems, savedAt: Date.now() } satisfies CachedFeed),
+            JSON.stringify({
+                poems: orderedPoems,
+                savedAt: Date.now(),
+                interestKey,
+            } satisfies CachedFeed),
         );
     } catch (error) {
         logger.error('Failed to cache feed poems:', error);
@@ -405,6 +423,9 @@ export default function Home() {
         settings,
         isHydrated: areSettingsHydrated,
         setFollowedPoetKeys,
+        setInterestKeys,
+        toggleActiveInterest,
+        clearActiveInterests,
     } = useSettings();
     const [poems, setPoems] = useState<Poem[]>([]);
     const [availablePoets, setAvailablePoets] = useState<Poet[]>([]);
@@ -414,18 +435,22 @@ export default function Home() {
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [isFeedDialogOpen, setIsFeedDialogOpen] = useState(false);
     const [shouldClearFeedQuery, setShouldClearFeedQuery] = useState(false);
+    const [isInterestDialogOpen, setIsInterestDialogOpen] = useState(false);
+    const [shouldClearInterestQuery, setShouldClearInterestQuery] = useState(false);
     const poemsRef = useRef<Poem[]>([]);
     const currentPoemIndexRef = useRef(0);
     const feedVersionRef = useRef(0);
     const fetchMorePromiseRef = useRef<Promise<Poem[]> | null>(null);
     const pendingNavigationIndexRef = useRef<number | null>(null);
     const loadedPoetsRef = useRef(false);
-    const hydratedFollowedKeysRef = useRef<string | null>(null);
+    const hydratedFeedSignatureRef = useRef<string | null>(null);
+    const cachedInterestKeyRef = useRef<string>('');
 
     useEffect(() => {
-        const cachedPoems = readCachedFeedPoems();
-        if (cachedPoems.length > 0) {
-            setPoems((current) => (current.length > 0 ? current : cachedPoems));
+        const cachedFeed = readCachedFeed();
+        if (cachedFeed.poems.length > 0) {
+            cachedInterestKeyRef.current = cachedFeed.interestKey;
+            setPoems((current) => (current.length > 0 ? current : cachedFeed.poems));
         }
     }, []);
 
@@ -433,9 +458,14 @@ export default function Home() {
         poemsRef.current = poems;
     }, [poems]);
 
+    const activeInterestSignature = useMemo(
+        () => [...settings.activeInterestKeys].sort().join('|'),
+        [settings.activeInterestKeys],
+    );
+
     useEffect(() => {
-        writeCachedFeedPoems(poems, currentPoemIndex);
-    }, [currentPoemIndex, poems]);
+        writeCachedFeedPoems(poems, currentPoemIndex, activeInterestSignature);
+    }, [activeInterestSignature, currentPoemIndex, poems]);
 
     useEffect(() => {
         currentPoemIndexRef.current = currentPoemIndex;
@@ -469,6 +499,7 @@ export default function Home() {
     }, [availablePoets, settings.followedPoetKeys]);
 
     const followedKeySignature = settings.followedPoetKeys.join('|');
+    const feedSignature = `${activeInterestSignature}::${followedKeySignature}`;
     const currentPoem = poems[currentPoemIndex];
     const nextPoem = poems[currentPoemIndex + 1];
 
@@ -479,16 +510,40 @@ export default function Home() {
         setShouldClearFeedQuery(false);
     }, []);
 
+    const clearInterestQuery = useCallback(() => {
+        if (typeof window !== 'undefined') {
+            window.history.replaceState(null, '', '/');
+        }
+        setShouldClearInterestQuery(false);
+    }, []);
+
     useEffect(() => {
         if (typeof window === 'undefined') {
             return;
         }
 
-        if (new URLSearchParams(window.location.search).get('feed') === '1') {
+        const params = new URLSearchParams(window.location.search);
+
+        if (params.get('feed') === '1') {
             setIsFeedDialogOpen(true);
             setShouldClearFeedQuery(true);
         }
+
+        if (params.get('interests') === '1') {
+            setIsInterestDialogOpen(true);
+            setShouldClearInterestQuery(true);
+        }
     }, []);
+
+    useEffect(() => {
+        if (!areSettingsHydrated || settings.hasChosenInterests) {
+            return;
+        }
+
+        setIsInterestDialogOpen(true);
+    }, [areSettingsHydrated, settings.hasChosenInterests]);
+
+
 
     useEffect(() => {
         if (!areSettingsHydrated || loadedPoetsRef.current || !currentPoem) {
@@ -528,6 +583,21 @@ export default function Home() {
     }, [areSettingsHydrated, currentPoem]);
 
     const fetchRandomPoemFromFollowedPoet = useCallback(async () => {
+        const activeInterestKeys = settings.activeInterestKeys;
+
+        if (activeInterestKeys.length > 0) {
+            const interestKey =
+                activeInterestKeys[Math.floor(Math.random() * activeInterestKeys.length)];
+
+            return fetchInterestPoem(
+                interestKey,
+                settings.followedPoetKeys
+                    .map((key) => parseFollowedPoetKey(key))
+                    .filter((poet) => poet?.source === 'ganjoor')
+                    .map((poet) => poet!.slug),
+            );
+        }
+
         const selectedKeys = settings.followedPoetKeys;
 
         if (selectedKeys.length === 0) {
@@ -561,7 +631,7 @@ export default function Home() {
 
         const randomPoem = await ganjoorApi.getRandomPoemByPoet(poet.slug);
         return loadFullGanjoorPoem(randomPoem);
-    }, [settings.followedPoetKeys]);
+    }, [settings.activeInterestKeys, settings.followedPoetKeys]);
 
     const fetchPoemBatch = useCallback(async (count: number) => {
         const fetchedPoems: Poem[] = [];
@@ -660,30 +730,45 @@ export default function Home() {
         } catch (err) {
             if (feedVersionRef.current === version) {
                 logger.error('Failed to fetch initial poem:', err);
-                setError('متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.');
+                setError(
+                    settings.activeInterestKeys.length > 0
+                        ? 'در حال حاضر شعری برای این دسته‌ها پیدا نشد. لطفاً دسته دیگری را امتحان کنید.'
+                        : 'متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.',
+                );
                 setLoading(false);
             }
         }
-    }, [appendPoems, fetchPoemBatch, fetchRandomPoemFromFollowedPoet]);
+    }, [appendPoems, fetchPoemBatch, fetchRandomPoemFromFollowedPoet, settings.activeInterestKeys]);
 
     useEffect(() => {
         if (!areSettingsHydrated) {
             return;
         }
 
-        const previousSignature = hydratedFollowedKeysRef.current;
-        hydratedFollowedKeysRef.current = followedKeySignature;
-        const followedPoetsChanged =
+        const previousSignature = hydratedFeedSignatureRef.current;
+        hydratedFeedSignatureRef.current = feedSignature;
+        const feedChanged =
             previousSignature !== null &&
-            previousSignature !== followedKeySignature;
+            previousSignature !== feedSignature;
+        const cachedInterestMismatch =
+            previousSignature === null &&
+            cachedInterestKeyRef.current !== activeInterestSignature;
 
-        if (poems.length > 0 && !followedPoetsChanged) {
+        cachedInterestKeyRef.current = activeInterestSignature;
+
+        if (poems.length > 0 && !feedChanged && !cachedInterestMismatch) {
             setLoading(false);
             return;
         }
 
         fetchInitialPoems();
-    }, [areSettingsHydrated, fetchInitialPoems, followedKeySignature, poems.length]);
+    }, [
+        activeInterestSignature,
+        areSettingsHydrated,
+        feedSignature,
+        fetchInitialPoems,
+        poems.length,
+    ]);
 
     useEffect(() => {
         const shouldFetchMore =
@@ -711,6 +796,29 @@ export default function Home() {
         }
     };
 
+    const handleSaveInterests = (keys: string[]) => {
+        setInterestKeys(keys);
+        setIsInterestDialogOpen(false);
+        if (shouldClearInterestQuery) {
+            clearInterestQuery();
+        }
+    };
+
+    const handleCloseInterestDialog = () => {
+        if (!settings.hasChosenInterests) {
+            setInterestKeys(settings.interestKeys);
+        }
+        setIsInterestDialogOpen(false);
+        if (shouldClearInterestQuery) {
+            clearInterestQuery();
+        }
+    };
+
+    const handleToggleInterest = useCallback((key: string) => {
+        primeInterestPool(key);
+        toggleActiveInterest(key);
+    }, [toggleActiveInterest]);
+
     const handleNext = useCallback(() => {
         const nextIndex = currentPoemIndexRef.current + 1;
 
@@ -731,16 +839,47 @@ export default function Home() {
         setCurrentPoemIndex((prevIndex) => Math.max(prevIndex - 1, 0));
     }, []);
 
+    const interestRail = (
+        <InterestChipsRail
+            selectedKeys={settings.interestKeys}
+            activeKeys={settings.activeInterestKeys}
+            onToggle={handleToggleInterest}
+            onClear={clearActiveInterests}
+            onOpenPicker={() => setIsInterestDialogOpen(true)}
+            isLoading={loading}
+        />
+    );
+
+    const interestDialog = isInterestDialogOpen ? (
+        <InterestPickerDialog
+            selectedKeys={settings.interestKeys}
+            isFirstRun={!settings.hasChosenInterests}
+            onSave={handleSaveInterests}
+            onClose={handleCloseInterestDialog}
+        />
+    ) : null;
+
     if (!currentPoem && !error) {
-        return <LoadingScreen />;
+        return (
+            <>
+                {interestDialog}
+                <LoadingScreen />
+            </>
+        );
     }
 
     if (error && !currentPoem) {
-        return <ErrorScreen message={error} onRetry={fetchInitialPoems} />;
+        return (
+            <>
+                {interestDialog}
+                <ErrorScreen message={error} onRetry={fetchInitialPoems} />
+            </>
+        );
     }
 
     return (
         <main className="h-screen overflow-hidden">
+            {interestDialog}
             {isFeedDialogOpen && (
                 <FeedPoetDialog
                     poets={availablePoets}
@@ -764,6 +903,7 @@ export default function Home() {
                     onNext={handleNext}
                     onPrevious={handlePrevious}
                     onOpenFeed={() => setIsFeedDialogOpen(true)}
+                    titleEyebrow={interestRail}
                 />
             )}
         </main>
