@@ -6,13 +6,13 @@ export function getGanjoorUpstreamOrigin(): string {
   const raw =
     process.env.GANJOOR_API_BASE_URL ||
     process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL ||
-    "http://api.offline.ganjoor.net";
+    "https://api.ganjoor.net";
 
-  return originFrom(raw, "http://api.offline.ganjoor.net");
+  return originFrom(raw, "https://api.ganjoor.net");
 }
 
 /**
- * Semantic search currently lives on ganjgah.ir (api.ganjoor.net returns 404).
+ * Semantic search currently lives on ganjgah.ir (api.ganjoor.net returns 503).
  * Browser clients must go through `/api/ganjoor/search/semantic` because the
  * upstream does not allow CORS from this origin.
  */
