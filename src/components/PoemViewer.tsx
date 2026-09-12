@@ -425,7 +425,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({
       return poem.fullUrl;
     } else {
       // For ganjoor poems, always prepend the ganjoor.net domain
-      return `https://offline.ganjoor.net${poem.fullUrl}`;
+      return `https://ganjoor.net${poem.fullUrl}`;
     }
   };
 
