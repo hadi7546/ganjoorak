@@ -4,7 +4,7 @@ import path from "node:path";
 const GANJOOR_API_BASE_URL = (
   process.env.GANJOOR_API_BASE_URL ||
   process.env.NEXT_PUBLIC_GANJOOR_API_BASE_URL ||
-  "http://api.offline.ganjoor.net"
+  "https://api.ganjoor.net"
 ).replace(/\/+$/, "");
 
 const ECHOLALIA_API_BASE_URL = "https://echolalia.ir/wp-json/wp/v2";
