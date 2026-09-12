@@ -9,6 +9,7 @@ import React, {
   useState,
 } from "react";
 import { logger } from "@/utils/logger";
+import { isValidInterestKey, sanitizeInterestKeys } from "@/data/interests";
 
 type ThemeOption = "dark" | "light" | "paper";
 type PoemFontSizeOption = number;
@@ -42,6 +43,9 @@ interface SettingsState {
   randomizePoems: boolean;
   askRandomizePoemsOnPoetPages: boolean;
   followedPoetKeys: string[];
+  interestKeys: string[];
+  activeInterestKey: string | null;
+  hasChosenInterests: boolean;
 }
 
 interface SettingsContextValue {
@@ -58,6 +62,8 @@ interface SettingsContextValue {
   setRandomizePoems: (randomize: boolean) => void;
   setAskRandomizePoemsOnPoetPages: (ask: boolean) => void;
   setFollowedPoetKeys: (keys: string[]) => void;
+  setInterestKeys: (keys: string[]) => void;
+  setActiveInterestKey: (key: string | null) => void;
 }
 
 const FONT_STACKS: Record<FontFamilyOption, string> = {
@@ -184,6 +190,9 @@ const DEFAULT_SETTINGS: SettingsState = {
   randomizePoems: true,
   askRandomizePoemsOnPoetPages: true,
   followedPoetKeys: [],
+  interestKeys: [],
+  activeInterestKey: null,
+  hasChosenInterests: false,
 };
 
 const STORAGE_KEY = "ganjoorak:settings";
@@ -239,6 +248,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
               (key): key is string => typeof key === "string" && key.length > 0,
             )
           : DEFAULT_SETTINGS.followedPoetKeys;
+        const nextInterestKeys = sanitizeInterestKeys(parsed.interestKeys);
+        const nextActiveInterestKey =
+          typeof parsed.activeInterestKey === "string" &&
+          isValidInterestKey(parsed.activeInterestKey)
+            ? parsed.activeInterestKey
+            : null;
+        const nextHasChosenInterests =
+          typeof parsed.hasChosenInterests === "boolean"
+            ? parsed.hasChosenInterests
+            : nextInterestKeys.length > 0;
 
         setSettings((prev) => ({
           ...prev,
@@ -250,6 +269,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           randomizePoems: nextRandomizePoems,
           askRandomizePoemsOnPoetPages: nextAskRandomizePoemsOnPoetPages,
           followedPoetKeys: nextFollowedPoetKeys,
+          interestKeys: nextInterestKeys,
+          activeInterestKey: nextActiveInterestKey,
+          hasChosenInterests: nextHasChosenInterests,
         }));
 
         document.documentElement.setAttribute("data-theme", nextTheme);
@@ -366,6 +388,26 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setSettings((prev) => ({ ...prev, followedPoetKeys: uniqueKeys }));
   }, []);
 
+  const setInterestKeys = useCallback((keys: string[]) => {
+    const sanitized = sanitizeInterestKeys(keys);
+    setSettings((prev) => ({
+      ...prev,
+      interestKeys: sanitized,
+      hasChosenInterests: true,
+      activeInterestKey:
+        prev.activeInterestKey && !sanitized.includes(prev.activeInterestKey)
+          ? null
+          : prev.activeInterestKey,
+    }));
+  }, []);
+
+  const setActiveInterestKey = useCallback((key: string | null) => {
+    setSettings((prev) => ({
+      ...prev,
+      activeInterestKey: key && isValidInterestKey(key) ? key : null,
+    }));
+  }, []);
+
   const value = useMemo(
     () => ({
       settings,
@@ -379,6 +421,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       setRandomizePoems,
       setAskRandomizePoemsOnPoetPages,
       setFollowedPoetKeys,
+      setInterestKeys,
+      setActiveInterestKey,
     }),
     [
       settings,
@@ -392,6 +436,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       setRandomizePoems,
       setAskRandomizePoemsOnPoetPages,
       setFollowedPoetKeys,
+      setInterestKeys,
+      setActiveInterestKey,
     ],
   );
 

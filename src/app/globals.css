@@ -1236,6 +1236,199 @@ body:has(.menu-drawer) .global-search-button {
     }
 }
 
+.poem-eyebrow:has(.interest-rail) {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.85rem;
+}
+
+.interest-rail {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    min-width: 0;
+    transition: opacity 0.2s ease;
+}
+
+.interest-rail.is-loading {
+    opacity: 0.55;
+}
+
+.interest-rail-track {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 0.15rem 0.1rem;
+    scroll-snap-type: x proximity;
+    mask-image: linear-gradient(to left, transparent 0, #000 1.25rem, #000 calc(100% - 1.25rem), transparent 100%);
+    -webkit-mask-image: linear-gradient(to left, transparent 0, #000 1.25rem, #000 calc(100% - 1.25rem), transparent 100%);
+}
+
+.interest-rail-track::-webkit-scrollbar {
+    display: none;
+}
+
+.interest-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    flex: 0 0 auto;
+    scroll-snap-align: center;
+    min-height: 2rem;
+    padding: 0.28rem 0.8rem;
+    border: 1px solid rgb(var(--foreground) / 0.14);
+    border-radius: 9999px;
+    background: rgb(var(--card) / 0.7);
+    color: rgb(var(--foreground) / 0.8);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.interest-chip:hover {
+    background: rgb(var(--foreground) / 0.1);
+    border-color: rgb(var(--foreground) / 0.26);
+    color: rgb(var(--foreground));
+}
+
+.interest-chip.is-active {
+    background: rgb(var(--foreground) / 0.92);
+    border-color: rgb(var(--foreground) / 0.92);
+    color: rgb(var(--background));
+}
+
+.interest-chip:focus-visible {
+    outline: 2px solid rgb(var(--ring) / 0.7);
+    outline-offset: 2px;
+}
+
+.interest-chip-emoji {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.interest-rail-settings {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid rgb(var(--foreground) / 0.14);
+    border-radius: 9999px;
+    background: rgb(var(--card) / 0.7);
+    color: rgb(var(--foreground) / 0.7);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.interest-rail-settings:hover {
+    background: rgb(var(--foreground) / 0.1);
+    border-color: rgb(var(--foreground) / 0.26);
+    color: rgb(var(--foreground));
+}
+
+.interest-rail-settings svg {
+    width: 0.82rem;
+    height: 0.82rem;
+}
+
+.interest-picker-hint {
+    margin: 0 0 1rem;
+    color: rgb(var(--foreground) / 0.7);
+    font-size: 0.92rem;
+    line-height: 1.9;
+}
+
+.interest-picker-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    color: rgb(var(--foreground) / 0.68);
+    font-size: 0.9rem;
+}
+
+.interest-picker-summary strong {
+    color: rgb(var(--foreground) / 0.9);
+    font-weight: 700;
+}
+
+.interest-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 0.5rem;
+}
+
+.interest-picker-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.9rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid rgb(var(--foreground) / 0.12);
+    border-radius: 10px;
+    background: rgb(var(--foreground) / 0.05);
+    color: rgb(var(--foreground) / 0.8);
+    font: inherit;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: right;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.interest-picker-option:hover {
+    background: rgb(var(--foreground) / 0.09);
+    border-color: rgb(var(--foreground) / 0.22);
+}
+
+.interest-picker-option.is-active {
+    background: rgb(var(--accent) / 0.72);
+    border-color: rgb(var(--accent) / 0.9);
+    color: rgb(var(--accent-foreground));
+}
+
+.interest-picker-option-emoji {
+    flex: 0 0 auto;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.interest-picker-option-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+@media (max-width: 640px) {
+    .interest-chip {
+        font-size: 0.78rem;
+        min-height: 1.9rem;
+        padding: 0.24rem 0.7rem;
+    }
+
+    .interest-rail-settings {
+        width: 1.9rem;
+        height: 1.9rem;
+    }
+}
+
 .settings-actions {
     display: flex;
     justify-content: flex-start;
