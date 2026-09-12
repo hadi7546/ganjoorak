@@ -32,7 +32,7 @@ type CachedFeed = {
 };
 
 const readCachedFeed = () => {
-    const empty = { poems: [] as Poem[], interestKey: null as string | null };
+    const empty = { poems: [] as Poem[], interestKey: '' };
 
     if (typeof window === 'undefined') {
         return empty;
@@ -51,7 +51,7 @@ const readCachedFeed = () => {
 
         return {
             poems: parsed.poems.filter((poem): poem is Poem => Boolean(poem?.id && poem?.plainText)),
-            interestKey: typeof parsed.interestKey === 'string' ? parsed.interestKey : null,
+            interestKey: typeof parsed.interestKey === 'string' ? parsed.interestKey : '',
         };
     } catch (error) {
         logger.error('Failed to read cached feed poems:', error);
@@ -62,7 +62,7 @@ const readCachedFeed = () => {
 const writeCachedFeedPoems = (
     poems: Poem[],
     currentIndex: number,
-    interestKey: string | null,
+    interestKey: string,
 ) => {
     if (typeof window === 'undefined' || poems.length === 0) {
         return;
@@ -424,7 +424,8 @@ export default function Home() {
         isHydrated: areSettingsHydrated,
         setFollowedPoetKeys,
         setInterestKeys,
-        setActiveInterestKey,
+        toggleActiveInterest,
+        clearActiveInterests,
     } = useSettings();
     const [poems, setPoems] = useState<Poem[]>([]);
     const [availablePoets, setAvailablePoets] = useState<Poet[]>([]);
@@ -443,7 +444,7 @@ export default function Home() {
     const pendingNavigationIndexRef = useRef<number | null>(null);
     const loadedPoetsRef = useRef(false);
     const hydratedFeedSignatureRef = useRef<string | null>(null);
-    const cachedInterestKeyRef = useRef<string | null>(null);
+    const cachedInterestKeyRef = useRef<string>('');
 
     useEffect(() => {
         const cachedFeed = readCachedFeed();
@@ -457,9 +458,14 @@ export default function Home() {
         poemsRef.current = poems;
     }, [poems]);
 
+    const activeInterestSignature = useMemo(
+        () => [...settings.activeInterestKeys].sort().join('|'),
+        [settings.activeInterestKeys],
+    );
+
     useEffect(() => {
-        writeCachedFeedPoems(poems, currentPoemIndex, settings.activeInterestKey);
-    }, [currentPoemIndex, poems, settings.activeInterestKey]);
+        writeCachedFeedPoems(poems, currentPoemIndex, activeInterestSignature);
+    }, [activeInterestSignature, currentPoemIndex, poems]);
 
     useEffect(() => {
         currentPoemIndexRef.current = currentPoemIndex;
@@ -493,8 +499,7 @@ export default function Home() {
     }, [availablePoets, settings.followedPoetKeys]);
 
     const followedKeySignature = settings.followedPoetKeys.join('|');
-    const activeInterest = getInterestByKey(settings.activeInterestKey);
-    const feedSignature = `${activeInterest?.key ?? ''}::${followedKeySignature}`;
+    const feedSignature = `${activeInterestSignature}::${followedKeySignature}`;
     const currentPoem = poems[currentPoemIndex];
     const nextPoem = poems[currentPoemIndex + 1];
 
@@ -538,11 +543,7 @@ export default function Home() {
         setIsInterestDialogOpen(true);
     }, [areSettingsHydrated, settings.hasChosenInterests]);
 
-    useEffect(() => {
-        if (settings.activeInterestKey) {
-            primeInterestPool(settings.activeInterestKey);
-        }
-    }, [settings.activeInterestKey]);
+
 
     useEffect(() => {
         if (!areSettingsHydrated || loadedPoetsRef.current || !currentPoem) {
@@ -582,9 +583,14 @@ export default function Home() {
     }, [areSettingsHydrated, currentPoem]);
 
     const fetchRandomPoemFromFollowedPoet = useCallback(async () => {
-        if (settings.activeInterestKey) {
+        const activeInterestKeys = settings.activeInterestKeys;
+
+        if (activeInterestKeys.length > 0) {
+            const interestKey =
+                activeInterestKeys[Math.floor(Math.random() * activeInterestKeys.length)];
+
             return fetchInterestPoem(
-                settings.activeInterestKey,
+                interestKey,
                 settings.followedPoetKeys
                     .map((key) => parseFollowedPoetKey(key))
                     .filter((poet) => poet?.source === 'ganjoor')
@@ -625,7 +631,7 @@ export default function Home() {
 
         const randomPoem = await ganjoorApi.getRandomPoemByPoet(poet.slug);
         return loadFullGanjoorPoem(randomPoem);
-    }, [settings.activeInterestKey, settings.followedPoetKeys]);
+    }, [settings.activeInterestKeys, settings.followedPoetKeys]);
 
     const fetchPoemBatch = useCallback(async (count: number) => {
         const fetchedPoems: Poem[] = [];
@@ -725,14 +731,14 @@ export default function Home() {
             if (feedVersionRef.current === version) {
                 logger.error('Failed to fetch initial poem:', err);
                 setError(
-                    settings.activeInterestKey
-                        ? 'در حال حاضر شعری برای این دسته پیدا نشد. لطفاً دسته دیگری را امتحان کنید.'
+                    settings.activeInterestKeys.length > 0
+                        ? 'در حال حاضر شعری برای این دسته‌ها پیدا نشد. لطفاً دسته دیگری را امتحان کنید.'
                         : 'متأسفانه در بارگیری شعرها مشکلی پیش آمد. لطفاً دوباره تلاش کنید.',
                 );
                 setLoading(false);
             }
         }
-    }, [appendPoems, fetchPoemBatch, fetchRandomPoemFromFollowedPoet, settings.activeInterestKey]);
+    }, [appendPoems, fetchPoemBatch, fetchRandomPoemFromFollowedPoet, settings.activeInterestKeys]);
 
     useEffect(() => {
         if (!areSettingsHydrated) {
@@ -746,9 +752,9 @@ export default function Home() {
             previousSignature !== feedSignature;
         const cachedInterestMismatch =
             previousSignature === null &&
-            cachedInterestKeyRef.current !== (settings.activeInterestKey ?? null);
+            cachedInterestKeyRef.current !== activeInterestSignature;
 
-        cachedInterestKeyRef.current = settings.activeInterestKey ?? null;
+        cachedInterestKeyRef.current = activeInterestSignature;
 
         if (poems.length > 0 && !feedChanged && !cachedInterestMismatch) {
             setLoading(false);
@@ -757,11 +763,11 @@ export default function Home() {
 
         fetchInitialPoems();
     }, [
+        activeInterestSignature,
         areSettingsHydrated,
         feedSignature,
         fetchInitialPoems,
         poems.length,
-        settings.activeInterestKey,
     ]);
 
     useEffect(() => {
@@ -808,12 +814,10 @@ export default function Home() {
         }
     };
 
-    const handleSelectInterest = useCallback((key: string | null) => {
-        if (key) {
-            primeInterestPool(key);
-        }
-        setActiveInterestKey(key);
-    }, [setActiveInterestKey]);
+    const handleToggleInterest = useCallback((key: string) => {
+        primeInterestPool(key);
+        toggleActiveInterest(key);
+    }, [toggleActiveInterest]);
 
     const handleNext = useCallback(() => {
         const nextIndex = currentPoemIndexRef.current + 1;
@@ -838,8 +842,9 @@ export default function Home() {
     const interestRail = (
         <InterestChipsRail
             selectedKeys={settings.interestKeys}
-            activeKey={settings.activeInterestKey}
-            onSelect={handleSelectInterest}
+            activeKeys={settings.activeInterestKeys}
+            onToggle={handleToggleInterest}
+            onClear={clearActiveInterests}
             onOpenPicker={() => setIsInterestDialogOpen(true)}
             isLoading={loading}
         />

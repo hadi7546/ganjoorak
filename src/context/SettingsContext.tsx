@@ -44,7 +44,7 @@ interface SettingsState {
   askRandomizePoemsOnPoetPages: boolean;
   followedPoetKeys: string[];
   interestKeys: string[];
-  activeInterestKey: string | null;
+  activeInterestKeys: string[];
   hasChosenInterests: boolean;
 }
 
@@ -63,7 +63,8 @@ interface SettingsContextValue {
   setAskRandomizePoemsOnPoetPages: (ask: boolean) => void;
   setFollowedPoetKeys: (keys: string[]) => void;
   setInterestKeys: (keys: string[]) => void;
-  setActiveInterestKey: (key: string | null) => void;
+  toggleActiveInterest: (key: string) => void;
+  clearActiveInterests: () => void;
 }
 
 const FONT_STACKS: Record<FontFamilyOption, string> = {
@@ -191,7 +192,7 @@ const DEFAULT_SETTINGS: SettingsState = {
   askRandomizePoemsOnPoetPages: true,
   followedPoetKeys: [],
   interestKeys: [],
-  activeInterestKey: null,
+  activeInterestKeys: [],
   hasChosenInterests: false,
 };
 
@@ -249,11 +250,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
             )
           : DEFAULT_SETTINGS.followedPoetKeys;
         const nextInterestKeys = sanitizeInterestKeys(parsed.interestKeys);
-        const nextActiveInterestKey =
-          typeof parsed.activeInterestKey === "string" &&
-          isValidInterestKey(parsed.activeInterestKey)
-            ? parsed.activeInterestKey
-            : null;
+        const legacyActiveInterestKey = (
+          parsed as Partial<SettingsState> & { activeInterestKey?: unknown }
+        ).activeInterestKey;
+        const nextActiveInterestKeys = Array.isArray(parsed.activeInterestKeys)
+          ? sanitizeInterestKeys(parsed.activeInterestKeys)
+          : typeof legacyActiveInterestKey === "string" &&
+              isValidInterestKey(legacyActiveInterestKey)
+            ? [legacyActiveInterestKey]
+            : [];
         const nextHasChosenInterests =
           typeof parsed.hasChosenInterests === "boolean"
             ? parsed.hasChosenInterests
@@ -270,7 +275,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
           askRandomizePoemsOnPoetPages: nextAskRandomizePoemsOnPoetPages,
           followedPoetKeys: nextFollowedPoetKeys,
           interestKeys: nextInterestKeys,
-          activeInterestKey: nextActiveInterestKey,
+          activeInterestKeys: nextActiveInterestKeys,
           hasChosenInterests: nextHasChosenInterests,
         }));
 
@@ -389,23 +394,32 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const setInterestKeys = useCallback((keys: string[]) => {
-    const sanitized = sanitizeInterestKeys(keys);
     setSettings((prev) => ({
       ...prev,
-      interestKeys: sanitized,
+      interestKeys: sanitizeInterestKeys(keys),
       hasChosenInterests: true,
-      activeInterestKey:
-        prev.activeInterestKey && !sanitized.includes(prev.activeInterestKey)
-          ? null
-          : prev.activeInterestKey,
     }));
   }, []);
 
-  const setActiveInterestKey = useCallback((key: string | null) => {
+  const toggleActiveInterest = useCallback((key: string) => {
+    if (!isValidInterestKey(key)) {
+      return;
+    }
+
     setSettings((prev) => ({
       ...prev,
-      activeInterestKey: key && isValidInterestKey(key) ? key : null,
+      activeInterestKeys: prev.activeInterestKeys.includes(key)
+        ? prev.activeInterestKeys.filter((active) => active !== key)
+        : [...prev.activeInterestKeys, key],
     }));
+  }, []);
+
+  const clearActiveInterests = useCallback(() => {
+    setSettings((prev) =>
+      prev.activeInterestKeys.length === 0
+        ? prev
+        : { ...prev, activeInterestKeys: [] },
+    );
   }, []);
 
   const value = useMemo(
@@ -422,7 +436,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       setAskRandomizePoemsOnPoetPages,
       setFollowedPoetKeys,
       setInterestKeys,
-      setActiveInterestKey,
+      toggleActiveInterest,
+      clearActiveInterests,
     }),
     [
       settings,
@@ -437,7 +452,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       setAskRandomizePoemsOnPoetPages,
       setFollowedPoetKeys,
       setInterestKeys,
-      setActiveInterestKey,
+      toggleActiveInterest,
+      clearActiveInterests,
     ],
   );
 

@@ -6,16 +6,18 @@ import { orderInterestsForRail, type PoemInterest } from "@/data/interests";
 
 interface InterestChipsRailProps {
   selectedKeys: string[];
-  activeKey: string | null;
-  onSelect: (key: string | null) => void;
+  activeKeys: string[];
+  onToggle: (key: string) => void;
+  onClear: () => void;
   onOpenPicker: () => void;
   isLoading?: boolean;
 }
 
 const InterestChipsRail: React.FC<InterestChipsRailProps> = ({
   selectedKeys,
-  activeKey,
-  onSelect,
+  activeKeys,
+  onToggle,
+  onClear,
   onOpenPicker,
   isLoading = false,
 }) => {
@@ -23,11 +25,13 @@ const InterestChipsRail: React.FC<InterestChipsRailProps> = ({
     () => orderInterestsForRail(selectedKeys),
     [selectedKeys],
   );
+  const activeKeySet = useMemo(() => new Set(activeKeys), [activeKeys]);
+  const hasActive = activeKeySet.size > 0;
 
   return (
     <div
       className={`interest-rail${isLoading ? " is-loading" : ""}`}
-      role="tablist"
+      role="group"
       aria-label="دسته‌بندی شعرها"
       dir="rtl"
     >
@@ -43,23 +47,21 @@ const InterestChipsRail: React.FC<InterestChipsRailProps> = ({
       <div className="interest-rail-track">
         <button
           type="button"
-          role="tab"
-          aria-selected={activeKey === null}
-          className={`interest-chip${activeKey === null ? " is-active" : ""}`}
-          onClick={() => onSelect(null)}
+          className={`interest-chip${hasActive ? "" : " is-active"}`}
+          onClick={onClear}
+          aria-pressed={!hasActive}
         >
           همه
         </button>
         {interests.map((interest) => {
-          const isActive = activeKey === interest.key;
+          const isActive = activeKeySet.has(interest.key);
           return (
             <button
               type="button"
               key={interest.key}
-              role="tab"
-              aria-selected={isActive}
               className={`interest-chip${isActive ? " is-active" : ""}`}
-              onClick={() => onSelect(isActive ? null : interest.key)}
+              onClick={() => onToggle(interest.key)}
+              aria-pressed={isActive}
             >
               {interest.label}
             </button>
