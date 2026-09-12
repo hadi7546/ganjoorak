@@ -84,12 +84,6 @@ const InterestPickerDialog: React.FC<InterestPickerDialogProps> = ({
                         onClick={() => toggleInterest(interest.key)}
                         aria-pressed={isSelected}
                       >
-                        <span
-                          className="interest-picker-option-emoji"
-                          aria-hidden="true"
-                        >
-                          {interest.emoji}
-                        </span>
                         <span className="interest-picker-option-label">
                           {interest.label}
                         </span>

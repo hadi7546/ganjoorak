@@ -583,7 +583,13 @@ export default function Home() {
 
     const fetchRandomPoemFromFollowedPoet = useCallback(async () => {
         if (settings.activeInterestKey) {
-            return fetchInterestPoem(settings.activeInterestKey);
+            return fetchInterestPoem(
+                settings.activeInterestKey,
+                settings.followedPoetKeys
+                    .map((key) => parseFollowedPoetKey(key))
+                    .filter((poet) => poet?.source === 'ganjoor')
+                    .map((poet) => poet!.slug),
+            );
         }
 
         const selectedKeys = settings.followedPoetKeys;

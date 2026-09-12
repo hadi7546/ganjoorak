@@ -1278,7 +1278,6 @@ body:has(.menu-drawer) .global-search-button {
 .interest-chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.32rem;
     flex: 0 0 auto;
     scroll-snap-align: center;
     min-height: 2rem;
@@ -1313,11 +1312,6 @@ body:has(.menu-drawer) .global-search-button {
 .interest-chip:focus-visible {
     outline: 2px solid rgb(var(--ring) / 0.7);
     outline-offset: 2px;
-}
-
-.interest-chip-emoji {
-    font-size: 0.9rem;
-    line-height: 1;
 }
 
 .interest-rail-settings {
@@ -1379,7 +1373,6 @@ body:has(.menu-drawer) .global-search-button {
 .interest-picker-option {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
     min-height: 2.9rem;
     padding: 0.45rem 0.75rem;
     border: 1px solid rgb(var(--foreground) / 0.12);
@@ -1403,12 +1396,6 @@ body:has(.menu-drawer) .global-search-button {
     background: rgb(var(--accent) / 0.72);
     border-color: rgb(var(--accent) / 0.9);
     color: rgb(var(--accent-foreground));
-}
-
-.interest-picker-option-emoji {
-    flex: 0 0 auto;
-    font-size: 1.1rem;
-    line-height: 1;
 }
 
 .interest-picker-option-label {

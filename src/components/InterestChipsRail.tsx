@@ -61,9 +61,6 @@ const InterestChipsRail: React.FC<InterestChipsRailProps> = ({
               className={`interest-chip${isActive ? " is-active" : ""}`}
               onClick={() => onSelect(isActive ? null : interest.key)}
             >
-              <span className="interest-chip-emoji" aria-hidden="true">
-                {interest.emoji}
-              </span>
               {interest.label}
             </button>
           );
